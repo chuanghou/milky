@@ -2,7 +2,7 @@ package com.echobaba.milky.common.tool.log;
 
 
 import com.echobaba.milky.client.base.ErrorCode;
-import com.echobaba.milky.client.base.Prefix;
+import com.echobaba.milky.common.tool.common.Prefix;
 
 @FunctionalInterface
 public interface Log {

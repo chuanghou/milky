@@ -12,4 +12,7 @@ public class ErrorCodeBase {
 
     public static final ErrorCode PARAM_IS_WRONG = ErrorCode.code("PARAM_IS_WRONG").build();
 
+    static public ErrorCode withPrefix(Prefix prefix, String thirdCode) {
+        return ErrorCode.code(prefix.getPreFix() + "_" + thirdCode);
+    }
 }

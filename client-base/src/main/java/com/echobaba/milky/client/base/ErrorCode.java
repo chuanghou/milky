@@ -114,7 +114,4 @@ public class ErrorCode {
         return this;
     }
 
-    static public ErrorCode withPrefix(Prefix prefix, String thirdCode) {
-        return ErrorCode.code(prefix.getPreFix() + "_" + thirdCode);
-    }
 }

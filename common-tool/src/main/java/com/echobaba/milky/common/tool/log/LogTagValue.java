@@ -1,7 +1,7 @@
 package com.echobaba.milky.common.tool.log;
 
 
-import com.echobaba.milky.client.base.Prefix;
+import com.echobaba.milky.common.tool.common.Prefix;
 
 /*
 public class LogTagValueEnum extends LogTagValue{

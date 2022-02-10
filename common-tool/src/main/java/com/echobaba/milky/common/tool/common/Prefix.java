@@ -1,4 +1,4 @@
-package com.echobaba.milky.client.base;
+package com.echobaba.milky.common.tool.common;
 /*
 public class PrefixEnum extends Prefix {
 
