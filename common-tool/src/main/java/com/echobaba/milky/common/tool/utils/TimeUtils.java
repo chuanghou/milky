@@ -1,4 +1,4 @@
-package com.echobaba.milky.common.tool.util;
+package com.echobaba.milky.common.tool.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;

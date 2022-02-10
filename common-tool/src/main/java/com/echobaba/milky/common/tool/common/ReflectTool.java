@@ -5,7 +5,7 @@ import com.echobaba.milky.client.base.ErrorCode;
 import com.echobaba.milky.common.tool.log.Log;
 import com.echobaba.milky.common.tool.log.LogTagValue;
 import com.echobaba.milky.common.tool.log.MDCTag;
-import com.echobaba.milky.common.tool.util.JsonUtils;
+import com.echobaba.milky.common.tool.utils.Json;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class ReflectTool {
         } finally {
             Object finalResult = result;
             Log.of(() -> log.info("|result={}|",
-                        Optional.ofNullable(finalResult).map(JsonUtils::toString).orElse("null")))
+                        Optional.ofNullable(finalResult).map(Json::toString).orElse("null")))
                     .withLogTag(outLogTagValue)
                     .withInfo(MDCTag.cost,System.currentTimeMillis() - start + "")
                     .log();
@@ -52,7 +52,7 @@ public class ReflectTool {
         paramStrBuilder.append("{");
         for (int i = 0; i < args.length; i++) {
             paramStrBuilder.append("\"").append(paramNames[i]).append("\"").append(":");
-            paramStrBuilder.append(args[i] == null ? "null" : JsonUtils.toString(args[i]))
+            paramStrBuilder.append(args[i] == null ? "null" : Json.toString(args[i]))
                     .append(i != args.length - 1 ? "," : "");
         }
         paramStrBuilder.append("}");

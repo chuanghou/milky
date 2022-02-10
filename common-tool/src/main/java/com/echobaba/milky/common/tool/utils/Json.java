@@ -1,7 +1,7 @@
-package com.echobaba.milky.common.tool.util;
+package com.echobaba.milky.common.tool.utils;
 
-import com.alibaba.c2m.milky.client.base.BizException;
-import com.alibaba.c2m.milky.client.base.ErrorCode;
+import com.echobaba.milky.client.base.BizException;
+import com.echobaba.milky.client.base.ErrorCode;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class JsonUtils {
+public class Json {
 
     private static final ObjectMapper MAPPER = JsonMapper.builder()
             .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)

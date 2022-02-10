@@ -1,4 +1,4 @@
-package com.echobaba.milky.common.tool.util;
+package com.echobaba.milky.common.tool.utils;
 
 import com.google.common.collect.Sets;
 
@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CollectUtils {
+public class Collect {
 
     public static <T> Stream<T> stream(Collection<T> source) {
         return source != null ? source.stream() : Stream.empty();

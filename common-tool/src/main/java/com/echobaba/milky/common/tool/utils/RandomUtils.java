@@ -1,4 +1,4 @@
-package com.echobaba.milky.common.tool.util;
+package com.echobaba.milky.common.tool.utils;
 
 
 public class RandomUtils {

@@ -1,6 +1,6 @@
 package com.echobaba.milky.client.base;
 
-import com.echobaba.milky.common.tool.util.CollectUtils;
+import com.echobaba.milky.common.tool.utils.CollectUtils;
 
 import java.util.*;
 import java.util.function.Supplier;

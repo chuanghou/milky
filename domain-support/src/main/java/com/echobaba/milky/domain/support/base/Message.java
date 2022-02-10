@@ -1,6 +1,6 @@
 package com.echobaba.milky.domain.support.base;
 
-import com.alibaba.c2m.milky.domain.support.context.Context;
+import com.echobaba.milky.domain.support.context.Context;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 

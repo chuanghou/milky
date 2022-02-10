@@ -4,9 +4,9 @@ import com.echobaba.milky.client.base.BizException;
 import com.echobaba.milky.client.base.ErrorCode;
 import com.echobaba.milky.common.tool.common.BeanLoader;
 import com.echobaba.milky.common.tool.common.ReflectTool;
-import com.echobaba.milky.common.tool.util.CollectUtils;
-import com.echobaba.milky.common.tool.util.JsonUtils;
-import com.echobaba.milky.common.tool.util.RandomUtils;
+import com.echobaba.milky.common.tool.utils.Collect;
+import com.echobaba.milky.common.tool.utils.Json;
+import com.echobaba.milky.common.tool.utils.RandomUtils;
 import com.echobaba.milky.domain.support.ErrorCodeEnum;
 import com.echobaba.milky.domain.support.base.AggregateRoot;
 import com.echobaba.milky.domain.support.context.Context;
@@ -182,7 +182,7 @@ public class CommandBus {
         String[] keys = commandHandler.getMethod().getAnnotation(RequiredContextKeys.class).value();
         Arrays.stream(keys).forEach(key -> invokeContextValueProvider(command, key, context, providerMap));
         Object result = ReflectTool.invokeBeanMethod(aggregate, commandHandler.method, command, context);
-        if (CollectUtils.isEmpty(context.events)) {
+        if (Collect.isEmpty(context.events)) {
             return result;
         }
         boolean lockResult;
@@ -210,7 +210,7 @@ public class CommandBus {
     private <T extends Command> void invokeContextValueProvider(T command, String key, Context context, Map<String, ContextValueProvider> providers) {
         ContextValueProvider valueProvider = providers.get(key);
         BizException.nullThrow(valueProvider, ErrorCodeEnum.CONTEXT_VALUE_PROVIDER_NOT_EXIST
-                .message("command:" + JsonUtils.toString(command) + ", key" + JsonUtils.toString(key)));
+                .message("command:" + Json.toString(command) + ", key" + Json.toString(key)));
         Arrays.stream(valueProvider.getRequiredKeys())
                 .filter(requiredKey -> Objects.equals(null, context.get(requiredKey)))
                 .forEach(k -> invokeContextValueProvider(command, k, context, providers));
