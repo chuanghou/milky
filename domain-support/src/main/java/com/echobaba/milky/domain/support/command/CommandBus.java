@@ -6,7 +6,7 @@ import com.echobaba.milky.common.tool.common.BeanLoader;
 import com.echobaba.milky.common.tool.common.ReflectTool;
 import com.echobaba.milky.common.tool.utils.Collect;
 import com.echobaba.milky.common.tool.utils.Json;
-import com.echobaba.milky.common.tool.utils.RandomUtils;
+import com.echobaba.milky.common.tool.utils.Random;
 import com.echobaba.milky.domain.support.ErrorCodeEnum;
 import com.echobaba.milky.domain.support.base.AggregateRoot;
 import com.echobaba.milky.domain.support.context.Context;
@@ -194,7 +194,7 @@ public class CommandBus {
             } else if (!commandHandler.hasReturn) {
                 concurrentOperate.sendOrderly(command);
             } else {
-                long sleepTimeMs = RandomUtils.randomRange(100, 300);
+                long sleepTimeMs = Random.randomRange(100, 300);
                 boolean retryResult = concurrentLock.tryRetryLock(lockKey, 5, 3, sleepTimeMs);
                 BizException.falseThrow(retryResult, ErrorCodeEnum.CONCURRENT_OPERATE_LOCK);
                 ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate);

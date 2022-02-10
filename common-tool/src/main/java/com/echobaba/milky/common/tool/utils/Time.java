@@ -12,7 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 @Slf4j
-public class TimeUtils {
+public class Time {
 
     public static Date now() {
         return new Date();
@@ -24,10 +24,6 @@ public class TimeUtils {
 
     public static Date tomorrow() {
         return DateUtils.addDays(new Date(), 1);
-    }
-
-    public static String transDs(Date date) {
-        return DateFormatUtils.format(date, "yyyyMMdd");
     }
 
     public static LocalDateTime transfer(Date date) {
