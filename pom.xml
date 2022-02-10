@@ -39,8 +39,15 @@
                 <version>${revision}</version>
             </dependency>
             <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>0.9.11</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
+                <scope>import</scope>
+                <type>pom</type>
                 <version>2.6.2</version>
             </dependency>
             <dependency>
