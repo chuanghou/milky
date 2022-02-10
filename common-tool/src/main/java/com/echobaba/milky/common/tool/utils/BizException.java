@@ -1,6 +1,6 @@
-package com.echobaba.milky.client.base;
+package com.echobaba.milky.common.tool.utils;
 
-import com.echobaba.milky.common.tool.utils.CollectUtils;
+import com.echobaba.milky.client.base.ErrorCode;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -72,7 +72,7 @@ public class BizException extends RuntimeException {
     }
 
     static public void emptyThrow(Collection<?> collection, ErrorCode errorCode) {
-        if (CollectUtils.isEmpty(collection)) {
+        if (Collect.isEmpty(collection)) {
             throw new BizException(errorCode);
         }
     }

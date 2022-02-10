@@ -1,6 +1,6 @@
 package com.echobaba.milky.domain.support.depend;
 
-import com.echobaba.milky.client.base.BizException;
+import com.echobaba.milky.common.tool.utils.BizException;
 import com.echobaba.milky.client.base.ErrorCode;
 import lombok.SneakyThrows;
 

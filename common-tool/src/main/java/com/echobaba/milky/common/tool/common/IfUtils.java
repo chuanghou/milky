@@ -1,7 +1,7 @@
 package com.echobaba.milky.common.tool.common;
 
 
-import com.echobaba.milky.client.base.BizException;
+import com.echobaba.milky.common.tool.utils.BizException;
 import com.echobaba.milky.client.base.ErrorCode;
 
 public class IfUtils {
