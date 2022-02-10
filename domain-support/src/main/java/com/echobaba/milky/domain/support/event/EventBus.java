@@ -1,6 +1,6 @@
 package com.echobaba.milky.domain.support.event;
 
-import com.echobaba.milky.common.tool.utils.BizException;
+import com.echobaba.milky.common.tool.common.BizException;
 import com.echobaba.milky.client.base.ErrorCode;
 import com.echobaba.milky.common.tool.common.BeanLoader;
 import com.echobaba.milky.common.tool.common.ReflectTool;

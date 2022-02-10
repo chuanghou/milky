@@ -1,6 +1,7 @@
-package com.echobaba.milky.common.tool.utils;
+package com.echobaba.milky.common.tool.common;
 
 import com.echobaba.milky.client.base.ErrorCode;
+import com.echobaba.milky.common.tool.utils.Collect;
 
 import java.util.*;
 import java.util.function.Supplier;

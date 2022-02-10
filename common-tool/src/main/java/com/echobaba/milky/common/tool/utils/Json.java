@@ -1,6 +1,7 @@
 package com.echobaba.milky.common.tool.utils;
 
 import com.echobaba.milky.client.base.ErrorCode;
+import com.echobaba.milky.common.tool.common.BizException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;

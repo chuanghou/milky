@@ -1,6 +1,5 @@
 package com.echobaba.milky.common.tool.common;
 
-import com.echobaba.milky.common.tool.utils.BizException;
 import com.echobaba.milky.client.base.ErrorCode;
 import com.echobaba.milky.common.tool.log.Log;
 import com.echobaba.milky.common.tool.log.LogTagValue;
