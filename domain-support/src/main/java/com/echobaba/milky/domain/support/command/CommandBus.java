@@ -3,6 +3,7 @@ package com.echobaba.milky.domain.support.command;
 import com.echobaba.milky.common.tool.common.BizException;
 import com.echobaba.milky.client.base.ErrorCode;
 import com.echobaba.milky.common.tool.common.BeanLoader;
+import com.echobaba.milky.common.tool.common.ErrorCodeBase;
 import com.echobaba.milky.common.tool.common.ReflectTool;
 import com.echobaba.milky.common.tool.utils.Collect;
 import com.echobaba.milky.common.tool.utils.Json;
@@ -98,7 +99,7 @@ public class CommandBus {
             try {
                 constructor = method.getDeclaringClass().getConstructor();
             } catch (NoSuchMethodException e) {
-                throw new BizException(ErrorCode.UNKNOWN, e);
+                throw new BizException(ErrorCodeBase.UNKNOWN, e);
             }
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
             boolean hasReturn = !method.getReturnType().getName().equals("void");
@@ -171,7 +172,7 @@ public class CommandBus {
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new BizException(ErrorCodeEnum.UNKNOWN, e);
+                throw new BizException(ErrorCodeBase.UNKNOWN, e);
             }
             aggregate.setAggregateId(command.getAggregationId());
         } else {
@@ -201,7 +202,7 @@ public class CommandBus {
             }
         } finally {
             boolean unlock = concurrentLock.unlock(command.getAggregationId());
-            BizException.falseThrow(unlock, ErrorCode.THIRD_SERVICE.message("解锁失败"));
+            BizException.falseThrow(unlock, ErrorCodeBase.THIRD_SERVICE.message("解锁失败"));
         }
         context.events.forEach(event -> eventBus.handler(event, context));
         return result;

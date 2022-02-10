@@ -31,14 +31,6 @@ import java.util.Optional;
 @ToString
 public class ErrorCode {
 
-    public static final ErrorCode UNKNOWN = ErrorCode.code("UNKNOWN").build();
-
-    public static final ErrorCode THIRD_SERVICE = ErrorCode.code("THIRD_SERVICE").build();
-
-    public static final ErrorCode PARAM_IS_NULL = ErrorCode.code("PARAM_IS_NULL").build();
-
-    public static final ErrorCode PARAM_IS_WRONG = ErrorCode.code("PARAM_IS_WRONG").build();
-
     private String code;
 
     private String message;
@@ -102,7 +94,7 @@ public class ErrorCode {
         return this.extendInfo;
     }
 
-    static protected ErrorCode code(String code) {
+    static public ErrorCode code(String code) {
         ErrorCode errorCode = new ErrorCode();
         errorCode.code = code;
         return errorCode;

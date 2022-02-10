@@ -1,7 +1,7 @@
 package com.echobaba.milky.common.tool.utils;
 
-import com.echobaba.milky.client.base.ErrorCode;
 import com.echobaba.milky.common.tool.common.BizException;
+import com.echobaba.milky.common.tool.common.ErrorCodeBase;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -22,7 +22,7 @@ public class Json {
         try {
             return MAPPER.writeValueAsString(target);
         } catch (Throwable throwable) {
-            throw new BizException(ErrorCode.UNKNOWN, throwable);
+            throw new BizException(ErrorCodeBase.UNKNOWN, throwable);
         }
     }
 
@@ -30,7 +30,7 @@ public class Json {
         try {
             return MAPPER.readValue(json, clazz);
         } catch (Throwable throwable) {
-            throw new BizException(ErrorCode.UNKNOWN, throwable);
+            throw new BizException(ErrorCodeBase.UNKNOWN, throwable);
         }
     }
 
@@ -39,7 +39,7 @@ public class Json {
             JavaType type = MAPPER.getTypeFactory().constructParametricType(List.class, clazz);
             return MAPPER.readValue(json,type);
         } catch (Throwable throwable) {
-            throw new BizException(ErrorCode.UNKNOWN, throwable);
+            throw new BizException(ErrorCodeBase.UNKNOWN, throwable);
         }
     }
 
@@ -47,7 +47,7 @@ public class Json {
         try {
             return MAPPER.readValue(json, TypeFactory.defaultInstance().constructMapType(Map.class, keyClazz, valueClazz));
         } catch (Throwable throwable) {
-            throw new BizException(ErrorCode.UNKNOWN, throwable);
+            throw new BizException(ErrorCodeBase.UNKNOWN, throwable);
         }
     }
 
@@ -55,7 +55,7 @@ public class Json {
         try {
             return MAPPER.readTree(json);
         } catch (Throwable throwable) {
-            throw new BizException(ErrorCode.UNKNOWN, throwable);
+            throw new BizException(ErrorCodeBase.UNKNOWN, throwable);
         }
     }
 }

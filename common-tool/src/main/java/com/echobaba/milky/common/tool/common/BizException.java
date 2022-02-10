@@ -46,7 +46,7 @@ public class BizException extends RuntimeException {
     static public void nullThrow(Object... params) {
         boolean haveNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
         if (haveNullValue) {
-            throw new BizException(ErrorCode.PARAM_IS_NULL);
+            throw new BizException(ErrorCodeBase.PARAM_IS_NULL);
         }
     }
 

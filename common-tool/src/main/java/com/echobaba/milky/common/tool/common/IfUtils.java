@@ -6,8 +6,8 @@ import com.echobaba.milky.client.base.ErrorCode;
 public class IfUtils {
 
     static public void ifTrue(boolean test, Runnable runnable) {
-        BizException.nullThrow(test, ErrorCode.PARAM_IS_NULL);
-        BizException.nullThrow(runnable, ErrorCode.PARAM_IS_NULL);
+        BizException.nullThrow(test, ErrorCodeBase.PARAM_IS_NULL);
+        BizException.nullThrow(runnable, ErrorCodeBase.PARAM_IS_NULL);
         if (test) {
             runnable.run();
         }

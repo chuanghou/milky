@@ -68,9 +68,9 @@ public class ReflectTool {
             if (ex.getTargetException() instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
-            throw new BizException(ErrorCode.UNKNOWN, ex.getTargetException());
+            throw new BizException(ErrorCodeBase.UNKNOWN, ex.getTargetException());
         } catch (Throwable ex) {
-            throw new BizException(ErrorCode.UNKNOWN, ex);
+            throw new BizException(ErrorCodeBase.UNKNOWN, ex);
         }
     }
 

@@ -3,6 +3,7 @@ package com.echobaba.milky.domain.support.event;
 import com.echobaba.milky.common.tool.common.BizException;
 import com.echobaba.milky.client.base.ErrorCode;
 import com.echobaba.milky.common.tool.common.BeanLoader;
+import com.echobaba.milky.common.tool.common.ErrorCodeBase;
 import com.echobaba.milky.common.tool.common.ReflectTool;
 import com.echobaba.milky.common.tool.log.Log;
 import com.echobaba.milky.domain.support.ErrorCodeEnum;
@@ -67,7 +68,7 @@ public class EventBus {
         private static ExecutorService initAsyncEventHandlerThreadPool() {
             ThreadFactory threadFactory = new ThreadFactoryBuilder()
                     .setUncaughtExceptionHandler((t, e) -> 
-                            Log.of(() -> log.error("|线程名={}|错误信息={}|", t.getName(), e.getMessage(), e)).log(ErrorCode.UNKNOWN))
+                            Log.of(() -> log.error("|线程名={}|错误信息={}|", t.getName(), e.getMessage(), e)).log(ErrorCodeBase.UNKNOWN))
                     .setNameFormat("event-handler-url-thread-%d")
                     .build();
 
