@@ -21,6 +21,8 @@ import com.echobaba.milky.domain.support.repository.DomainRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ConfigurationBuilder;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -34,8 +36,8 @@ import java.util.stream.Stream;
 
 public class CommandBus {
 
-    static final private Predicate<Class<?>[]> commandContextFormat = parameterTypes -> (parameterTypes.length == 2
-            || parameterTypes[0].isAssignableFrom(Command.class) || parameterTypes[1] == Context.class);
+    static final private Predicate<Class<?>[]> commandContextFormat = parameterTypes
+            -> (parameterTypes.length == 2 && parameterTypes[0].isAssignableFrom(Command.class) && parameterTypes[1] == Context.class);
 
     private final Map<Class<? extends Command>, Handler> commandHandlers = new HashMap<>();
 
@@ -59,7 +61,9 @@ public class CommandBus {
     @PostConstruct
     void init() {
 
-        prepareCommandHandlers(new Reflections());
+        Reflections reflections = new Reflections(new ConfigurationBuilder().forPackages("com.echobaba.milky.example.domain").addScanners(new SubTypesScanner()));
+
+        prepareCommandHandlers(reflections);
 
         prepareContextValueProviders();
 
@@ -71,7 +75,7 @@ public class CommandBus {
         domainRepositories.forEach(repo -> {
             Class<? extends AggregateRoot> clazz = repo.getClass().getAnnotation(DomainRepository.class).value();
             Method saveMethod = getMethod(clazz,"save", clazz, Context.class);
-            Method getMethod = getMethod(clazz,"getAggregateId", Long.class);
+            Method getMethod = getMethod(clazz,"getByAggregateId", String.class);
             Repository repository = new Repository(repo, getMethod, saveMethod);
             repositories.put(clazz, repository);
         });

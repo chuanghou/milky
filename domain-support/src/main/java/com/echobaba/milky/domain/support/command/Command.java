@@ -12,5 +12,8 @@ import lombok.experimental.SuperBuilder;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 abstract public class Command extends Message {
 
+    public Command() {
+        super();
+    }
 
 }

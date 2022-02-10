@@ -11,7 +11,7 @@ import java.util.UUID;
 @SuperBuilder
 public abstract class Message {
 
-    protected String id;
+    protected String identifier;
 
     protected Context context;
 
@@ -22,7 +22,7 @@ public abstract class Message {
     public abstract void setAggregationId(String aggregationId);
 
     public Message() {
-        this.id = UUID.randomUUID().toString();
+        this.identifier = UUID.randomUUID().toString();
         this.gmtCreate = new Date();
     }
 }
