@@ -11,6 +11,8 @@ public class Prefix {
 
     static public Prefix ERROR_CODE = Prefix.of("ERROR_CODE");
 
+    static public Prefix THIRD_SERVICE = Prefix.of("THIRD_SERVICE");
+
     private String preFix;
 
     public String getPreFix() {
@@ -24,7 +26,7 @@ public class Prefix {
     protected Prefix() {
     }
 
-    static protected Prefix of(String preFix) {
+    static public Prefix of(String preFix) {
         return new Prefix(preFix);
     }
 }
