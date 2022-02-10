@@ -15,4 +15,8 @@ public class ErrorCodeBase {
     static public ErrorCode withPrefix(Prefix prefix, String code) {
         return ErrorCode.code(prefix.getPreFix() + "_" + code);
     }
+
+    static public ErrorCode thirdService(Prefix prefix, String code, String message) {
+        return ErrorCode.code(prefix.getPreFix() + "_" + code).message(message);
+    }
 }
