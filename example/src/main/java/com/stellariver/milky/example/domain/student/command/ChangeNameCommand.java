@@ -9,20 +9,13 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ChangeNameCommand extends Command {
-
-    private Long studentId;
+public class ChangeNameCommand extends ChangeCommand {
 
     private String targetName;
 
-    @Override
-    public String getAggregationId() {
-        return studentId.toString();
-    }
-
-    @Override
-    public void setAggregationId(String aggregationId) {
-        studentId = Long.valueOf(aggregationId);
+    public ChangeNameCommand(Long studentId, String targetName) {
+        super(studentId);
+        this.targetName = targetName;
     }
 
 }

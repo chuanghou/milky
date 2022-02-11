@@ -29,10 +29,15 @@ public class Student extends AggregateRoot {
         this.id = Long.valueOf(aggregateId);
     }
 
-    @CommandHandler
+    @CommandHandler(requiredKeys = {"grade"})
     public void handle(ChangeNameCommand command, Context context) {
+        Integer grade = (Integer) context.get("grade");
+        Integer age = (Integer) context.get("age");
+        System.out.println(grade);
+        System.out.println(age);
         String oldName = name;
-        name = command.getTargetName();
+        name = command.getTargetName() + grade;
         context.addEvent(new NameChangeEvent(command.getStudentId(), oldName, name));
     }
+
 }

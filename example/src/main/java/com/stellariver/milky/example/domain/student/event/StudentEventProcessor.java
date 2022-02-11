@@ -11,19 +11,6 @@ public class StudentEventProcessor implements EventProcessor {
 
     @EventHandler(order = 1)
     public void handle1(NameChangeEvent event, Context context) {
-        System.out.println(1);
+        System.out.println(event);
     }
-
-    @EventHandler(order = 2, type = HandlerTypeEnum.ASYNC)
-    public void handle2(NameChangeEvent event, Context context) {
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(2);
-    }
-
 }

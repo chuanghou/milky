@@ -10,9 +10,8 @@ import com.stellariver.milky.common.tool.utils.Random;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.context.ContextPrepare;
+import com.stellariver.milky.domain.support.context.ContextPrepareProcessor;
 import com.stellariver.milky.domain.support.context.ContextPrepareKey;
-import com.stellariver.milky.domain.support.context.RequiredContextKeys;
 import com.stellariver.milky.domain.support.depend.ConcurrentLock;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.event.EventBus;
@@ -62,13 +61,16 @@ public class CommandBus {
     @PostConstruct
     void init() {
 
-        Reflections reflections = new Reflections(new ConfigurationBuilder().forPackages("com.stellariver.milky.example.domain").addScanners(new SubTypesScanner()));
+        ConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
+                .forPackages("com.stellariver.milky.example.domain").addScanners(new SubTypesScanner());
+        Reflections reflections = new Reflections(configurationBuilder);
 
         prepareCommandHandlers(reflections);
 
-        prepareContextValueProviders();
+        prepareContextValueProviders(reflections);
 
         prepareRepositories();
+
     }
 
     private void prepareRepositories() {
@@ -101,6 +103,7 @@ public class CommandBus {
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
         methods.forEach(method -> {
             Class<?>[] parameterTypes = method.getParameterTypes();
+            CommandHandler annotation = method.getAnnotation(CommandHandler.class);
             Constructor<?> constructor;
             try {
                 constructor = method.getDeclaringClass().getConstructor();
@@ -109,16 +112,17 @@ public class CommandBus {
             }
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
             boolean hasReturn = !method.getReturnType().getName().equals("void");
-            Handler handler = new Handler(clazz, method, constructor, hasReturn);
+            List<String> requiredKeys = Arrays.asList(annotation.requiredKeys());
+            Handler handler = new Handler(clazz, method, constructor, hasReturn, requiredKeys);
             commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
         });
     }
 
     @SuppressWarnings("unchecked")
-    private void prepareContextValueProviders() {
-        Map<Class<? extends Command>, Map<String, ContextValueProvider>> tempContextValueProviders = new HashMap<>();
+    private void prepareContextValueProviders(Reflections reflections) {
+        Map<Class<? extends Command>, Map<String, ContextValueProvider>> tempProviders = new HashMap<>();
 
-        List<Method> methods = beanLoader.getBeansOfType(ContextPrepare.class)
+        List<Method> methods = beanLoader.getBeansOfType(ContextPrepareProcessor.class)
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
                 .filter(method -> method.isAnnotationPresent(ContextPrepareKey.class))
@@ -126,20 +130,21 @@ public class CommandBus {
 
         methods.forEach(m -> {
             Class<? extends Command> commandClass = (Class<? extends Command>) m.getParameterTypes()[0];
-            String key = m.getAnnotation(ContextPrepareKey.class).value();
+            String key = m.getAnnotation(ContextPrepareKey.class).prepareKey();
+            BizException.trueThrow(key.equals(""), ErrorCodeEnum.CONFIG_ERROR.message("contextPrepare 必须有指定key"));
             String[] requiredKeys = m.getAnnotation(ContextPrepareKey.class).requiredKeys();
-            List<?> bean = beanLoader.getBeansOfType(m.getDeclaringClass());
+            Object bean = beanLoader.getBean(m.getDeclaringClass());
             ContextValueProvider valueProvider = new ContextValueProvider(key, requiredKeys, bean, m);
-            Map<String, ContextValueProvider> valueProviderMap = tempContextValueProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
+            Map<String, ContextValueProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
             BizException.trueThrow(valueProviderMap.containsKey(key),
                    ErrorCodeEnum.CONFIG_ERROR.message("对于" + commandClass.getName() + "对于" + key + "提供了两个contextValueProvider"));
             valueProviderMap.put(key, valueProvider);
         });
 
-        tempContextValueProviders.keySet().forEach(command -> {
+        reflections.getSubTypesOf(Command.class).forEach(command -> {
             Map<String, ContextValueProvider> map = new HashMap<>();
             List<Class<? extends Command>> commands = getAncestorClasses(command);
-            commands.forEach(c -> map.putAll(tempContextValueProviders.get(c)));
+            commands.forEach(c -> map.putAll(Optional.ofNullable(tempProviders.get(c)).orElse(new HashMap<>())));
             contextValueProviders.put(command, map);
         });
     }
@@ -207,15 +212,15 @@ public class CommandBus {
         }
 
         context.setAggregateRoot(aggregate);
-        Map<String, ContextValueProvider> providerMap = Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
+        Map<String, ContextValueProvider> providerMap =
+                Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
 
-        RequiredContextKeys annotation = commandHandler.getMethod().getAnnotation(RequiredContextKeys.class);
-        String[] keys = Optional.ofNullable(annotation).map(RequiredContextKeys::value).orElse(new String[0]);
-        Arrays.stream(keys).forEach(key -> invokeContextValueProvider(command, key, context, providerMap));
+        commandHandler.getRequiredKeys().forEach(key -> invokeContextValueProvider(command, key, context, providerMap));
         Object result = ReflectTool.invokeBeanMethod(aggregate, commandHandler.method, command, context);
         if (Collect.isEmpty(context.events)) {
             return result;
         }
+        ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate, context);
         context.events.forEach(event -> eventBus.handler(event, context));
         return result;
     }
@@ -269,6 +274,8 @@ public class CommandBus {
         private Constructor<?> constructor;
 
         private boolean hasReturn;
+
+        private List<String> requiredKeys;
 
     }
 }
