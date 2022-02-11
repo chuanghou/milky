@@ -95,7 +95,7 @@ public class CommandBus {
 
     @SuppressWarnings("unchecked")
     private void prepareCommandHandlers(Reflections reflections) {
-        Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);;
+        Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);
         List<Method> methods = classes.stream().map(Class::getMethods).flatMap(Stream::of)
                 .filter(m -> commandHandlerFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
@@ -166,15 +166,35 @@ public class CommandBus {
         context = Optional.ofNullable(context).orElse(new Context());
         Handler commandHandler= commandHandlers.get(command.getClass());
         BizException.nullThrow(commandHandler, ErrorCodeEnum.HANDLER_NOT_EXIST);
-        return doSend(command, context, commandHandler);
+        Object result = null;
+        try {
+            String lockKey = command.getAggregationId();
+            if (concurrentLock.tryLock(lockKey, 5)) {
+                 result = doSend(command, context, commandHandler);
+            } else if (!commandHandler.hasReturn) {
+                concurrentOperate.sendOrderly(command);
+            } else {
+                long sleepTimeMs = Random.randomRange(100, 300);
+                boolean retryResult = concurrentLock.tryRetryLock(lockKey, 5, 3, sleepTimeMs);
+                BizException.falseThrow(retryResult, ErrorCodeEnum.CONCURRENT_OPERATE_LOCK);
+                result = doSend(command, context, commandHandler);
+            }
+        } finally {
+            boolean unlock = concurrentLock.unlock(command.getAggregationId());
+            BizException.falseThrow(unlock, ErrorCodeBase.THIRD_SERVICE.message("解锁失败"));
+        }
+        return result;
     }
 
     public <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
-        AggregateRoot aggregate;
+
         Repository repository = repositories.get(commandHandler.clazz);
-        BizException.nullThrow(repository, commandHandler.getClazz().toString() + "没有对应repository实现");
+        BizException.trueThrow(repository == null, ErrorCodeEnum.CONFIG_ERROR
+                .message(commandHandler.getClazz().toString() + "没有对应repository实现"));
+
         AggregateRoot dbAggregate = (AggregateRoot) ReflectTool.invokeBeanMethod(
                 repository.bean, repository.getMethod, command.getAggregationId(), context);
+        AggregateRoot aggregate;
         if (dbAggregate == null) {
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance();
@@ -185,6 +205,7 @@ public class CommandBus {
         } else {
             aggregate = dbAggregate;
         }
+
         context.setAggregateRoot(aggregate);
         Map<String, ContextValueProvider> providerMap = Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
 
@@ -194,24 +215,6 @@ public class CommandBus {
         Object result = ReflectTool.invokeBeanMethod(aggregate, commandHandler.method, command, context);
         if (Collect.isEmpty(context.events)) {
             return result;
-        }
-        boolean lockResult;
-        try {
-            String lockKey = command.getAggregationId();
-            lockResult = concurrentLock.tryLock(lockKey, 5);
-            if (lockResult) {
-                ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate, context);
-            } else if (!commandHandler.hasReturn) {
-                concurrentOperate.sendOrderly(command);
-            } else {
-                long sleepTimeMs = Random.randomRange(100, 300);
-                boolean retryResult = concurrentLock.tryRetryLock(lockKey, 5, 3, sleepTimeMs);
-                BizException.falseThrow(retryResult, ErrorCodeEnum.CONCURRENT_OPERATE_LOCK);
-                ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate, context);
-            }
-        } finally {
-            boolean unlock = concurrentLock.unlock(command.getAggregationId());
-            BizException.falseThrow(unlock, ErrorCodeBase.THIRD_SERVICE.message("解锁失败"));
         }
         context.events.forEach(event -> eventBus.handler(event, context));
         return result;

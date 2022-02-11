@@ -18,7 +18,8 @@ public class StudentController {
     @RequestMapping("changeName")
     public Result<Void> changeName(Long studentId, String targetName) {
         ChangeNameCommand changeNameCommand = new ChangeNameCommand(studentId, targetName);
-        commandBus.send(changeNameCommand);
+        Object result = commandBus.send(changeNameCommand);
+        System.out.println(result);
         return Result.success();
     }
 
