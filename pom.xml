@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.echobaba</groupId>
+    <groupId>com.stellariver</groupId>
     <artifactId>milky</artifactId>
     <packaging>pom</packaging>
     <version>${revision}</version>
@@ -24,17 +24,17 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.echobaba.milky</groupId>
+                <groupId>com.stellariver.milky</groupId>
                 <artifactId>client-base</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.echobaba.milky</groupId>
+                <groupId>com.stellariver.milky</groupId>
                 <artifactId>domain-support</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.echobaba.milky</groupId>
+                <groupId>com.stellariver.milky</groupId>
                 <artifactId>common-tool</artifactId>
                 <version>${revision}</version>
             </dependency>

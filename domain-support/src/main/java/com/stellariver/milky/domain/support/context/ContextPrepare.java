@@ -1,0 +1,4 @@
+package com.stellariver.milky.domain.support.context;
+
+public interface ContextPrepare {
+}
