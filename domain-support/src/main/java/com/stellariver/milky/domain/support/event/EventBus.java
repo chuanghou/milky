@@ -10,6 +10,7 @@ import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.context.Context;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.PostConstruct;
@@ -28,7 +29,7 @@ public class EventBus {
                     && Event.class.isAssignableFrom(parameterTypes[0])
                     && parameterTypes[1] == Context.class);
 
-    private final Map<Class<? extends Event>, Handler> handlerMap = new HashMap<>();
+    private final Map<Class<? extends Event>, List<Handler>> handlerMap = new HashMap<>();
 
     @Resource
     private BeanLoader beanLoader;
@@ -44,17 +45,19 @@ public class EventBus {
             EventHandler annotation = method.getAnnotation(EventHandler.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
-            handlerMap.put(eventClass, new Handler(bean, method, annotation.type()));
+            Handler handler = new Handler(bean, method, annotation.type(), annotation.order());
+            handlerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(handler);
         });
     }
 
     public void handler(Event event, Context context) {
-        Handler handler = handlerMap.get(event.getClass());
-        BizException.nullThrow(handler, ErrorCodeEnum.CONFIG_ERROR);
-        handler.handle(event, context);
+        List<Handler> handlers = Optional.ofNullable(handlerMap.get(event.getClass())).orElse(new ArrayList<>());
+        handlers.stream().sorted(Comparator.comparing(Handler::getOrder))
+                .forEach(handler -> ReflectTool.run(() -> handler.handle(event, context)));
     }
 
 
+    @Data
     @AllArgsConstructor
     static public class Handler {
 
@@ -64,6 +67,7 @@ public class EventBus {
 
         private final HandlerTypeEnum type;
 
+        private final int order;
         /**
          * 强制获取url的线程池
          */

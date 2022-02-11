@@ -10,6 +10,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 public @interface EventHandler {
 
+    int order() default Integer.MAX_VALUE;
+
     HandlerTypeEnum type() default HandlerTypeEnum.SYNC;
 
 }

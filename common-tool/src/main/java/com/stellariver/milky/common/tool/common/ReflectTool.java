@@ -13,6 +13,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 @Slf4j
 public class ReflectTool {
@@ -68,6 +69,31 @@ public class ReflectTool {
                 throw (BizException) ex.getTargetException();
             }
             throw new BizException(ErrorCodeBase.UNKNOWN, ex.getTargetException());
+        } catch (Throwable ex) {
+            throw new BizException(ErrorCodeBase.UNKNOWN, ex);
+        }
+    }
+
+    static public <T> T call(Callable<T> callable) {
+        try {
+            return callable.call();
+        } catch (BizException ex) {
+            throw ex;
+        } catch (InvocationTargetException ex) {
+            if (ex.getTargetException() instanceof BizException) {
+                throw (BizException) ex.getTargetException();
+            }
+            throw new BizException(ErrorCodeBase.UNKNOWN, ex.getTargetException());
+        } catch (Throwable ex) {
+            throw new BizException(ErrorCodeBase.UNKNOWN, ex);
+        }
+    }
+
+    static public void run(Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (BizException ex) {
+            throw ex;
         } catch (Throwable ex) {
             throw new BizException(ErrorCodeBase.UNKNOWN, ex);
         }
