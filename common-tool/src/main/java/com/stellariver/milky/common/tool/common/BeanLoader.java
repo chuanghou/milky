@@ -30,6 +30,10 @@ public class BeanLoader implements ApplicationContextAware {
         return staticApplicationContext.getBean(requiredType);
     }
 
+    public Object getBean(String beanName) {
+        return staticApplicationContext.getBean(beanName);
+    }
+
     public static <T> T staticGetBean(Class<T> requiredType) {
         return staticApplicationContext.getBean(requiredType);
     }

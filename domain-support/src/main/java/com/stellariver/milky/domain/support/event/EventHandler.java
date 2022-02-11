@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.event;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.concurrent.Executor;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -14,4 +15,5 @@ public @interface EventHandler {
 
     HandlerTypeEnum type() default HandlerTypeEnum.SYNC;
 
+    String executor() default "defaultExecutor";
 }

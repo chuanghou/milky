@@ -10,6 +10,7 @@ import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.context.Context;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,7 +46,10 @@ public class EventBus {
             EventHandler annotation = method.getAnnotation(EventHandler.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
-            Handler handler = new Handler(bean, method, annotation.type(), annotation.order());
+            Handler handler = Handler.builder().bean(bean).method(method)
+                    .type(annotation.type()).order(annotation.order())
+                    .executorService((ExecutorService) beanLoader.getBean(annotation.executor()))
+                    .build();
             handlerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(handler);
         });
     }
@@ -58,6 +62,7 @@ public class EventBus {
 
 
     @Data
+    @Builder
     @AllArgsConstructor
     static public class Handler {
 
@@ -67,32 +72,15 @@ public class EventBus {
 
         private final HandlerTypeEnum type;
 
-        private final int order;
-        /**
-         * 强制获取url的线程池
-         */
-        private static final ExecutorService asyncEventHandlerPool;
-        
-        static {
-            asyncEventHandlerPool = initAsyncEventHandlerThreadPool();
-        }
+        private int order;
 
-        private static ExecutorService initAsyncEventHandlerThreadPool() {
-            ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                    .setUncaughtExceptionHandler((t, e) -> 
-                            Log.of(() -> log.error("|线程名={}|错误信息={}|", t.getName(), e.getMessage(), e)).log(ErrorCodeBase.UNKNOWN))
-                    .setNameFormat("event-handler-url-thread-%d")
-                    .build();
-
-            return new ThreadPoolExecutor(10, 20, 5, TimeUnit.MINUTES, new ArrayBlockingQueue<>(500),
-                    threadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
-        }
+        private ExecutorService executorService;
 
         public void handle(Event event, Context context) {
             if (Objects.equals(type, HandlerTypeEnum.SYNC)) {
                 ReflectTool.invokeBeanMethod(bean, method, event, context);
             } else if (Objects.equals(type, HandlerTypeEnum.ASYNC)){
-                asyncEventHandlerPool.submit(() -> ReflectTool.invokeBeanMethod(bean, method, event, context));
+                executorService.submit(() -> ReflectTool.invokeBeanMethod(bean, method, event, context));
             } else {
                 throw new BizException(ErrorCodeEnum.CONFIG_ERROR.message("只支持同步及异步调用"));
             }
