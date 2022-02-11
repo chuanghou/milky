@@ -24,4 +24,5 @@ public class ChangeNameCommand extends Command {
     public void setAggregationId(String aggregationId) {
         studentId = Long.valueOf(aggregationId);
     }
+
 }

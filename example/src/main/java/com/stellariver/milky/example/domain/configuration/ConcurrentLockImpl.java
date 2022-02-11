@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 public class ConcurrentLockImpl implements ConcurrentLock {
     @Override
     public boolean tryLock(String lockKey, int secondsToExpire) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean unlock(String lockKey) {
-        return false;
+        return true;
     }
 }

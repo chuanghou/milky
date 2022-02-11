@@ -10,8 +10,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 public @interface EventHandler {
 
-    Class<? extends Event> value();
-
     HandlerTypeEnum type() default HandlerTypeEnum.SYNC;
 
 }

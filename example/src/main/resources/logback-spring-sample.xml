@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- https://github.com/spring-projects/spring-boot/blob/v1.5.13.RELEASE/spring-boot/src/main/resources/org/springframework/boot/logging/logback/defaults.xml -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="APP_NAME" value="APP_NAME"/>
+    <property name="LOG_PATH" value="${user.home}/${APP_NAME}/logs"/>
+    <property name="LOG_FILE" value="${LOG_PATH}/application.log"/>
+    <property name="CONSOLE_LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}][%X{_traceId}][%X{_rpcId}][%X{_test}][%thread][%file:%line#%logger{0}][%-5level][%X{_tag}] - %m%n" />
+    <!--    转义操作，https://www.freeformatter.com/xml-escape.html#ad-output-->
+    <property name="JSON_LOG_PATTERN" value="{
+        &quot;time&quot;: &quot;%d{yyyy-MM-dd HH:mm:ss.SSS}&quot;,
+        &quot;level&quot;: &quot;%level&quot;,
+        &quot;thread&quot;: &quot;%thread&quot;,
+        &quot;loggerClass&quot;:&quot;%logger{30}&quot;,
+        &quot;line&quot;: &quot;%line&quot;,
+        &quot;logTag&quot;: &quot;%X{logTag}&quot;,
+        &quot;message&quot;: &quot;|%X{logTag}|%message&quot;,
+        &quot;cost&quot;: &quot;%X{cost}&quot;,
+        &quot;userId&quot;: &quot;%X{userId}&quot;,
+        &quot;success&quot;: &quot;%X{success}&quot;,
+        &quot;stack_trace&quot;: &quot;%exception{30}&quot;,
+        &quot;traceId&quot;: &quot;%X{EAGLEEYE_TRACE_ID}&quot;,
+        &quot;rpcId&quot;: &quot;%X{EAGLEEYE_RPC_ID}&quot;
+    }"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <omitEmptyFields>true</omitEmptyFields>
+                    <pattern>${JSON_LOG_PATTERN}</pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <appender name="APPLICATION" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <maxFileSize>50MB</maxFileSize>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <omitEmptyFields>true</omitEmptyFields>
+                    <pattern>${JSON_LOG_PATTERN}</pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    <appender name="ASYNC_APPLICATION" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="APPLICATION" />
+        <!-- 不丢失日志.如果不配置,队列的80%已满时,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>512</queueSize>
+        <!--        不加不会打印类名和行号-->
+        <includeCallerData>true</includeCallerData>
+    </appender>
+
+
+    <root level="INFO">
+        <springProfile name="default">
+            <appender-ref ref="CONSOLE"/>
+        </springProfile>
+<!--        <appender-ref ref="ASYNC_APPLICATION"/>-->
+    </root>
+
+</configuration>

@@ -5,9 +5,14 @@ import com.stellariver.milky.domain.support.command.CommandHandler;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.example.domain.student.command.ChangeNameCommand;
 import com.stellariver.milky.example.domain.student.event.NameChangeEvent;
-import lombok.AllArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+@Data
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Student extends AggregateRoot {
 
     private Long id;

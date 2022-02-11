@@ -5,10 +5,11 @@ import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.example.domain.student.command.ChangeNameCommand;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
-@Controller
+@RestController
 public class StudentController {
 
     @Resource

@@ -39,6 +39,11 @@
                 <version>${revision}</version>
             </dependency>
             <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>7.0.1</version>
+            </dependency>
+            <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
                 <version>0.9.11</version>

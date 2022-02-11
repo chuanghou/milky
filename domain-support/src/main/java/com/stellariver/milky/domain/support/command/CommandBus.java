@@ -35,8 +35,10 @@ import java.util.stream.Stream;
 
 public class CommandBus {
 
-    static final private Predicate<Class<?>[]> commandContextFormat = parameterTypes
-            -> (parameterTypes.length == 2 && parameterTypes[0].isAssignableFrom(Command.class) && parameterTypes[1] == Context.class);
+    static final private Predicate<Class<?>[]> commandHandlerFormat = parameterTypes ->
+            (parameterTypes.length == 2
+            && Command.class.isAssignableFrom(parameterTypes[0])
+            && parameterTypes[1] == Context.class);
 
     private final Map<Class<? extends Command>, Handler> commandHandlers = new HashMap<>();
 
@@ -72,11 +74,12 @@ public class CommandBus {
     private void prepareRepositories() {
         List<Object> domainRepositories = beanLoader.getBeansForAnnotation(DomainRepository.class);
         domainRepositories.forEach(repo -> {
-            Class<? extends AggregateRoot> clazz = repo.getClass().getAnnotation(DomainRepository.class).value();
-            Method saveMethod = getMethod(clazz,"save", clazz, Context.class);
-            Method getMethod = getMethod(clazz,"getByAggregateId", String.class);
+            Class<?> repositoryClazz = repo.getClass();
+            Class<? extends AggregateRoot> aggregateClazz = repo.getClass().getAnnotation(DomainRepository.class).value();
+            Method saveMethod = getMethod(repositoryClazz,"save", aggregateClazz, Context.class);
+            Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
             Repository repository = new Repository(repo, getMethod, saveMethod);
-            repositories.put(clazz, repository);
+            repositories.put(aggregateClazz, repository);
         });
     }
 
@@ -92,9 +95,9 @@ public class CommandBus {
 
     @SuppressWarnings("unchecked")
     private void prepareCommandHandlers(Reflections reflections) {
-        Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);
+        Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);;
         List<Method> methods = classes.stream().map(Class::getMethods).flatMap(Stream::of)
-                .filter(m -> commandContextFormat.test(m.getParameterTypes()))
+                .filter(m -> commandHandlerFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
         methods.forEach(method -> {
             Class<?>[] parameterTypes = method.getParameterTypes();
@@ -119,7 +122,7 @@ public class CommandBus {
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
                 .filter(method -> method.isAnnotationPresent(ContextPrepareKey.class))
-                .filter(method -> commandContextFormat.test(method.getParameterTypes())).collect(Collectors.toList());
+                .filter(method -> commandHandlerFormat.test(method.getParameterTypes())).collect(Collectors.toList());
 
         methods.forEach(m -> {
             Class<? extends Command> commandClass = (Class<? extends Command>) m.getParameterTypes()[0];
@@ -169,8 +172,9 @@ public class CommandBus {
     public <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
         AggregateRoot aggregate;
         Repository repository = repositories.get(commandHandler.clazz);
+        BizException.nullThrow(repository, commandHandler.getClazz().toString() + "没有对应repository实现");
         AggregateRoot dbAggregate = (AggregateRoot) ReflectTool.invokeBeanMethod(
-                repository.bean, repository.getMethod, command.getAggregationId());
+                repository.bean, repository.getMethod, command.getAggregationId(), context);
         if (dbAggregate == null) {
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance();
@@ -182,8 +186,10 @@ public class CommandBus {
             aggregate = dbAggregate;
         }
         context.setAggregateRoot(aggregate);
-        Map<String, ContextValueProvider> providerMap = contextValueProviders.get(command.getClass());
-        String[] keys = commandHandler.getMethod().getAnnotation(RequiredContextKeys.class).value();
+        Map<String, ContextValueProvider> providerMap = Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
+
+        RequiredContextKeys annotation = commandHandler.getMethod().getAnnotation(RequiredContextKeys.class);
+        String[] keys = Optional.ofNullable(annotation).map(RequiredContextKeys::value).orElse(new String[0]);
         Arrays.stream(keys).forEach(key -> invokeContextValueProvider(command, key, context, providerMap));
         Object result = ReflectTool.invokeBeanMethod(aggregate, commandHandler.method, command, context);
         if (Collect.isEmpty(context.events)) {
@@ -194,14 +200,14 @@ public class CommandBus {
             String lockKey = command.getAggregationId();
             lockResult = concurrentLock.tryLock(lockKey, 5);
             if (lockResult) {
-                ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate);
+                ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate, context);
             } else if (!commandHandler.hasReturn) {
                 concurrentOperate.sendOrderly(command);
             } else {
                 long sleepTimeMs = Random.randomRange(100, 300);
                 boolean retryResult = concurrentLock.tryRetryLock(lockKey, 5, 3, sleepTimeMs);
                 BizException.falseThrow(retryResult, ErrorCodeEnum.CONCURRENT_OPERATE_LOCK);
-                ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate);
+                ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate, context);
             }
         } finally {
             boolean unlock = concurrentLock.unlock(command.getAggregationId());

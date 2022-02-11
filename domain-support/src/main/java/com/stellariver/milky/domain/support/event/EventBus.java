@@ -6,6 +6,7 @@ import com.stellariver.milky.common.tool.common.ErrorCodeBase;
 import com.stellariver.milky.common.tool.common.ReflectTool;
 import com.stellariver.milky.common.tool.log.Log;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
+import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.context.Context;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.AllArgsConstructor;
@@ -16,10 +17,16 @@ import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class EventBus {
+
+    static final private Predicate<Class<?>[]> eventHandlerFormat = parameterTypes ->
+            (parameterTypes.length == 2
+                    && Event.class.isAssignableFrom(parameterTypes[0])
+                    && parameterTypes[1] == Context.class);
 
     private final Map<Class<? extends Event>, Handler> handlerMap = new HashMap<>();
 
@@ -27,14 +34,16 @@ public class EventBus {
     private BeanLoader beanLoader;
 
     @PostConstruct
+    @SuppressWarnings("unchecked")
     public void init() {
-        List<Object> beans = beanLoader.getBeansForAnnotation(EventHandler.class);
+        List<EventProcessor> beans = beanLoader.getBeansOfType(EventProcessor.class);
         List<Method> methods = beans.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .filter(m -> eventHandlerFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(EventHandler.class)).collect(Collectors.toList());
         methods.forEach(method -> {
             EventHandler annotation = method.getAnnotation(EventHandler.class);
-            Class<? extends Event> eventClass = annotation.value();
-            Object bean = beanLoader.getBean(eventClass);
+            Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
+            Object bean = beanLoader.getBean(method.getDeclaringClass());
             handlerMap.put(eventClass, new Handler(bean, method, annotation.type()));
         });
     }
