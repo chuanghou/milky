@@ -4,11 +4,10 @@ import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.event.EventHandler;
 import com.stellariver.milky.domain.support.event.EventProcessor;
 import com.stellariver.milky.domain.support.event.HandlerTypeEnum;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 @Service
-public class StudentEventProcessor extends EventProcessor {
+public class StudentEventProcessor implements EventProcessor {
 
     @EventHandler(order = 1)
     public void handle1(NameChangeEvent event, Context context) {
