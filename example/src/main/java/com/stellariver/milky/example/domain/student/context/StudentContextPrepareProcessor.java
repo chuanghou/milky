@@ -20,9 +20,4 @@ public class StudentContextPrepareProcessor implements ContextPrepareProcessor {
         context.put("age", 18);
     }
 
-    @ContextPrepareKey(prepareKey = "grade", requiredKeys = {"age"})
-    public void prepare(ChangeNameCommand command, Context context) {
-        context.put("grade", 630);
-    }
-
 }

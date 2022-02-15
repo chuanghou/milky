@@ -1,8 +1,8 @@
-package com.stellariver.milky.common.tool.cache;
+package com.stellariver.milky.spring.partner.cache;
 
-import com.stellariver.milky.common.tool.common.ReflectTool;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.stellariver.milky.common.tool.common.ReflectTool;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

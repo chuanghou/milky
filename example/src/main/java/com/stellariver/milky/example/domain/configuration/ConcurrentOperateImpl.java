@@ -15,4 +15,14 @@ public class ConcurrentOperateImpl implements ConcurrentOperate {
     public void receiveCommand(Command command) {
 
     }
+
+    @Override
+    public boolean tryLock(String lockKey, int secondsToExpire) {
+        return true;
+    }
+
+    @Override
+    public boolean unlock(String lockKey) {
+        return true;
+    }
 }

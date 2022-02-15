@@ -6,7 +6,6 @@ import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.example.domain.student.command.ChangeNameCommand;
 import com.stellariver.milky.example.domain.student.event.NameChangeEvent;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 @Data
 @Builder

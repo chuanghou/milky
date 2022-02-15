@@ -1,22 +1,24 @@
-package com.stellariver.milky.common.tool.common;
+package com.stellariver.milky.spring.partner;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class BeanLoader implements ApplicationContextAware {
-
-    @Resource
-    ApplicationContext applicationContext;
+public class SpringBeanLoader implements ApplicationContextAware {
 
     private static ApplicationContext staticApplicationContext;
+
+    private final ApplicationContext applicationContext;
+
+    public SpringBeanLoader(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     public List<Object> getBeansForAnnotation(Class<? extends Annotation> annotationType) {
         return new ArrayList<>(applicationContext.getBeansWithAnnotation(annotationType).values());

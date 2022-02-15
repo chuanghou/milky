@@ -1,7 +1,6 @@
 package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.BeanLoader;
 import com.stellariver.milky.common.tool.common.ErrorCodeBase;
 import com.stellariver.milky.common.tool.common.ReflectTool;
 import com.stellariver.milky.common.tool.utils.Collect;
@@ -12,18 +11,16 @@ import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.ContextPrepareProcessor;
 import com.stellariver.milky.domain.support.context.ContextPrepareKey;
-import com.stellariver.milky.domain.support.depend.ConcurrentLock;
+import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.event.EventBus;
-import com.stellariver.milky.domain.support.repository.DomainRepository;
+import com.stellariver.milky.domain.support.repository.DomainRepositoryService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -45,43 +42,51 @@ public class CommandBus {
 
     private final Map<Class<? extends AggregateRoot>, Repository> repositories = new HashMap<>();
 
-    @Resource
-    private BeanLoader beanLoader;
+    private final BeanLoader beanLoader;
 
-    @Resource
-    private ConcurrentLock concurrentLock;
+    private final ConcurrentOperate concurrentOperate;
 
-    @Resource
-    private ConcurrentOperate concurrentOperate;
+    private final EventBus eventBus;
 
-    @Resource
-    private EventBus eventBus;
+    public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate, EventBus eventBus, String domainPackage) {
+        this.beanLoader = beanLoader;
+        this.concurrentOperate = concurrentOperate;
+        this.eventBus = eventBus;
+        init(domainPackage);
+    }
 
 
-    @PostConstruct
-    void init() {
+    void init(String domainPackage) {
 
-        ConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
-                .forPackages("com.stellariver.milky.example.domain").addScanners(new SubTypesScanner());
-        Reflections reflections = new Reflections(configurationBuilder);
+        ConfigurationBuilder configuration = new ConfigurationBuilder()
+                .forPackages(domainPackage)
+                .addScanners(new SubTypesScanner());
+
+        Reflections reflections = new Reflections(configuration);
 
         prepareCommandHandlers(reflections);
 
         prepareContextValueProviders(reflections);
 
-        prepareRepositories();
+        prepareRepositories(reflections);
 
     }
 
-    private void prepareRepositories() {
-        List<Object> domainRepositories = beanLoader.getBeansForAnnotation(DomainRepository.class);
-        domainRepositories.forEach(repo -> {
-            Class<?> repositoryClazz = repo.getClass();
-            Class<? extends AggregateRoot> aggregateClazz = repo.getClass().getAnnotation(DomainRepository.class).value();
-            Method saveMethod = getMethod(repositoryClazz,"save", aggregateClazz, Context.class);
+    @SuppressWarnings("unchecked")
+    private void prepareRepositories(Reflections reflections) {
+        Set<Class<? extends DomainRepositoryService>> classes = reflections.getSubTypesOf(DomainRepositoryService.class);
+        classes.forEach(c -> {
+            List<Method> methods = Arrays.stream(c.getMethods()).filter(m -> Objects.equals(m.getName(), "save"))
+                    .filter(m -> !m.getParameterTypes()[0].equals(Object.class))
+                    .collect(Collectors.toList());
+            BizException.trueThrow(methods.size() != 1, ErrorCodeEnum.CONFIG_ERROR);
+            Method saveMethod = methods.get(0);
+            Class<?> aggregateClazz = saveMethod.getParameterTypes()[0];
+            DomainRepositoryService<?> bean = beanLoader.getBean(c);
+            Class<?> repositoryClazz = bean.getClass();
             Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
-            Repository repository = new Repository(repo, getMethod, saveMethod);
-            repositories.put(aggregateClazz, repository);
+            Repository repository = new Repository(bean, getMethod, saveMethod);
+            repositories.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
         });
     }
 
@@ -93,6 +98,14 @@ public class CommandBus {
             throw new BizException(ErrorCodeEnum.CONFIG_ERROR);
         }
         return method;
+    }
+
+    private Method getMethodByName(Class<?> clazz, String methodName) {
+        Method method;
+        List<Method> methods = Arrays.stream(clazz.getMethods())
+                .filter(m -> Objects.equals(m.getName(), methodName)).collect(Collectors.toList());
+        BizException.trueThrow(methods.size() != 1, ErrorCodeEnum.CONFIG_ERROR.message("methodName: " + methodName + "不唯一"));
+        return methods.get(0);
     }
 
     @SuppressWarnings("unchecked")
@@ -174,18 +187,18 @@ public class CommandBus {
         Object result = null;
         try {
             String lockKey = command.getAggregationId();
-            if (concurrentLock.tryLock(lockKey, 5)) {
+            if (concurrentOperate.tryLock(lockKey, 5)) {
                  result = doSend(command, context, commandHandler);
             } else if (!commandHandler.hasReturn) {
                 concurrentOperate.sendOrderly(command);
             } else {
                 long sleepTimeMs = Random.randomRange(100, 300);
-                boolean retryResult = concurrentLock.tryRetryLock(lockKey, 5, 3, sleepTimeMs);
+                boolean retryResult = concurrentOperate.tryRetryLock(lockKey, 5, 3, sleepTimeMs);
                 BizException.falseThrow(retryResult, ErrorCodeEnum.CONCURRENT_OPERATE_LOCK);
                 result = doSend(command, context, commandHandler);
             }
         } finally {
-            boolean unlock = concurrentLock.unlock(command.getAggregationId());
+            boolean unlock = concurrentOperate.unlock(command.getAggregationId());
             BizException.falseThrow(unlock, ErrorCodeBase.THIRD_SERVICE.message("解锁失败"));
         }
         return result;

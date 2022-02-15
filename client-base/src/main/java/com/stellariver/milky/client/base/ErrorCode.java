@@ -78,6 +78,10 @@ public class ErrorCode {
         return Optional.ofNullable(temporaryErrorCodes).map(ThreadLocal::get).orElse(new ArrayList<>());
     }
 
+    public static ErrorCodeBuilder builder() {
+        return new ErrorCodeBuilder();
+    }
+
     public String getCode() {
         return this.code;
     }
@@ -101,17 +105,52 @@ public class ErrorCode {
     }
 
     public ErrorCode message(String message) {
-        this.message = message;
-        return this;
+        return this.toBuilder().message(message).build();
     }
 
     public ErrorCode detailMessage(String detailMessage) {
-        this.detailMessage = detailMessage;
-        return this;
+        return this.toBuilder().detailMessage(detailMessage).build();
     }
 
-    public ErrorCode build() {
-        return this;
+    public ErrorCodeBuilder toBuilder() {
+        return new ErrorCodeBuilder().code(this.code).message(this.message).detailMessage(this.detailMessage).extendInfo(this.extendInfo);
     }
 
+    public static class ErrorCodeBuilder {
+        private String code;
+        private String message;
+        private String detailMessage;
+        private List<Map<String, Object>> extendInfo;
+
+        ErrorCodeBuilder() {
+        }
+
+        public ErrorCodeBuilder code(String code) {
+            this.code = code;
+            return this;
+        }
+
+        public ErrorCodeBuilder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public ErrorCodeBuilder detailMessage(String detailMessage) {
+            this.detailMessage = detailMessage;
+            return this;
+        }
+
+        public ErrorCodeBuilder extendInfo(List<Map<String, Object>> extendInfo) {
+            this.extendInfo = extendInfo;
+            return this;
+        }
+
+        public ErrorCode build() {
+            return new ErrorCode(code, message, detailMessage, extendInfo);
+        }
+
+        public String toString() {
+            return "ErrorCode.ErrorCodeBuilder(code=" + this.code + ", message=" + this.message + ", detailMessage=" + this.detailMessage + ", extendInfo=" + this.extendInfo + ")";
+        }
+    }
 }

@@ -12,4 +12,5 @@ public class StudentEventProcessor implements EventProcessor {
     public void handle1(NameChangeEvent event, Context context) {
         System.out.println(event);
     }
+
 }

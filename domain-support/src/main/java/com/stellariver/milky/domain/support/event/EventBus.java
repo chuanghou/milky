@@ -1,21 +1,15 @@
 package com.stellariver.milky.domain.support.event;
 
 import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.BeanLoader;
-import com.stellariver.milky.common.tool.common.ErrorCodeBase;
 import com.stellariver.milky.common.tool.common.ReflectTool;
-import com.stellariver.milky.common.tool.log.Log;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
-import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.context.Context;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.stellariver.milky.domain.support.depend.BeanLoader;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
@@ -32,10 +26,11 @@ public class EventBus {
 
     private final Map<Class<? extends Event>, List<Handler>> handlerMap = new HashMap<>();
 
-    @Resource
-    private BeanLoader beanLoader;
+    private final BeanLoader beanLoader;
 
-    @PostConstruct
+    public EventBus(BeanLoader beanLoader) {
+        this.beanLoader = beanLoader;
+    }
     @SuppressWarnings("unchecked")
     public void init() {
         List<EventProcessor> beans = beanLoader.getBeansOfType(EventProcessor.class);

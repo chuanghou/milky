@@ -1,11 +1,11 @@
 package com.stellariver.milky.example.domain.student.repository;
 
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.repository.DomainRepository;
 import com.stellariver.milky.domain.support.repository.DomainRepositoryService;
 import com.stellariver.milky.example.domain.student.Student;
+import org.springframework.stereotype.Service;
 
-@DomainRepository(Student.class)
+@Service
 public class StudentRepository implements DomainRepositoryService<Student> {
 
     @Override

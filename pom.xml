@@ -13,6 +13,8 @@
         <module>client-base</module>
         <module>domain-support</module>
         <module>example</module>
+        <module>milky-spring-boot-starter</module>
+        <module>spring-partner</module>
     </modules>
 
     <properties>

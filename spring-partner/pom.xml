@@ -9,8 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.stellariver.milky</groupId>
-    <artifactId>example</artifactId>
+    <artifactId>spring-partner</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -20,16 +19,8 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.stellariver</groupId>
-            <artifactId>milky-spring-boot-starter</artifactId>
-            <version>${revision}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
