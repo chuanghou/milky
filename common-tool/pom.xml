@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>com.stellariver.milky</groupId>
-            <artifactId>client-base</artifactId>
+            <artifactId>common-base</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -33,7 +33,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

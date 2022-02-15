@@ -9,8 +9,8 @@
     <packaging>pom</packaging>
     <version>${revision}</version>
     <modules>
+        <module>common-base</module>
         <module>common-tool</module>
-        <module>client-base</module>
         <module>domain-support</module>
         <module>example</module>
         <module>milky-spring-boot-starter</module>
