@@ -215,7 +215,7 @@ public class CommandBus {
         Map<String, ContextValueProvider> providerMap =
                 Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
 
-        commandHandler.getRequiredKeys().forEach(key -> invokeContextValueProvider(command, key, context, providerMap));
+        commandHandler.getRequiredKeys().forEach(key -> invokeContextValueProvider(command, key, context, providerMap, new HashSet<>()));
         Object result = ReflectTool.invokeBeanMethod(aggregate, commandHandler.method, command, context);
         if (Collect.isEmpty(context.events)) {
             return result;
@@ -225,13 +225,16 @@ public class CommandBus {
         return result;
     }
 
-    private <T extends Command> void invokeContextValueProvider(T command, String key, Context context, Map<String, ContextValueProvider> providers) {
+    private <T extends Command> void invokeContextValueProvider(T command, String key, Context context,
+                                                                Map<String, ContextValueProvider> providers, Set<String> referKeys) {
+        BizException.trueThrow(referKeys.contains(key), ErrorCodeEnum.CONFIG_ERROR.message("required key 循环引用"));
+        referKeys.add(key);
         ContextValueProvider valueProvider = providers.get(key);
         BizException.nullThrow(valueProvider, ErrorCodeEnum.CONTEXT_VALUE_PROVIDER_NOT_EXIST
                 .message("command:" + Json.toString(command) + ", key" + Json.toString(key)));
         Arrays.stream(valueProvider.getRequiredKeys())
                 .filter(requiredKey -> Objects.equals(null, context.get(requiredKey)))
-                .forEach(k -> invokeContextValueProvider(command, k, context, providers));
+                .forEach(k -> invokeContextValueProvider(command, k, context, providers, referKeys));
         Object contextPrepareBean = valueProvider.getContextPrepareBean();
         Method providerMethod = valueProvider.getMethod();
         ReflectTool.invokeBeanMethod(contextPrepareBean, providerMethod, command, context);
