@@ -1,9 +1,8 @@
 package com.stellariver.milky.example.adpater.controller;
 
-import com.stellariver.milky.client.base.Result;
+import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.example.domain.student.command.ChangeNameCommand;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

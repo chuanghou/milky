@@ -1,4 +1,4 @@
-package com.stellariver.milky.client.base;
+package com.stellariver.milky.common.base;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

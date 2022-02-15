@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support;
 
-import com.stellariver.milky.client.base.ErrorCode;
+import com.stellariver.milky.common.base.ErrorCode;
 import com.stellariver.milky.common.tool.common.ErrorCodeBase;
 
 public class ErrorCodeEnum extends ErrorCodeBase {

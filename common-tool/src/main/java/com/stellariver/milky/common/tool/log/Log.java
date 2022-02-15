@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.log;
 
 
-import com.stellariver.milky.client.base.ErrorCode;
+import com.stellariver.milky.common.base.ErrorCode;
 import com.stellariver.milky.common.tool.common.Prefix;
 
 @FunctionalInterface

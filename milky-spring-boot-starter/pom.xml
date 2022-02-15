@@ -22,10 +22,8 @@
             <artifactId>domain-support</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.stellariver</groupId>
+            <groupId>com.stellariver.milky</groupId>
             <artifactId>spring-partner</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

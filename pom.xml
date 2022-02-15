@@ -27,7 +27,12 @@
         <dependencies>
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
-                <artifactId>client-base</artifactId>
+                <artifactId>spring-partner</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
+                <artifactId>common-base</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
