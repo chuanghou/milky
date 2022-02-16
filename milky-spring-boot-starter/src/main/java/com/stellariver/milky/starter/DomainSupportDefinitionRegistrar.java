@@ -18,6 +18,8 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.ObjectUtils;
 
+import javax.annotation.Nonnull;
+
 public class DomainSupportDefinitionRegistrar implements
         ImportBeanDefinitionRegistrar, BeanFactoryAware, ResourceLoaderAware {
 
@@ -26,17 +28,17 @@ public class DomainSupportDefinitionRegistrar implements
     private ResourceLoader resourceLoader;
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    public void setBeanFactory(@Nonnull BeanFactory beanFactory) throws BeansException {
         if (beanFactory instanceof ConfigurableListableBeanFactory) {
             this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
         }
     }
     @Override
-    public void setResourceLoader(ResourceLoader resourceLoader) {
+    public void setResourceLoader(@Nonnull ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(@Nonnull AnnotationMetadata annotationMetadata, @Nonnull BeanDefinitionRegistry registry) {
         MilkyProperties milkyProperties = beanFactory.getBean(MilkyProperties.class);
         String domainPackage = milkyProperties.getDomainPackage();
         DomainSupportBeanDefinitionScanner scanner = new DomainSupportBeanDefinitionScanner(registry, false);
@@ -47,6 +49,5 @@ public class DomainSupportDefinitionRegistrar implements
         scanner.addIncludeFilter(new AssignableTypeFilter(DomainRepositoryService.class));
         scanner.doScan(domainPackage);
     }
-
 }
 
