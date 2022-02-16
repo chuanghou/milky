@@ -48,10 +48,14 @@ public class CommandBus {
 
     private final EventBus eventBus;
 
-    public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate, EventBus eventBus, String domainPackage) {
+    private boolean enableMq;
+
+    public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
+                      EventBus eventBus, String domainPackage, boolean enableMq) {
         this.beanLoader = beanLoader;
         this.concurrentOperate = concurrentOperate;
         this.eventBus = eventBus;
+        this.enableMq = enableMq;
         init(domainPackage);
     }
 
@@ -189,7 +193,7 @@ public class CommandBus {
             String lockKey = command.getAggregationId();
             if (concurrentOperate.tryLock(lockKey, 5)) {
                  result = doSend(command, context, commandHandler);
-            } else if (!commandHandler.hasReturn) {
+            } else if (enableMq && !commandHandler.hasReturn) {
                 concurrentOperate.sendOrderly(command);
             } else {
                 long sleepTimeMs = Random.randomRange(100, 300);

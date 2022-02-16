@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.stellariver.milky.common.tool.CommonToolAutoConfiguration
-

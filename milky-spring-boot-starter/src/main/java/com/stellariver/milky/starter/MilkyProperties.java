@@ -9,4 +9,6 @@ public class MilkyProperties {
 
     private String domainPackage;
 
+    private boolean enableMq;
+
 }

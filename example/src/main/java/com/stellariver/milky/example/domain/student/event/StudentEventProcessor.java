@@ -5,7 +5,6 @@ import com.stellariver.milky.domain.support.event.EventHandler;
 import com.stellariver.milky.domain.support.event.EventProcessor;
 import org.springframework.stereotype.Service;
 
-@Service
 public class StudentEventProcessor implements EventProcessor {
 
     @EventHandler(order = 1)

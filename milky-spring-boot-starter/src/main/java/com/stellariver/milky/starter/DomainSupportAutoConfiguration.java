@@ -20,7 +20,7 @@ import java.util.concurrent.*;
 
 @Slf4j
 @Configuration
-@Import(DomainSupportImportSelector.class)
+@Import(DomainSupportDefinitionRegistrar.class)
 @EnableConfigurationProperties(MilkyProperties.class)
 public class DomainSupportAutoConfiguration {
 
@@ -28,7 +28,8 @@ public class DomainSupportAutoConfiguration {
     public CommandBus commandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
                                  EventBus eventBus, MilkyProperties milkyProperties) {
         String domainPackage = milkyProperties.getDomainPackage();
-        return new CommandBus(beanLoader, concurrentOperate, eventBus, domainPackage);
+        boolean enableMq = milkyProperties.isEnableMq();
+        return new CommandBus(beanLoader, concurrentOperate, eventBus, domainPackage, enableMq);
     }
 
     @Bean

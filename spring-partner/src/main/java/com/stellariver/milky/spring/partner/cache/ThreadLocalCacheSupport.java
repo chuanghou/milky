@@ -2,7 +2,6 @@ package com.stellariver.milky.spring.partner.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.stellariver.milky.common.tool.common.ReflectTool;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,12 +21,12 @@ public class ThreadLocalCacheSupport {
 
     private final ThreadLocal<Cache<Object, Object>> threadLocal = new ThreadLocal<>();
 
-    @Pointcut("@annotation(com.stellariver.milky.common.tool.cache.ThreadLocalCache)")
+    @Pointcut("@annotation(com.stellariver.milky.spring.partner.cache.ThreadLocalCache)")
     private void pointCut() {}
 
     @Around("pointCut()")
     public Object responseHandler(ProceedingJoinPoint pjp) throws Throwable {
-        Object key = SimpleKeyGenerator.generateKey(ReflectTool.methodInfo(pjp));
+        Object key = SimpleKeyGenerator.generateKey(pjp.getSignature().getName(), pjp.getArgs());
         Cache<Object, Object> map = threadLocal.get();
         if(map == null) {
             map = CacheBuilder.newBuilder()
