@@ -7,6 +7,7 @@ import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.event.EventBus;
+import com.stellariver.milky.domain.support.util.BeanUtils;
 import com.stellariver.milky.spring.partner.SpringBeanLoader;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -40,7 +41,9 @@ public class DomainSupportAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(name = "beanLoader")
     BeanLoader beanLoader(SpringBeanLoader springBeanLoader) {
-        return new BeanLoaderImpl(springBeanLoader);
+        BeanLoaderImpl beanLoader = new BeanLoaderImpl(springBeanLoader);
+        BeanUtils.setBeanLoader(beanLoader);
+        return beanLoader;
     }
 
     @Bean

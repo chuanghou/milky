@@ -13,5 +13,4 @@ public interface BeanLoader {
 
     Object getBean(String beanName);
 
-
 }
