@@ -1,8 +1,10 @@
 package com.stellariver.milky.starter;
 
+import com.stellariver.milky.domain.support.base.DomainPackages;
 import com.stellariver.milky.domain.support.context.ContextPrepareProcessor;
 import com.stellariver.milky.domain.support.event.EventProcessor;
 import com.stellariver.milky.domain.support.repository.DomainRepository;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ResourceLoaderAware;
@@ -33,9 +35,9 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         if (enableMilky != null) {
             String[] domainPackages = Arrays.stream(enableMilky.getStringArray("domainPackages"))
                     .filter(StringUtils::hasText).toArray(String[]::new);
-            GenericBeanDefinition domainPackagesDefinition = new GenericBeanDefinition();
-            //TODO add domainPackagesDefinition 初始化
-            registry.registerBeanDefinition("domainPackages", domainPackagesDefinition);
+            BeanDefinitionBuilder domainPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(DomainPackages.class);
+            domainPackagesBeanBuilder.addPropertyValue("packages", domainPackages);
+            registry.registerBeanDefinition("domainPackages", domainPackagesBeanBuilder.getBeanDefinition());
             ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry, false);
             scanner.setResourceLoader(resourceLoader);
             scanner.addIncludeFilter(new AssignableTypeFilter(ContextPrepareProcessor.class));
