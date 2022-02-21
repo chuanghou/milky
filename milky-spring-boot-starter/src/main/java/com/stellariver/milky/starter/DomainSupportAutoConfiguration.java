@@ -21,7 +21,6 @@ import java.util.concurrent.*;
 
 @Slf4j
 @Configuration
-@Import(DomainSupportDefinitionRegistrar.class)
 @EnableConfigurationProperties(MilkyProperties.class)
 public class DomainSupportAutoConfiguration {
 

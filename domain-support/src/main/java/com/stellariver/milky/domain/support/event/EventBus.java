@@ -29,16 +29,14 @@ public class EventBus {
 
     private final BeanLoader beanLoader;
 
+    @SuppressWarnings("unchecked")
     public EventBus(BeanLoader beanLoader) {
         this.beanLoader = beanLoader;
-    }
-    @SuppressWarnings("unchecked")
-    public void init() {
-        List<EventProcessor> beans = beanLoader.getBeansOfType(EventProcessor.class);
+
+        List<EventProcessor> beans = this.beanLoader.getBeansOfType(EventProcessor.class);
         List<Method> methods = beans.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> eventHandlerFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(EventHandler.class)).collect(Collectors.toList());
-        BeanUtils.getBeansForAnnotation(EventHandler.class)
         methods.forEach(method -> {
             EventHandler annotation = method.getAnnotation(EventHandler.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];

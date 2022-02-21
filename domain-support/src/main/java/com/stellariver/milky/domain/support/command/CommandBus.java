@@ -14,7 +14,7 @@ import com.stellariver.milky.domain.support.context.ContextPrepareKey;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.event.EventBus;
-import com.stellariver.milky.domain.support.repository.DomainRepositoryService;
+import com.stellariver.milky.domain.support.repository.DomainRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.reflections.Reflections;
@@ -40,7 +40,7 @@ public class CommandBus {
 
     private final Map<Class<? extends Command>, Map<String, ContextValueProvider>> contextValueProviders = new HashMap<>();
 
-    private final Map<Class<? extends AggregateRoot>, Repository> repositories = new HashMap<>();
+    private final Map<Class<? extends AggregateRoot>, Repository> domainRepositories = new HashMap<>();
 
     private final BeanLoader beanLoader;
 
@@ -48,7 +48,7 @@ public class CommandBus {
 
     private final EventBus eventBus;
 
-    private boolean enableMq;
+    private final boolean enableMq;
 
     public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
                       EventBus eventBus, String domainPackage, boolean enableMq) {
@@ -72,25 +72,24 @@ public class CommandBus {
 
         prepareContextValueProviders(reflections);
 
-        prepareRepositories(reflections);
+        prepareRepositories();
 
     }
 
-    @SuppressWarnings("unchecked")
-    private void prepareRepositories(Reflections reflections) {
-        Set<Class<? extends DomainRepositoryService>> classes = reflections.getSubTypesOf(DomainRepositoryService.class);
-        classes.forEach(c -> {
-            List<Method> methods = Arrays.stream(c.getMethods()).filter(m -> Objects.equals(m.getName(), "save"))
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void prepareRepositories() {
+        List<DomainRepository> repositories = beanLoader.getBeansOfType(DomainRepository.class);
+        repositories.forEach(bean -> {
+            List<Method> methods = Arrays.stream(bean.getClass().getMethods()).filter(m -> Objects.equals(m.getName(), "save"))
                     .filter(m -> !m.getParameterTypes()[0].equals(Object.class))
                     .collect(Collectors.toList());
             BizException.trueThrow(methods.size() != 1, ErrorCodeEnum.CONFIG_ERROR);
             Method saveMethod = methods.get(0);
             Class<?> aggregateClazz = saveMethod.getParameterTypes()[0];
-            DomainRepositoryService<?> bean = beanLoader.getBean(c);
             Class<?> repositoryClazz = bean.getClass();
             Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
             Repository repository = new Repository(bean, getMethod, saveMethod);
-            repositories.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
+            domainRepositories.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
         });
     }
 
@@ -105,7 +104,6 @@ public class CommandBus {
     }
 
     private Method getMethodByName(Class<?> clazz, String methodName) {
-        Method method;
         List<Method> methods = Arrays.stream(clazz.getMethods())
                 .filter(m -> Objects.equals(m.getName(), methodName)).collect(Collectors.toList());
         BizException.trueThrow(methods.size() != 1, ErrorCodeEnum.CONFIG_ERROR.message("methodName: " + methodName + "不唯一"));
@@ -210,7 +208,7 @@ public class CommandBus {
 
     public <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
 
-        Repository repository = repositories.get(commandHandler.clazz);
+        Repository repository = domainRepositories.get(commandHandler.clazz);
         BizException.trueThrow(repository == null, ErrorCodeEnum.CONFIG_ERROR
                 .message(commandHandler.getClazz().toString() + "没有对应repository实现"));
 

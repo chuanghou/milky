@@ -3,9 +3,7 @@ package com.stellariver.milky.example.domain.student.repository;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.repository.DomainRepositoryService;
 import com.stellariver.milky.example.domain.student.Student;
-import org.springframework.stereotype.Service;
 
-@Service
 public class StudentRepository implements DomainRepositoryService<Student> {
 
     @Override
