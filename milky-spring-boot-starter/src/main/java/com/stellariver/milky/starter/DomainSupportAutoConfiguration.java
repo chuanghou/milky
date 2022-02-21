@@ -15,12 +15,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.*;
 
 @Slf4j
-@Configuration
 @EnableConfigurationProperties(MilkyProperties.class)
 public class DomainSupportAutoConfiguration {
 
@@ -50,8 +48,8 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(name = "asyncEventHandlerExecutor")
-    public Executor asyncEventHandlerExecutor() {
+    @ConditionalOnMissingBean(name = "asyncExecutor")
+    public Executor asyncExecutor() {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((t, e) ->
                         Log.of(() -> log.error("|线程名={}|错误信息={}|", t.getName(), e.getMessage(), e)).log(ErrorCodeBase.UNKNOWN))

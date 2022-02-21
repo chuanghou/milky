@@ -3,7 +3,6 @@ package com.stellariver.milky.example.domain.student.event;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.event.EventHandler;
 import com.stellariver.milky.domain.support.event.EventProcessor;
-import org.springframework.stereotype.Service;
 
 
 public class StudentEventProcessor implements EventProcessor {

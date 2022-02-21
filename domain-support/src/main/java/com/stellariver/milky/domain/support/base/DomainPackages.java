@@ -7,4 +7,6 @@ public class DomainPackages {
     public String[] getPackages() {
         return packages;
     }
+
+    public void  setPackages(String[] packages) {this.packages = packages;}
 }

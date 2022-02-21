@@ -7,6 +7,8 @@ import com.stellariver.milky.example.domain.student.command.ChangeCommand;
 import com.stellariver.milky.example.domain.student.command.ChangeNameCommand;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+
 public class StudentContextPrepareProcessor implements ContextPrepareProcessor {
 
     @ContextPrepareKey(prepareKey = "grade")

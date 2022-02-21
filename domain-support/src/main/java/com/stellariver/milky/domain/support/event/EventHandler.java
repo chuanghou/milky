@@ -15,5 +15,5 @@ public @interface EventHandler {
 
     HandlerTypeEnum type() default HandlerTypeEnum.SYNC;
 
-    String executor() default "defaultExecutor";
+    String executor() default "asyncExecutor";
 }
