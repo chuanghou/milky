@@ -7,8 +7,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "milky")
 public class MilkyProperties {
 
-    private String domainPackage;
-
     private boolean enableMq;
 
 }

@@ -8,6 +8,7 @@ import com.stellariver.milky.common.tool.utils.Json;
 import com.stellariver.milky.common.tool.utils.Random;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
+import com.stellariver.milky.domain.support.base.DomainPackages;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.ContextPrepareProcessor;
 import com.stellariver.milky.domain.support.context.ContextPrepareKey;
@@ -51,19 +52,19 @@ public class CommandBus {
     private final boolean enableMq;
 
     public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
-                      EventBus eventBus, String domainPackage, boolean enableMq) {
+                      EventBus eventBus, DomainPackages domainPackages, boolean enableMq) {
         this.beanLoader = beanLoader;
         this.concurrentOperate = concurrentOperate;
         this.eventBus = eventBus;
         this.enableMq = enableMq;
-        init(domainPackage);
+        init(domainPackages);
     }
 
 
-    void init(String domainPackage) {
+    void init(DomainPackages domainPackages) {
 
         ConfigurationBuilder configuration = new ConfigurationBuilder()
-                .forPackages(domainPackage)
+                .forPackages(domainPackages.getPackages())
                 .addScanners(new SubTypesScanner());
 
         Reflections reflections = new Reflections(configuration);

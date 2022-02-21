@@ -4,6 +4,7 @@ import com.stellariver.milky.domain.support.context.ContextPrepareProcessor;
 import com.stellariver.milky.domain.support.event.EventProcessor;
 import com.stellariver.milky.domain.support.repository.DomainRepository;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -30,14 +31,17 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         AnnotationAttributes enableMilky = AnnotationAttributes
                 .fromMap(importingClassMetadata.getAnnotationAttributes(EnableMilky.class.getName()));
         if (enableMilky != null) {
-            String[] basePackages = Arrays.stream(enableMilky.getStringArray("basePackages"))
+            String[] domainPackages = Arrays.stream(enableMilky.getStringArray("domainPackages"))
                     .filter(StringUtils::hasText).toArray(String[]::new);
+            GenericBeanDefinition domainPackagesDefinition = new GenericBeanDefinition();
+            //TODO add domainPackagesDefinition 初始化
+            registry.registerBeanDefinition("domainPackages", domainPackagesDefinition);
             ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry, false);
             scanner.setResourceLoader(resourceLoader);
             scanner.addIncludeFilter(new AssignableTypeFilter(ContextPrepareProcessor.class));
             scanner.addIncludeFilter(new AssignableTypeFilter(EventProcessor.class));
             scanner.addIncludeFilter(new AssignableTypeFilter(DomainRepository.class));
-            scanner.scan(basePackages);
+            scanner.scan(domainPackages);
         }
     }
 }

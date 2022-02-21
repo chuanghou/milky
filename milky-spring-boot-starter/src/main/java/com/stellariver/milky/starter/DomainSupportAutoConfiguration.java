@@ -3,6 +3,7 @@ package com.stellariver.milky.starter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.tool.common.ErrorCodeBase;
 import com.stellariver.milky.common.tool.log.Log;
+import com.stellariver.milky.domain.support.base.DomainPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
@@ -26,10 +27,9 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     public CommandBus commandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
-                                 EventBus eventBus, MilkyProperties milkyProperties) {
-        String domainPackage = milkyProperties.getDomainPackage();
+                                 EventBus eventBus, DomainPackages domainPackages, MilkyProperties milkyProperties) {
         boolean enableMq = milkyProperties.isEnableMq();
-        return new CommandBus(beanLoader, concurrentOperate, eventBus, domainPackage, enableMq);
+        return new CommandBus(beanLoader, concurrentOperate, eventBus, domainPackages, enableMq);
     }
 
     @Bean
