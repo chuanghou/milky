@@ -5,6 +5,7 @@ import com.stellariver.milky.common.tool.common.ReflectTool;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
+import com.stellariver.milky.domain.support.util.BeanUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,6 +38,7 @@ public class EventBus {
         List<Method> methods = beans.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> eventHandlerFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(EventHandler.class)).collect(Collectors.toList());
+        BeanUtils.getBeansForAnnotation(EventHandler.class)
         methods.forEach(method -> {
             EventHandler annotation = method.getAnnotation(EventHandler.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
