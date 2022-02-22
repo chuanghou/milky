@@ -1,12 +1,9 @@
 package com.stellariver.milky.common.tool.common;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
-@Slf4j
 public class ReflectTool {
 
     static public Object invokeBeanMethod(Object bean, Method method, Object... params) {

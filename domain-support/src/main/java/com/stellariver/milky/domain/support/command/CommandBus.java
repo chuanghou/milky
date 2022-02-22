@@ -52,7 +52,7 @@ public class CommandBus {
     private final boolean enableMq;
 
     public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
-                      EventBus eventBus, DomainPackages domainPackages, boolean enableMq) {
+                      EventBus eventBus, String[] domainPackages, boolean enableMq) {
         this.beanLoader = beanLoader;
         this.concurrentOperate = concurrentOperate;
         this.eventBus = eventBus;
@@ -61,10 +61,10 @@ public class CommandBus {
     }
 
 
-    void init(DomainPackages domainPackages) {
+    void init(String[] domainPackages) {
 
         ConfigurationBuilder configuration = new ConfigurationBuilder()
-                .forPackages(domainPackages.getPackages())
+                .forPackages(domainPackages)
                 .addScanners(new SubTypesScanner());
 
         Reflections reflections = new Reflections(configuration);
@@ -89,6 +89,7 @@ public class CommandBus {
             Class<?> aggregateClazz = saveMethod.getParameterTypes()[0];
             Class<?> repositoryClazz = bean.getClass();
             Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
+            BizException.nullThrow(getMethod);
             Repository repository = new Repository(bean, getMethod, saveMethod);
             domainRepositories.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
         });

@@ -11,7 +11,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
-@Slf4j
 public class Time {
 
     public static Date now() {

@@ -2,6 +2,7 @@ package com.stellariver.milky.example.adpater.controller;
 
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.domain.support.command.CommandBus;
+import com.stellariver.milky.example.domain.student.Student;
 import com.stellariver.milky.example.domain.student.command.ChangeNameCommand;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +18,7 @@ public class StudentController {
     @RequestMapping("changeName")
     public Result<Void> changeName(Long studentId, String targetName) {
         ChangeNameCommand changeNameCommand = new ChangeNameCommand(studentId, targetName);
-        Object result = commandBus.send(changeNameCommand);
+        Student result = (Student) commandBus.send(changeNameCommand);
         System.out.println(result);
         return Result.success();
     }

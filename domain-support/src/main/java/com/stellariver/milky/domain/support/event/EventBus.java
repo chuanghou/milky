@@ -29,7 +29,7 @@ public class EventBus {
     private final BeanLoader beanLoader;
 
     @SuppressWarnings("unchecked")
-    public EventBus(BeanLoader beanLoader) {
+    public EventBus(BeanLoader beanLoader, ExecutorService asyncExecutorService) {
         this.beanLoader = beanLoader;
 
         List<EventProcessor> beans = this.beanLoader.getBeansOfType(EventProcessor.class);
@@ -42,7 +42,7 @@ public class EventBus {
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             Handler handler = Handler.builder().bean(bean).method(method)
                     .type(annotation.type()).order(annotation.order())
-                    .executorService((ExecutorService) beanLoader.getBean(annotation.executor()))
+                    .asyncExecutorService(asyncExecutorService)
                     .build();
             handlerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(handler);
         });
@@ -68,13 +68,13 @@ public class EventBus {
 
         private int order;
 
-        private ExecutorService executorService;
+        private ExecutorService asyncExecutorService;
 
         public void handle(Event event, Context context) {
             if (Objects.equals(type, HandlerTypeEnum.SYNC)) {
                 ReflectTool.invokeBeanMethod(bean, method, event, context);
             } else if (Objects.equals(type, HandlerTypeEnum.ASYNC)){
-                executorService.submit(() -> ReflectTool.invokeBeanMethod(bean, method, event, context));
+                asyncExecutorService.submit(() -> ReflectTool.invokeBeanMethod(bean, method, event, context));
             } else {
                 throw new BizException(ErrorCodeEnum.CONFIG_ERROR.message("只支持同步及异步调用"));
             }
