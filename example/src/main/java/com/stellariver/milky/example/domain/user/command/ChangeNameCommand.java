@@ -1,6 +1,5 @@
-package com.stellariver.milky.example.domain.student.command;
+package com.stellariver.milky.example.domain.user.command;
 
-import com.stellariver.milky.domain.support.command.Command;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -13,8 +12,8 @@ public class ChangeNameCommand extends ChangeCommand {
 
     private String targetName;
 
-    public ChangeNameCommand(Long studentId, String targetName) {
-        super(studentId);
+    public ChangeNameCommand(Long userId, String targetName) {
+        super(userId);
         this.targetName = targetName;
     }
 

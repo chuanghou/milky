@@ -1,6 +1,6 @@
-package com.stellariver.milky.example.domain.student.event;
+package com.stellariver.milky.example.domain.user.command;
 
-import com.stellariver.milky.domain.support.event.Event;
+import com.stellariver.milky.domain.support.command.Command;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,21 +12,17 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class NameChangeEvent extends Event {
+public class ChangeCommand extends Command {
 
-    private Long id;
-
-    private String oldName;
-
-    private String newName;
+    private Long userId;
 
     @Override
     public String getAggregationId() {
-        return id.toString();
+        return userId.toString();
     }
 
     @Override
     public void setAggregationId(String aggregationId) {
-        id = Long.valueOf(aggregationId);
+        userId = Long.valueOf(aggregationId);
     }
 }

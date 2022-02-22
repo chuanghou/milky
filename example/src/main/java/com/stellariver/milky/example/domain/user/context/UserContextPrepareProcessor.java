@@ -1,15 +1,11 @@
-package com.stellariver.milky.example.domain.student.context;
+package com.stellariver.milky.example.domain.user.context;
 
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.ContextPrepareKey;
 import com.stellariver.milky.domain.support.context.ContextPrepareProcessor;
-import com.stellariver.milky.example.domain.student.command.ChangeCommand;
-import com.stellariver.milky.example.domain.student.command.ChangeNameCommand;
-import org.springframework.stereotype.Service;
+import com.stellariver.milky.example.domain.user.command.ChangeCommand;
 
-import javax.annotation.Resource;
-
-public class StudentContextPrepareProcessor implements ContextPrepareProcessor {
+public class UserContextPrepareProcessor implements ContextPrepareProcessor {
 
     @ContextPrepareKey(prepareKey = "grade")
     public void prepareGrade(ChangeCommand command, Context context) {
