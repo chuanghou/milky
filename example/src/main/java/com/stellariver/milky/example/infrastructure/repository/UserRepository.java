@@ -1,11 +1,10 @@
-package com.stellariver.milky.example.domain.user.repository;
+package com.stellariver.milky.example.infrastructure.repository;
 
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.repository.DomainRepository;
 import com.stellariver.milky.example.domain.user.User;
-import com.stellariver.milky.example.domain.user.mapper.UserConvertor;
-import com.stellariver.milky.example.domain.user.mapper.UserDO;
-import com.stellariver.milky.example.domain.user.mapper.UserDOMapper;
+import com.stellariver.milky.example.infrastructure.mapper.UserDO;
+import com.stellariver.milky.example.infrastructure.mapper.UserDOMapper;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -16,12 +15,17 @@ public class UserRepository implements DomainRepository<User> {
     @Override
     public User getByAggregateId(String aggregateId, Context context) {
         UserDO userDO = userDOMapper.selectById(aggregateId);
-        return UserConvertor.instance.to(userDO);
+        return User.builder().userId(userDO.getId()).age(userDO.getAge())
+                .name(userDO.getName()).email(userDO.getEmail()).build();
     }
 
     @Override
     public void save(User user, Context context) {
-        UserDO userDO = UserConvertor.instance.to(user);
+        UserDO userDO = UserDO.builder()
+                .id(user.getUserId())
+                .age(user.getAge())
+                .name(user.getName())
+                .email(user.getEmail()).build();
         UserDO dbUserDO = userDOMapper.selectById(userDO.getId());
         if (dbUserDO == null) {
             userDOMapper.insert(userDO);

@@ -1,4 +1,4 @@
-package com.stellariver.milky.example.domain.user.mapper;
+package com.stellariver.milky.example.infrastructure.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;

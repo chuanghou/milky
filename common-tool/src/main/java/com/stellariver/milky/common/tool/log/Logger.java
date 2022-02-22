@@ -11,9 +11,9 @@ public class Logger implements org.slf4j.Logger {
 
     private final org.slf4j.Logger log;
 
-    private final ThreadLocal<MortalMap<String, String>> logContents = new ThreadLocal<>();
+    private final ThreadLocal<MortalMap<String, String>> threadLocalContents = new ThreadLocal<>();
 
-    private final ThreadLocal<MortalMap<String, String>> tempLogContents = new ThreadLocal<>();
+    private final ThreadLocal<MortalMap<String, String>> tempThreadLocalContents = new ThreadLocal<>();
 
     static public Logger getLogger(Class<?> clazz) {
         return new Logger(clazz);
@@ -21,8 +21,6 @@ public class Logger implements org.slf4j.Logger {
 
     private Logger(Class<?> clazz){
         this.log = LoggerFactory.getLogger(clazz);
-        this.logContents.set(new MortalMap<>());
-        this.tempLogContents.set(new MortalMap<>());
     }
 
     public Logger logTag(Object value) {
@@ -33,7 +31,11 @@ public class Logger implements org.slf4j.Logger {
         if (key == null) {
             log.error("log key shouldn't be null");
         }
-        MortalMap<String, String> contents = logContents.get();
+        MortalMap<String, String> contents = threadLocalContents.get();
+        if (contents == null) {
+            threadLocalContents.set(new MortalMap<>());
+            contents = threadLocalContents.get();
+        }
         if (contents.containsKey(key)) {
             log.error("log key:{} already exists, it may from duplicate keys in one log expression, or memory leak. " +
                     "It's very dangerous, there must have a log expression which did not end with info(), error() and so on", key);
@@ -44,18 +46,28 @@ public class Logger implements org.slf4j.Logger {
     }
 
     private void beforeLog() {
-        Map<String, String> realLogContents = logContents.get();
-        realLogContents.forEach((k, v) -> {
+
+        if (tempThreadLocalContents.get() == null) {
+            tempThreadLocalContents.set(new MortalMap<>());
+        }
+
+        Map<String, String> logContents = threadLocalContents.get();
+        if (logContents == null) {
+            threadLocalContents.set(new MortalMap<>());
+            logContents = threadLocalContents.get();
+        }
+
+        logContents.forEach((k, v) -> {
             String originalValue = MDC.get(k);
-            tempLogContents.get().put(k, originalValue);
+            tempThreadLocalContents.get().put(k, originalValue);
             MDC.put(k, v);
         });
-        realLogContents.clear();
+        logContents.clear();
     }
 
     private void afterLog() {
-        tempLogContents.get().forEach(MDC::put);
-        tempLogContents.get().clear();
+        tempThreadLocalContents.get().forEach(MDC::put);
+        tempThreadLocalContents.get().clear();
     }
 
     @Override

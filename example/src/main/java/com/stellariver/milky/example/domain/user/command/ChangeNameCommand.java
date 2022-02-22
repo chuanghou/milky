@@ -5,16 +5,15 @@ import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ChangeNameCommand extends ChangeCommand {
 
-    private String targetName;
+    final private String targetName;
 
     public ChangeNameCommand(Long userId, String targetName) {
         super(userId);
         this.targetName = targetName;
+
     }
 
 }

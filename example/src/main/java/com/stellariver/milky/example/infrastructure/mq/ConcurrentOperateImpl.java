@@ -1,4 +1,4 @@
-package com.stellariver.milky.example.domain.configuration;
+package com.stellariver.milky.example.infrastructure.mq;
 
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import org.springframework.stereotype.Component;

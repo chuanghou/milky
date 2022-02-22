@@ -1,15 +1,11 @@
 package com.stellariver.milky.example.domain.user.command;
 
 import com.stellariver.milky.domain.support.command.Command;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
-@NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ChangeCommand extends Command {
