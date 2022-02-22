@@ -47,16 +47,13 @@ public class Logger implements org.slf4j.Logger {
     }
 
     private void beforeLog() {
-
         Map<String, String> logContents = threadLocalContents.get();
         if (logContents == null || logContents.isEmpty()) {
             return;
         }
-
         if (tempThreadLocalContents.get() == null) {
             tempThreadLocalContents.set(new MortalMap<>());
         }
-
         logContents.forEach((k, v) -> {
             String originalValue = MDC.get(k);
             tempThreadLocalContents.get().put(k, originalValue);
