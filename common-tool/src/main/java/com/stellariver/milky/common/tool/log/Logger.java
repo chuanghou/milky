@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,14 +48,13 @@ public class Logger implements org.slf4j.Logger {
 
     private void beforeLog() {
 
-        if (tempThreadLocalContents.get() == null) {
-            tempThreadLocalContents.set(new MortalMap<>());
+        Map<String, String> logContents = threadLocalContents.get();
+        if (logContents == null || logContents.isEmpty()) {
+            return;
         }
 
-        Map<String, String> logContents = threadLocalContents.get();
-        if (logContents == null) {
-            threadLocalContents.set(new MortalMap<>());
-            logContents = threadLocalContents.get();
+        if (tempThreadLocalContents.get() == null) {
+            tempThreadLocalContents.set(new MortalMap<>());
         }
 
         logContents.forEach((k, v) -> {
