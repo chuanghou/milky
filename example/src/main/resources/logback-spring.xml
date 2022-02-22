@@ -15,13 +15,14 @@
         &quot;loggerClass&quot;:&quot;%logger{30}&quot;,
         &quot;line&quot;: &quot;%line&quot;,
         &quot;logTag&quot;: &quot;%X{logTag}&quot;,
-        &quot;message&quot;: &quot;|%X{logTag}|%message&quot;,
+        &quot;message&quot;: &quot;%message&quot;,
         &quot;cost&quot;: &quot;%X{cost}&quot;,
         &quot;userId&quot;: &quot;%X{userId}&quot;,
         &quot;success&quot;: &quot;%X{success}&quot;,
         &quot;stack_trace&quot;: &quot;%exception{30}&quot;,
         &quot;traceId&quot;: &quot;%X{EAGLEEYE_TRACE_ID}&quot;,
-        &quot;rpcId&quot;: &quot;%X{EAGLEEYE_RPC_ID}&quot;
+        &quot;rpcId&quot;: &quot;%X{EAGLEEYE_RPC_ID}&quot;,
+        &quot;grade&quot;: &quot;%X{grade}&quot;
     }"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

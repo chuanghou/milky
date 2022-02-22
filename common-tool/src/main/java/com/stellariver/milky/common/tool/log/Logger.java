@@ -47,9 +47,7 @@ public class Logger implements org.slf4j.Logger {
         Map<String, String> realLogContents = logContents.get();
         realLogContents.forEach((k, v) -> {
             String originalValue = MDC.get(k);
-            if (v != null && originalValue != null) {
-                tempLogContents.get().put(k, originalValue);
-            }
+            tempLogContents.get().put(k, originalValue);
             MDC.put(k, v);
         });
         realLogContents.clear();
