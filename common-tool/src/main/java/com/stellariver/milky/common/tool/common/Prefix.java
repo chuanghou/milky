@@ -9,10 +9,6 @@ public class PrefixEnum extends Prefix {
  */
 public class Prefix {
 
-    static public Prefix ERROR_CODE = Prefix.of("ERROR_CODE");
-
-    static public Prefix THIRD_SERVICE = Prefix.of("THIRD_SERVICE");
-
     private String preFix;
 
     public String getPreFix() {
