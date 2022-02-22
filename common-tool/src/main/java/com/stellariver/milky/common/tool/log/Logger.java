@@ -62,6 +62,7 @@ public class Logger implements org.slf4j.Logger {
             tempThreadLocalContents.get().put(k, originalValue);
             MDC.put(k, v);
         });
+
         logContents.clear();
     }
 
