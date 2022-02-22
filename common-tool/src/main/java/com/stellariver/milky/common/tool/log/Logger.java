@@ -4,7 +4,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -14,7 +13,7 @@ public class Logger implements org.slf4j.Logger {
 
     private final ThreadLocal<MortalMap<String, String>> threadLocalContents = new ThreadLocal<>();
 
-    private final ThreadLocal<MortalMap<String, String>> tempThreadLocalContents = new ThreadLocal<>();
+    private final ThreadLocal<MortalMap<String, String>> originalThreadLocalContents = new ThreadLocal<>();
 
     static public Logger getLogger(Class<?> clazz) {
         return new Logger(clazz);
@@ -31,6 +30,7 @@ public class Logger implements org.slf4j.Logger {
     public Logger with(String key, Object value) {
         if (key == null) {
             log.error("log key shouldn't be null");
+            return this;
         }
         MortalMap<String, String> contents = threadLocalContents.get();
         if (contents == null) {
@@ -52,12 +52,11 @@ public class Logger implements org.slf4j.Logger {
             // 如果没有没有存储任何信息，那就直接返回
             return;
         }
-        if (tempThreadLocalContents.get() == null) {
-            tempThreadLocalContents.set(new MortalMap<>());
+        if (originalThreadLocalContents.get() == null) {
+            originalThreadLocalContents.set(new MortalMap<>());
         }
         logContents.forEach((k, v) -> {
-            String originalValue = MDC.get(k);
-            tempThreadLocalContents.get().put(k, originalValue);
+            originalThreadLocalContents.get().put(k, MDC.get(k));
             MDC.put(k, v);
         });
 
@@ -65,8 +64,8 @@ public class Logger implements org.slf4j.Logger {
     }
 
     private void afterLog() {
-        tempThreadLocalContents.get().forEach(MDC::put);
-        tempThreadLocalContents.get().clear();
+        originalThreadLocalContents.get().forEach(MDC::put);
+        originalThreadLocalContents.get().clear();
     }
 
     @Override
