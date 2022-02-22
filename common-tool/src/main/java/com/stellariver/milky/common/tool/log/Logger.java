@@ -49,6 +49,7 @@ public class Logger implements org.slf4j.Logger {
     private void beforeLog() {
         Map<String, String> logContents = threadLocalContents.get();
         if (logContents == null || logContents.isEmpty()) {
+            // 如果没有没有存储任何信息，那就直接返回
             return;
         }
         if (tempThreadLocalContents.get() == null) {
