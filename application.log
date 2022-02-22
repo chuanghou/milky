@@ -1,0 +1,15 @@
+{"time":"2022-02-22 11:47:22.076","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"55","message":"Starting Application using Java 1.8.0_151 on ChuangHou-Mac-Pro with PID 49424 (/Users/houchuang/milky/example/target/classes started by houchuang in /Users/houchuang/milky)"}
+{"time":"2022-02-22 11:47:22.082","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"635","message":"No active profile set, falling back to default profiles: default"}
+{"time":"2022-02-22 11:47:22.820","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"108","message":"Tomcat initialized with port(s): 8080 (http)"}
+{"time":"2022-02-22 11:47:22.828","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardService","line":"173","message":"Starting service [Tomcat]"}
+{"time":"2022-02-22 11:47:22.829","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardEngine","line":"173","message":"Starting Servlet engine: [Apache Tomcat/9.0.56]"}
+{"time":"2022-02-22 11:47:22.892","level":"INFO","thread":"main","loggerClass":"o.a.c.c.C.[.[localhost].[/]","line":"173","message":"Initializing Spring embedded WebApplicationContext"}
+{"time":"2022-02-22 11:47:22.892","level":"INFO","thread":"main","loggerClass":"o.s.b.w.s.c.ServletWebServerApplicationContext","line":"290","message":"Root WebApplicationContext: initialization completed in 778 ms"}
+{"time":"2022-02-22 11:47:22.997","level":"INFO","thread":"main","loggerClass":"org.reflections.Reflections","line":"232","message":"Reflections took 25 ms to scan 1 urls, producing 17 keys and 18 values "}
+{"time":"2022-02-22 11:47:23.262","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"220","message":"Tomcat started on port(s): 8080 (http) with context path ''"}
+{"time":"2022-02-22 11:47:23.271","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"61","message":"Started Application in 1.628 seconds (JVM running for 2.143)"}
+{"time":"2022-02-22 11:47:29.386","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"o.a.c.c.C.[.[localhost].[/]","line":"173","message":"Initializing Spring DispatcherServlet 'dispatcherServlet'"}
+{"time":"2022-02-22 11:47:29.387","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"o.s.w.s.DispatcherServlet","line":"525","message":"Initializing Servlet 'dispatcherServlet'"}
+{"time":"2022-02-22 11:47:29.388","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"o.s.w.s.DispatcherServlet","line":"547","message":"Completed initialization in 1 ms"}
+{"time":"2022-02-22 11:47:29.535","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"c.s.m.e.domain.student.Student","line":"297","message":"message","grade":"730"}
+{"time":"2022-02-22 11:47:29.536","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"c.s.m.e.domain.student.Student","line":"297","message":"message"}
