@@ -7,12 +7,12 @@ import com.stellariver.milky.example.domain.user.command.ChangeCommand;
 
 public class UserContextPrepareProcessor implements ContextPrepareProcessor {
 
-    @ContextPrepareKey(prepareKey = "grade")
+    @ContextPrepareKey("grade")
     public void prepareGrade(ChangeCommand command, Context context) {
         context.put("grade", 730);
     }
 
-    @ContextPrepareKey(prepareKey = "age")
+    @ContextPrepareKey("age")
     public void prepareAge(ChangeCommand command, Context context) {
         context.put("age", 18);
     }
