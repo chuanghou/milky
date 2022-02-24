@@ -6,5 +6,7 @@ public interface DomainRepository<T> {
 
     T getByAggregateId(String aggregateId, Context context);
 
+    T getByAggregateId(String aggregateId);
+
     void save(T t, Context context);
 }

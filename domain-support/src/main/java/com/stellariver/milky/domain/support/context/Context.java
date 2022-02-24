@@ -37,6 +37,11 @@ public class Context{
         return aggregateRoot;
     }
 
+
+    public static Context build() {
+        return new Context();
+    }
+
 }
 
 

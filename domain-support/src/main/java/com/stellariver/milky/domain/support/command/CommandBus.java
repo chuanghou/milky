@@ -147,7 +147,7 @@ public class CommandBus {
 
         methods.forEach(m -> {
             Class<? extends Command> commandClass = (Class<? extends Command>) m.getParameterTypes()[0];
-            String key = m.getAnnotation(ContextPrepareKey.class).prepareKey();
+            String key = m.getAnnotation(ContextPrepareKey.class).value();
             BizException.trueThrow(key.equals(""), ErrorCodeEnum.CONFIG_ERROR.message("contextPrepare 必须有指定key"));
             String[] requiredKeys = m.getAnnotation(ContextPrepareKey.class).requiredKeys();
             Object bean = beanLoader.getBean(m.getDeclaringClass());
@@ -193,7 +193,7 @@ public class CommandBus {
             String lockKey = command.getAggregationId();
             if (concurrentOperate.tryLock(lockKey, 5)) {
                  result = doSend(command, context, commandHandler);
-            } else if (enableMq && !commandHandler.hasReturn) {
+            } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
             } else {
                 long sleepTimeMs = Random.randomRange(100, 300);

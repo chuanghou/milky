@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 public @interface ContextPrepareKey {
 
-    String prepareKey();
+    String value();
 
     String[] requiredKeys() default {};
 

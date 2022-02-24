@@ -16,4 +16,8 @@ abstract public class Command extends Message {
         super();
     }
 
+    public boolean allowAsync() {
+        return true;
+    }
+
 }
