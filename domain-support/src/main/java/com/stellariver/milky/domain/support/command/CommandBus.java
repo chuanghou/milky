@@ -190,7 +190,7 @@ public class CommandBus {
         BizException.nullThrow(commandHandler, ErrorCodeEnum.HANDLER_NOT_EXIST);
         Object result = null;
         try {
-            String lockKey = command.getAggregationId();
+            String lockKey = command.getClass().getName() + "_" + command.getAggregationId();
             if (concurrentOperate.tryLock(lockKey, 5)) {
                  result = doSend(command, context, commandHandler);
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
@@ -203,7 +203,7 @@ public class CommandBus {
             }
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
-            BizException.falseThrow(unlock, ErrorCodeBase.THIRD_SERVICE.message("解锁失败"));
+            BizException.falseThrow(unlock, ErrorCodeBase.THIRD_SERVICE.message("unlock failure"));
         }
         return result;
     }

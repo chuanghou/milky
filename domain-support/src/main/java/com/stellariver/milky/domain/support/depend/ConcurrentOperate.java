@@ -7,13 +7,14 @@ import lombok.SneakyThrows;
 
 public interface ConcurrentOperate {
 
-    default void sendOrderly(Command command) {}
+    void sendOrderly(Command command);
 
-    default void receiveCommand(Command command) {}
+    void receiveCommand(Command command);
 
     boolean tryLock(String lockKey, int secondsToExpire);
 
     boolean unlock(String lockKey);
+
 
     @SneakyThrows
     default boolean tryRetryLock(String lockKey, int secondsToExpire, int times, long sleepTime) {
