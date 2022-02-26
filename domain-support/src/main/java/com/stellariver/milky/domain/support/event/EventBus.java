@@ -76,7 +76,7 @@ public class EventBus {
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
                 asyncExecutorService.submit(() -> ReflectTool.invokeBeanMethod(bean, method, event, context));
             } else {
-                throw new BizException(ErrorCodeEnum.CONFIG_ERROR.message("只支持同步及异步调用"));
+                throw new BizException(ErrorCodeEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }
         }
     }

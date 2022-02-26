@@ -197,7 +197,7 @@ public class CommandBus {
             } else {
                 long sleepTimeMs = Random.randomRange(100, 300);
                 boolean retryResult = concurrentOperate.tryRetryLock(lockKey, 5, 3, sleepTimeMs);
-                BizException.falseThrow(retryResult, ErrorCodeEnum.CONCURRENT_OPERATE_LOCK);
+                BizException.falseThrow(retryResult, ErrorCodeEnum.CONCURRENCY_VIOLATION);
                 result = doSend(command, context, commandHandler);
             }
         } finally {
