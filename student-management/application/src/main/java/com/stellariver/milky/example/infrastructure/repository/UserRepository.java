@@ -15,6 +15,9 @@ public class UserRepository implements DomainRepository<User> {
     @Override
     public User getByAggregateId(String aggregateId, Context context) {
         UserDO userDO = userDOMapper.selectById(aggregateId);
+        if (userDO == null) {
+            return null;
+        }
         return User.builder().userId(userDO.getId()).age(userDO.getAge())
                 .name(userDO.getName()).email(userDO.getEmail()).build();
     }
