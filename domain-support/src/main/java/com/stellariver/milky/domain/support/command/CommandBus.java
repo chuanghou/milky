@@ -8,10 +8,9 @@ import com.stellariver.milky.common.tool.utils.Json;
 import com.stellariver.milky.common.tool.utils.Random;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
-import com.stellariver.milky.domain.support.base.DomainPackages;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.context.ContextPrepareProcessor;
-import com.stellariver.milky.domain.support.context.ContextPrepareKey;
+import com.stellariver.milky.domain.support.context.PrepareProcessor;
+import com.stellariver.milky.domain.support.context.PrepareKey;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.event.EventBus;
@@ -139,17 +138,17 @@ public class CommandBus {
     private void prepareContextValueProviders(Reflections reflections) {
         Map<Class<? extends Command>, Map<String, ContextValueProvider>> tempProviders = new HashMap<>();
 
-        List<Method> methods = beanLoader.getBeansOfType(ContextPrepareProcessor.class)
+        List<Method> methods = beanLoader.getBeansOfType(PrepareProcessor.class)
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
-                .filter(method -> method.isAnnotationPresent(ContextPrepareKey.class))
+                .filter(method -> method.isAnnotationPresent(PrepareKey.class))
                 .filter(method -> commandHandlerFormat.test(method.getParameterTypes())).collect(Collectors.toList());
 
         methods.forEach(m -> {
             Class<? extends Command> commandClass = (Class<? extends Command>) m.getParameterTypes()[0];
-            String key = m.getAnnotation(ContextPrepareKey.class).value();
+            String key = m.getAnnotation(PrepareKey.class).value();
             BizException.trueThrow(key.equals(""), ErrorCodeEnum.CONFIG_ERROR.message("contextPrepare 必须有指定key"));
-            String[] requiredKeys = m.getAnnotation(ContextPrepareKey.class).requiredKeys();
+            String[] requiredKeys = m.getAnnotation(PrepareKey.class).requiredKeys();
             Object bean = beanLoader.getBean(m.getDeclaringClass());
             ContextValueProvider valueProvider = new ContextValueProvider(key, requiredKeys, bean, m);
             Map<String, ContextValueProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());

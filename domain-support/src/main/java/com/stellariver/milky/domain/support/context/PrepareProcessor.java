@@ -1,4 +1,4 @@
 package com.stellariver.milky.domain.support.context;
 
-public interface ContextPrepareProcessor {
+public interface PrepareProcessor {
 }

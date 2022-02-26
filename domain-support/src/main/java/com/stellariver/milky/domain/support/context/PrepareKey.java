@@ -11,7 +11,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 @Target(METHOD)
-public @interface ContextPrepareKey {
+public @interface PrepareKey {
 
     String value();
 
