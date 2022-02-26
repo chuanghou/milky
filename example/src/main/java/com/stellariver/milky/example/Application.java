@@ -1,7 +1,5 @@
-package com.stellariver.milky.example.starter;
+package com.stellariver.milky.example;
 
-import com.stellariver.milky.starter.EnableMilky;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
