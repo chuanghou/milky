@@ -32,12 +32,12 @@ public class EventBus {
     public EventBus(BeanLoader beanLoader, ExecutorService asyncExecutorService) {
         this.beanLoader = beanLoader;
 
-        List<EventProcessor> beans = this.beanLoader.getBeansOfType(EventProcessor.class);
+        List<EventRouters> beans = this.beanLoader.getBeansOfType(EventRouters.class);
         List<Method> methods = beans.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> eventHandlerFormat.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(EventHandler.class)).collect(Collectors.toList());
+                .filter(m -> m.isAnnotationPresent(EventRouter.class)).collect(Collectors.toList());
         methods.forEach(method -> {
-            EventHandler annotation = method.getAnnotation(EventHandler.class);
+            EventRouter annotation = method.getAnnotation(EventRouter.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             Handler handler = Handler.builder().bean(bean).method(method)

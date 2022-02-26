@@ -9,7 +9,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 @Target(METHOD)
-public @interface EventHandler {
+public @interface EventRouter {
 
     int order() default Integer.MAX_VALUE;
 
