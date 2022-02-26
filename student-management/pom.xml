@@ -29,12 +29,17 @@
         <dependencies>
             <dependency>
                 <groupId>com.stellariver.student.management</groupId>
+                <artifactId>application</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.student.management</groupId>
                 <artifactId>client</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.stellariver.student.management</groupId>
-                <artifactId>application</artifactId>
+                <artifactId>common</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
