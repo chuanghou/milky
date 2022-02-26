@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.event;
 
-public enum HandlerTypeEnum {
+public enum TypeEnum {
     SYNC,
     ASYNC
 }

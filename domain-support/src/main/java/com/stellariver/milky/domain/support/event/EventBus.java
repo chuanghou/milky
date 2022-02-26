@@ -64,16 +64,16 @@ public class EventBus {
 
         private final Method method;
 
-        private final HandlerTypeEnum type;
+        private final TypeEnum type;
 
         private int order;
 
         private ExecutorService asyncExecutorService;
 
         public void handle(Event event, Context context) {
-            if (Objects.equals(type, HandlerTypeEnum.SYNC)) {
+            if (Objects.equals(type, TypeEnum.SYNC)) {
                 ReflectTool.invokeBeanMethod(bean, method, event, context);
-            } else if (Objects.equals(type, HandlerTypeEnum.ASYNC)){
+            } else if (Objects.equals(type, TypeEnum.ASYNC)){
                 asyncExecutorService.submit(() -> ReflectTool.invokeBeanMethod(bean, method, event, context));
             } else {
                 throw new BizException(ErrorCodeEnum.CONFIG_ERROR.message("只支持同步及异步调用"));
