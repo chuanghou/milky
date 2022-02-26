@@ -3,7 +3,7 @@
     <!-- https://github.com/spring-projects/spring-boot/blob/v1.5.13.RELEASE/spring-boot/src/main/resources/org/springframework/boot/logging/logback/defaults.xml -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <property name="LOG_FILE" value="application.log"/>
-    <property name="PLAIN_LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}][%X{_traceId}][%X{_rpcId}][%X{_test}][%thread][%file:%line#%logger{0}][%-5level][%X{_tag}] - %m%n" />
+    <property name="PLAIN_LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}][%X{_rpcId}][%X{_test}][%thread][%file:%line#%logger{0}][%-5level][%X{_tag}] - %m%n" />
     <!--    转义操作，https://www.freeformatter.com/xml-escape.html#ad-output-->
     <property name="JSON_LOG_PATTERN" value="{
         &quot;time&quot;: &quot;%d{yyyy-MM-dd HH:mm:ss.SSS}&quot;,
@@ -17,8 +17,6 @@
         &quot;userId&quot;: &quot;%X{userId}&quot;,
         &quot;success&quot;: &quot;%X{success}&quot;,
         &quot;stack_trace&quot;: &quot;%exception{30}&quot;,
-        &quot;traceId&quot;: &quot;%X{EAGLEEYE_TRACE_ID}&quot;,
-        &quot;rpcId&quot;: &quot;%X{EAGLEEYE_RPC_ID}&quot;,
         &quot;grade&quot;: &quot;%X{grade}&quot;
     }"/>
 
