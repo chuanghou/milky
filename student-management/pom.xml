@@ -12,6 +12,10 @@
         <module>application</module>
         <module>client</module>
         <module>common</module>
+        <module>adapter</module>
+        <module>domain</module>
+        <module>infrastructure</module>
+        <module>basic</module>
     </modules>
 
     <packaging>pom</packaging>
