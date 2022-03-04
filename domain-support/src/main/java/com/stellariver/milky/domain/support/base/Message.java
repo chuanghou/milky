@@ -22,7 +22,7 @@ public abstract class Message {
     public abstract void setAggregationId(String aggregationId);
 
     public Message() {
-        this.identifier = UUID.randomUUID().toString();
+        this.identifier = getAggregationId() + "_" + UUID.randomUUID();
         this.gmtCreate = new Date();
     }
 }
