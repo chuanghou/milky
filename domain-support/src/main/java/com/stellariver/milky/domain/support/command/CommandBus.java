@@ -238,6 +238,7 @@ public class CommandBus {
         }
         ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate, context);
         context.events.forEach(event -> eventBus.handler(event, context));
+        context.events.clear();
         return result;
     }
 
