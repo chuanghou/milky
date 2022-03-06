@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -17,12 +19,17 @@ public abstract class Message {
 
     protected Date gmtCreate;
 
-    public abstract String getAggregationId();
+    protected Map<String, Object> extensions = new HashMap<>();
 
-    public abstract void setAggregationId(String aggregationId);
+    public abstract String getAggregationId();
 
     public Message() {
         this.identifier = getAggregationId() + "_" + UUID.randomUUID();
         this.gmtCreate = new Date();
     }
+
+    public void put(String extensionKey, Object extensionValue) {
+        extensions.put(extensionKey, extensionValue);
+    }
+
 }

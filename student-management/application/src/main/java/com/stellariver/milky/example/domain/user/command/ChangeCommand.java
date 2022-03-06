@@ -16,9 +16,4 @@ public class ChangeCommand extends Command {
     public String getAggregationId() {
         return userId.toString();
     }
-
-    @Override
-    public void setAggregationId(String aggregationId) {
-        userId = Long.valueOf(aggregationId);
-    }
 }
