@@ -1,10 +1,14 @@
 package com.stellariver.milky.common.tool.common;
 
+import com.stellariver.milky.common.tool.log.Logger;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
 public class ReflectTool {
+
+    static final Logger log = Logger.getLogger(ReflectTool.class);
 
     static public Object invokeBeanMethod(Object bean, Method method, Object... params) {
         try {
@@ -43,6 +47,23 @@ public class ReflectTool {
             throw ex;
         } catch (Throwable ex) {
             throw new BizException(ErrorCodeBase.UNKNOWN, ex);
+        }
+    }
+
+    static public <T> T downGradeCall(Callable<T> callable) {
+        try {
+            return callable.call();
+        } catch (Throwable ex) {
+            log.with("runnable", callable.toString()).error(ex.getMessage(), ex);
+        }
+        return null;
+    }
+
+    static public void downGradeRun(Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (Throwable ex) {
+            log.with("runnable", runnable.toString()).error(ex.getMessage(), ex);
         }
     }
 }

@@ -211,33 +211,31 @@ public class CommandBus {
 
         Repository repository = domainRepositories.get(commandHandler.clazz);
         BizException.trueThrow(repository == null, ErrorCodeEnum.CONFIG_ERROR
-                .message(commandHandler.getClazz().toString() + "没有对应repository实现"));
-
-        AggregateRoot dbAggregate = (AggregateRoot) ReflectTool.invokeBeanMethod(
-                repository.bean, repository.getMethod, command.getAggregationId(), context);
+                .message(commandHandler.getClazz().toString() + "hasn't corresponding command handler"));
+        Map<String, ContextValueProvider> providerMap =
+                Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
+        commandHandler.getRequiredKeys().forEach(key ->
+                invokeContextValueProvider(command, key, context, providerMap, new HashSet<>()));
         AggregateRoot aggregate;
-        if (dbAggregate == null) {
+        Object result = null;
+        if (commandHandler.constructor != null) {
             try {
-                aggregate = (AggregateRoot) commandHandler.constructor.newInstance();
+                aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 throw new BizException(ErrorCodeBase.UNKNOWN, e);
             }
-            aggregate.setAggregateId(command.getAggregationId());
         } else {
-            aggregate = dbAggregate;
+            aggregate = (AggregateRoot) ReflectTool.invokeBeanMethod(
+                    repository.bean, repository.getMethod, command.getAggregationId(), context);
+            BizException.nullThrow(aggregate);
+            result = ReflectTool.invokeBeanMethod(aggregate, commandHandler.method, command, context);
         }
-
         context.setAggregateRoot(aggregate);
-        Map<String, ContextValueProvider> providerMap =
-                Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
-
-        commandHandler.getRequiredKeys().forEach(key -> invokeContextValueProvider(command, key, context, providerMap, new HashSet<>()));
-        Object result = ReflectTool.invokeBeanMethod(aggregate, commandHandler.method, command, context);
         if (Collect.isEmpty(context.events)) {
             return result;
         }
         ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate, context);
-        context.events.forEach(event -> eventBus.handler(event, context));
+        context.events.forEach(event -> ReflectTool.run(() -> eventBus.handler(event, context)));
         context.events.clear();
         return result;
     }
