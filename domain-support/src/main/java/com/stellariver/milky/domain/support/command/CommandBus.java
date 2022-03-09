@@ -2,7 +2,7 @@ package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.ErrorCodeBase;
-import com.stellariver.milky.common.tool.common.ReflectTool;
+import com.stellariver.milky.common.tool.common.InvokeUtil;
 import com.stellariver.milky.common.tool.utils.Collect;
 import com.stellariver.milky.common.tool.utils.Json;
 import com.stellariver.milky.common.tool.utils.Random;
@@ -225,17 +225,17 @@ public class CommandBus {
                 throw new BizException(ErrorCodeBase.UNKNOWN, e);
             }
         } else {
-            aggregate = (AggregateRoot) ReflectTool.invokeBeanMethod(
+            aggregate = (AggregateRoot) InvokeUtil.invoke(
                     repository.bean, repository.getMethod, command.getAggregationId(), context);
             BizException.nullThrow(aggregate);
-            result = ReflectTool.invokeBeanMethod(aggregate, commandHandler.method, command, context);
+            result = InvokeUtil.invoke(aggregate, commandHandler.method, command, context);
         }
         context.setAggregateRoot(aggregate);
         if (Collect.isEmpty(context.events)) {
             return result;
         }
-        ReflectTool.invokeBeanMethod(repository.bean, repository.saveMethod, aggregate, context);
-        context.events.forEach(event -> ReflectTool.run(() -> eventBus.handler(event, context)));
+        InvokeUtil.invoke(repository.bean, repository.saveMethod, aggregate, context);
+        context.events.forEach(event -> InvokeUtil.run(() -> eventBus.handler(event, context)));
         context.events.clear();
         return result;
     }
@@ -252,7 +252,7 @@ public class CommandBus {
                 .forEach(k -> invokeContextValueProvider(command, k, context, providers, referKeys));
         Object contextPrepareBean = valueProvider.getContextPrepareBean();
         Method providerMethod = valueProvider.getMethod();
-        ReflectTool.invokeBeanMethod(contextPrepareBean, providerMethod, command, context);
+        InvokeUtil.invoke(contextPrepareBean, providerMethod, command, context);
     }
 
     @Data

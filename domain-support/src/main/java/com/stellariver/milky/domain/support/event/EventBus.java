@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.event;
 
 import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.ReflectTool;
+import com.stellariver.milky.common.tool.common.InvokeUtil;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
@@ -26,13 +26,10 @@ public class EventBus {
 
     private final Map<Class<? extends Event>, List<Handler>> handlerMap = new HashMap<>();
 
-    private final BeanLoader beanLoader;
-
     @SuppressWarnings("unchecked")
     public EventBus(BeanLoader beanLoader, ExecutorService asyncExecutorService) {
-        this.beanLoader = beanLoader;
 
-        List<EventRouter> beans = this.beanLoader.getBeansOfType(EventRouter.class);
+        List<EventRouter> beans = beanLoader.getBeansOfType(EventRouter.class);
         List<Method> methods = beans.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> eventHandlerFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(Router.class)).collect(Collectors.toList());
@@ -51,7 +48,7 @@ public class EventBus {
     public void handler(Event event, Context context) {
         List<Handler> handlers = Optional.ofNullable(handlerMap.get(event.getClass())).orElse(new ArrayList<>());
         handlers.stream().sorted(Comparator.comparing(Handler::getOrder))
-                .forEach(handler -> ReflectTool.run(() -> handler.handle(event, context)));
+                .forEach(handler -> InvokeUtil.run(() -> handler.handle(event, context)));
     }
 
 
@@ -72,9 +69,9 @@ public class EventBus {
 
         public void handle(Event event, Context context) {
             if (Objects.equals(type, TypeEnum.SYNC)) {
-                ReflectTool.invokeBeanMethod(bean, method, event, context);
+                InvokeUtil.invoke(bean, method, event, context);
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                asyncExecutorService.submit(() -> ReflectTool.invokeBeanMethod(bean, method, event, context));
+                asyncExecutorService.submit(() -> InvokeUtil.invoke(bean, method, event, context));
             } else {
                 throw new BizException(ErrorCodeEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }

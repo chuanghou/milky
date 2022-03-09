@@ -1,5 +1,8 @@
 package com.stellariver.milky.common.tool.log;
 
+import com.stellariver.milky.common.tool.common.SCallable;
+import com.stellariver.milky.common.tool.common.SLambda;
+import com.stellariver.milky.common.tool.common.SRunnable;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
@@ -25,8 +28,25 @@ public class Logger implements org.slf4j.Logger {
         this.log = LoggerFactory.getLogger(clazz);
     }
 
-    public Logger logTag(Object value) {
+    public Logger withLogTag(Object value) {
         return with("logTag", value);
+    }
+
+    public void info(SRunnable runnable) {
+        Map<String, String> runtimeInfos = SLambda.resolve(runnable);
+        with(runtimeInfos);
+        info("sLambda resolve");
+    }
+
+    public void info(SCallable<?> callable) {
+        Map<String, String> runtimeInfos = SLambda.resolve(callable);
+        with(runtimeInfos);
+        info("sLambda resolve");
+    }
+
+    public Logger with(Map<String, ?> infos) {
+        infos.forEach(this::with);
+        return this;
     }
 
     public Logger with(String key, Object value) {

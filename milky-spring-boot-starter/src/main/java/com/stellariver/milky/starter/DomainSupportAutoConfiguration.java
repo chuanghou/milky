@@ -51,7 +51,7 @@ public class DomainSupportAutoConfiguration {
     @ConditionalOnMissingBean(name = "asyncExecutorService")
     public ExecutorService asyncExecutorService() {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setUncaughtExceptionHandler((t, e) -> log.logTag(ErrorCodeBase.UNKNOWN).error("|线程名={}|错误信息={}|", t.getName(), e.getMessage(), e))
+                .setUncaughtExceptionHandler((t, e) -> log.withLogTag(ErrorCodeBase.UNKNOWN).error("|线程名={}|错误信息={}|", t.getName(), e.getMessage(), e))
                 .setNameFormat("event-handler-url-thread-%d")
                 .build();
 
