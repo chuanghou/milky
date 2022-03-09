@@ -17,4 +17,11 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.stellariver.student.management</groupId>
+            <artifactId>basic</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

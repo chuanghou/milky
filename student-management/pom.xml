@@ -27,13 +27,24 @@
         <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <java.version>8</java.version>
+        <milky.version>1.0.0</milky.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.stellariver.student.management</groupId>
+                <artifactId>adapter</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.student.management</groupId>
                 <artifactId>application</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.student.management</groupId>
+                <artifactId>basic</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
@@ -47,6 +58,16 @@
                 <version>${revision}</version>
             </dependency>
             <dependency>
+                <groupId>com.stellariver.student.management</groupId>
+                <artifactId>domain</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.student.management</groupId>
+                <artifactId>infrastructure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>2.6.3</version>
@@ -54,9 +75,29 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>com.stellariver</groupId>
+                <groupId>com.stellariver.milky</groupId>
+                <artifactId>spring-partner</artifactId>
+                <version>${milky.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
+                <artifactId>common-base</artifactId>
+                <version>${milky.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
+                <artifactId>domain-support</artifactId>
+                <version>${milky.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
+                <artifactId>common-tool</artifactId>
+                <version>${milky.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
                 <artifactId>milky-spring-boot-starter</artifactId>
-                <version>1.0.0</version>
+                <version>${milky.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>

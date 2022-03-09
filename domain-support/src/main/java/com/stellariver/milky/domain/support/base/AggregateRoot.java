@@ -8,5 +8,4 @@ public abstract class AggregateRoot{
 
     abstract public String getAggregateId();
 
-    abstract public void setAggregateId(String aggregateId);
 }
