@@ -47,8 +47,8 @@ public class EventBus {
 
     public void handler(Event event, Context context) {
         List<Handler> handlers = Optional.ofNullable(handlerMap.get(event.getClass())).orElse(new ArrayList<>());
-        handlers.stream().sorted(Comparator.comparing(Handler::getOrder))
-                .forEach(handler -> InvokeUtil.run(() -> handler.handle(event, context)));
+//        handlers.stream().sorted(Comparator.comparing(Handler::getOrder))
+//                .forEach(handler -> InvokeUtil.run(() -> handler.handle(event, context)));
     }
 
 
