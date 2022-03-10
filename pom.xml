@@ -73,20 +73,20 @@
         </dependencies>
     </dependencyManagement>
 
-    <url>https://github.com/Fundebug/fundebug-java-notifier</url>
-    <description>Capture Java and Spring exceptions automatically</description>
-    <licenses>
-        <license>
-            <name>Server Side Public License</name>
-            <url>https://www.mongodb.com/licensing/server-side-public-license</url>
-            <distribution>repo</distribution>
-            <comments>A not business-friendly OSS license</comments>
-        </license>
-    </licenses>
+    <url>https://github.com/chuanghou/milky</url>
+    <description>A simple ddd framework</description>
+
     <scm>
         <url>https://github.com/chuanghou/milky</url>
         <connection>https://github.com/chuanghou/milky.git</connection>
     </scm>
+
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
@@ -99,6 +99,8 @@
             <timezone>+8</timezone>
         </developer>
     </developers>
+
+
     <profiles>
         <profile>
             <id>default</id>
