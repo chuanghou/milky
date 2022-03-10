@@ -73,6 +73,7 @@
         </dependencies>
     </dependencyManagement>
 
+    <name>milky</name>
     <url>https://github.com/chuanghou/milky</url>
     <description>A simple ddd framework</description>
 
