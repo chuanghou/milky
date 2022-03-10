@@ -27,3 +27,6 @@ nbdist/
 
 ## macos
 .DS_Store
+
+
+.flattened-pom.xml
