@@ -2,7 +2,7 @@ package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
-import com.stellariver.milky.common.tool.common.InvokeUtil;
+import com.stellariver.milky.common.tool.common.Invoke;
 import com.stellariver.milky.common.tool.utils.Collect;
 import com.stellariver.milky.common.tool.utils.Json;
 import com.stellariver.milky.common.tool.utils.Random;
@@ -211,8 +211,8 @@ public class CommandBus {
     public <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
 
         Repository repository = domainRepositories.get(commandHandler.clazz);
-        BizException.trueThrow(repository == null, ErrorCodeEnum.CONFIG_ERROR
-                .message(commandHandler.getClazz().toString() + "hasn't corresponding command handler"));
+        BizException.trueThrow(repository == null,
+                ErrorCodeEnum.CONFIG_ERROR.message(commandHandler.getClazz().toString() + "hasn't corresponding command handler"));
         Map<String, ContextValueProvider> providerMap =
                 Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
         commandHandler.getRequiredKeys().forEach(key ->
@@ -226,24 +226,24 @@ public class CommandBus {
                 throw new RuntimeException(e);
             }
         } else {
-            aggregate = (AggregateRoot) InvokeUtil.invoke(
+            aggregate = (AggregateRoot) Invoke.invoke(
                     repository.bean, repository.getMethod, command.getAggregationId(), context);
             BizException.nullThrow(aggregate);
-            result = InvokeUtil.invoke(aggregate, commandHandler.method, command, context);
+            result = Invoke.invoke(aggregate, commandHandler.method, command, context);
         }
         context.setAggregateRoot(aggregate);
         if (Collect.isEmpty(context.events)) {
             return result;
         }
-        InvokeUtil.invoke(repository.bean, repository.saveMethod, aggregate, context);
-        context.events.forEach(event -> InvokeUtil.run(() -> eventBus.handler(event, context)));
+        Invoke.invoke(repository.bean, repository.saveMethod, aggregate, context);
+        context.events.forEach(event -> Invoke.run(() -> eventBus.handler(event, context)));
         context.events.clear();
         return result;
     }
 
     private <T extends Command> void invokeContextValueProvider(T command, String key, Context context,
                                                                 Map<String, ContextValueProvider> providers, Set<String> referKeys) {
-        BizException.trueThrow(referKeys.contains(key), ErrorCodeEnum.CONFIG_ERROR.message("required key 循环引用"));
+        BizException.trueThrow(referKeys.contains(key), ErrorCodeEnum.CONFIG_ERROR.message("required key " + key + "circular reference!"));
         referKeys.add(key);
         ContextValueProvider valueProvider = providers.get(key);
         BizException.nullThrow(valueProvider, ErrorCodeEnum.CONTEXT_VALUE_PROVIDER_NOT_EXIST
@@ -253,7 +253,7 @@ public class CommandBus {
                 .forEach(k -> invokeContextValueProvider(command, k, context, providers, referKeys));
         Object contextPrepareBean = valueProvider.getContextPrepareBean();
         Method providerMethod = valueProvider.getMethod();
-        InvokeUtil.invoke(contextPrepareBean, providerMethod, command, context);
+        Invoke.invoke(contextPrepareBean, providerMethod, command, context);
     }
 
     @Data

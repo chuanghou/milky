@@ -9,9 +9,9 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.function.Function;
 
-public class InvokeUtil {
+public class Invoke {
 
-    static final Logger log = Logger.getLogger(InvokeUtil.class);
+    static final Logger log = Logger.getLogger(Invoke.class);
 
     static public Object invoke(Object bean, Method method, Object... params) {
         try {
@@ -23,9 +23,9 @@ public class InvokeUtil {
             if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
-            throw new RuntimeException(targetException.getMessage(), targetException);
+            throw new RuntimeException(targetException);
         } catch (Throwable ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
+            throw new RuntimeException(ex);
         }
     }
 
@@ -38,7 +38,7 @@ public class InvokeUtil {
                 .with(lambdaInfos).info("auto invoke log");
     }
 
-    static public <T> T call(SCallable<T> callable) {
+    static public <R> R call(SCallable<R> callable) {
         autoLog(callable);
         try {
             return callable.call();
@@ -55,9 +55,9 @@ public class InvokeUtil {
         }
     }
 
-    static public <T> T call(SCallable<T> callable, Function<T, Boolean> check) {
+    static public <R> R call(SCallable<R> callable, Function<R, Boolean> check) {
         autoLog(callable);
-        T result;
+        R result;
         try {
             result = callable.call();
             if (!check.apply(result)) {
@@ -77,6 +77,45 @@ public class InvokeUtil {
         return result;
     }
 
+    static public <R, T> T call(SCallable<R> callable, Function<R, Boolean> check, Function<R, T> getData) {
+        autoLog(callable);
+        R result;
+        try {
+            result = callable.call();
+            if (!check.apply(result)) {
+                throw new RuntimeException(Json.toString(result));
+            }
+        } catch (BizException ex) {
+            throw ex;
+        } catch (InvocationTargetException ex) {
+            Throwable targetException = ex.getTargetException();
+            if (targetException instanceof BizException) {
+                throw (BizException) ex.getTargetException();
+            }
+            throw new RuntimeException(targetException.getMessage(), targetException);
+        } catch (Throwable ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+        return getData.apply(result);
+    }
+
+    static public <R, T> T fallbackableCall(SCallable<R> callable,
+                                            Function<R, Boolean> check,
+                                            Function<R, T> getData,
+                                            T defaultValue) {
+        autoLog(callable);
+        try {
+            R result = callable.call();
+            if (check.apply(result)) {
+                return getData.apply(callable.call());
+            }
+            return defaultValue;
+        } catch (Throwable ex) {
+            log.with("runnable", callable.toString()).error(ex.getMessage(), ex);
+        }
+        return defaultValue;
+    }
+
 
     static public void run(SRunnable runnable) {
         autoLog(runnable);
@@ -87,16 +126,6 @@ public class InvokeUtil {
         } catch (Throwable ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
-    }
-
-    static public <T> T fallbackableCall(SCallable<T> callable, T defaultValue) {
-        autoLog(callable);
-        try {
-            return callable.call();
-        } catch (Throwable ex) {
-            log.with("runnable", callable.toString()).error(ex.getMessage(), ex);
-        }
-        return defaultValue;
     }
 
     static public void fallbackableRun(Runnable runnable) {

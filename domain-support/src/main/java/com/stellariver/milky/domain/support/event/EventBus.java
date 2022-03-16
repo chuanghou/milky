@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.event;
 
 import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.InvokeUtil;
+import com.stellariver.milky.common.tool.common.Invoke;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
@@ -69,9 +69,9 @@ public class EventBus {
 
         public void handle(Event event, Context context) {
             if (Objects.equals(type, TypeEnum.SYNC)) {
-                InvokeUtil.invoke(bean, method, event, context);
+                Invoke.invoke(bean, method, event, context);
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                asyncExecutorService.submit(() -> InvokeUtil.invoke(bean, method, event, context));
+                asyncExecutorService.submit(() -> Invoke.invoke(bean, method, event, context));
             } else {
                 throw new BizException(ErrorCodeEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }
