@@ -19,8 +19,8 @@ public interface ConcurrentOperate {
     @SneakyThrows
     default boolean tryRetryLock(String lockKey, int secondsToExpire, int times, long sleepTime) {
         BizException.nullThrow(lockKey);
-        BizException.trueThrow(times <= 1, ErrorCodeEnumBase.PARAM_IS_WRONG);
-        BizException.trueThrow(sleepTime > 5000, ErrorCodeEnumBase.PARAM_IS_WRONG);
+        BizException.trueThrow(times <= 1, ErrorCodeEnumBase.PARAM_FORMAT_IS_WRONG);
+        BizException.trueThrow(sleepTime > 5000, ErrorCodeEnumBase.PARAM_FORMAT_IS_WRONG);
         do {
             Thread.sleep(sleepTime);
             if (tryLock(lockKey, secondsToExpire)) {

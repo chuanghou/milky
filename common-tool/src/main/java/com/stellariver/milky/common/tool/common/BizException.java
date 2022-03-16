@@ -4,6 +4,7 @@ import com.stellariver.milky.common.base.ErrorCode;
 import com.stellariver.milky.common.tool.utils.Collect;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -46,6 +47,15 @@ public class BizException extends RuntimeException {
     static public void nullThrow(Object... params) {
         boolean haveNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
         if (haveNullValue) {
+            throw new BizException(ErrorCodeEnumBase.PARAM_IS_NULL);
+        }
+    }
+
+    static public <T, K> void nullThrow(T param, Function<T, K> deepFinder) {
+        if (param == null) {
+            throw new BizException(ErrorCodeEnumBase.PARAM_IS_NULL);
+        }
+        if (deepFinder.apply(param) == null) {
             throw new BizException(ErrorCodeEnumBase.PARAM_IS_NULL);
         }
     }

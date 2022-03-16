@@ -184,21 +184,20 @@ public class CommandBus {
     }
 
     public <T extends Command> Object send(T command, Context context) {
-        BizException.nullThrow(command);
-        BizException.nullThrow(command.getAggregationId());
+        BizException.nullThrow(command, Command::getAggregationId);
         context = Optional.ofNullable(context).orElse(new Context());
         Handler commandHandler= commandHandlers.get(command.getClass());
         BizException.nullThrow(commandHandler, ErrorCodeEnum.HANDLER_NOT_EXIST);
         Object result = null;
         try {
             String lockKey = command.getClass().getName() + "_" + command.getAggregationId();
-            if (concurrentOperate.tryLock(lockKey, 5)) {
+            if (concurrentOperate.tryLock(lockKey, command.lockExpireSeconds())) {
                  result = doSend(command, context, commandHandler);
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
             } else {
-                long sleepTimeMs = Random.randomRange(100, 300);
-                boolean retryResult = concurrentOperate.tryRetryLock(lockKey, 5, 3, sleepTimeMs);
+                long sleepTimeMs = Random.randomRange(command.violationRandomSleep()[0], command.violationRandomSleep()[1]);
+                boolean retryResult = concurrentOperate.tryRetryLock(lockKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
                 BizException.falseThrow(retryResult, ErrorCodeEnum.CONCURRENCY_VIOLATION);
                 result = doSend(command, context, commandHandler);
             }

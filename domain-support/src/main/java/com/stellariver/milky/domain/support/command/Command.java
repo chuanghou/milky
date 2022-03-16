@@ -20,4 +20,16 @@ abstract public class Command extends Message {
         return true;
     }
 
+    public int lockExpireSeconds() {
+        return 3;
+    }
+
+    public int retryTimes() {
+        return 3;
+    }
+
+    public int[] violationRandomSleep() {
+        return new int[]{100, 300};
+    }
+
 }
