@@ -38,7 +38,7 @@ public class EventBus {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             Router router = Router.builder().bean(bean).method(method)
-                    .type(annotation.type()).asyncExecutorService(asyncExecutorService)
+                    .type(annotation.type()).executorService(asyncExecutorService)
                     .build();
             routerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(router);
         });
@@ -70,13 +70,13 @@ public class EventBus {
 
         private final TypeEnum type;
 
-        private ExecutorService asyncExecutorService;
+        private ExecutorService executorService;
 
         public void route(Event event, Context context) {
             if (Objects.equals(type, TypeEnum.SYNC)) {
                 Runner.invoke(bean, method, event, context);
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                asyncExecutorService.submit(() -> Runner.invoke(bean, method, event, context));
+                executorService.submit(() -> Runner.invoke(bean, method, event, context));
             } else {
                 throw new BizException(ErrorCodeEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }
