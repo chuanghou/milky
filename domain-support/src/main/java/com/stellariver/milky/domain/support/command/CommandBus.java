@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
+import com.stellariver.milky.common.tool.common.If;
 import com.stellariver.milky.common.tool.common.Invoke;
 import com.stellariver.milky.common.tool.utils.Collect;
 import com.stellariver.milky.common.tool.utils.Json;
@@ -203,7 +204,7 @@ public class CommandBus {
             }
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
-            BizException.falseThrow(unlock, ErrorCodeEnumBase.THIRD_SERVICE.message("unlock failure"));
+            If.isFalse(unlock, () -> {throw new RuntimeException("unlock " + command.getAggregationId() + " failure!");});
         }
         return result;
     }
