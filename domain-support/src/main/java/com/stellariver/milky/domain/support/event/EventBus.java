@@ -38,8 +38,7 @@ public class EventBus {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             Router router = Router.builder().bean(bean).method(method)
-                    .type(annotation.type()).order(annotation.order())
-                    .asyncExecutorService(asyncExecutorService)
+                    .type(annotation.type()).asyncExecutorService(asyncExecutorService)
                     .build();
             routerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(router);
         });
@@ -47,7 +46,9 @@ public class EventBus {
 
     public void route(Event event, Context context) {
         List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElse(new ArrayList<>());
-        routers.stream().sorted(Comparator.comparing(Router::getOrder))
+        routers.stream().filter(router -> router.type.equals(TypeEnum.SYNC))
+                .forEach(router -> Runner.run(() -> router.route(event, context)));
+        routers.stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
                 .forEach(router -> Runner.run(() -> router.route(event, context)));
     }
 
@@ -62,8 +63,6 @@ public class EventBus {
         private final Method method;
 
         private final TypeEnum type;
-
-        private int order;
 
         private ExecutorService asyncExecutorService;
 

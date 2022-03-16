@@ -14,18 +14,18 @@ public class UserEventRouters implements EventRouters {
 
     final private MqProducer mqProducer;
 
-    @EventRouter(order = 1, type = TypeEnum.ASYNC)
+    @EventRouter
     public void route1(NameChangeEvent event, Context context) {
         System.out.println(event);
     }
 
 
-    @EventRouter(order = 1, type = TypeEnum.ASYNC)
+    @EventRouter(type = TypeEnum.ASYNC)
     public void route2(NameChangeEvent event, Context context) {
         System.out.println(event);
     }
 
-    @EventRouter(order = 1, type = TypeEnum.ASYNC)
+    @EventRouter(type = TypeEnum.ASYNC)
     public void route3(NameChangeEvent event, Context context) {
 
         mqProducer.send("XXXTopic", Json.toString(event));

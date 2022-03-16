@@ -10,8 +10,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 public @interface EventRouter {
 
-    int order() default Integer.MAX_VALUE;
-
     TypeEnum type() default TypeEnum.SYNC;
 
     String executor() default "asyncExecutor";
