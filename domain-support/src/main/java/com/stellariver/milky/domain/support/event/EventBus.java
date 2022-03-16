@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.event;
 
 import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.Invoke;
+import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
@@ -19,43 +19,43 @@ import java.util.stream.Collectors;
 @Slf4j
 public class EventBus {
 
-    static final private Predicate<Class<?>[]> eventHandlerFormat = parameterTypes ->
+    static final private Predicate<Class<?>[]> eventRouterFormat = parameterTypes ->
             (parameterTypes.length == 2
                     && Event.class.isAssignableFrom(parameterTypes[0])
                     && parameterTypes[1] == Context.class);
 
-    private final Map<Class<? extends Event>, List<Handler>> handlerMap = new HashMap<>();
+    private final Map<Class<? extends Event>, List<Router>> routerMap = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public EventBus(BeanLoader beanLoader, ExecutorService asyncExecutorService) {
 
-        List<EventRouter> beans = beanLoader.getBeansOfType(EventRouter.class);
+        List<EventRouters> beans = beanLoader.getBeansOfType(EventRouters.class);
         List<Method> methods = beans.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> eventHandlerFormat.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(Router.class)).collect(Collectors.toList());
+                .filter(m -> eventRouterFormat.test(m.getParameterTypes()))
+                .filter(m -> m.isAnnotationPresent(EventRouter.class)).collect(Collectors.toList());
         methods.forEach(method -> {
-            Router annotation = method.getAnnotation(Router.class);
+            EventRouter annotation = method.getAnnotation(EventRouter.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
-            Handler handler = Handler.builder().bean(bean).method(method)
+            Router router = Router.builder().bean(bean).method(method)
                     .type(annotation.type()).order(annotation.order())
                     .asyncExecutorService(asyncExecutorService)
                     .build();
-            handlerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(handler);
+            routerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(router);
         });
     }
 
-    public void handler(Event event, Context context) {
-        List<Handler> handlers = Optional.ofNullable(handlerMap.get(event.getClass())).orElse(new ArrayList<>());
-//        handlers.stream().sorted(Comparator.comparing(Handler::getOrder))
-//                .forEach(handler -> InvokeUtil.run(() -> handler.handle(event, context)));
+    public void route(Event event, Context context) {
+        List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElse(new ArrayList<>());
+        routers.stream().sorted(Comparator.comparing(Router::getOrder))
+                .forEach(router -> Runner.run(() -> router.route(event, context)));
     }
 
 
     @Data
     @Builder
     @AllArgsConstructor
-    static public class Handler {
+    static public class Router {
 
         private final Object bean;
 
@@ -67,11 +67,11 @@ public class EventBus {
 
         private ExecutorService asyncExecutorService;
 
-        public void handle(Event event, Context context) {
+        public void route(Event event, Context context) {
             if (Objects.equals(type, TypeEnum.SYNC)) {
-                Invoke.invoke(bean, method, event, context);
+                Runner.invoke(bean, method, event, context);
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                asyncExecutorService.submit(() -> Invoke.invoke(bean, method, event, context));
+                asyncExecutorService.submit(() -> Runner.invoke(bean, method, event, context));
             } else {
                 throw new BizException(ErrorCodeEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }

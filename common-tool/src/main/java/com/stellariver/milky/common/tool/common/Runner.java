@@ -9,9 +9,9 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.function.Function;
 
-public class Invoke {
+public class Runner {
 
-    static final Logger log = Logger.getLogger(Invoke.class);
+    static final Logger log = Logger.getLogger(Runner.class);
 
     static public Object invoke(Object bean, Method method, Object... params) {
         try {

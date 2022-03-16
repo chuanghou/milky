@@ -30,11 +30,6 @@ public class User extends AggregateRoot {
         return userId.toString();
     }
 
-    @Override
-    public void setAggregateId(String aggregateId) {
-        this.userId = Long.valueOf(aggregateId);
-    }
-
     @CommandHandler(requiredKeys = {"grade"})
     public User handle(ChangeNameCommand command, Context context) {
         Integer grade = (Integer) context.get("grade");

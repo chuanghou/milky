@@ -3,7 +3,7 @@ package com.stellariver.milky.domain.support.command;
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
 import com.stellariver.milky.common.tool.common.If;
-import com.stellariver.milky.common.tool.common.Invoke;
+import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.utils.Collect;
 import com.stellariver.milky.common.tool.utils.Json;
 import com.stellariver.milky.common.tool.utils.Random;
@@ -226,17 +226,17 @@ public class CommandBus {
                 throw new RuntimeException(e);
             }
         } else {
-            aggregate = (AggregateRoot) Invoke.invoke(
+            aggregate = (AggregateRoot) Runner.invoke(
                     repository.bean, repository.getMethod, command.getAggregationId(), context);
             BizException.nullThrow(aggregate);
-            result = Invoke.invoke(aggregate, commandHandler.method, command, context);
+            result = Runner.invoke(aggregate, commandHandler.method, command, context);
         }
         context.setAggregateRoot(aggregate);
         if (Collect.isEmpty(context.events)) {
             return result;
         }
-        Invoke.invoke(repository.bean, repository.saveMethod, aggregate, context);
-        context.events.forEach(event -> Invoke.run(() -> eventBus.handler(event, context)));
+        Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
+        context.events.forEach(event -> Runner.run(() -> eventBus.route(event, context)));
         context.events.clear();
         return result;
     }
@@ -253,7 +253,7 @@ public class CommandBus {
                 .forEach(k -> invokeContextValueProvider(command, k, context, providers, referKeys));
         Object contextPrepareBean = valueProvider.getContextPrepareBean();
         Method providerMethod = valueProvider.getMethod();
-        Invoke.invoke(contextPrepareBean, providerMethod, command, context);
+        Runner.invoke(contextPrepareBean, providerMethod, command, context);
     }
 
     @Data
