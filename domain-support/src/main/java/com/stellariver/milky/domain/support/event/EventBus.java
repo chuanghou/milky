@@ -44,6 +44,12 @@ public class EventBus {
         });
     }
 
+    /**
+     * Because we need exploit database transaction, so async event router will be call
+     * firstly, then exception could be used to roll back all event source aggregate
+     * @param event the event need to be routed
+     * @param context current context
+     */
     public void route(Event event, Context context) {
         List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElse(new ArrayList<>());
         routers.stream().filter(router -> router.type.equals(TypeEnum.SYNC))
