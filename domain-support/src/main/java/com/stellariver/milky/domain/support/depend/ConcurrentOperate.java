@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.depend;
 
 import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.ErrorCodeBase;
+import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
 import com.stellariver.milky.domain.support.command.Command;
 import lombok.SneakyThrows;
 
@@ -19,8 +19,8 @@ public interface ConcurrentOperate {
     @SneakyThrows
     default boolean tryRetryLock(String lockKey, int secondsToExpire, int times, long sleepTime) {
         BizException.nullThrow(lockKey);
-        BizException.trueThrow(times <= 1, ErrorCodeBase.PARAM_IS_WRONG);
-        BizException.trueThrow(sleepTime > 5000, ErrorCodeBase.PARAM_IS_WRONG);
+        BizException.trueThrow(times <= 1, ErrorCodeEnumBase.PARAM_IS_WRONG);
+        BizException.trueThrow(sleepTime > 5000, ErrorCodeEnumBase.PARAM_IS_WRONG);
         do {
             Thread.sleep(sleepTime);
             if (tryLock(lockKey, secondsToExpire)) {

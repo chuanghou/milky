@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 public class InvokeUtil {
@@ -20,12 +19,13 @@ public class InvokeUtil {
         } catch (BizException ex) {
             throw ex;
         } catch (InvocationTargetException ex) {
-            if (ex.getTargetException() instanceof BizException) {
+            Throwable targetException = ex.getTargetException();
+            if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
-            throw new BizException(ErrorCodeBase.UNKNOWN, ex.getTargetException());
+            throw new RuntimeException(targetException.getMessage(), targetException);
         } catch (Throwable ex) {
-            throw new BizException(ErrorCodeBase.UNKNOWN, ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         }
     }
 
@@ -45,12 +45,13 @@ public class InvokeUtil {
         } catch (BizException ex) {
             throw ex;
         } catch (InvocationTargetException ex) {
-            if (ex.getTargetException() instanceof BizException) {
+            Throwable targetException = ex.getTargetException();
+            if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
-            throw new BizException(ErrorCodeBase.UNKNOWN, ex.getTargetException());
+            throw new RuntimeException(targetException.getMessage(), targetException);
         } catch (Throwable ex) {
-            throw new BizException(ErrorCodeBase.UNKNOWN, ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         }
     }
 
@@ -60,17 +61,18 @@ public class InvokeUtil {
         try {
             result = callable.call();
             if (!check.apply(result)) {
-                throw new BizException(ErrorCodeBase.UNKNOWN.message(Json.toString(result)));
+                throw new RuntimeException(Json.toString(result));
             }
         } catch (BizException ex) {
             throw ex;
         } catch (InvocationTargetException ex) {
-            if (ex.getTargetException() instanceof BizException) {
+            Throwable targetException = ex.getTargetException();
+            if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
-            throw new BizException(ErrorCodeBase.UNKNOWN, ex.getTargetException());
+            throw new RuntimeException(targetException.getMessage(), targetException);
         } catch (Throwable ex) {
-            throw new BizException(ErrorCodeBase.UNKNOWN, ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         }
         return result;
     }
@@ -83,7 +85,7 @@ public class InvokeUtil {
         } catch (BizException ex) {
             throw ex;
         } catch (Throwable ex) {
-            throw new BizException(ErrorCodeBase.UNKNOWN, ex);
+            throw new RuntimeException(ex.getMessage(), ex);
         }
     }
 

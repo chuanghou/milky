@@ -20,7 +20,6 @@ public class MapResult<K, T> extends Result<T> {
     private Map<K, Result<T>> resultMap = new HashMap<>();
 
     public void put(K key, Result<T> result) {
-        success = false;
         resultMap.put(key, result);
     }
 

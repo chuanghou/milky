@@ -1,7 +1,7 @@
 package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.stellariver.milky.common.tool.common.ErrorCodeBase;
+import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.domain.support.base.DomainPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -51,7 +51,7 @@ public class DomainSupportAutoConfiguration {
     @ConditionalOnMissingBean(name = "asyncExecutorService")
     public ExecutorService asyncExecutorService() {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setUncaughtExceptionHandler((t, e) -> log.withLogTag(ErrorCodeBase.UNKNOWN).error("|线程名={}|错误信息={}|", t.getName(), e.getMessage(), e))
+                .setUncaughtExceptionHandler((t, e) -> log.error("|线程名={}|错误信息={}|", t.getName(), e.getMessage(), e))
                 .setNameFormat("event-handler-url-thread-%d")
                 .build();
 

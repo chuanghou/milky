@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.ErrorCodeBase;
+import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
 import com.stellariver.milky.common.tool.common.InvokeUtil;
 import com.stellariver.milky.common.tool.utils.Collect;
 import com.stellariver.milky.common.tool.utils.Json;
@@ -124,7 +124,8 @@ public class CommandBus {
             try {
                 constructor = method.getDeclaringClass().getConstructor();
             } catch (NoSuchMethodException e) {
-                throw new BizException(ErrorCodeBase.UNKNOWN, e);
+                throw new BizException(ErrorCodeEnumBase.CONFIG_ERROR
+                        .message("corresponding domain class should include a constructor!"), e);
             }
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
             boolean hasReturn = !method.getReturnType().getName().equals("void");
@@ -202,7 +203,7 @@ public class CommandBus {
             }
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
-            BizException.falseThrow(unlock, ErrorCodeBase.THIRD_SERVICE.message("unlock failure"));
+            BizException.falseThrow(unlock, ErrorCodeEnumBase.THIRD_SERVICE.message("unlock failure"));
         }
         return result;
     }
@@ -222,7 +223,7 @@ public class CommandBus {
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new BizException(ErrorCodeBase.UNKNOWN, e);
+                throw new RuntimeException(e);
             }
         } else {
             aggregate = (AggregateRoot) InvokeUtil.invoke(

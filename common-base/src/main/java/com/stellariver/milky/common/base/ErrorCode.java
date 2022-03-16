@@ -38,7 +38,7 @@ public class ErrorCode {
     private String detailMessage;
 
     // 扩展信息主要用来存储一些附加信息
-    private List<Map<String, Object>> extendInfo;
+    private Map<String, Object> extendInfo;
 
     // 不允许任何不在枚举范围内的错误码，所有错误码需要基于错误码枚举生成, 所以禁止外部使用构造函数
     protected ErrorCode(){}
@@ -46,7 +46,7 @@ public class ErrorCode {
     private ErrorCode(String code,
                       String message,
                       String detailMessage,
-                      List<Map<String, Object>> extendInfo) {
+                      Map<String, Object> extendInfo) {
         this.code = code;
         this.message = message;
         this.detailMessage = detailMessage;
@@ -63,11 +63,11 @@ public class ErrorCode {
         ErrorCode.temporaryErrorCodes.set(new ArrayList<>());
     }
 
-    static public void  removeTemporaryErrorCodes() {
+    static public void removeTemporaryErrorCodes() {
         Optional.ofNullable(temporaryErrorCodes).ifPresent(ThreadLocal::remove);
     }
 
-    static public void  addTemporaryErrorCode(ErrorCode errorCode) {
+    static public void addTemporaryErrorCode(ErrorCode errorCode) {
         Optional.ofNullable(temporaryErrorCodes)
                 .map(ThreadLocal::get)
                 .orElseThrow(() -> new RuntimeException("temporaryErrorCodes 需要显式初始化"));
@@ -94,7 +94,7 @@ public class ErrorCode {
         return this.detailMessage;
     }
 
-    public List<Map<String, Object>> getExtendInfo() {
+    public Map<String, Object> getExtendInfo() {
         return this.extendInfo;
     }
 
@@ -120,7 +120,7 @@ public class ErrorCode {
         private String code;
         private String message;
         private String detailMessage;
-        private List<Map<String, Object>> extendInfo;
+        private Map<String, Object> extendInfo;
 
         ErrorCodeBuilder() {
         }
@@ -140,7 +140,7 @@ public class ErrorCode {
             return this;
         }
 
-        public ErrorCodeBuilder extendInfo(List<Map<String, Object>> extendInfo) {
+        public ErrorCodeBuilder extendInfo(Map<String, Object> extendInfo) {
             this.extendInfo = extendInfo;
             return this;
         }
