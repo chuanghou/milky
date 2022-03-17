@@ -14,9 +14,17 @@ import com.stellariver.milky.domain.support.context.PrepareProcessor;
 import com.stellariver.milky.domain.support.context.PrepareKey;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
+import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
+import com.stellariver.milky.domain.support.event.EventRouter;
+import com.stellariver.milky.domain.support.event.EventRouters;
+import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
+import com.stellariver.milky.domain.support.interceptor.Interceptor;
+import com.stellariver.milky.domain.support.interceptor.Interceptors;
+import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.repository.DomainRepository;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -37,11 +45,20 @@ public class CommandBus {
             && Command.class.isAssignableFrom(parameterTypes[0])
             && parameterTypes[1] == Context.class);
 
+    static final private Predicate<Class<?>[]> commandBusInterceptorFormat =
+            parameterTypes -> (parameterTypes.length == 2
+                    && Command.class.isAssignableFrom(parameterTypes[0])
+                    && parameterTypes[1] == Context.class);
+
     private final Map<Class<? extends Command>, Handler> commandHandlers = new HashMap<>();
 
     private final Map<Class<? extends Command>, Map<String, ContextValueProvider>> contextValueProviders = new HashMap<>();
 
     private final Map<Class<? extends AggregateRoot>, Repository> domainRepositories = new HashMap<>();
+
+    private final Map<Class<? extends Command>, List<Interceptor>> beforeCommandInterceptors = new HashMap<>();
+
+    private final Map<Class<? extends Command>, List<Interceptor>> afterCommandInterceptors = new HashMap<>();
 
     private final BeanLoader beanLoader;
 
@@ -75,6 +92,31 @@ public class CommandBus {
 
         prepareRepositories();
 
+        prepareCommandBusInterceptors();
+
+    }
+    @SuppressWarnings("unchecked")
+    private void prepareCommandBusInterceptors() {
+        List<Interceptors> interceptors = beanLoader.getBeansOfType(Interceptors.class);
+        List<Method> methods = interceptors.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .filter(m -> commandBusInterceptorFormat.test(m.getParameterTypes()))
+                .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList());
+        methods.forEach(method -> {
+            BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
+            Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
+            Object bean = beanLoader.getBean(method.getDeclaringClass());
+            Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
+                    .order(annotation.order()).posEnum(annotation.pos()).build();
+            if (interceptor.getPosEnum().equals(PosEnum.BEFORE)) {
+                beforeCommandInterceptors.computeIfAbsent(commandClass, eC -> new ArrayList<>()).add(interceptor);
+            } else if(interceptor.getPosEnum().equals(PosEnum.AFTER)){
+                afterCommandInterceptors.computeIfAbsent(commandClass, eC -> new ArrayList<>()).add(interceptor);
+            }
+        });
+        beforeCommandInterceptors.forEach((k, v) ->
+                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
+        afterCommandInterceptors.forEach((k, v) ->
+                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -184,8 +226,14 @@ public class CommandBus {
     }
 
     public <T extends Command> Object send(T command, Context context) {
+
+
         BizException.nullThrow(command, Command::getAggregationId);
-        context = Optional.ofNullable(context).orElse(new Context());
+        BizException.nullThrow(context, ErrorCodeEnum.PARAM_IS_NULL);
+
+        List<Interceptor> interceptors = Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new);
+        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
+
         Handler commandHandler= commandHandlers.get(command.getClass());
         BizException.nullThrow(commandHandler, ErrorCodeEnum.HANDLER_NOT_EXIST);
         Object result = null;
@@ -205,6 +253,8 @@ public class CommandBus {
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
             If.isFalse(unlock, () -> {throw new RuntimeException("unlock " + command.getAggregationId() + " failure!");});
         }
+        interceptors = Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new);
+        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
         return result;
     }
 
