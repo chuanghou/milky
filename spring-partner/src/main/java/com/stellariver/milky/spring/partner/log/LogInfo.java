@@ -1,4 +1,4 @@
-package com.stellariver.milky.spring.partner.cache;
+package com.stellariver.milky.spring.partner.log;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface ThreadLocalCache {
+public @interface LogInfo {
+
+    String logTag();
 }

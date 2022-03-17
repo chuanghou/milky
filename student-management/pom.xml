@@ -28,6 +28,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <java.version>8</java.version>
         <milky.version>0.0.2-SNAPSHOT</milky.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>

@@ -79,24 +79,7 @@ public class Runner {
 
     static public <R, T> T call(SCallable<R> callable, Function<R, Boolean> check, Function<R, T> getData) {
         autoLog(callable);
-        R result;
-        try {
-            result = callable.call();
-            if (!check.apply(result)) {
-                throw new RuntimeException(Json.toString(result));
-            }
-        } catch (BizException ex) {
-            throw ex;
-        } catch (InvocationTargetException ex) {
-            Throwable targetException = ex.getTargetException();
-            if (targetException instanceof BizException) {
-                throw (BizException) ex.getTargetException();
-            }
-            throw new RuntimeException(targetException.getMessage(), targetException);
-        } catch (Throwable ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-        return getData.apply(result);
+        return getData.apply(call(callable, check));
     }
 
     static public <R, T> T fallbackableCall(SCallable<R> callable,
@@ -111,7 +94,7 @@ public class Runner {
             }
             return defaultValue;
         } catch (Throwable ex) {
-            log.with("runnable", callable.toString()).error(ex.getMessage(), ex);
+            log.with("callable", callable.toString()).error(ex.getMessage(), ex);
         }
         return defaultValue;
     }

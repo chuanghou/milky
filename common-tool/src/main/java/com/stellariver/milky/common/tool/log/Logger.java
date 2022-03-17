@@ -32,20 +32,19 @@ public class Logger implements org.slf4j.Logger {
         return with("logTag", value);
     }
 
-    public void info(SRunnable runnable) {
-        Map<String, String> runtimeInfos = SLambda.resolve(runnable);
-        with(runtimeInfos);
-        info("sLambda resolve");
-    }
-
-    public void info(SCallable<?> callable) {
-        Map<String, String> runtimeInfos = SLambda.resolve(callable);
-        with(runtimeInfos);
-        info("sLambda resolve");
+    public Logger withLogTag(boolean test, Object value) {
+        return with(test, "logTag", value);
     }
 
     public Logger with(Map<String, ?> infos) {
         infos.forEach(this::with);
+        return this;
+    }
+
+    public Logger with(boolean test, String key, Object value) {
+        if (test) {
+            return with(key, value);
+        }
         return this;
     }
 
@@ -63,8 +62,7 @@ public class Logger implements org.slf4j.Logger {
             log.error("log key:{} already exists, it may from duplicate keys in one log expression, or memory leak. " +
                     "It's very dangerous, there must have a log expression which did not end with info(), error() and so on", key);
         }
-        value = Optional.ofNullable(value).orElse("null");
-        contents.put(key, value.toString());
+        contents.put(key, Objects.toString(value));
         return this;
     }
 

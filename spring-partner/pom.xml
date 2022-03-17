@@ -27,6 +27,10 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>common-tool</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
