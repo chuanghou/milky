@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.tool.log.Logger;
-import com.stellariver.milky.common.tool.utils.Json;
+import com.stellariver.milky.common.tool.util.Json;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;

@@ -4,9 +4,9 @@ import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
 import com.stellariver.milky.common.tool.common.If;
 import com.stellariver.milky.common.tool.common.Runner;
-import com.stellariver.milky.common.tool.utils.Collect;
-import com.stellariver.milky.common.tool.utils.Json;
-import com.stellariver.milky.common.tool.utils.Random;
+import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.Json;
+import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
@@ -95,7 +95,7 @@ public class CommandBus {
         });
     }
 
-    private Method getMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
+    public Method getMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
         Method method;
         try {
             method = clazz.getMethod(methodName, parameterTypes);

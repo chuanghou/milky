@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.base.ErrorCode;
-import com.stellariver.milky.common.tool.utils.Collect;
+import com.stellariver.milky.common.tool.util.Collect;
 
 import java.util.*;
 import java.util.function.Function;

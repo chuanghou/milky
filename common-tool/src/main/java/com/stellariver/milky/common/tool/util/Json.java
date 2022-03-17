@@ -1,7 +1,5 @@
-package com.stellariver.milky.common.tool.utils;
+package com.stellariver.milky.common.tool.util;
 
-import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;

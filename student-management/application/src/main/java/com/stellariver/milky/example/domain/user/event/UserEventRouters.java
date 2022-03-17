@@ -1,6 +1,6 @@
 package com.stellariver.milky.example.domain.user.event;
 
-import com.stellariver.milky.common.tool.utils.Json;
+import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.event.EventRouter;
 import com.stellariver.milky.domain.support.event.EventRouters;

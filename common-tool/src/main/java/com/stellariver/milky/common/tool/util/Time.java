@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.utils;
+package com.stellariver.milky.common.tool.util;
 
 import org.apache.commons.lang3.time.DateUtils;
 

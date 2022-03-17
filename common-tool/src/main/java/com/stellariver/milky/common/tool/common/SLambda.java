@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.tool.utils.Json;
+import com.stellariver.milky.common.tool.util.Json;
 import lombok.SneakyThrows;
 
 import java.io.Serializable;
@@ -8,7 +8,6 @@ import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 public class SLambda {
 

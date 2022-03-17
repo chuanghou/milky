@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.utils;
+package com.stellariver.milky.common.tool.util;
 
 import com.google.common.collect.Sets;
 
@@ -27,7 +27,7 @@ public class Collect {
     public static <K, V> Map<K, List<V>> reGroup(Map<K, List<V>>... maps) {
         HashMap<K, List<V>> resultMap = new HashMap<>();
         Arrays.stream(maps).flatMap(map -> map == null ? Stream.empty() : map.entrySet().stream())
-                .forEach(entry -> resultMap.computeIfAbsent(entry.getKey(), key -> new ArrayList<V>()).addAll(entry.getValue()));
+                .forEach(entry -> resultMap.computeIfAbsent(entry.getKey(), key -> new ArrayList<>()).addAll(entry.getValue()));
         return resultMap;
     }
 
@@ -35,7 +35,7 @@ public class Collect {
         map1 = Optional.ofNullable(map1).orElse(new HashMap<>());
         map2 = Optional.ofNullable(map2).orElse(new HashMap<>());
         HashMap<K, List<V>> map = new HashMap<>(map1);
-        map2.forEach((key, value) -> map.computeIfAbsent(key, k -> new ArrayList<V>()).add(value));
+        map2.forEach((key, value) -> map.computeIfAbsent(key, k -> new ArrayList<>()).add(value));
         return map;
     }
 
@@ -47,7 +47,7 @@ public class Collect {
         supMap = Optional.ofNullable(supMap).orElse(new HashMap<>());
         subMap = Optional.ofNullable(subMap).orElse(new HashMap<>());
         HashMap<K, V> map = new HashMap<>(supMap);
-        subMap.forEach(map::put);
+        map.putAll(subMap);
         return map;
     }
 
