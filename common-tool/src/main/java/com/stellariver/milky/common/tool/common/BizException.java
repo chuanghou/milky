@@ -11,29 +11,29 @@ import java.util.function.Supplier;
  */
 public class BizException extends RuntimeException {
 
-    private final String code;
+    private final String errorCode;
 
     private final List<ErrorCode> errorCodes;
 
     public BizException(ErrorCode errorCode) {
         super(errorCode.getMessage());
-        this.code = errorCode.getCode();
+        this.errorCode = errorCode.getCode();
         this.errorCodes = Collections.singletonList(errorCode);
     }
     public BizException(ErrorCode errorCode, Throwable t) {
         super(errorCode.getMessage(), t);
-        this.code = errorCode.getCode();
+        this.errorCode = errorCode.getCode();
         this.errorCodes = Collections.singletonList(errorCode);
     }
 
     public BizException(List<ErrorCode> errorCodes, Throwable t) {
         super(errorCodes.get(0).getMessage(), t);
-        this.code = errorCodes.get(0).getCode();
+        this.errorCode = errorCodes.get(0).getCode();
         this.errorCodes = errorCodes;
     }
 
     public String getErrorCode() {
-        return this.code;
+        return this.errorCode;
     }
 
     public ErrorCode getFirstErrorCode() {
@@ -105,4 +105,31 @@ public class BizException extends RuntimeException {
             throw new BizException(errorCode);
         }
     }
+
+    static private ThreadLocal<List<ErrorCode>>  temporaryErrorCodes;
+
+    /**
+     * 对于任何一个init函数都必须在有try-final块里面有 removeTemporaryErrorCodes（）操作
+     */
+    static public void initTemporaryErrorCodes() {
+        temporaryErrorCodes = new ThreadLocal<>();
+        temporaryErrorCodes.set(new ArrayList<>());
+    }
+
+    static public void removeTemporaryErrorCodes() {
+        Optional.ofNullable(temporaryErrorCodes).ifPresent(ThreadLocal::remove);
+    }
+
+    static public void addTemporaryErrorCode(ErrorCode errorCode) {
+        Optional.ofNullable(temporaryErrorCodes)
+                .map(ThreadLocal::get)
+                .orElseThrow(() -> new BizException(ErrorCodeEnumBase
+                        .CONFIG_ERROR.message("temporaryErrorCodes container need explicitly init!")))
+                .add(errorCode);
+    }
+
+    static public List<ErrorCode> getTemporaryErrorCodes() {
+        return Optional.ofNullable(temporaryErrorCodes).map(ThreadLocal::get).orElse(new ArrayList<>());
+    }
+
 }

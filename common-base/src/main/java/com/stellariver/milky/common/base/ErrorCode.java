@@ -53,31 +53,6 @@ public class ErrorCode {
         this.extendInfo = extendInfo;
     }
 
-    static private ThreadLocal<List<ErrorCode>>  temporaryErrorCodes;
-
-    /**
-     * 对于任何一个init函数都必须在有try-final块里面有 removeTemporaryErrorCodes（）操作
-     */
-    static public void initTemporaryErrorCodes() {
-        ErrorCode.temporaryErrorCodes = new ThreadLocal<>();
-        ErrorCode.temporaryErrorCodes.set(new ArrayList<>());
-    }
-
-    static public void removeTemporaryErrorCodes() {
-        Optional.ofNullable(temporaryErrorCodes).ifPresent(ThreadLocal::remove);
-    }
-
-    static public void addTemporaryErrorCode(ErrorCode errorCode) {
-        Optional.ofNullable(temporaryErrorCodes)
-                .map(ThreadLocal::get)
-                .orElseThrow(() -> new RuntimeException("temporaryErrorCodes 需要显式初始化"));
-        temporaryErrorCodes.get().add(errorCode);
-    }
-
-    static public List<ErrorCode>  getTemporaryErrorCodes() {
-        return Optional.ofNullable(temporaryErrorCodes).map(ThreadLocal::get).orElse(new ArrayList<>());
-    }
-
     public static ErrorCodeBuilder builder() {
         return new ErrorCodeBuilder();
     }
