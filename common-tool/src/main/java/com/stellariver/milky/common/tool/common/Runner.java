@@ -124,15 +124,15 @@ public class Runner {
         } catch (BizException ex) {
             throw ex;
         } catch (Throwable ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
+            throw new RuntimeException(ex.getMessage());
         }
     }
 
-    static public void fallbackableRun(Runnable runnable) {
+    static public void fallbackableRun(SRunnable runnable) {
         try {
             runnable.run();
         } catch (Throwable ex) {
-            log.with("runnable", runnable.toString()).error(ex.getMessage(), ex);
+            log.with("runnable", Json.toString(SLambda.resolve(runnable))).error(ex.getMessage(), ex);
         }
     }
 
