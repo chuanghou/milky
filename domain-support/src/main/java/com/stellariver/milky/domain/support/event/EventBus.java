@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class EventBus {
 
-    static final private Predicate<Class<?>[]> eventRouterFormat = parameterTypes ->
-            (parameterTypes.length == 2
+    static final private Predicate<Class<?>[]> eventRouterFormat =
+            parameterTypes -> (parameterTypes.length == 2
                     && Event.class.isAssignableFrom(parameterTypes[0])
                     && parameterTypes[1] == Context.class);
 

@@ -58,21 +58,21 @@ public class Collect {
     /**
      * 相同key保留第一个值
      */
-    public static <K, V> Map<K, V> collectToMap(Collection<V> source, Function<V, K> mapper) {
+    public static <K, V> Map<K, V> toMap(Collection<V> source, Function<V, K> mapper) {
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(mapper, Function.identity(), (v1, v2) -> v1));
     }
 
     /**
      * 相同key保留第一个值
      */
-    public static <T, K, V> Map<K, V> collectToMap(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper) {
+    public static <T, K, V> Map<K, V> toMap(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper) {
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(keyMapper, valueMapper, (v1, v2) -> v1));
     }
 
     /**
      * 转为Map有可能抛出异常
      */
-    public static <K, V> Map<K, V> collectToMapMightException(Collection<V> source, Function<V, K> mapper){
+    public static <K, V> Map<K, V> toMapMightException(Collection<V> source, Function<V, K> mapper){
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(mapper, Function.identity()));
     }
 
@@ -83,13 +83,13 @@ public class Collect {
         return stream(source).filter(Objects::nonNull).collect(Collectors.groupingBy(keyMapper));
     }
 
-    public static <S, R, T extends Collection<R>> T convert(Collection<S> sourceCollection, Function<S, R> converter, Supplier<T> factory) {
+    public static <S, R, T extends Collection<R>> T transfer(Collection<S> sourceCollection, Function<S, R> converter, Supplier<T> factory) {
         return stream(sourceCollection).filter(Objects::nonNull)
                 .map(converter).filter(Objects::nonNull).collect(Collectors.toCollection(factory));
     }
 
-    public static <S, R> List<R> convert(Collection<S> sourceCollection, Function<S, R> converter) {
-        return convert(sourceCollection, converter, ArrayList::new);
+    public static <S, R> List<R> transfer(Collection<S> sourceCollection, Function<S, R> converter) {
+        return transfer(sourceCollection, converter, ArrayList::new);
     }
 
     public static <T extends Collection<V>, V> T delete(T source, Predicate<V> predicate, Supplier<T> factory) {
@@ -101,14 +101,20 @@ public class Collect {
     }
 
     public static <T> Set<T> difference(Set<T> set1, Set<T> set2) {
+        set1 = Optional.ofNullable(set1).orElse(new HashSet<>());
+        set2 = Optional.ofNullable(set2).orElse(new HashSet<>());
         return Sets.difference(set1, set2);
     }
 
     public static <T> Set<T> intersection(Set<T> set1, Set<T> set2) {
+        set1 = Optional.ofNullable(set1).orElse(new HashSet<>());
+        set2 = Optional.ofNullable(set2).orElse(new HashSet<>());
         return Sets.intersection(set1, set2);
     }
 
     public static <T> Set<T> symmetricDifference(Set<T> set1, Set<T> set2) {
+        set1 = Optional.ofNullable(set1).orElse(new HashSet<>());
+        set2 = Optional.ofNullable(set2).orElse(new HashSet<>());
         return Sets.symmetricDifference(set1, set2);
     }
 

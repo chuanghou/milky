@@ -23,21 +23,4 @@ public class Time {
         return DateUtils.addDays(new Date(), 1);
     }
 
-    public static LocalDateTime transfer(Date date) {
-        Instant instant = date.toInstant();
-        ZoneId zoneId = ZoneId.systemDefault();
-        return instant.atZone(zoneId).toLocalDateTime();
-    }
-
-    /**
-     * 此方法慎用，本方法计算天数差时，只计算天数差别
-     * @param endDate 终点时间
-     * @param startDate 起点时间
-     * @return 相差天数
-     */
-    public static long minusDayPart(Date endDate, Date startDate) {
-        LocalDateTime endLocalDateTime = transfer(endDate);
-        LocalDateTime startLocalDateTime = transfer(DateUtils.ceiling(startDate, Calendar.DATE));
-        return ChronoUnit.DAYS.between(startLocalDateTime, endLocalDateTime);
-    }
 }
