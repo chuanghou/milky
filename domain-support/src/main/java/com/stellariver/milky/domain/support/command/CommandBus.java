@@ -18,7 +18,7 @@ import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
-import com.stellariver.milky.domain.support.interceptor.Interceptors;
+import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.repository.DomainRepository;
 import lombok.AllArgsConstructor;
@@ -99,7 +99,7 @@ public class CommandBus {
         HashMap<Class<? extends Command>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
-        beanLoader.getBeansOfType(Interceptors.class).stream()
+        beanLoader.getBeansOfType(BusInterceptors.class).stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> commandBusInterceptorFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())

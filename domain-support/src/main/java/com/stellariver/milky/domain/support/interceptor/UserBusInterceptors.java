@@ -4,7 +4,7 @@ import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.event.Event;
 
-public class UserInterceptors implements Interceptors{
+public class UserBusInterceptors implements BusInterceptors {
 
     @BusInterceptor(pos = PosEnum.BEFORE)
     public void beforeCommandBus(Command command, Context context) {

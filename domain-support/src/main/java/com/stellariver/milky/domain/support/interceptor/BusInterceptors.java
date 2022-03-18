@@ -1,5 +1,5 @@
 package com.stellariver.milky.domain.support.interceptor;
 
-public interface Interceptors {
+public interface BusInterceptors {
 
 }

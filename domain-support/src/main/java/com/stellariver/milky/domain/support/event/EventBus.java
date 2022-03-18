@@ -4,13 +4,11 @@ import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
-import com.stellariver.milky.domain.support.command.Command;
-import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
-import com.stellariver.milky.domain.support.interceptor.Interceptors;
+import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -63,7 +61,7 @@ public class EventBus {
         HashMap<Class<? extends Event>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
-        beanLoader.getBeansOfType(Interceptors.class).stream()
+        beanLoader.getBeansOfType(BusInterceptors.class).stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> eventInterceptorFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())
