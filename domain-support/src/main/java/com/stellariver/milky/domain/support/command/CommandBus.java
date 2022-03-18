@@ -11,21 +11,17 @@ import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.context.PrepareProcessor;
+import com.stellariver.milky.domain.support.context.ContextPrepares;
 import com.stellariver.milky.domain.support.context.PrepareKey;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
-import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
-import com.stellariver.milky.domain.support.event.EventRouter;
-import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.repository.DomainRepository;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -206,7 +202,7 @@ public class CommandBus {
     private void prepareContextValueProviders(Reflections reflections) {
         Map<Class<? extends Command>, Map<String, ContextValueProvider>> tempProviders = new HashMap<>();
 
-        List<Method> methods = beanLoader.getBeansOfType(PrepareProcessor.class)
+        List<Method> methods = beanLoader.getBeansOfType(ContextPrepares.class)
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
                 .filter(method -> method.isAnnotationPresent(PrepareKey.class))

@@ -2,10 +2,10 @@ package com.stellariver.milky.example.domain.user.context;
 
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.PrepareKey;
-import com.stellariver.milky.domain.support.context.PrepareProcessor;
+import com.stellariver.milky.domain.support.context.ContextPrepares;
 import com.stellariver.milky.example.domain.user.command.ChangeCommand;
 
-public class UserPrepareProcessor implements PrepareProcessor {
+public class UserContextPrepares implements ContextPrepares {
 
     @PrepareKey("grade")
     public void prepareGrade(ChangeCommand command, Context context) {
