@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -32,6 +33,10 @@ public class MapResult<K, T> extends Result<T> {
 
     public T getValue(K key) {
         return Optional.ofNullable(resultMap.get(key)).map(Result::getData).orElse(null);
+    }
+
+    public List<T> getDataList() {
+        return resultMap.values().stream().filter(Result::getSuccess).map(Result::getData).collect(Collectors.toList());
     }
 
 }
