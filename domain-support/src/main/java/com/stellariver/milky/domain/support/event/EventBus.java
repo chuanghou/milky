@@ -91,7 +91,7 @@ public class EventBus {
             beforeEventInterceptors.put(commandClass, beforeInterceptors);
             List<Interceptor> afterInterceptors = interceptors.stream()
                     .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER)).collect(Collectors.toList());
-            afterEventInterceptors.put(commandClass, beforeInterceptors);
+            afterEventInterceptors.put(commandClass, afterInterceptors);
         });
 
         // internal order
