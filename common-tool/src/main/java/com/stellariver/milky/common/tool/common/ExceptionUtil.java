@@ -7,4 +7,8 @@ public class ExceptionUtil {
             throw new RuntimeException(message);
         }
     }
+
+    public static void falseThrow(boolean test, String message) {
+        trueThrow(!test, message);
+    }
 }
