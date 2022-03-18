@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.event;
 
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
+import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.context.Context;
@@ -21,7 +22,6 @@ import java.util.concurrent.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@Slf4j
 public class EventBus {
 
     static final private Predicate<Class<?>[]> eventRouterFormat =
