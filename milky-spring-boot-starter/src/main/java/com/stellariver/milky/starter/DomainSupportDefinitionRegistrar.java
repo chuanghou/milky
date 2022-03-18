@@ -3,6 +3,7 @@ package com.stellariver.milky.starter;
 import com.stellariver.milky.domain.support.base.DomainPackages;
 import com.stellariver.milky.domain.support.context.ContextPrepares;
 import com.stellariver.milky.domain.support.event.EventRouters;
+import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.repository.DomainRepository;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -42,6 +43,7 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
             scanner.addIncludeFilter(new AssignableTypeFilter(ContextPrepares.class));
             scanner.addIncludeFilter(new AssignableTypeFilter(EventRouters.class));
             scanner.addIncludeFilter(new AssignableTypeFilter(DomainRepository.class));
+            scanner.addIncludeFilter(new AssignableTypeFilter(BusInterceptors.class));
             scanner.scan(domainPackages);
         }
     }
