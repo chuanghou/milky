@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.event;
 
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
+import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -58,22 +59,44 @@ public class EventBus {
             routerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(router);
         });
 
-        List<Interceptors> interceptors = beanLoader.getBeansOfType(Interceptors.class);
-        methods = interceptors.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+        HashMap<Class<? extends Event>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
+        HashMap<Class<? extends Event>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
+
+        // collect all command interceptors into tempInterceptorsMap group by commandClass
+        beanLoader.getBeansOfType(Interceptors.class).stream()
+                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> eventInterceptorFormat.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList());
-        methods.forEach(method -> {
-            BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
-            Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
-            Object bean = beanLoader.getBean(method.getDeclaringClass());
-            Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
-                    .order(annotation.order()).posEnum(annotation.pos()).build();
-            if (interceptor.getPosEnum().equals(PosEnum.BEFORE)) {
-                beforeEventInterceptors.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(interceptor);
-            } else if (interceptor.getPosEnum().equals(PosEnum.AFTER)){
-                afterEventInterceptors.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(interceptor);
-            }
+                .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())
+                .forEach(method -> {
+                    BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
+                    Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
+                    Object bean = beanLoader.getBean(method.getDeclaringClass());
+                    Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
+                            .order(annotation.order()).posEnum(annotation.pos()).build();
+                    tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor);
+                });
+
+        // according to inherited relation to collect final command interceptors map, all ancestor interceptor
+        tempInterceptorsMap.forEach((eventClass, tempInterceptors) -> {
+            List<Class<? extends Event>> ancestorClasses = Reflect.ancestorClasses(eventClass)
+                    .stream().filter(c -> c.isAssignableFrom(Event.class)).collect(Collectors.toList());
+            ancestorClasses.forEach(ancestor -> {
+                List<Interceptor> ancestorInterceptors = tempInterceptorsMap.get(ancestor);
+                finalInterceptorsMap.computeIfAbsent(eventClass, c -> new ArrayList<>()).addAll(ancestorInterceptors);
+            });
         });
+
+        // divided into before and after
+        finalInterceptorsMap.forEach((commandClass, interceptors) -> {
+            List<Interceptor> beforeInterceptors = interceptors.stream()
+                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.BEFORE)).collect(Collectors.toList());
+            beforeEventInterceptors.put(commandClass, beforeInterceptors);
+            List<Interceptor> afterInterceptors = interceptors.stream()
+                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER)).collect(Collectors.toList());
+            afterEventInterceptors.put(commandClass, beforeInterceptors);
+        });
+
+        // internal order
         beforeEventInterceptors.forEach((k, v) ->
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
         afterEventInterceptors.forEach((k, v) ->

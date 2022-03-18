@@ -7,6 +7,7 @@ import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
+import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorCodeEnum;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
@@ -97,22 +98,45 @@ public class CommandBus {
     }
     @SuppressWarnings("unchecked")
     private void prepareCommandBusInterceptors() {
-        List<Interceptors> interceptors = beanLoader.getBeansOfType(Interceptors.class);
-        List<Method> methods = interceptors.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+
+        HashMap<Class<? extends Command>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
+        HashMap<Class<? extends Command>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
+
+        // collect all command interceptors into tempInterceptorsMap group by commandClass
+        beanLoader.getBeansOfType(Interceptors.class).stream()
+                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> commandBusInterceptorFormat.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList());
-        methods.forEach(method -> {
-            BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
-            Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
-            Object bean = beanLoader.getBean(method.getDeclaringClass());
-            Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
-                    .order(annotation.order()).posEnum(annotation.pos()).build();
-            if (interceptor.getPosEnum().equals(PosEnum.BEFORE)) {
-                beforeCommandInterceptors.computeIfAbsent(commandClass, eC -> new ArrayList<>()).add(interceptor);
-            } else if(interceptor.getPosEnum().equals(PosEnum.AFTER)){
-                afterCommandInterceptors.computeIfAbsent(commandClass, eC -> new ArrayList<>()).add(interceptor);
-            }
+                .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())
+                .forEach(method -> {
+                    BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
+                    Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
+                    Object bean = beanLoader.getBean(method.getDeclaringClass());
+                    Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
+                            .order(annotation.order()).posEnum(annotation.pos()).build();
+                    tempInterceptorsMap.computeIfAbsent(commandClass, cC -> new ArrayList<>()).add(interceptor);
+                });
+
+        // according to inherited relation to collect final command interceptors map, all ancestor interceptor
+        tempInterceptorsMap.forEach((commandClass, tempInterceptors) -> {
+            List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass)
+                    .stream().filter(c -> c.isAssignableFrom(Command.class)).collect(Collectors.toList());
+            ancestorClasses.forEach(ancestor -> {
+                List<Interceptor> ancestorInterceptors = tempInterceptorsMap.get(ancestor);
+                finalInterceptorsMap.computeIfAbsent(commandClass, c -> new ArrayList<>()).addAll(ancestorInterceptors);
+            });
         });
+
+        // divided into before and after
+        finalInterceptorsMap.forEach((commandClass, interceptors) -> {
+            List<Interceptor> beforeInterceptors = interceptors.stream()
+                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.BEFORE)).collect(Collectors.toList());
+            beforeCommandInterceptors.put(commandClass, beforeInterceptors);
+            List<Interceptor> afterInterceptors = interceptors.stream()
+                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER)).collect(Collectors.toList());
+            afterCommandInterceptors.put(commandClass, beforeInterceptors);
+        });
+
+        // internal order
         beforeCommandInterceptors.forEach((k, v) ->
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
         afterCommandInterceptors.forEach((k, v) ->
@@ -188,37 +212,24 @@ public class CommandBus {
                 .filter(method -> method.isAnnotationPresent(PrepareKey.class))
                 .filter(method -> commandHandlerFormat.test(method.getParameterTypes())).collect(Collectors.toList());
 
-        methods.forEach(m -> {
-            Class<? extends Command> commandClass = (Class<? extends Command>) m.getParameterTypes()[0];
-            String key = m.getAnnotation(PrepareKey.class).value();
-            BizException.trueThrow(key.equals(""), ErrorCodeEnum.CONFIG_ERROR.message("contextPrepare 必须有指定key"));
-            String[] requiredKeys = m.getAnnotation(PrepareKey.class).requiredKeys();
-            Object bean = beanLoader.getBean(m.getDeclaringClass());
-            ContextValueProvider valueProvider = new ContextValueProvider(key, requiredKeys, bean, m);
+        methods.forEach(method -> {
+            Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
+            String key = method.getAnnotation(PrepareKey.class).value();
+            String[] requiredKeys = method.getAnnotation(PrepareKey.class).requiredKeys();
+            Object bean = beanLoader.getBean(method.getDeclaringClass());
+            ContextValueProvider valueProvider = new ContextValueProvider(key, requiredKeys, bean, method);
             Map<String, ContextValueProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
             BizException.trueThrow(valueProviderMap.containsKey(key),
                    ErrorCodeEnum.CONFIG_ERROR.message("对于" + commandClass.getName() + "对于" + key + "提供了两个contextValueProvider"));
             valueProviderMap.put(key, valueProvider);
         });
 
-        reflections.getSubTypesOf(Command.class).forEach(command -> {
+        reflections.getSubTypesOf(Command.class).forEach(commandClass -> {
             Map<String, ContextValueProvider> map = new HashMap<>();
-            List<Class<? extends Command>> commands = getAncestorClasses(command);
-            commands.forEach(c -> map.putAll(Optional.ofNullable(tempProviders.get(c)).orElse(new HashMap<>())));
-            contextValueProviders.put(command, map);
+            List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass);
+            ancestorClasses.forEach(c -> map.putAll(Optional.ofNullable(tempProviders.get(c)).orElseGet(HashMap::new)));
+            contextValueProviders.put(commandClass, map);
         });
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Class<? extends Command>> getAncestorClasses(Class<? extends Command> clazz) {
-        List<Class<? extends Command>> classes = new ArrayList<>();
-        Class<?> superClazz = clazz;
-        while (!Objects.equals(superClazz, Command.class)) {
-            classes.add((Class<? extends Command>) superClazz);
-            superClazz = superClazz.getSuperclass();
-        }
-        Collections.reverse(classes);
-        return classes;
     }
 
     public <T extends Command> Object send(T command) {
