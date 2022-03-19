@@ -2,19 +2,19 @@ package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.domain.support.base.Message;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 abstract public class Command extends Message {
-
-    public Command() {
-        super();
-    }
 
     public boolean allowAsync() {
         return true;
