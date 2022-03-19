@@ -172,17 +172,22 @@ public class CommandBus {
         methods.forEach(method -> {
             Class<?>[] parameterTypes = method.getParameterTypes();
             CommandHandler annotation = method.getAnnotation(CommandHandler.class);
-            Constructor<?> constructor;
-            try {
-                constructor = method.getDeclaringClass().getConstructor();
-            } catch (NoSuchMethodException e) {
-                throw new BizException(ErrorCodeEnumBase.CONFIG_ERROR
-                        .message("corresponding domain class should include a constructor!"), e);
-            }
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
             boolean hasReturn = !method.getReturnType().getName().equals("void");
             List<String> requiredKeys = Arrays.asList(annotation.requiredKeys());
-            Handler handler = new Handler(clazz, method, constructor, hasReturn, requiredKeys);
+            Handler handler = new Handler(clazz, method, null, hasReturn, requiredKeys);
+            commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
+        });
+        List<Constructor<?>> constructors = classes.stream().map(Class::getDeclaredConstructors).flatMap(Stream::of)
+                .filter(m -> commandHandlerFormat.test(m.getParameterTypes()))
+                .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
+
+        constructors.forEach(constructor -> {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            CommandHandler annotation = constructor.getAnnotation(CommandHandler.class);
+            List<String> requiredKeys = Arrays.asList(annotation.requiredKeys());
+            Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) constructor.getDeclaringClass();
+            Handler handler = new Handler(clazz, null, constructor, false, requiredKeys);
             commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
         });
     }
