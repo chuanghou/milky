@@ -1,9 +1,6 @@
 package com.stellariver.milky.common.base;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.*;
@@ -16,8 +13,10 @@ import java.util.stream.Collectors;
 @SuperBuilder(builderMethodName = "mapResultBuilder")
 public class MapResult<K, T> extends Result<T> {
 
+    @Builder.Default
     private List<K> failureKeys = new ArrayList<>();
 
+    @Builder.Default
     private Map<K, Result<T>> resultMap = new HashMap<>();
 
     public void put(K key, Result<T> result) {

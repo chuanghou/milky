@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.depend;
 
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
+import com.stellariver.milky.common.tool.common.ExceptionUtil;
 import com.stellariver.milky.domain.support.command.Command;
 import lombok.SneakyThrows;
 
@@ -18,15 +19,15 @@ public interface ConcurrentOperate {
 
     @SneakyThrows
     default boolean tryRetryLock(String lockKey, int secondsToExpire, int times, long sleepTime) {
-        BizException.nullThrow(lockKey);
-        BizException.trueThrow(times <= 1, ErrorCodeEnumBase.PARAM_FORMAT_IS_WRONG);
-        BizException.trueThrow(sleepTime > 5000, ErrorCodeEnumBase.PARAM_FORMAT_IS_WRONG);
-        do {
+        ExceptionUtil.nullThrow(lockKey);
+        ExceptionUtil.trueThrow(times <= 0, () -> "retry times should not smaller than 0 or equal with 0");
+        ExceptionUtil.trueThrow(sleepTime > 5000, () -> "sleep time is too long");
+        while (times-- > 0) {
             Thread.sleep(sleepTime);
             if (tryLock(lockKey, secondsToExpire)) {
                 return true;
             }
-        } while (times-- > 1);
+        }
         return false;
     }
 }

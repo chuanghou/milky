@@ -1,6 +1,7 @@
 package com.stellariver.milky.common.base;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -17,6 +18,7 @@ public class Result<T> implements Serializable {
     /**
      * 请求结果码
      */
+    @Builder.Default
     protected Boolean success = true;
 
     /**

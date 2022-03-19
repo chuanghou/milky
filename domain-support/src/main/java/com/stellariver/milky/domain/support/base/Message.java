@@ -1,6 +1,7 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.domain.support.context.Context;
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
@@ -19,6 +20,7 @@ public abstract class Message {
 
     protected Date gmtCreate;
 
+    @Builder.Default
     protected Map<String, Object> extensions = new HashMap<>();
 
     public abstract String getAggregationId();

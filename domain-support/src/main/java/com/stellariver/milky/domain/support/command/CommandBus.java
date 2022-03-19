@@ -1,9 +1,6 @@
 package com.stellariver.milky.domain.support.command;
 
-import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.ErrorCodeEnumBase;
-import com.stellariver.milky.common.tool.common.If;
-import com.stellariver.milky.common.tool.common.Runner;
+import com.stellariver.milky.common.tool.common.*;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
@@ -129,7 +126,7 @@ public class CommandBus {
             beforeCommandInterceptors.put(commandClass, beforeInterceptors);
             List<Interceptor> afterInterceptors = interceptors.stream()
                     .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER)).collect(Collectors.toList());
-            afterCommandInterceptors.put(commandClass, beforeInterceptors);
+            afterCommandInterceptors.put(commandClass, afterInterceptors);
         });
 
         // internal order
@@ -146,7 +143,6 @@ public class CommandBus {
             List<Method> methods = Arrays.stream(bean.getClass().getMethods()).filter(m -> Objects.equals(m.getName(), "save"))
                     .filter(m -> !m.getParameterTypes()[0].equals(Object.class))
                     .collect(Collectors.toList());
-            BizException.trueThrow(methods.size() != 1, ErrorCodeEnum.CONFIG_ERROR);
             Method saveMethod = methods.get(0);
             Class<?> aggregateClazz = saveMethod.getParameterTypes()[0];
             Class<?> repositoryClazz = bean.getClass();
@@ -165,13 +161,6 @@ public class CommandBus {
             throw new BizException(ErrorCodeEnum.CONFIG_ERROR);
         }
         return method;
-    }
-
-    private Method getMethodByName(Class<?> clazz, String methodName) {
-        List<Method> methods = Arrays.stream(clazz.getMethods())
-                .filter(m -> Objects.equals(m.getName(), methodName)).collect(Collectors.toList());
-        BizException.trueThrow(methods.size() != 1, ErrorCodeEnum.CONFIG_ERROR.message("methodName: " + methodName + "不唯一"));
-        return methods.get(0);
     }
 
     @SuppressWarnings("unchecked")
@@ -215,8 +204,8 @@ public class CommandBus {
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             ContextValueProvider valueProvider = new ContextValueProvider(key, requiredKeys, bean, method);
             Map<String, ContextValueProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
-            BizException.trueThrow(valueProviderMap.containsKey(key),
-                   ErrorCodeEnum.CONFIG_ERROR.message("对于" + commandClass.getName() + "对于" + key + "提供了两个contextValueProvider"));
+            ExceptionUtil.trueThrow(valueProviderMap.containsKey(key),
+                    () -> "对于" + commandClass.getName() + "对于" + key + "提供了两个contextValueProvider");
             valueProviderMap.put(key, valueProvider);
         });
 
@@ -234,12 +223,10 @@ public class CommandBus {
 
     public <T extends Command> Object send(T command, Context context) {
 
+        ExceptionUtil.nullThrow(command, context);
 
-        BizException.nullThrow(command, Command::getAggregationId);
-        BizException.nullThrow(context, ErrorCodeEnum.PARAM_IS_NULL);
-
-        List<Interceptor> interceptors = Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new);
-        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
+        Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
+            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
 
         Handler commandHandler= commandHandlers.get(command.getClass());
         BizException.nullThrow(commandHandler, ErrorCodeEnum.HANDLER_NOT_EXIST);
@@ -253,23 +240,22 @@ public class CommandBus {
             } else {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleep()[0], command.violationRandomSleep()[1]);
                 boolean retryResult = concurrentOperate.tryRetryLock(lockKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
-                BizException.falseThrow(retryResult, ErrorCodeEnum.CONCURRENCY_VIOLATION);
+                BizException.falseThrow(retryResult, () -> ErrorCodeEnum.CONCURRENCY_VIOLATION.message(Json.toString(command)));
                 result = doSend(command, context, commandHandler);
             }
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
-            If.isFalse(unlock, () -> {throw new RuntimeException("unlock " + command.getAggregationId() + " failure!");});
+            ExceptionUtil.falseThrow(unlock, () -> "unlock " + command.getAggregationId() + " failure!");
         }
-        interceptors = Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new);
-        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
+        Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
+            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
         return result;
     }
 
     public <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
 
         Repository repository = domainRepositories.get(commandHandler.clazz);
-        BizException.trueThrow(repository == null,
-                ErrorCodeEnum.CONFIG_ERROR.message(commandHandler.getClazz().toString() + "hasn't corresponding command handler"));
+        ExceptionUtil.nullThrow(repository, () -> commandHandler.getClazz() + "hasn't corresponding command handler");
         Map<String, ContextValueProvider> providerMap =
                 Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
         commandHandler.getRequiredKeys().forEach(key ->
@@ -300,11 +286,10 @@ public class CommandBus {
 
     private <T extends Command> void invokeContextValueProvider(T command, String key, Context context,
                                                                 Map<String, ContextValueProvider> providers, Set<String> referKeys) {
-        BizException.trueThrow(referKeys.contains(key), ErrorCodeEnum.CONFIG_ERROR.message("required key " + key + "circular reference!"));
+        ExceptionUtil.trueThrow(referKeys.contains(key), () -> "required key " + key + "circular reference!");
         referKeys.add(key);
         ContextValueProvider valueProvider = providers.get(key);
-        BizException.nullThrow(valueProvider, ErrorCodeEnum.CONTEXT_VALUE_PROVIDER_NOT_EXIST
-                .message("command:" + Json.toString(command) + ", key" + Json.toString(key)));
+        ExceptionUtil.nullThrow(valueProvider, () -> "command:" + Json.toString(command) + ", key" + Json.toString(key));
         Arrays.stream(valueProvider.getRequiredKeys())
                 .filter(requiredKey -> Objects.equals(null, context.get(requiredKey)))
                 .forEach(k -> invokeContextValueProvider(command, k, context, providers, referKeys));
