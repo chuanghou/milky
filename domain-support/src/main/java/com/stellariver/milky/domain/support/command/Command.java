@@ -10,7 +10,6 @@ import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
-@NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
