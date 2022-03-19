@@ -21,7 +21,7 @@ public class AspectTool {
         String[] parameterNames = methodSignature.getParameterNames();
         Object[] args = proceedingJoinPoint.getArgs();
         Map<String, String> builder = new HashMap<>();
-        IntStream.of(args.length).forEach(index -> builder.put(parameterNames[index], Objects.toString(args[index])));
+        IntStream.range(0, args.length).forEach(index -> builder.put(parameterNames[index], Objects.toString(args[index])));
         return MethodInfo.builder().className(method.getDeclaringClass().getName())
                 .methodName(method.getName()).paramString(Json.toString(builder))
                 .method(method).build();
