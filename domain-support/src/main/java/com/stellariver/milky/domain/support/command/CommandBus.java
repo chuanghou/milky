@@ -238,7 +238,7 @@ public class CommandBus {
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
             } else {
-                long sleepTimeMs = Random.randomRange(command.violationRandomSleep()[0], command.violationRandomSleep()[1]);
+                long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange()[0], command.violationRandomSleepRange()[1]);
                 boolean retryResult = concurrentOperate.tryRetryLock(lockKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
                 BizException.falseThrow(retryResult, () -> ErrorCodeEnum.CONCURRENCY_VIOLATION.message(Json.toString(command)));
                 result = doSend(command, context, commandHandler);
