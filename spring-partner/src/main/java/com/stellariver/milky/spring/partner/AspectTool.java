@@ -39,5 +39,7 @@ public class AspectTool {
 
         private Method method;
 
+        public String methodReference() {return className + "#" + methodName;}
+
     }
 }

@@ -26,9 +26,10 @@ public class LogInfoSupport {
         } finally {
             Date endTime = new Date();
             LogInfo logInfo = methodInfo.getMethod().getAnnotation(LogInfo.class);
+            String logTag = logInfo.logTag().equals("default") ? methodInfo.methodReference() : logInfo.logTag();
             log.with("result", result).with("endTime", endTime)
-                    .with("cost", endTime.getTime() -startTime.getTime())
-                    .withLogTag(logInfo.logTag() != null, logInfo.logTag())
+                    .with("cost", endTime.getTime() - startTime.getTime())
+                    .withLogTag(logTag)
                     .info(null);
         }
         return result;

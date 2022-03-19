@@ -9,5 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface LogInfo {
 
-    String logTag();
+    // 当代理检测到logTag为default会自动切换为method签名
+    String logTag() default "default";
+
 }
