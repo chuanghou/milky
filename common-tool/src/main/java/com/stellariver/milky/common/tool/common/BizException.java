@@ -82,27 +82,15 @@ public class BizException extends RuntimeException {
         }
     }
 
-    static public void emptyThrow(Collection<?> collection, ErrorCode errorCode) {
+    static public void emptyThrow(Collection<?> collection, Supplier<ErrorCode> supplier) {
         if (Collect.isEmpty(collection)) {
-            throw new BizException(errorCode);
-        }
-    }
-
-    static public void trueThrow(boolean test, ErrorCode errorCode) {
-        if (test) {
-            throw new BizException(errorCode);
+            throw new BizException(supplier.get());
         }
     }
 
     static public void falseThrow(boolean test, Supplier<ErrorCode> supplier) {
         if (!test) {
             throw new BizException(supplier.get());
-        }
-    }
-
-    static public void falseThrow(boolean test, ErrorCode errorCode) {
-        if (!test) {
-            throw new BizException(errorCode);
         }
     }
 

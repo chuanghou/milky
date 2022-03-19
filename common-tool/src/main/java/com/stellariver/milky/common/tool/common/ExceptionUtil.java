@@ -1,14 +1,16 @@
 package com.stellariver.milky.common.tool.common;
 
+import java.util.function.Supplier;
+
 public class ExceptionUtil {
 
-    public static void trueThrow(boolean test, String message) {
+    public static void trueThrow(boolean test, Supplier<String> supplier) {
         if (test) {
-            throw new RuntimeException(message);
+            throw new RuntimeException(supplier.get());
         }
     }
 
-    public static void falseThrow(boolean test, String message) {
-        trueThrow(!test, message);
+    public static void falseThrow(boolean test, Supplier<String> supplier) {
+        trueThrow(!test, supplier);
     }
 }
