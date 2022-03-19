@@ -13,16 +13,16 @@ public class Context{
 
     private AggregateRoot aggregateRoot;
 
-    private final Map<String, Object> params = new HashMap<>();
+    private final Map<String, Object> metaData = new HashMap<>();
 
     public List<Event> events = new ArrayList<>();
 
     public void put(String key, Object value) {
-        params.put(key, value);
+        metaData.put(key, value);
     }
 
     public Object get(String key) {
-        return params.get(key);
+        return metaData.get(key);
     }
 
     public void addEvent(Event event) {
@@ -36,7 +36,6 @@ public class Context{
     public AggregateRoot getAggregateRoot() {
         return aggregateRoot;
     }
-
 
     public static Context build() {
         return new Context();
