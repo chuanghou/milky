@@ -100,21 +100,21 @@ public class Collect {
         return stream(source).filter(predicate).collect(Collectors.toCollection(factory));
     }
 
-    public static <T> Set<T> difference(Set<T> set1, Set<T> set2) {
-        set1 = Optional.ofNullable(set1).orElse(new HashSet<>());
-        set2 = Optional.ofNullable(set2).orElse(new HashSet<>());
+    public static <T> Set<T> diff(Collection<T> collection1, Collection<T> collection2) {
+        Set<T> set1 = Optional.ofNullable(collection1).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set2 = Optional.ofNullable(collection2).map(HashSet::new).orElseGet(HashSet::new);
         return Sets.difference(set1, set2);
     }
 
-    public static <T> Set<T> intersection(Set<T> set1, Set<T> set2) {
-        set1 = Optional.ofNullable(set1).orElse(new HashSet<>());
-        set2 = Optional.ofNullable(set2).orElse(new HashSet<>());
-        return Sets.intersection(set1, set2);
+    public static <T> Set<T> inter(Collection<T> collection1, Collection<T> collection2) {
+        Set<T> set1 = Optional.ofNullable(collection1).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set2 = Optional.ofNullable(collection2).map(HashSet::new).orElseGet(HashSet::new);
+        return Sets.difference(set1, set2);
     }
 
-    public static <T> Set<T> symmetricDifference(Set<T> set1, Set<T> set2) {
-        set1 = Optional.ofNullable(set1).orElse(new HashSet<>());
-        set2 = Optional.ofNullable(set2).orElse(new HashSet<>());
+    public static <T> Set<T> symmetric(Collection<T> collection1, Collection<T> collection2) {
+        Set<T> set1 = Optional.ofNullable(collection1).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set2 = Optional.ofNullable(collection2).map(HashSet::new).orElseGet(HashSet::new);
         return Sets.symmetricDifference(set1, set2);
     }
 
