@@ -269,7 +269,7 @@ public class CommandBus {
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                throw new SysException(e);
             }
         } else {
             aggregate = (AggregateRoot) Runner.invoke(
