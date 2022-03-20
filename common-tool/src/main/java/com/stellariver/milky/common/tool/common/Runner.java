@@ -29,19 +29,21 @@ public class Runner {
         }
     }
 
-    static private void autoLog(Serializable lambda) {
+    static private void recordInvokeSignature(Serializable lambda) {
         Map<String, String> lambdaInfos = SLambda.resolve(lambda);
         StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
         log.with("invokeClassName", stackTraceElement.getClassName())
                 .with("invokeLineNumber", stackTraceElement.getLineNumber())
                 .with("invokeMethodNumber", stackTraceElement.getMethodName())
-                .with(lambdaInfos).info("auto invoke log");
+                .with(lambdaInfos);
     }
 
     static public <R> R call(SCallable<R> callable) {
-        autoLog(callable);
+        recordInvokeSignature(callable);
+        R result = null;
+        Throwable throwableBackup = null;
         try {
-            return callable.call();
+            result = callable.call();
         } catch (BizException ex) {
             throw ex;
         } catch (InvocationTargetException ex) {
@@ -49,36 +51,55 @@ public class Runner {
             if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
+            throwableBackup = targetException;
             throw new SysException(targetException);
         } catch (Throwable throwable) {
+            throwableBackup = throwable;
             throw new SysException(throwable);
+        } finally {
+            if (throwableBackup == null) {
+                log.with("result", Json.toJson(result)).info("");
+            } else {
+                log.error("", throwableBackup);
+            }
         }
+        return result;
     }
 
     static public <R> R call(SCallable<R> callable, Function<R, Boolean> check) {
-        autoLog(callable);
-        R result;
+        recordInvokeSignature(callable);
+        R result = null;
+        Throwable throwableBackup = null;
         try {
             result = callable.call();
             if (!check.apply(result)) {
                 throw new SysException(Json.toJson(result));
             }
         } catch (BizException ex) {
+            throwableBackup = ex;
             throw ex;
         } catch (InvocationTargetException ex) {
             Throwable targetException = ex.getTargetException();
+            throwableBackup = targetException;
             if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
             throw new SysException(targetException);
         } catch (Throwable throwable) {
+            throwableBackup = throwable;
             throw new SysException(throwable);
+        } finally {
+            if (throwableBackup == null) {
+                log.with("result", Json.toJson(result)).info("");
+            } else {
+                log.error("", throwableBackup);
+            }
         }
         return result;
     }
 
     static public <R, T> T call(SCallable<R> callable, Function<R, Boolean> check, Function<R, T> getData) {
-        autoLog(callable);
+        recordInvokeSignature(callable);
         return getData.apply(call(callable, check));
     }
 
@@ -86,36 +107,61 @@ public class Runner {
                                             Function<R, Boolean> check,
                                             Function<R, T> getData,
                                             T defaultValue) {
-        autoLog(callable);
+        recordInvokeSignature(callable);
+        R result = null;
+        Throwable throwableBackup = null;
         try {
-            R result = callable.call();
+            result = callable.call();
             if (check.apply(result)) {
                 return getData.apply(callable.call());
             }
             return defaultValue;
-        } catch (Throwable ex) {
-            log.with("callable", callable.toString()).error(ex.getMessage(), ex);
+        } catch (Throwable throwable) {
+            throwableBackup = throwable;
+        } finally {
+            if (throwableBackup == null) {
+                log.with("result", Json.toJson(result)).info("");
+            } else {
+                log.with("defaultValue", defaultValue).error("", throwableBackup);
+            }
         }
         return defaultValue;
     }
 
 
     static public void run(SRunnable runnable) {
-        autoLog(runnable);
+        recordInvokeSignature(runnable);
+        Throwable throwableBackup = null;
         try {
             runnable.run();
-        } catch (BizException ex) {
-            throw ex;
-        } catch (Throwable ex) {
-            throw new SysException(ex);
+        } catch (BizException bizException) {
+            throwableBackup = bizException;
+            throw bizException;
+        } catch (Throwable throwable) {
+            throwableBackup = throwable;
+            throw new SysException(throwable);
+        } finally {
+            if (throwableBackup == null) {
+                log.info("");
+            } else {
+                log.error("", throwableBackup);
+            }
         }
     }
 
     static public void fallbackableRun(SRunnable runnable) {
+        recordInvokeSignature(runnable);
+        Throwable throwableBackup = null;
         try {
             runnable.run();
-        } catch (Throwable ex) {
-            log.with("runnable", Json.toJson(SLambda.resolve(runnable))).error(ex.getMessage(), ex);
+        } catch (Throwable throwable) {
+           throwableBackup = throwable;
+        } finally {
+            if (throwableBackup == null) {
+                log.info("");
+            } else {
+                log.error("", throwableBackup);
+            }
         }
     }
 
