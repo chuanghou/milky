@@ -3,7 +3,7 @@ package com.stellariver.milky.domain.support.event;
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.CodeEnum;
+import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
@@ -137,7 +137,7 @@ public class EventBus {
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
                 executorService.submit(() -> Runner.invoke(bean, method, event, context));
             } else {
-                throw new BizException(CodeEnum.CONFIG_ERROR.message("only support sync and async invoke"));
+                throw new BizException(ErrorEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }
         }
     }

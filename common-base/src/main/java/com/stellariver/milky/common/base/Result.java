@@ -45,7 +45,7 @@ public class Result<T> implements Serializable {
     /**
      * 单一请求需要返回多个errorCode
      */
-    protected List<Code> errorCodes;
+    protected List<Error> errors;
 
     public static <T> Result<T> success() {
         return new Result<>();
@@ -57,28 +57,28 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static <T> Result<T> with(Code code) {
-        return Result.<T>builder().errorCode(code.getCode())
-                .errorMessage(code.getMessage())
-                .errorCodes(Collections.singletonList(code))
+    public static <T> Result<T> with(Error error) {
+        return Result.<T>builder().errorCode(error.getCode())
+                .errorMessage(error.getMessage())
+                .errors(Collections.singletonList(error))
                 .success(false)
                 .build();
     }
 
-    public static <T> Result<T> with(Code code, Throwable throwable) {
-        return Result.<T>builder().errorCode(code.getCode())
-                .errorMessage(code.getMessage())
+    public static <T> Result<T> with(Error error, Throwable throwable) {
+        return Result.<T>builder().errorCode(error.getCode())
+                .errorMessage(error.getMessage())
                 .throwable(throwable)
-                .errorCodes(Collections.singletonList(code))
+                .errors(Collections.singletonList(error))
                 .success(false)
                 .build();
     }
 
-    public static <T> Result<T> with(List<Code> codes) {
-        Code code = codes.get(0);
-        return Result.<T>builder().errorCode(code.getCode())
-                .errorMessage(code.getMessage())
-                .errorCodes(Collections.singletonList(code))
+    public static <T> Result<T> with(List<Error> errors) {
+        Error error = errors.get(0);
+        return Result.<T>builder().errorCode(error.getCode())
+                .errorMessage(error.getMessage())
+                .errors(Collections.singletonList(error))
                 .success(false)
                 .build();
     }

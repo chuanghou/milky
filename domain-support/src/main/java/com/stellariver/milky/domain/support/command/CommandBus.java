@@ -5,7 +5,7 @@ import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.CodeEnum;
+import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.ContextPrepares;
@@ -158,7 +158,7 @@ public class CommandBus {
         try {
             method = clazz.getMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e) {
-            throw new SysException(CodeEnum.CONFIG_ERROR);
+            throw new SysException(ErrorEnum.CONFIG_ERROR);
         }
         return method;
     }
@@ -232,7 +232,7 @@ public class CommandBus {
             .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
 
         Handler commandHandler= commandHandlers.get(command.getClass());
-        SysException.nullThrow(commandHandler, CodeEnum.HANDLER_NOT_EXIST.message(Json.toJson(command)));
+        SysException.nullThrow(commandHandler, ErrorEnum.HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
         try {
             String lockKey = command.getClass().getName() + "_" + command.getAggregationId();
@@ -243,7 +243,7 @@ public class CommandBus {
             } else {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange()[0], command.violationRandomSleepRange()[1]);
                 boolean retryResult = concurrentOperate.tryRetryLock(lockKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
-                BizException.falseThrow(retryResult, () -> CodeEnum.CONCURRENCY_VIOLATION.message(Json.toJson(command)));
+                BizException.falseThrow(retryResult, () -> ErrorEnum.CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doSend(command, context, commandHandler);
             }
         } finally {

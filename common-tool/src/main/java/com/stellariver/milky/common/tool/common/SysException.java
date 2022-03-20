@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.base.Code;
+import com.stellariver.milky.common.base.Error;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -9,24 +9,24 @@ public class SysException extends RuntimeException {
 
     private final String errorCode;
 
-    public SysException(Code code) {
-        super(code.getMessage());
-        this.errorCode = code.getCode();
+    public SysException(Error error) {
+        super(error.getMessage());
+        this.errorCode = error.getCode();
     }
 
     public SysException(String message) {
         super(message);
-        this.errorCode = CodeEnumBase.UNDEFINED.getCode();
+        this.errorCode = ErrorEnumBase.UNDEFINED.getCode();
     }
 
-    public SysException(Code code, Throwable t) {
-        super(code.getMessage(), t);
-        this.errorCode = code.getCode();
+    public SysException(Error error, Throwable t) {
+        super(error.getMessage(), t);
+        this.errorCode = error.getCode();
     }
 
     public SysException(Throwable t) {
         super(t);
-        this.errorCode = CodeEnumBase.UNDEFINED.getCode();
+        this.errorCode = ErrorEnumBase.UNDEFINED.getCode();
     }
 
     public String getErrorCode() {
@@ -36,23 +36,23 @@ public class SysException extends RuntimeException {
     static public void nullThrow(Object... params) {
         boolean containNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
         if (containNullValue) {
-            throw new SysException(CodeEnumBase.PARAM_IS_NULL);
+            throw new SysException(ErrorEnumBase.PARAM_IS_NULL);
         }
     }
 
-    static public void nullThrow(Object param, Supplier<Code> supplier) {
+    static public void nullThrow(Object param, Supplier<Error> supplier) {
         if (param == null) {
             throw new SysException(supplier.get());
         }
     }
 
-    static public void trueThrow(boolean test, Supplier<Code> supplier) {
+    static public void trueThrow(boolean test, Supplier<Error> supplier) {
         if (test) {
             throw new SysException(supplier.get());
         }
     }
 
-    static public void falseThrow(boolean test, Supplier<Code> supplier) {
+    static public void falseThrow(boolean test, Supplier<Error> supplier) {
         if (!test) {
             throw new SysException(supplier.get());
         }
@@ -60,13 +60,13 @@ public class SysException extends RuntimeException {
 
     static public void trueThrow(boolean test, String message) {
         if (test) {
-            throw new SysException(CodeEnumBase.UNDEFINED.message(message));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(message));
         }
     }
 
     static public void falseThrow(boolean test, String message) {
         if (!test) {
-            throw new SysException(CodeEnumBase.UNDEFINED.message(message));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(message));
         }
     }
 }

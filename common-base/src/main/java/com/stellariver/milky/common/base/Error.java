@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @ToString
-public class Code {
+public class Error {
 
     private final String code;
 
@@ -14,12 +14,12 @@ public class Code {
 
     private Map<String, Object> extendInfo;
 
-    protected Code(String code, String message){
+    protected Error(String code, String message){
         this.code = code;
         this.message = message;
     }
 
-    private Code(String code, String message, Map<String, Object> extendInfo) {
+    private Error(String code, String message, Map<String, Object> extendInfo) {
         this.code = code;
         this.message = message;
         this.extendInfo = extendInfo;
@@ -41,11 +41,11 @@ public class Code {
         return this.extendInfo;
     }
 
-    static public Code code(String code) {
-        return new Code(code, "undefined");
+    static public Error code(String code) {
+        return new Error(code, "undefined");
     }
 
-    public Code message(String message) {
+    public Error message(String message) {
         return this.toBuilder().message(message).build();
     }
 
@@ -75,9 +75,9 @@ public class Code {
             return this;
         }
 
-        public Code build() {
+        public Error build() {
             code = Optional.ofNullable(code).orElse("UNDEFINED");
-            return new Code(code, message, extendInfo);
+            return new Error(code, message, extendInfo);
         }
 
         public String toString() {
