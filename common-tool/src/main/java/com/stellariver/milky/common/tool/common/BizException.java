@@ -36,11 +36,11 @@ public class BizException extends RuntimeException {
         return this.errorCode;
     }
 
-    public Error getFirstErrorCode() {
+    public Error getFirstError() {
         return errors.get(0);
     }
 
-    public List<Error> getErrorCodes() {
+    public List<Error> getErrors() {
         return errors;
     }
 
@@ -94,30 +94,30 @@ public class BizException extends RuntimeException {
         }
     }
 
-    static private ThreadLocal<List<Error>>  temporaryErrorCodes;
+    static private ThreadLocal<List<Error>> temporaryErrors;
 
     /**
      * 对于任何一个init函数都必须在有try-final块里面有 removeTemporaryErrorCodes（）操作
      */
-    static public void initTemporaryErrorCodes() {
-        temporaryErrorCodes = new ThreadLocal<>();
-        temporaryErrorCodes.set(new ArrayList<>());
+    static public void initTemporaryErrors() {
+        temporaryErrors = new ThreadLocal<>();
+        temporaryErrors.set(new ArrayList<>());
     }
 
-    static public void removeTemporaryErrorCodes() {
-        Optional.ofNullable(temporaryErrorCodes).ifPresent(ThreadLocal::remove);
+    static public void removeTemporaryErrors() {
+        Optional.ofNullable(temporaryErrors).ifPresent(ThreadLocal::remove);
     }
 
-    static public void addTemporaryErrorCode(Error error) {
-        Optional.ofNullable(temporaryErrorCodes)
+    static public void addTemporaryError(Error error) {
+        Optional.ofNullable(temporaryErrors)
                 .map(ThreadLocal::get)
                 .orElseThrow(() -> new BizException(ErrorEnumBase
                         .CONFIG_ERROR.message("temporaryErrorCodes container need explicitly init!")))
                 .add(error);
     }
 
-    static public List<Error> getTemporaryErrorCodes() {
-        return Optional.ofNullable(temporaryErrorCodes).map(ThreadLocal::get).orElse(new ArrayList<>());
+    static public List<Error> getTemporaryErrors() {
+        return Optional.ofNullable(temporaryErrors).map(ThreadLocal::get).orElse(new ArrayList<>());
     }
 
 }
