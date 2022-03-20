@@ -1,12 +1,5 @@
 package com.stellariver.milky.common.tool.common;
-/*
-public class PrefixEnum extends Prefix {
 
-    static public Prefix controller_monitor =  Prefix.of("controller_monitor");
-
-}
-
- */
 public class Prefix {
 
     private String preFix;

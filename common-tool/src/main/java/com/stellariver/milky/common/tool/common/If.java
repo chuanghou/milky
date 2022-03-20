@@ -4,8 +4,8 @@ package com.stellariver.milky.common.tool.common;
 public class If {
 
     static public void isTrue(boolean test, Runnable runnable) {
-        BizException.nullThrow(test, CodeEnumBase.PARAM_IS_NULL);
-        BizException.nullThrow(runnable, CodeEnumBase.PARAM_IS_NULL);
+        SysException.nullThrow(test, CodeEnumBase.PARAM_IS_NULL);
+        SysException.nullThrow(runnable, CodeEnumBase.PARAM_IS_NULL);
         if (test) {
             runnable.run();
         }
@@ -16,9 +16,9 @@ public class If {
     }
 
     static public void trueOrFalse(boolean test, Runnable trueRunnable, Runnable falseRunnable) {
-        BizException.nullThrow(test, CodeEnumBase.PARAM_IS_NULL);
-        BizException.nullThrow(trueRunnable, CodeEnumBase.PARAM_IS_NULL);
-        BizException.nullThrow(falseRunnable, CodeEnumBase.PARAM_IS_NULL);
+        SysException.nullThrow(test, CodeEnumBase.PARAM_IS_NULL);
+        SysException.nullThrow(trueRunnable, CodeEnumBase.PARAM_IS_NULL);
+        SysException.nullThrow(falseRunnable, CodeEnumBase.PARAM_IS_NULL);
         if (test) {
             trueRunnable.run();
         } else {
