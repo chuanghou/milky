@@ -45,7 +45,7 @@ public class Result<T> implements Serializable {
     /**
      * 单一请求需要返回多个errorCode
      */
-    protected List<Code> codes;
+    protected List<Code> errorCodes;
 
     public static <T> Result<T> success() {
         return new Result<>();
@@ -60,7 +60,7 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> with(Code code) {
         return Result.<T>builder().errorCode(code.getCode())
                 .errorMessage(code.getMessage())
-                .codes(Collections.singletonList(code))
+                .errorCodes(Collections.singletonList(code))
                 .success(false)
                 .build();
     }
@@ -69,7 +69,7 @@ public class Result<T> implements Serializable {
         return Result.<T>builder().errorCode(code.getCode())
                 .errorMessage(code.getMessage())
                 .throwable(throwable)
-                .codes(Collections.singletonList(code))
+                .errorCodes(Collections.singletonList(code))
                 .success(false)
                 .build();
     }
@@ -78,7 +78,7 @@ public class Result<T> implements Serializable {
         Code code = codes.get(0);
         return Result.<T>builder().errorCode(code.getCode())
                 .errorMessage(code.getMessage())
-                .codes(Collections.singletonList(code))
+                .errorCodes(Collections.singletonList(code))
                 .success(false)
                 .build();
     }

@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EnumDTO {
+public class Enum {
 
     private String name;
 
     private String desc;
+
 }

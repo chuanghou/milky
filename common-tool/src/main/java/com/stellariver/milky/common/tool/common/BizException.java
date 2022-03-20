@@ -13,23 +13,23 @@ public class BizException extends RuntimeException {
 
     private final String errorCode;
 
-    private final List<Code> codes;
+    private final List<Code> errorCodes;
 
     public BizException(Code code) {
         super(code.getMessage());
         this.errorCode = code.getCode();
-        this.codes = Collections.singletonList(code);
+        this.errorCodes = Collections.singletonList(code);
     }
     public BizException(Code code, Throwable t) {
         super(code.getMessage(), t);
         this.errorCode = code.getCode();
-        this.codes = Collections.singletonList(code);
+        this.errorCodes = Collections.singletonList(code);
     }
 
-    public BizException(List<Code> codes, Throwable t) {
-        super(codes.get(0).getMessage(), t);
-        this.errorCode = codes.get(0).getCode();
-        this.codes = codes;
+    public BizException(List<Code> errorCodes, Throwable t) {
+        super(errorCodes.get(0).getMessage(), t);
+        this.errorCode = errorCodes.get(0).getCode();
+        this.errorCodes = errorCodes;
     }
 
     public String getErrorCode() {
@@ -37,11 +37,11 @@ public class BizException extends RuntimeException {
     }
 
     public Code getFirstErrorCode() {
-        return codes.get(0);
+        return errorCodes.get(0);
     }
 
     public List<Code> getErrorCodes() {
-        return codes;
+        return errorCodes;
     }
 
     static public void nullThrow(Object... params) {
