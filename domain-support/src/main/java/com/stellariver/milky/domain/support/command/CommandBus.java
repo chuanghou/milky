@@ -209,8 +209,8 @@ public class CommandBus {
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             ContextValueProvider valueProvider = new ContextValueProvider(key, requiredKeys, bean, method);
             Map<String, ContextValueProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
-            ExceptionUtil.trueThrow(valueProviderMap.containsKey(key),
-                    () -> "对于" + commandClass.getName() + "对于" + key + "提供了两个contextValueProvider");
+            SysException.trueThrow(valueProviderMap.containsKey(key),
+                    "对于" + commandClass.getName() + "对于" + key + "提供了两个contextValueProvider");
             valueProviderMap.put(key, valueProvider);
         });
 
@@ -227,9 +227,7 @@ public class CommandBus {
     }
 
     public <T extends Command> Object send(T command, Context context) {
-
-        ExceptionUtil.nullThrow(command, context);
-
+        SysException.nullThrow(command, context);
         Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
             .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
 
@@ -250,7 +248,7 @@ public class CommandBus {
             }
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
-            ExceptionUtil.falseThrow(unlock, () -> "unlock " + command.getAggregationId() + " failure!");
+            SysException.falseThrow(unlock, () -> ErrorCodeEnum.message(() -> ("unlock " + command.getAggregationId() + " failure!")));
         }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
             .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
@@ -260,7 +258,7 @@ public class CommandBus {
     public <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
 
         Repository repository = domainRepositories.get(commandHandler.clazz);
-        ExceptionUtil.nullThrow(repository, () -> commandHandler.getClazz() + "hasn't corresponding command handler");
+        SysException.nullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
         Map<String, ContextValueProvider> providerMap =
                 Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
         commandHandler.getRequiredKeys().forEach(key ->
@@ -291,10 +289,10 @@ public class CommandBus {
 
     private <T extends Command> void invokeContextValueProvider(T command, String key, Context context,
                                                                 Map<String, ContextValueProvider> providers, Set<String> referKeys) {
-        ExceptionUtil.trueThrow(referKeys.contains(key), () -> "required key " + key + "circular reference!");
+        SysException.trueThrow(referKeys.contains(key), "required key " + key + "circular reference!");
         referKeys.add(key);
         ContextValueProvider valueProvider = providers.get(key);
-        ExceptionUtil.nullThrow(valueProvider, () -> "command:" + Json.toString(command) + ", key" + Json.toString(key));
+        SysException.nullThrow(valueProvider, "command:" + Json.toString(command) + ", key" + Json.toString(key));
         Arrays.stream(valueProvider.getRequiredKeys())
                 .filter(requiredKey -> Objects.equals(null, context.get(requiredKey)))
                 .forEach(k -> invokeContextValueProvider(command, k, context, providers, referKeys));

@@ -82,6 +82,7 @@ public class ErrorCode {
         }
 
         public ErrorCode build() {
+            code = Optional.ofNullable(code).orElse("UNDEFINED");
             return new ErrorCode(code, message, extendInfo);
         }
 

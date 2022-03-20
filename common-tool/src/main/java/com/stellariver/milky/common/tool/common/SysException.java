@@ -1,10 +1,8 @@
 package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.base.ErrorCode;
-import com.stellariver.milky.common.tool.util.Collect;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -26,20 +24,9 @@ public class SysException extends RuntimeException {
         return this.errorCode;
     }
 
-
-
     static public void nullThrow(Object... params) {
-        boolean haveNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
-        if (haveNullValue) {
-            throw new SysException(ErrorCodeEnumBase.PARAM_IS_NULL);
-        }
-    }
-
-    static public <T, K> void nullThrow(T param, Function<T, K> deepFinder) {
-        if (param == null) {
-            throw new SysException(ErrorCodeEnumBase.PARAM_IS_NULL);
-        }
-        if (deepFinder.apply(param) == null) {
+        boolean containNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
+        if (containNullValue) {
             throw new SysException(ErrorCodeEnumBase.PARAM_IS_NULL);
         }
     }
@@ -50,31 +37,28 @@ public class SysException extends RuntimeException {
         }
     }
 
-    static public void nullThrow(Object param, ErrorCode errorCode) {
-        if (param == null) {
-            throw new SysException(errorCode);
-        }
-    }
-
-    static public void with(ErrorCode errorCode) {
-        throw new SysException(errorCode);
-    }
-
     static public void trueThrow(boolean test, Supplier<ErrorCode> supplier) {
         if (test) {
             throw new SysException(supplier.get());
         }
     }
 
-    static public void emptyThrow(Collection<?> collection, Supplier<ErrorCode> supplier) {
-        if (Collect.isEmpty(collection)) {
-            throw new SysException(supplier.get());
-        }
-    }
 
     static public void falseThrow(boolean test, Supplier<ErrorCode> supplier) {
         if (!test) {
             throw new SysException(supplier.get());
+        }
+    }
+
+    static public void trueThrow(boolean test, String message) {
+        if (test) {
+            throw new SysException(ErrorCodeEnumBase.UNDEFINED.message(message));
+        }
+    }
+
+    static public void falseThrow(boolean test, String message) {
+        if (!test) {
+            throw new SysException(ErrorCodeEnumBase.UNDEFINED.message(message));
         }
     }
 }
