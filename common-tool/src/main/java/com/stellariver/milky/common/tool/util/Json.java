@@ -47,5 +47,5 @@ public class Json {
     public static JsonNode toJsonNode(String json) {
         return MAPPER.readTree(json);
     }
-    
+
 }
