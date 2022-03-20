@@ -6,27 +6,48 @@ import com.stellariver.milky.common.tool.util.Json;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 public class Runner {
 
     static final Logger log = Logger.getLogger(Runner.class);
 
     static public Object invoke(Object bean, Method method, Object... params) {
+        Object result;
+        Map<String, String> args = new HashMap<>();
+        IntStream.range(0, params.length).forEach(index -> args.put("arg" + index, Json.toJson(params[index])));
+        log.with("invokeClassName", bean.getClass().getName())
+                .with("methodName", method.getName())
+                .with(args);
+        Throwable throwableBackup = null;
         try {
-            return method.invoke(bean, params);
-        } catch (BizException ex) {
+            result = method.invoke(bean, params);
+        } catch (BizException | SysException ex) {
+            throwableBackup = ex;
             throw ex;
         } catch (InvocationTargetException ex) {
             Throwable targetException = ex.getTargetException();
+            throwableBackup = targetException;
             if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
+            } else if (targetException instanceof SysException) {
+                throw (SysException) ex.getTargetException();
             }
             throw new SysException(targetException);
-        } catch (Throwable ex) {
-            throw new SysException(ex);
+        } catch (Throwable throwable) {
+            throwableBackup = throwable;
+            throw new SysException(throwable);
+        } finally {
+            if (throwableBackup == null) {
+                log.info("");
+            } else {
+                log.error("", throwableBackup);
+            }
         }
+        return result;
     }
 
     static private void recordInvokeSignature(Serializable lambda) {
@@ -34,7 +55,7 @@ public class Runner {
         StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
         log.with("invokeClassName", stackTraceElement.getClassName())
                 .with("invokeLineNumber", stackTraceElement.getLineNumber())
-                .with("invokeMethodNumber", stackTraceElement.getMethodName())
+                .with("invokeMethodName", stackTraceElement.getMethodName())
                 .with(lambdaInfos);
     }
 
