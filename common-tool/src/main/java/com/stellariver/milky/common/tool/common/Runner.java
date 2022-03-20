@@ -44,12 +44,14 @@ public class Runner {
         Throwable throwableBackup = null;
         try {
             result = callable.call();
-        } catch (BizException ex) {
+        } catch (BizException | SysException ex) {
             throw ex;
         } catch (InvocationTargetException ex) {
             Throwable targetException = ex.getTargetException();
             if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
+            } else if (targetException instanceof SysException) {
+                throw (SysException) ex.getTargetException();
             }
             throwableBackup = targetException;
             throw new SysException(targetException);
@@ -75,7 +77,7 @@ public class Runner {
             if (!check.apply(result)) {
                 throw new SysException(Json.toJson(result));
             }
-        } catch (BizException ex) {
+        } catch (BizException | SysException ex) {
             throwableBackup = ex;
             throw ex;
         } catch (InvocationTargetException ex) {
@@ -83,6 +85,8 @@ public class Runner {
             throwableBackup = targetException;
             if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
+            } else if (targetException instanceof SysException) {
+                throw (SysException) ex.getTargetException();
             }
             throw new SysException(targetException);
         } catch (Throwable throwable) {
@@ -116,6 +120,9 @@ public class Runner {
                 return getData.apply(callable.call());
             }
             return defaultValue;
+        } catch (BizException | SysException ex) {
+            throwableBackup = ex;
+            throw ex;
         } catch (Throwable throwable) {
             throwableBackup = throwable;
         } finally {
@@ -128,15 +135,14 @@ public class Runner {
         return defaultValue;
     }
 
-
     static public void run(SRunnable runnable) {
         recordInvokeSignature(runnable);
         Throwable throwableBackup = null;
         try {
             runnable.run();
-        } catch (BizException bizException) {
-            throwableBackup = bizException;
-            throw bizException;
+        }  catch (BizException | SysException ex) {
+            throwableBackup = ex;
+            throw ex;
         } catch (Throwable throwable) {
             throwableBackup = throwable;
             throw new SysException(throwable);
@@ -154,6 +160,9 @@ public class Runner {
         Throwable throwableBackup = null;
         try {
             runnable.run();
+        } catch (BizException | SysException ex) {
+            throwableBackup = ex;
+            throw ex;
         } catch (Throwable throwable) {
            throwableBackup = throwable;
         } finally {
