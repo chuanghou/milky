@@ -1,6 +1,5 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.base.Code;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Json;
 
@@ -62,7 +61,7 @@ public class Runner {
         try {
             result = callable.call();
             if (!check.apply(result)) {
-                throw new RuntimeException(Json.toJson(result));
+                throw new SysException(Json.toJson(result));
             }
         } catch (BizException ex) {
             throw ex;

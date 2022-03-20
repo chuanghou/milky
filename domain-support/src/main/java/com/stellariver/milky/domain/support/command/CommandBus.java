@@ -158,7 +158,7 @@ public class CommandBus {
         try {
             method = clazz.getMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e) {
-            throw new BizException(CodeEnum.CONFIG_ERROR);
+            throw new SysException(CodeEnum.CONFIG_ERROR);
         }
         return method;
     }
