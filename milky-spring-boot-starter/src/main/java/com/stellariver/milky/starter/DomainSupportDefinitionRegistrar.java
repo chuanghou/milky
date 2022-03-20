@@ -1,6 +1,6 @@
 package com.stellariver.milky.starter;
 
-import com.stellariver.milky.domain.support.base.DomainPackages;
+import com.stellariver.milky.domain.support.base.ScanPackages;
 import com.stellariver.milky.domain.support.context.ContextPrepares;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
@@ -32,20 +32,21 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, @Nonnull BeanDefinitionRegistry registry) {
         AnnotationAttributes enableMilky = AnnotationAttributes
                 .fromMap(importingClassMetadata.getAnnotationAttributes(EnableMilky.class.getName()));
-        if (enableMilky != null) {
-            String[] domainPackages = Arrays.stream(enableMilky.getStringArray("domainPackages"))
-                    .filter(StringUtils::hasText).toArray(String[]::new);
-            BeanDefinitionBuilder domainPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(DomainPackages.class);
-            domainPackagesBeanBuilder.addPropertyValue("packages", domainPackages);
-            registry.registerBeanDefinition("domainPackages", domainPackagesBeanBuilder.getBeanDefinition());
-            ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry, false);
-            scanner.setResourceLoader(resourceLoader);
-            scanner.addIncludeFilter(new AssignableTypeFilter(ContextPrepares.class));
-            scanner.addIncludeFilter(new AssignableTypeFilter(EventRouters.class));
-            scanner.addIncludeFilter(new AssignableTypeFilter(DomainRepository.class));
-            scanner.addIncludeFilter(new AssignableTypeFilter(BusInterceptors.class));
-            scanner.scan(domainPackages);
+        if (enableMilky == null) {
+            return;
         }
+        String[] scanPackages = Arrays.stream(enableMilky.getStringArray("scanPackages"))
+                .filter(StringUtils::hasText).toArray(String[]::new);
+        BeanDefinitionBuilder scanPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(ScanPackages.class);
+        scanPackagesBeanBuilder.addPropertyValue("packages", scanPackages);
+        registry.registerBeanDefinition("scanPackages", scanPackagesBeanBuilder.getBeanDefinition());
+        ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry, false);
+        scanner.setResourceLoader(resourceLoader);
+        scanner.addIncludeFilter(new AssignableTypeFilter(ContextPrepares.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(EventRouters.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(DomainRepository.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(BusInterceptors.class));
+        scanner.scan(scanPackages);
     }
 }
 

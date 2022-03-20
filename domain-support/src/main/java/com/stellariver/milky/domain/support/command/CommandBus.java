@@ -63,19 +63,19 @@ public class CommandBus {
     private final boolean enableMq;
 
     public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
-                      EventBus eventBus, String[] domainPackages, boolean enableMq) {
+                      EventBus eventBus, String[] scanPackages, boolean enableMq) {
         this.beanLoader = beanLoader;
         this.concurrentOperate = concurrentOperate;
         this.eventBus = eventBus;
         this.enableMq = enableMq;
-        init(domainPackages);
+        init(scanPackages);
     }
 
 
-    void init(String[] domainPackages) {
+    void init(String[] scanPackages) {
 
         ConfigurationBuilder configuration = new ConfigurationBuilder()
-                .forPackages(domainPackages)
+                .forPackages(scanPackages)
                 .addScanners(new SubTypesScanner());
 
         Reflections reflections = new Reflections(configuration);

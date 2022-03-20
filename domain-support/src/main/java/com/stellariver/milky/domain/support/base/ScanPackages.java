@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.base;
 
-public class DomainPackages {
+public class ScanPackages {
 
     String[] packages;
 
