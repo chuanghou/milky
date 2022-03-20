@@ -9,9 +9,9 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Operator {
 
-    private String operatorId;
+    private String id;
 
-    private String operatorName;
+    private String name;
 
     public static final Operator system = new Operator("system", "system");
 
