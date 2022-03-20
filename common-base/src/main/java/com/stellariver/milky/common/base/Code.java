@@ -8,13 +8,16 @@ import java.util.Optional;
 @ToString
 public class Code {
 
-    private String code;
+    private final String code;
 
-    private String message;
+    private final String message;
 
     private Map<String, Object> extendInfo;
 
-    protected Code(){}
+    protected Code(String code, String message){
+        this.code = code;
+        this.message = message;
+    }
 
     private Code(String code, String message, Map<String, Object> extendInfo) {
         this.code = code;
@@ -39,9 +42,7 @@ public class Code {
     }
 
     static public Code code(String code) {
-        Code errorCode = new Code();
-        errorCode.code = code;
-        return errorCode;
+        return new Code(code, "undefined");
     }
 
     public Code message(String message) {
