@@ -1,5 +1,6 @@
 package com.stellariver.milky.common.tool.common;
 
+import com.stellariver.milky.common.base.Code;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Json;
 
@@ -23,9 +24,9 @@ public class Runner {
             if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
-            throw new RuntimeException(targetException);
+            throw new SysException(targetException);
         } catch (Throwable ex) {
-            throw new RuntimeException(ex);
+            throw new SysException(ex);
         }
     }
 
@@ -49,9 +50,9 @@ public class Runner {
             if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
-            throw new RuntimeException(targetException.getMessage(), targetException);
-        } catch (Throwable ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
+            throw new SysException(targetException);
+        } catch (Throwable throwable) {
+            throw new SysException(throwable);
         }
     }
 
@@ -61,7 +62,7 @@ public class Runner {
         try {
             result = callable.call();
             if (!check.apply(result)) {
-                throw new RuntimeException(Json.toString(result));
+                throw new RuntimeException(Json.toJson(result));
             }
         } catch (BizException ex) {
             throw ex;
@@ -70,9 +71,9 @@ public class Runner {
             if (targetException instanceof BizException) {
                 throw (BizException) ex.getTargetException();
             }
-            throw new RuntimeException(targetException.getMessage(), targetException);
-        } catch (Throwable ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
+            throw new SysException(targetException);
+        } catch (Throwable throwable) {
+            throw new SysException(throwable);
         }
         return result;
     }
@@ -107,7 +108,7 @@ public class Runner {
         } catch (BizException ex) {
             throw ex;
         } catch (Throwable ex) {
-            throw new RuntimeException(ex.getMessage());
+            throw new SysException(ex);
         }
     }
 
@@ -115,7 +116,7 @@ public class Runner {
         try {
             runnable.run();
         } catch (Throwable ex) {
-            log.with("runnable", Json.toString(SLambda.resolve(runnable))).error(ex.getMessage(), ex);
+            log.with("runnable", Json.toJson(SLambda.resolve(runnable))).error(ex.getMessage(), ex);
         }
     }
 

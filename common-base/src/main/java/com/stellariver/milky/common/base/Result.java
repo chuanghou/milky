@@ -45,7 +45,7 @@ public class Result<T> implements Serializable {
     /**
      * 单一请求需要返回多个errorCode
      */
-    protected List<ErrorCode> errorCodes;
+    protected List<Code> codes;
 
     public static <T> Result<T> success() {
         return new Result<>();
@@ -57,28 +57,28 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static <T> Result<T> with(ErrorCode errorCode) {
-        return Result.<T>builder().errorCode(errorCode.getCode())
-                .errorMessage(errorCode.getMessage())
-                .errorCodes(Collections.singletonList(errorCode))
+    public static <T> Result<T> with(Code code) {
+        return Result.<T>builder().errorCode(code.getCode())
+                .errorMessage(code.getMessage())
+                .codes(Collections.singletonList(code))
                 .success(false)
                 .build();
     }
 
-    public static <T> Result<T> with(ErrorCode errorCode, Throwable throwable) {
-        return Result.<T>builder().errorCode(errorCode.getCode())
-                .errorMessage(errorCode.getMessage())
+    public static <T> Result<T> with(Code code, Throwable throwable) {
+        return Result.<T>builder().errorCode(code.getCode())
+                .errorMessage(code.getMessage())
                 .throwable(throwable)
-                .errorCodes(Collections.singletonList(errorCode))
+                .codes(Collections.singletonList(code))
                 .success(false)
                 .build();
     }
 
-    public static <T> Result<T> with(List<ErrorCode> errorCodes) {
-        ErrorCode errorCode = errorCodes.get(0);
-        return Result.<T>builder().errorCode(errorCode.getCode())
-                .errorMessage(errorCode.getMessage())
-                .errorCodes(Collections.singletonList(errorCode))
+    public static <T> Result<T> with(List<Code> codes) {
+        Code code = codes.get(0);
+        return Result.<T>builder().errorCode(code.getCode())
+                .errorMessage(code.getMessage())
+                .codes(Collections.singletonList(code))
                 .success(false)
                 .build();
     }

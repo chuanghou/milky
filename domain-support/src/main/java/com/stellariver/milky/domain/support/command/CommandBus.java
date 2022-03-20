@@ -5,7 +5,7 @@ import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.ErrorCodeEnum;
+import com.stellariver.milky.domain.support.CodeEnum;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.ContextPrepares;
@@ -158,7 +158,7 @@ public class CommandBus {
         try {
             method = clazz.getMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e) {
-            throw new BizException(ErrorCodeEnum.CONFIG_ERROR);
+            throw new BizException(CodeEnum.CONFIG_ERROR);
         }
         return method;
     }
@@ -232,7 +232,7 @@ public class CommandBus {
             .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
 
         Handler commandHandler= commandHandlers.get(command.getClass());
-        BizException.nullThrow(commandHandler, ErrorCodeEnum.HANDLER_NOT_EXIST);
+        SysException.nullThrow(commandHandler, CodeEnum.HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
         try {
             String lockKey = command.getClass().getName() + "_" + command.getAggregationId();
@@ -243,12 +243,12 @@ public class CommandBus {
             } else {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange()[0], command.violationRandomSleepRange()[1]);
                 boolean retryResult = concurrentOperate.tryRetryLock(lockKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
-                BizException.falseThrow(retryResult, () -> ErrorCodeEnum.CONCURRENCY_VIOLATION.message(Json.toString(command)));
+                BizException.falseThrow(retryResult, () -> CodeEnum.CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doSend(command, context, commandHandler);
             }
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
-            SysException.falseThrow(unlock, () -> ErrorCodeEnum.message(() -> ("unlock " + command.getAggregationId() + " failure!")));
+            SysException.falseThrow(unlock, "unlock " + command.getAggregationId() + " failure!");
         }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
             .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
@@ -292,7 +292,7 @@ public class CommandBus {
         SysException.trueThrow(referKeys.contains(key), "required key " + key + "circular reference!");
         referKeys.add(key);
         ContextValueProvider valueProvider = providers.get(key);
-        SysException.nullThrow(valueProvider, "command:" + Json.toString(command) + ", key" + Json.toString(key));
+        SysException.nullThrow(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
         Arrays.stream(valueProvider.getRequiredKeys())
                 .filter(requiredKey -> Objects.equals(null, context.get(requiredKey)))
                 .forEach(k -> invokeContextValueProvider(command, k, context, providers, referKeys));

@@ -11,13 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EnumDTO {
 
-    /**
-     * 枚举code
-     */
-    private String code;
-
-    /**
-     * 枚举名称
-     */
     private String name;
+
+    private String desc;
 }

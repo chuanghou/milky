@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.base.ErrorCode;
+import com.stellariver.milky.common.base.Code;
 import com.stellariver.milky.common.tool.util.Collect;
 
 import java.util.*;
@@ -13,88 +13,88 @@ public class BizException extends RuntimeException {
 
     private final String errorCode;
 
-    private final List<ErrorCode> errorCodes;
+    private final List<Code> codes;
 
-    public BizException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode.getCode();
-        this.errorCodes = Collections.singletonList(errorCode);
+    public BizException(Code code) {
+        super(code.getMessage());
+        this.errorCode = code.getCode();
+        this.codes = Collections.singletonList(code);
     }
-    public BizException(ErrorCode errorCode, Throwable t) {
-        super(errorCode.getMessage(), t);
-        this.errorCode = errorCode.getCode();
-        this.errorCodes = Collections.singletonList(errorCode);
+    public BizException(Code code, Throwable t) {
+        super(code.getMessage(), t);
+        this.errorCode = code.getCode();
+        this.codes = Collections.singletonList(code);
     }
 
-    public BizException(List<ErrorCode> errorCodes, Throwable t) {
-        super(errorCodes.get(0).getMessage(), t);
-        this.errorCode = errorCodes.get(0).getCode();
-        this.errorCodes = errorCodes;
+    public BizException(List<Code> codes, Throwable t) {
+        super(codes.get(0).getMessage(), t);
+        this.errorCode = codes.get(0).getCode();
+        this.codes = codes;
     }
 
     public String getErrorCode() {
         return this.errorCode;
     }
 
-    public ErrorCode getFirstErrorCode() {
-        return errorCodes.get(0);
+    public Code getFirstErrorCode() {
+        return codes.get(0);
     }
 
-    public List<ErrorCode> getErrorCodes() {
-        return errorCodes;
+    public List<Code> getErrorCodes() {
+        return codes;
     }
 
     static public void nullThrow(Object... params) {
         boolean haveNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
         if (haveNullValue) {
-            throw new BizException(ErrorCodeEnumBase.PARAM_IS_NULL);
+            throw new BizException(CodeEnumBase.PARAM_IS_NULL);
         }
     }
 
     static public <T, K> void nullThrow(T param, Function<T, K> deepFinder) {
         if (param == null) {
-            throw new BizException(ErrorCodeEnumBase.PARAM_IS_NULL);
+            throw new BizException(CodeEnumBase.PARAM_IS_NULL);
         }
         if (deepFinder.apply(param) == null) {
-            throw new BizException(ErrorCodeEnumBase.PARAM_IS_NULL);
+            throw new BizException(CodeEnumBase.PARAM_IS_NULL);
         }
     }
 
-    static public void nullThrow(Object param, Supplier<ErrorCode> supplier) {
+    static public void nullThrow(Object param, Supplier<Code> supplier) {
         if (param == null) {
             throw new BizException(supplier.get());
         }
     }
 
-    static public void nullThrow(Object param, ErrorCode errorCode) {
+    static public void nullThrow(Object param, Code code) {
         if (param == null) {
-            throw new BizException(errorCode);
+            throw new BizException(code);
         }
     }
 
-    static public void with(ErrorCode errorCode) {
-        throw new BizException(errorCode);
+    static public void with(Code code) {
+        throw new BizException(code);
     }
 
-    static public void trueThrow(boolean test, Supplier<ErrorCode> supplier) {
+    static public void trueThrow(boolean test, Supplier<Code> supplier) {
         if (test) {
             throw new BizException(supplier.get());
         }
     }
 
-    static public void emptyThrow(Collection<?> collection, Supplier<ErrorCode> supplier) {
+    static public void emptyThrow(Collection<?> collection, Supplier<Code> supplier) {
         if (Collect.isEmpty(collection)) {
             throw new BizException(supplier.get());
         }
     }
 
-    static public void falseThrow(boolean test, Supplier<ErrorCode> supplier) {
+    static public void falseThrow(boolean test, Supplier<Code> supplier) {
         if (!test) {
             throw new BizException(supplier.get());
         }
     }
 
-    static private ThreadLocal<List<ErrorCode>>  temporaryErrorCodes;
+    static private ThreadLocal<List<Code>>  temporaryErrorCodes;
 
     /**
      * 对于任何一个init函数都必须在有try-final块里面有 removeTemporaryErrorCodes（）操作
@@ -108,15 +108,15 @@ public class BizException extends RuntimeException {
         Optional.ofNullable(temporaryErrorCodes).ifPresent(ThreadLocal::remove);
     }
 
-    static public void addTemporaryErrorCode(ErrorCode errorCode) {
+    static public void addTemporaryErrorCode(Code code) {
         Optional.ofNullable(temporaryErrorCodes)
                 .map(ThreadLocal::get)
-                .orElseThrow(() -> new BizException(ErrorCodeEnumBase
+                .orElseThrow(() -> new BizException(CodeEnumBase
                         .CONFIG_ERROR.message("temporaryErrorCodes container need explicitly init!")))
-                .add(errorCode);
+                .add(code);
     }
 
-    static public List<ErrorCode> getTemporaryErrorCodes() {
+    static public List<Code> getTemporaryErrorCodes() {
         return Optional.ofNullable(temporaryErrorCodes).map(ThreadLocal::get).orElse(new ArrayList<>());
     }
 

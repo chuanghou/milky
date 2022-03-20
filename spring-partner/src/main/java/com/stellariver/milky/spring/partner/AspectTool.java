@@ -23,7 +23,7 @@ public class AspectTool {
         Map<String, String> builder = new HashMap<>();
         IntStream.range(0, args.length).forEach(index -> builder.put(parameterNames[index], Objects.toString(args[index])));
         return MethodInfo.builder().className(method.getDeclaringClass().getName())
-                .methodName(method.getName()).paramString(Json.toString(builder))
+                .methodName(method.getName()).paramString(Json.toJson(builder))
                 .method(method).build();
     }
 

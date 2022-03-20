@@ -3,7 +3,6 @@ package com.stellariver.milky.common.tool.util;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.stellariver.milky.common.tool.common.If;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,12 +18,12 @@ public class Json {
             .build();
 
     @SneakyThrows
-    public static String toString(Object target) {
+    public static String toJson(Object target) {
         return MAPPER.writeValueAsString(target);
     }
 
     @SneakyThrows
-    public static String toString(Object... objects) {
+    public static String toJson(Object... objects) {
         return MAPPER.writeValueAsString(objects);
     }
 
