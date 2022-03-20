@@ -1,5 +1,7 @@
 package com.stellariver.milky.common.tool.throwing;
 
+import com.stellariver.milky.common.tool.common.SysException;
+
 import java.util.function.BiConsumer;
 
 @FunctionalInterface
@@ -10,7 +12,7 @@ public interface ThrowingBiConsumer<T, U, E extends Throwable> {
             try {
                 consumer.accept(t, u);
             } catch (Throwable e) {
-                throw new RuntimeException(e);
+                throw new SysException(e);
             }
         };
     }

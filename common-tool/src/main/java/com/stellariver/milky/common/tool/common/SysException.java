@@ -19,7 +19,6 @@ public class SysException extends RuntimeException {
         this.errorCode = CodeEnumBase.UNDEFINED.getCode();
     }
 
-
     public SysException(Code code, Throwable t) {
         super(code.getMessage(), t);
         this.errorCode = code.getCode();
