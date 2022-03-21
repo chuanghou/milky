@@ -4,6 +4,7 @@ import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnum;
+import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
@@ -103,20 +104,23 @@ public class EventBus {
      * Because we need exploit database transaction, so async event router will be call
      * firstly, then exception could be used to roll back all event source aggregate
      * @param event the event need to be routed
-     * @param context current context
      */
-    public void route(Event event, Context context) {
+    public void route(Event event) {
         List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new);
         List<Interceptor> interceptors = Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new);
-        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
-        routers.stream().filter(router -> router.type.equals(TypeEnum.SYNC))
-                .forEach(router -> Runner.run(() -> router.route(event, context)));
-        routers.stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
-                .forEach(router -> Runner.run(() -> router.route(event, context)));
+        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event));
+        routers.stream().filter(router -> router.type.equals(TypeEnum.SYNC)).forEach(router -> Runner.run(() -> router.route(event)));
+        routers.stream().filter(router -> router.type.equals(TypeEnum.ASYNC)).findAny()
+                .ifPresent(router -> CommandBus.threadLocalEvents.get().add(event));
         interceptors = Optional.ofNullable(afterEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new);
-        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
+        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event));
     }
 
+    public void commitRoute(Event event) {
+        List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new);
+        routers.stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
+                .findAny().ifPresent(router ->Runner.run(() -> router.route(event)));
+    }
 
     @Data
     @Builder
@@ -131,11 +135,11 @@ public class EventBus {
 
         private ExecutorService executorService;
 
-        public void route(Event event, Context context) {
+        public void route(Event event) {
             if (Objects.equals(type, TypeEnum.SYNC)) {
-                Runner.invoke(bean, method, event, context);
+                Runner.invoke(bean, method);
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                executorService.submit(() -> Runner.invoke(bean, method, event, context));
+                executorService.submit(() -> Runner.invoke(bean, method));
             } else {
                 throw new BizException(ErrorEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }

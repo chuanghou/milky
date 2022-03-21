@@ -1,7 +1,6 @@
 package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.*;
-import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -12,6 +11,7 @@ import com.stellariver.milky.domain.support.context.ContextPrepares;
 import com.stellariver.milky.domain.support.context.PrepareKey;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
+import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
@@ -20,6 +20,7 @@ import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.repository.DomainRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
@@ -61,6 +62,8 @@ public class CommandBus {
     private final EventBus eventBus;
 
     private final boolean enableMq;
+
+    static public final ThreadLocal<List<Event>> threadLocalEvents = ThreadLocal.withInitial(ArrayList::new);
 
     public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
                       EventBus eventBus, String[] scanPackages, boolean enableMq) {
@@ -223,13 +226,8 @@ public class CommandBus {
     }
 
     public <T extends Command> Object send(T command) {
-        return send(command, new Context());
-    }
-
-    public <T extends Command> Object send(T command, Context context) {
-        SysException.nullThrow(command, context);
-        Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
-            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
+        SysException.nullThrow(command);
+        Context context = new Context();
 
         Handler commandHandler= commandHandlers.get(command.getClass());
         SysException.nullThrow(commandHandler, ErrorEnum.HANDLER_NOT_EXIST.message(Json.toJson(command)));
@@ -252,11 +250,15 @@ public class CommandBus {
         }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
             .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
+        threadLocalEvents.get().forEach(event -> Runner.run(() -> eventBus.commitRoute(event)));
+        threadLocalEvents.get().clear();
         return result;
     }
 
-    public <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
-
+    @SneakyThrows
+    private  <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
+        Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
+                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
         Repository repository = domainRepositories.get(commandHandler.clazz);
         SysException.nullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
         Map<String, ContextValueProvider> providerMap =
@@ -269,21 +271,20 @@ public class CommandBus {
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                if (e instanceof InvocationTargetException) {
+                    throw ((InvocationTargetException) e).getTargetException();
+                }
                 throw new SysException(e);
             }
         } else {
             aggregate = (AggregateRoot) Runner.invoke(
                     repository.bean, repository.getMethod, command.getAggregationId(), context);
-            BizException.nullThrow(aggregate);
             result = Runner.invoke(aggregate, commandHandler.method, command, context);
         }
-        context.setAggregateRoot(aggregate);
-        if (Collect.isEmpty(context.events)) {
-            return result;
-        }
         Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
-        context.events.forEach(event -> Runner.run(() -> eventBus.route(event, context)));
-        context.events.clear();
+        Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
+                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
+        context.getEvents().forEach(event -> Runner.run(() -> eventBus.route(event)));
         return result;
     }
 
