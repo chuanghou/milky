@@ -96,6 +96,7 @@ public class CommandBus {
     private void prepareCommandBusInterceptors() {
 
         HashMap<Class<? extends Command>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
+
         HashMap<Class<? extends Command>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass

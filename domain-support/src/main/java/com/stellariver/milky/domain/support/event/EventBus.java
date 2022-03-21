@@ -114,7 +114,7 @@ public class EventBus {
     public void commitRoute(Event event) {
         List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new);
         routers.stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
-                .findAny().ifPresent(router ->Runner.run(() -> router.route(event)));
+                .forEach(router ->Runner.run(() -> router.route(event)));
     }
 
     @Data
