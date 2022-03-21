@@ -100,11 +100,6 @@ public class EventBus {
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
     }
 
-    /**
-     * Because we need exploit database transaction, so async event router will be call
-     * firstly, then exception could be used to roll back all event source aggregate
-     * @param event the event need to be routed
-     */
     public void route(Event event) {
         List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new);
         List<Interceptor> interceptors = Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new);

@@ -228,12 +228,11 @@ public class CommandBus {
     public <T extends Command> Object send(T command) {
         SysException.nullThrow(command);
         Context context = new Context();
-
         Handler commandHandler= commandHandlers.get(command.getClass());
         SysException.nullThrow(commandHandler, ErrorEnum.HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
+        String lockKey = command.getClass().getName() + "_" + command.getAggregationId();
         try {
-            String lockKey = command.getClass().getName() + "_" + command.getAggregationId();
             if (concurrentOperate.tryLock(lockKey, command.lockExpireSeconds())) {
                  result = doSend(command, context, commandHandler);
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
@@ -244,12 +243,12 @@ public class CommandBus {
                 BizException.falseThrow(retryResult, () -> ErrorEnum.CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doSend(command, context, commandHandler);
             }
+            threadLocalEvents.get().forEach(event -> Runner.run(() -> eventBus.commitRoute(event)));
         } finally {
+            threadLocalEvents.get().clear();
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
             SysException.falseThrow(unlock, "unlock " + command.getAggregationId() + " failure!");
         }
-        threadLocalEvents.get().forEach(event -> Runner.run(() -> eventBus.commitRoute(event)));
-        threadLocalEvents.get().clear();
         return result;
     }
 
