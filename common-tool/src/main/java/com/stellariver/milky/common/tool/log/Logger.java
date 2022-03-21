@@ -29,19 +29,8 @@ public class Logger implements org.slf4j.Logger {
         return with("logTag", value);
     }
 
-    public Logger withLogTag(boolean test, Object value) {
-        return with(test, "logTag", value);
-    }
-
-    public Logger with(Map<String, ?> infos) {
+    public Logger with(Map<String, Object> infos) {
         infos.forEach(this::with);
-        return this;
-    }
-
-    public Logger with(boolean test, String key, Object value) {
-        if (test) {
-            return with(key, value);
-        }
         return this;
     }
 
@@ -50,11 +39,10 @@ public class Logger implements org.slf4j.Logger {
             log.error("log key shouldn't be null");
             return this;
         }
-        MortalMap<String, String> contents = threadLocalContents.get();
-        if (contents == null) {
+        if (threadLocalContents.get() == null) {
             threadLocalContents.set(new MortalMap<>());
-            contents = threadLocalContents.get();
         }
+        MortalMap<String, String> contents = threadLocalContents.get();
         if (contents.containsKey(key)) {
             log.error("log key:{} already exists, it may from duplicate keys in one log expression, or memory leak. " +
                     "It's very dangerous, there must have a log expression which did not end with info(), error() and so on", key);

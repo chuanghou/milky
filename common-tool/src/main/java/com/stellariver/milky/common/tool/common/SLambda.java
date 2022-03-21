@@ -12,11 +12,11 @@ import java.util.Map;
 public class SLambda {
 
     @SneakyThrows
-    public static <T extends Serializable> Map<String, String> resolve(T lambda) {
+    public static <T extends Serializable> Map<String, Object> resolve(T lambda) {
         Method method = lambda.getClass().getDeclaredMethod("writeReplace");
         method.setAccessible(true);
         SerializedLambda sLambda = (SerializedLambda) method.invoke(lambda);
-        Map<String, String> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         if (sLambda.getCapturedArgCount() == 0) {
             return result;
         }

@@ -2,6 +2,7 @@ package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Json;
+import com.stellariver.milky.common.tool.util.StreamMap;
 import lombok.SneakyThrows;
 
 import java.io.Serializable;
@@ -16,14 +17,26 @@ public class Runner {
 
     static final Logger log = Logger.getLogger(Runner.class);
 
+    static private Map<String, Object> recordSignature(Serializable lambda) {
+        Map<String, Object> lambdaInfos = SLambda.resolve(lambda);
+        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
+        StreamMap<String, Object> streamMap = StreamMap.init();
+        return streamMap.put("invokeClassName", stackTraceElement.getClassName())
+                .put("invokeLineNumber", stackTraceElement.getLineNumber())
+                .put("invokeMethodName", stackTraceElement.getMethodName())
+                .put(lambdaInfos).getMap();
+
+    }
+
     @SneakyThrows
     static public Object invoke(Object bean, Method method, Object... params) {
-        Object result;
-        Map<String, String> args = new HashMap<>();
-        IntStream.range(0, params.length).forEach(index -> args.put("arg" + index, Json.toJson(params[index])));
-        log.with("invokeClassName", bean.getClass().getName())
-                .with("methodName", method.getName())
-                .with(args);
+        Object result = null;
+        Map<String, Object> args = new HashMap<>();
+        StreamMap<String, Object> streamMap = StreamMap.init();
+        IntStream.range(0, params.length).forEach(index -> streamMap.put("arg" + index, Json.toJson(params[index])));
+        Map<String, Object> signature = streamMap.put("invokeClassName", bean.getClass().getName())
+                .put("methodName", method.getName())
+                .put(args).getMap();
         Throwable throwableBackup = null;
         try {
             result = method.invoke(bean, params);
@@ -41,26 +54,17 @@ public class Runner {
             throw ex;
         } finally {
             if (throwableBackup == null) {
-                log.info("");
+                log.with(signature).with("result", Json.toJson(result)).info("");
             } else {
-                log.error("", throwableBackup);
+                log.with(signature).error("", throwableBackup);
             }
         }
         return result;
     }
 
-    static private void recordInvokeSignature(Serializable lambda) {
-        Map<String, String> lambdaInfos = SLambda.resolve(lambda);
-        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
-        log.with("invokeClassName", stackTraceElement.getClassName())
-                .with("invokeLineNumber", stackTraceElement.getLineNumber())
-                .with("invokeMethodName", stackTraceElement.getMethodName())
-                .with(lambdaInfos);
-    }
-
     @SneakyThrows
     static public <R> R call(SCallable<R> callable) {
-        recordInvokeSignature(callable);
+        Map<String, Object> signature = recordSignature(callable);
         R result = null;
         Throwable throwableBackup = null;
         try {
@@ -79,9 +83,9 @@ public class Runner {
             throw throwable;
         } finally {
             if (throwableBackup == null) {
-                log.with("result", Json.toJson(result)).info("");
+                log.with(signature).with("result", Json.toJson(result)).info("");
             } else {
-                log.error("", throwableBackup);
+                log.with(signature).error("", throwableBackup);
             }
         }
         return result;
@@ -89,7 +93,7 @@ public class Runner {
 
     @SneakyThrows
     static public <R> R call(SCallable<R> callable, Function<R, Boolean> check) {
-        recordInvokeSignature(callable);
+        Map<String, Object> signature = recordSignature(callable);
         R result = null;
         Throwable throwableBackup = null;
         try {
@@ -111,16 +115,15 @@ public class Runner {
             throw throwable;
         } finally {
             if (throwableBackup == null) {
-                log.with("result", Json.toJson(result)).info("");
+                log.with(signature).with("result", Json.toJson(result)).info("");
             } else {
-                log.error("", throwableBackup);
+                log.with(signature).error("", throwableBackup);
             }
         }
         return result;
     }
 
     static public <R, T> T call(SCallable<R> callable, Function<R, Boolean> check, Function<R, T> getData) {
-        recordInvokeSignature(callable);
         return getData.apply(call(callable, check));
     }
 
@@ -129,7 +132,7 @@ public class Runner {
                                             Function<R, Boolean> check,
                                             Function<R, T> getData,
                                             T defaultValue) {
-        recordInvokeSignature(callable);
+        Map<String, Object> signature = recordSignature(callable);
         R result = null;
         Throwable throwableBackup = null;
         try {
@@ -151,9 +154,9 @@ public class Runner {
             throwableBackup = throwable;
         } finally {
             if (throwableBackup == null) {
-                log.with("result", Json.toJson(result)).info("");
+                log.with(signature).with("result", Json.toJson(result)).info("");
             } else {
-                log.with("defaultValue", defaultValue).error("", throwableBackup);
+                log.with(signature).with("defaultValue", defaultValue).error("", throwableBackup);
             }
         }
         return defaultValue;
@@ -161,7 +164,7 @@ public class Runner {
 
 
     static public void run(SRunnable runnable) {
-        recordInvokeSignature(runnable);
+        Map<String, Object> signature = recordSignature(runnable);
         Throwable throwableBackup = null;
         try {
             runnable.run();
@@ -170,15 +173,15 @@ public class Runner {
             throw throwable;
         } finally {
             if (throwableBackup == null) {
-                log.info("");
+                log.with(signature).info("");
             } else {
-                log.error("", throwableBackup);
+                log.with(signature).error("", throwableBackup);
             }
         }
     }
 
     static public void fallbackableRun(SRunnable runnable) {
-        recordInvokeSignature(runnable);
+        Map<String, Object> signature = recordSignature(runnable);
         Throwable throwableBackup = null;
         try {
             runnable.run();
@@ -186,9 +189,9 @@ public class Runner {
            throwableBackup = throwable;
         } finally {
             if (throwableBackup == null) {
-                log.info("");
+                log.with(signature).info("");
             } else {
-                log.error("", throwableBackup);
+                log.with(signature).error("", throwableBackup);
             }
         }
     }
