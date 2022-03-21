@@ -248,8 +248,6 @@ public class CommandBus {
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
             SysException.falseThrow(unlock, "unlock " + command.getAggregationId() + " failure!");
         }
-        Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
-            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
         threadLocalEvents.get().forEach(event -> Runner.run(() -> eventBus.commitRoute(event)));
         threadLocalEvents.get().clear();
         return result;
@@ -257,8 +255,6 @@ public class CommandBus {
 
     @SneakyThrows
     private  <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
-        Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
-                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
         Repository repository = domainRepositories.get(commandHandler.clazz);
         SysException.nullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
         Map<String, ContextValueProvider> providerMap =
@@ -267,6 +263,8 @@ public class CommandBus {
                 invokeContextValueProvider(command, key, context, providerMap, new HashSet<>()));
         AggregateRoot aggregate;
         Object result = null;
+        Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
+                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
         if (commandHandler.constructor != null) {
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
