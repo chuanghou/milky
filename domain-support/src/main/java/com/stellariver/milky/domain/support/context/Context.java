@@ -31,11 +31,11 @@ public class Context{
     }
 
     public Object getDependency(String key) {
-        return metaData.get(key);
+        return dependencies.get(key);
     }
 
     public void putDependency(String key, Object value) {
-        metaData.put(key, value);
+        dependencies.put(key, value);
     }
 
     public void pushEvent(@Nonnull Event event) {
