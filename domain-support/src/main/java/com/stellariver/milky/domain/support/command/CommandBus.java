@@ -6,6 +6,7 @@ import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.Invocation;
+import com.stellariver.milky.domain.support.InvokeTrace;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.ContextPrepares;
@@ -235,7 +236,7 @@ public class CommandBus {
      */
     public <T extends Command> Object send(T command, Invocation invocation) {
         Object result;
-        Context context = tLContext.get();
+        Context context = tLContext.get().withInvocation(invocation);
         try {
             result = send(command);
             context.getProcessedEvents().forEach(event -> Runner.run(() -> eventBus.asyncRoute(event, context)));
@@ -258,6 +259,8 @@ public class CommandBus {
 
         Object result = null;
         Context context = tLContext.get();
+        Invocation invocation = context.getInvocation();
+        command.setInvokeTrace(new InvokeTrace(invocation.getInvocationId(), invocation.getInvocationId()));
         String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
         try {
             if (concurrentOperate.tryLock(lockKey, command.lockExpireSeconds())) {
@@ -277,6 +280,7 @@ public class CommandBus {
 
         Event event = context.popEvent();
         while (event != null) {
+            event.setInvokeTrace(new InvokeTrace(command.getInvokeTrace().getInvocationId(), command.getId()));
             Event finalEvent = event;
             Runner.run(() -> eventBus.syncRoute(finalEvent));
             event = context.popEvent();

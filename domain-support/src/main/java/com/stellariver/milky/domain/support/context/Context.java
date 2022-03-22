@@ -49,6 +49,15 @@ public class Context{
         return processedEvents;
     }
 
+    public Context withInvocation(Invocation invocation) {
+        this.invocation = invocation;
+        return this;
+    }
+
+    public Invocation getInvocation() {
+       return invocation;
+    }
+
 }
 
 
