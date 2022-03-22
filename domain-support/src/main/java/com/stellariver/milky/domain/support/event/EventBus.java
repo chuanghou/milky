@@ -102,12 +102,12 @@ public class EventBus {
 
     public void syncRoute(Event event) {
         Context context = CommandBus.tLContext.get();
-        List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new);
-        List<Interceptor> interceptors = Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new);
-        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
-        routers.stream().filter(router -> router.type.equals(TypeEnum.SYNC)).forEach(router -> Runner.run(() -> router.route(event, context)));
-        interceptors = Optional.ofNullable(afterEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new);
-        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
+         Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new)
+            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
+        Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
+                .stream().filter(router -> router.type.equals(TypeEnum.SYNC)).forEach(router -> Runner.run(() -> router.route(event, context)));
+        Optional.ofNullable(afterEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new)
+            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
     }
 
     public void asyncRoute(Event event, Context context) {
