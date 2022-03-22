@@ -3,6 +3,7 @@ package com.stellariver.milky.domain.support.event;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.stellariver.milky.domain.support.InvokeTrace;
 import com.stellariver.milky.domain.support.base.Message;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -16,6 +17,7 @@ import lombok.experimental.SuperBuilder;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public abstract class Event extends Message {
 
+    @Builder.Default
     private boolean aggregateChange = true;
 
     public Event(InvokeTrace invokeTrace) {
