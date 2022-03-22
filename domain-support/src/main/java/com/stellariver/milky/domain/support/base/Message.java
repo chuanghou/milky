@@ -16,19 +16,23 @@ import java.util.UUID;
 @AllArgsConstructor
 public abstract class Message {
 
-    protected String identifier;
+    protected String id;
 
-    @Builder.Default
-    protected Map<String, Object> extensions = new HashMap<>();
+    protected String triggerId;
 
-    public abstract String buildIdentifier();
+    protected String aggregateId;
+
+    public abstract String initIdentifier();
+
+    public abstract String initTriggerId();
+
+    public abstract String initAggregateId();
 
     public Message() {
-        this.identifier = buildIdentifier();
+        this.id = initIdentifier();
+        this.aggregateId = initAggregateId();
+        this.triggerId = initTriggerId();
     }
 
-    public void put(String extensionKey, Object extensionValue) {
-        extensions.put(extensionKey, extensionValue);
-    }
 
 }
