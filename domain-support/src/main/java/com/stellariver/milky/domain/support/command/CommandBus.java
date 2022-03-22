@@ -35,6 +35,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.stellariver.milky.domain.support.ErrorEnum.AGGREGATE_INHERITED;
+import static com.stellariver.milky.domain.support.ErrorEnum.HANDLER_NOT_EXIST;
+
 public class CommandBus {
 
     static final private Predicate<Class<?>[]> commandHandlerFormat = parameterTypes ->
@@ -172,9 +175,14 @@ public class CommandBus {
     @SuppressWarnings("unchecked")
     private void prepareCommandHandlers(Reflections reflections) {
         Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);
+
+        boolean secondInherited = classes.stream().map(Reflect::ancestorClasses).anyMatch(list -> list.size() > 3);
+        SysException.trueThrow(secondInherited, () -> AGGREGATE_INHERITED);
+
         List<Method> methods = classes.stream().map(Class::getMethods).flatMap(Stream::of)
                 .filter(m -> commandHandlerFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
+
         methods.forEach(method -> {
             Class<?>[] parameterTypes = method.getParameterTypes();
             CommandHandler annotation = method.getAnnotation(CommandHandler.class);
@@ -184,6 +192,7 @@ public class CommandBus {
             Handler handler = new Handler(clazz, method, null, hasReturn, requiredKeys);
             commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
         });
+
         List<Constructor<?>> constructors = classes.stream().map(Class::getDeclaredConstructors).flatMap(Stream::of)
                 .filter(m -> commandHandlerFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
@@ -255,7 +264,7 @@ public class CommandBus {
 
         SysException.nullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());
-        SysException.nullThrow(commandHandler, ErrorEnum.HANDLER_NOT_EXIST.message(Json.toJson(command)));
+        SysException.nullThrow(commandHandler, HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
         Context context = tLContext.get();
         Invocation invocation = context.getInvocation();
