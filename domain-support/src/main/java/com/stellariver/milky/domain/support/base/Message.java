@@ -18,8 +18,6 @@ public abstract class Message {
 
     protected String identifier;
 
-    protected Context context;
-
     protected Date gmtCreate;
 
     @Builder.Default
