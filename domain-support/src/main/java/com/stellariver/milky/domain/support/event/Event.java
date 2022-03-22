@@ -22,4 +22,8 @@ public abstract class Event extends Message {
         super(invokeTrace);
     }
 
+    public boolean sourcedAggregateChange() {
+        return aggregateChange;
+    }
+
 }

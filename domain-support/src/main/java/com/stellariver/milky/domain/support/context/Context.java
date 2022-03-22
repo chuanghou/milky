@@ -58,6 +58,10 @@ public class Context{
        return invocation;
     }
 
+    public List<Event> peekEvents() {
+        return new ArrayList<>(events);
+    }
+
 }
 
 

@@ -311,14 +311,15 @@ public class CommandBus {
                 throw new SysException(e);
             }
         } else {
-            aggregate = (AggregateRoot) Runner.invoke(
-                    repository.bean, repository.getMethod, command.getAggregateId(), context);
+            aggregate = (AggregateRoot) Runner.invoke(repository.bean, repository.getMethod, command.getAggregateId(), context);
             result = Runner.invoke(aggregate, commandHandler.method, command, context);
         }
-        Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
+        boolean present = context.peekEvents().stream().anyMatch(Event::isAggregateChange);
+        if (present) {
+            Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
+        }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
                 .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
-
         return result;
     }
 
