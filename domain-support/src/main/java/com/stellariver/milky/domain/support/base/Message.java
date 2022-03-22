@@ -18,16 +18,13 @@ public abstract class Message {
 
     protected String identifier;
 
-    protected Date gmtCreate;
-
     @Builder.Default
     protected Map<String, Object> extensions = new HashMap<>();
 
-    public abstract String getAggregationId();
+    public abstract String buildIdentifier();
 
     public Message() {
-        this.identifier = getAggregationId() + "_" + UUID.randomUUID();
-        this.gmtCreate = new Date();
+        this.identifier = buildIdentifier();
     }
 
     public void put(String extensionKey, Object extensionValue) {
