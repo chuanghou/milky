@@ -111,8 +111,8 @@ public class EventBus {
     }
 
     public void asyncRoute(Event event, Context context) {
-        List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new);
-        routers.stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
+        Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
+                .stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
                 .forEach(router -> Runner.fallbackableRun(() -> router.route(event, context)));
     }
 
