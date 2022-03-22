@@ -5,6 +5,7 @@ import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnum;
+import com.stellariver.milky.domain.support.Invocation;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.ContextPrepares;
@@ -232,7 +233,7 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    public <T extends Command> Object publicSend(T command) {
+    public <T extends Command> Object send(T command, Invocation invocation) {
         Object result;
         Context context = tLContext.get();
         try {
@@ -257,7 +258,7 @@ public class CommandBus {
 
         Object result = null;
         Context context = tLContext.get();
-        String lockKey = command.getClass().getName() + "_" + command.getAggregationId();
+        String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
         try {
             if (concurrentOperate.tryLock(lockKey, command.lockExpireSeconds())) {
                 result = doSend(command, context, commandHandler);
@@ -270,8 +271,15 @@ public class CommandBus {
                 result = doSend(command, context, commandHandler);
             }
         } finally {
-            boolean unlock = concurrentOperate.unlock(command.getAggregationId());
-            SysException.falseThrow(unlock, "unlock " + command.getAggregationId() + " failure!");
+            boolean unlock = concurrentOperate.unlock(command.getAggregateId());
+            SysException.falseThrow(unlock, "unlock " + command.getAggregateId() + " failure!");
+        }
+
+        Event event = context.popEvent();
+        while (event != null) {
+            Event finalEvent = event;
+            Runner.run(() -> eventBus.syncRoute(finalEvent));
+            event = context.popEvent();
         }
 
         return result;
@@ -301,19 +309,12 @@ public class CommandBus {
             }
         } else {
             aggregate = (AggregateRoot) Runner.invoke(
-                    repository.bean, repository.getMethod, command.getAggregationId(), context);
+                    repository.bean, repository.getMethod, command.getAggregateId(), context);
             result = Runner.invoke(aggregate, commandHandler.method, command, context);
         }
         Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
                 .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
-
-        Event event = context.popEvent();
-        while (event != null) {
-            Event finalEvent = event;
-            Runner.run(() -> eventBus.syncRoute(finalEvent));
-            event = context.popEvent();
-        }
 
         return result;
     }

@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.SysException;
+import com.stellariver.milky.domain.support.Invocation;
 import com.stellariver.milky.domain.support.event.Event;
 
 import javax.annotation.Nonnull;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Context{
+
+    private Invocation invocation;
 
     private final Map<String, Object> metaData = new HashMap<>();
 

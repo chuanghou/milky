@@ -1,6 +1,10 @@
 package com.stellariver.milky.domain.support.base;
 
+import com.stellariver.milky.domain.support.IdBuilder;
+import com.stellariver.milky.domain.support.Invocation;
+import com.stellariver.milky.domain.support.InvokeTrace;
 import com.stellariver.milky.domain.support.context.Context;
+import com.stellariver.milky.domain.support.util.BeanUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,23 +20,16 @@ import java.util.UUID;
 @AllArgsConstructor
 public abstract class Message {
 
-    protected String id;
+    protected Long id;
 
-    protected String triggerId;
+    protected InvokeTrace invokeTrace;
 
-    protected String aggregateId;
 
-    public abstract String initIdentifier();
-
-    public abstract String initTriggerId();
-
-    public abstract String initAggregateId();
-
-    public Message() {
-        this.id = initIdentifier();
-        this.aggregateId = initAggregateId();
-        this.triggerId = initTriggerId();
+    public Message(InvokeTrace invokeTrace) {
+        this.id = BeanUtils.getBean(IdBuilder.class).build();
+        this.invokeTrace = invokeTrace;
     }
 
+    abstract public String getAggregateId();
 
 }

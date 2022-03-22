@@ -10,7 +10,6 @@ import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 abstract public class Command extends Message {
