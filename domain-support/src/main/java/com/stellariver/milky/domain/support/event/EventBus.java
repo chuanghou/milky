@@ -102,12 +102,13 @@ public class EventBus {
 
     public void syncRoute(Event event) {
         Context context = CommandBus.tLContext.get();
-         Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new)
-            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
+        Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
+                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context)));
         Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
-                .stream().filter(router -> router.type.equals(TypeEnum.SYNC)).forEach(router -> Runner.run(() -> router.route(event, context)));
-        Optional.ofNullable(afterEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new)
-            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
+                .stream().filter(router -> router.type.equals(TypeEnum.SYNC))
+                .forEach(router -> Runner.run(() -> router.route(event, context)));
+        Optional.ofNullable(afterEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
+            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context)));
     }
 
     public void asyncRoute(Event event, Context context) {

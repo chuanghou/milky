@@ -305,13 +305,13 @@ public class CommandBus {
         Repository repository = domainRepositories.get(commandHandler.clazz);
         SysException.nullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
         Map<String, ContextValueProvider> providerMap =
-                Optional.ofNullable(contextValueProviders.get(command.getClass())).orElse(new HashMap<>());
+                Optional.ofNullable(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
         commandHandler.getRequiredKeys().forEach(key ->
                 invokeContextValueProvider(command, key, context, providerMap, new HashSet<>()));
         AggregateRoot aggregate;
         Object result = null;
-        Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
-                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
+        Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
+                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context)));
         if (commandHandler.constructor != null) {
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
@@ -326,11 +326,9 @@ public class CommandBus {
             result = Runner.invoke(aggregate, commandHandler.method, command, context);
         }
         boolean present = context.peekEvents().stream().anyMatch(Event::isAggregateChange);
-        if (present) {
-            Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
-        }
-        Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
-                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
+        If.isTrue(present, () -> Runner.invoke(repository.bean, repository.saveMethod, aggregate, context));
+        Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
+                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context)));
         return result;
     }
 
