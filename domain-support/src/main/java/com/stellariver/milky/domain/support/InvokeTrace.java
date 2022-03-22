@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support;
 
+import com.stellariver.milky.domain.support.base.Message;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,4 +12,7 @@ public class InvokeTrace {
 
     private Long lastTriggerId;
 
+    static public InvokeTrace build(Message message) {
+        return new InvokeTrace(message.getInvokeTrace().getInvocationId(), message.getId());
+    }
 }

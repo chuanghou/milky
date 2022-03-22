@@ -256,7 +256,6 @@ public class CommandBus {
         SysException.nullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());
         SysException.nullThrow(commandHandler, ErrorEnum.HANDLER_NOT_EXIST.message(Json.toJson(command)));
-
         Object result = null;
         Context context = tLContext.get();
         Invocation invocation = context.getInvocation();
@@ -280,7 +279,7 @@ public class CommandBus {
 
         Event event = context.popEvent();
         while (event != null) {
-            event.setInvokeTrace(new InvokeTrace(command.getInvokeTrace().getInvocationId(), command.getId()));
+            event.setInvokeTrace(InvokeTrace.build(event));
             Event finalEvent = event;
             Runner.run(() -> eventBus.syncRoute(finalEvent));
             event = context.popEvent();
