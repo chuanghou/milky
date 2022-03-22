@@ -1,7 +1,7 @@
 package com.stellariver.milky.starter;
 
 import com.stellariver.milky.domain.support.base.ScanPackages;
-import com.stellariver.milky.domain.support.context.ContextPrepares;
+import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.repository.DomainRepository;
@@ -42,7 +42,7 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         registry.registerBeanDefinition("scanPackages", scanPackagesBeanBuilder.getBeanDefinition());
         ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry, false);
         scanner.setResourceLoader(resourceLoader);
-        scanner.addIncludeFilter(new AssignableTypeFilter(ContextPrepares.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(DependencyPrepares.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(EventRouters.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(DomainRepository.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BusInterceptors.class));

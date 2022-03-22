@@ -16,6 +16,8 @@ public class Context{
 
     private final Map<String, Object> metaData = new HashMap<>();
 
+    private final Map<String, Object> dependencies = new HashMap<>();
+
     private final List<Event> events = new ArrayList<>();
 
     private final List<Event> processedEvents = new ArrayList<>();
@@ -25,6 +27,14 @@ public class Context{
     }
 
     public void putMetaData(String key, Object value) {
+        metaData.put(key, value);
+    }
+
+    public Object getDependency(String key) {
+        return metaData.get(key);
+    }
+
+    public void putDependency(String key, Object value) {
         metaData.put(key, value);
     }
 

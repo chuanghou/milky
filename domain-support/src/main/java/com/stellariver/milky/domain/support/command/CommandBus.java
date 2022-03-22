@@ -9,8 +9,8 @@ import com.stellariver.milky.domain.support.Invocation;
 import com.stellariver.milky.domain.support.InvokeTrace;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.context.ContextPrepares;
-import com.stellariver.milky.domain.support.context.PrepareKey;
+import com.stellariver.milky.domain.support.context.DependencyPrepares;
+import com.stellariver.milky.domain.support.context.DependencyKey;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.event.Event;
@@ -41,21 +41,16 @@ import static com.stellariver.milky.domain.support.ErrorEnum.HANDLER_NOT_EXIST;
 
 public class CommandBus {
 
-    static final private Predicate<Class<?>[]> commandHandlerFormat = parameterTypes ->
+    static final private Predicate<Class<?>[]> format = parameterTypes ->
             (parameterTypes.length == 2
             && Command.class.isAssignableFrom(parameterTypes[0])
             && parameterTypes[1] == Context.class);
-
-    static final private Predicate<Class<?>[]> commandBusInterceptorFormat =
-            parameterTypes -> (parameterTypes.length == 2
-                    && Command.class.isAssignableFrom(parameterTypes[0])
-                    && parameterTypes[1] == Context.class);
 
     static public final ThreadLocal<Context> tLContext = ThreadLocal.withInitial(Context::new);
 
     private final Map<Class<? extends Command>, Handler> commandHandlers = new HashMap<>();
 
-    private final Map<Class<? extends Command>, Map<String, ContextValueProvider>> contextValueProviders = new HashMap<>();
+    private final Map<Class<? extends Command>, Map<String, DependencyProvider>> contextValueProviders = new HashMap<>();
 
     private final Map<Class<? extends AggregateRoot>, Repository> domainRepositories = new HashMap<>();
 
@@ -108,7 +103,7 @@ public class CommandBus {
         // collect all command interceptors into tempInterceptorsMap group by commandClass
         beanLoader.getBeansOfType(BusInterceptors.class).stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> commandBusInterceptorFormat.test(m.getParameterTypes()))
+                .filter(m -> format.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())
                 .forEach(method -> {
                     BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
@@ -181,7 +176,7 @@ public class CommandBus {
         SysException.trueThrow(secondInherited, () -> AGGREGATE_INHERITED);
 
         List<Method> methods = classes.stream().map(Class::getMethods).flatMap(Stream::of)
-                .filter(m -> commandHandlerFormat.test(m.getParameterTypes()))
+                .filter(m -> format.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
 
         methods.forEach(method -> {
@@ -195,7 +190,7 @@ public class CommandBus {
         });
 
         List<Constructor<?>> constructors = classes.stream().map(Class::getDeclaredConstructors).flatMap(Stream::of)
-                .filter(m -> commandHandlerFormat.test(m.getParameterTypes()))
+                .filter(m -> format.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
 
         constructors.forEach(constructor -> {
@@ -210,28 +205,28 @@ public class CommandBus {
 
     @SuppressWarnings("unchecked")
     private void prepareContextValueProviders(Reflections reflections) {
-        Map<Class<? extends Command>, Map<String, ContextValueProvider>> tempProviders = new HashMap<>();
+        Map<Class<? extends Command>, Map<String, DependencyProvider>> tempProviders = new HashMap<>();
 
-        List<Method> methods = beanLoader.getBeansOfType(ContextPrepares.class)
+        List<Method> methods = beanLoader.getBeansOfType(DependencyPrepares.class)
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
-                .filter(method -> method.isAnnotationPresent(PrepareKey.class))
-                .filter(method -> commandHandlerFormat.test(method.getParameterTypes())).collect(Collectors.toList());
+                .filter(method -> method.isAnnotationPresent(DependencyKey.class))
+                .filter(method -> format.test(method.getParameterTypes())).collect(Collectors.toList());
 
         methods.forEach(method -> {
             Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
-            String key = method.getAnnotation(PrepareKey.class).value();
-            String[] requiredKeys = method.getAnnotation(PrepareKey.class).requiredKeys();
+            String key = method.getAnnotation(DependencyKey.class).value();
+            String[] requiredKeys = method.getAnnotation(DependencyKey.class).requiredKeys();
             Object bean = beanLoader.getBean(method.getDeclaringClass());
-            ContextValueProvider valueProvider = new ContextValueProvider(key, requiredKeys, bean, method);
-            Map<String, ContextValueProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
+            DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method);
+            Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
             SysException.trueThrow(valueProviderMap.containsKey(key),
-                    "对于" + commandClass.getName() + "对于" + key + "提供了两个contextValueProvider");
-            valueProviderMap.put(key, valueProvider);
+                    "对于" + commandClass.getName() + "对于" + key + "提供了两个dependencyProvider");
+            valueProviderMap.put(key, dependencyProvider);
         });
 
         reflections.getSubTypesOf(Command.class).forEach(commandClass -> {
-            Map<String, ContextValueProvider> map = new HashMap<>();
+            Map<String, DependencyProvider> map = new HashMap<>();
             List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass);
             ancestorClasses.forEach(c -> map.putAll(Optional.ofNullable(tempProviders.get(c)).orElseGet(HashMap::new)));
             contextValueProviders.put(commandClass, map);
@@ -304,7 +299,7 @@ public class CommandBus {
     private  <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
         Repository repository = domainRepositories.get(commandHandler.clazz);
         SysException.nullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
-        Map<String, ContextValueProvider> providerMap =
+        Map<String, DependencyProvider> providerMap =
                 Optional.ofNullable(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
         commandHandler.getRequiredKeys().forEach(key ->
                 invokeContextValueProvider(command, key, context, providerMap, new HashSet<>()));
@@ -333,10 +328,10 @@ public class CommandBus {
     }
 
     private <T extends Command> void invokeContextValueProvider(T command, String key, Context context,
-                                                                Map<String, ContextValueProvider> providers, Set<String> referKeys) {
+                                                                Map<String, DependencyProvider> providers, Set<String> referKeys) {
         SysException.trueThrow(referKeys.contains(key), "required key " + key + "circular reference!");
         referKeys.add(key);
-        ContextValueProvider valueProvider = providers.get(key);
+        DependencyProvider valueProvider = providers.get(key);
         SysException.nullThrow(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
         Arrays.stream(valueProvider.getRequiredKeys())
                 .filter(requiredKey -> Objects.equals(null, context.getMetaData(requiredKey)))
@@ -360,7 +355,7 @@ public class CommandBus {
 
     @Data
     @AllArgsConstructor
-    static private class ContextValueProvider {
+    static private class DependencyProvider {
 
         private String key;
 
