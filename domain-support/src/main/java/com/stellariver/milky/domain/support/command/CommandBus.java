@@ -251,7 +251,7 @@ public class CommandBus {
             Long invocationId = invocation.getInvocationId();
             InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
             command.setInvokeTrace(invokeTrace);
-            result = send(command);
+            result = route(command);
             context.getProcessedEvents().forEach(event -> Runner.run(() -> eventBus.asyncRoute(event, context)));
         } finally {
             tLContext.remove();
@@ -264,7 +264,7 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    public <T extends Command> Object send(T command) {
+    public <T extends Command> Object route(T command) {
         SysException.nullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());
         SysException.nullThrow(commandHandler, HANDLER_NOT_EXIST.message(Json.toJson(command)));
