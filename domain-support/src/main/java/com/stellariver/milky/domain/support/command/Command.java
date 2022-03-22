@@ -26,8 +26,8 @@ abstract public class Command extends Message {
         return 3;
     }
 
-    public int[] violationRandomSleepRange() {
-        return new int[]{100, 300};
+    public long[] violationRandomSleepRange() {
+        return new long[]{100L, 300L};
     }
 
 }

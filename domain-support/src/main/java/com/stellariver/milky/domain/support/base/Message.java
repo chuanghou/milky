@@ -24,7 +24,6 @@ public abstract class Message {
 
     protected InvokeTrace invokeTrace;
 
-
     public Message(InvokeTrace invokeTrace) {
         this.id = BeanUtils.getBean(IdBuilder.class).build();
         this.invokeTrace = invokeTrace;

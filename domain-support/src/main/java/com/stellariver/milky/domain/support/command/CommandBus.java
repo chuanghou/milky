@@ -35,6 +35,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.stellariver.milky.common.tool.common.ErrorEnumBase.CONCURRENCY_VIOLATION;
 import static com.stellariver.milky.domain.support.ErrorEnum.AGGREGATE_INHERITED;
 import static com.stellariver.milky.domain.support.ErrorEnum.HANDLER_NOT_EXIST;
 
@@ -245,8 +246,11 @@ public class CommandBus {
      */
     public <T extends Command> Object send(T command, Invocation invocation) {
         Object result;
-        Context context = tLContext.get().withInvocation(invocation);
+        Context context = tLContext.get();
         try {
+            Long invocationId = invocation.getInvocationId();
+            InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
+            command.setInvokeTrace(invokeTrace);
             result = send(command);
             context.getProcessedEvents().forEach(event -> Runner.run(() -> eventBus.asyncRoute(event, context)));
         } finally {
@@ -261,14 +265,14 @@ public class CommandBus {
      * @return 总结结果
      */
     public <T extends Command> Object send(T command) {
-
         SysException.nullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());
         SysException.nullThrow(commandHandler, HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
         Context context = tLContext.get();
-        Invocation invocation = context.getInvocation();
-        command.setInvokeTrace(new InvokeTrace(invocation.getInvocationId(), invocation.getInvocationId()));
+        if (command.getInvokeTrace() == null) {
+            command.setInvokeTrace(InvokeTrace.build(context.peekEvent()));
+        }
         String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
         try {
             if (concurrentOperate.tryLock(lockKey, command.lockExpireSeconds())) {
@@ -276,16 +280,15 @@ public class CommandBus {
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
             } else {
-                long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange()[0], command.violationRandomSleepRange()[1]);
+                long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
                 boolean retryResult = concurrentOperate.tryRetryLock(lockKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
-                BizException.falseThrow(retryResult, () -> ErrorEnum.CONCURRENCY_VIOLATION.message(Json.toJson(command)));
+                BizException.falseThrow(retryResult, () -> CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doSend(command, context, commandHandler);
             }
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregateId());
             SysException.falseThrow(unlock, "unlock " + command.getAggregateId() + " failure!");
         }
-
         Event event = context.popEvent();
         while (event != null) {
             event.setInvokeTrace(InvokeTrace.build(event));
@@ -293,7 +296,6 @@ public class CommandBus {
             Runner.run(() -> eventBus.syncRoute(finalEvent));
             event = context.popEvent();
         }
-
         return result;
     }
 

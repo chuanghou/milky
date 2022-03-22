@@ -14,8 +14,6 @@ import java.util.Map;
 
 public class Context{
 
-    private Invocation invocation;
-
     private final Map<String, Object> metaData = new HashMap<>();
 
     private final List<Event> events = new ArrayList<>();
@@ -49,17 +47,12 @@ public class Context{
         return processedEvents;
     }
 
-    public Context withInvocation(Invocation invocation) {
-        this.invocation = invocation;
-        return this;
-    }
-
-    public Invocation getInvocation() {
-       return invocation;
-    }
-
     public List<Event> peekEvents() {
         return new ArrayList<>(events);
+    }
+
+    public Event peekEvent() {
+        return events.get(0);
     }
 
 }
