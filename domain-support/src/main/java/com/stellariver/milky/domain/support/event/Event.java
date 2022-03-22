@@ -15,8 +15,15 @@ import lombok.experimental.SuperBuilder;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public abstract class Event extends Message {
 
+    private boolean aggregateChange = false;
+
     public Event() {
         super();
+    }
+
+    public Event(boolean aggregateChange) {
+        super();
+        this.aggregateChange = aggregateChange;
     }
 
 }

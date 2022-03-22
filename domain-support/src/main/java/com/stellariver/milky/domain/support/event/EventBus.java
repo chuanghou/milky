@@ -100,21 +100,20 @@ public class EventBus {
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
     }
 
-    public void route(Event event) {
+    public void syncRoute(Event event) {
+        Context context = CommandBus.tLContext.get();
         List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new);
         List<Interceptor> interceptors = Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new);
-        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event));
-        routers.stream().filter(router -> router.type.equals(TypeEnum.SYNC)).forEach(router -> Runner.run(() -> router.route(event)));
-        routers.stream().filter(router -> router.type.equals(TypeEnum.ASYNC)).findAny()
-                .ifPresent(router -> CommandBus.threadLocalEvents.get().add(event));
+        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
+        routers.stream().filter(router -> router.type.equals(TypeEnum.SYNC)).forEach(router -> Runner.run(() -> router.route(event, context)));
         interceptors = Optional.ofNullable(afterEventInterceptors.get(event.getClass())).orElseGet(ArrayList::new);
-        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event));
+        interceptors.forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context));
     }
 
-    public void commitRoute(Event event) {
+    public void asyncRoute(Event event, Context context) {
         List<Router> routers = Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new);
         routers.stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
-                .forEach(router -> Runner.run(() -> router.route(event)));
+                .forEach(router -> Runner.fallbackableRun(() -> router.route(event, context)));
     }
 
     @Data
@@ -130,11 +129,11 @@ public class EventBus {
 
         private ExecutorService executorService;
 
-        public void route(Event event) {
+        public void route(Event event, Context context) {
             if (Objects.equals(type, TypeEnum.SYNC)) {
-                Runner.invoke(bean, method);
+                Runner.invoke(bean, method, context);
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                executorService.submit(() -> Runner.invoke(bean, method));
+                executorService.submit(() -> Runner.invoke(bean, method, context));
             } else {
                 throw new BizException(ErrorEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }

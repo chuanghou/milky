@@ -1,9 +1,11 @@
 package com.stellariver.milky.domain.support.context;
 
 
-import com.stellariver.milky.domain.support.base.AggregateRoot;
+import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.domain.support.event.Event;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,20 +17,33 @@ public class Context{
 
     private final List<Event> events = new ArrayList<>();
 
-    public Object get(String key) {
+    private final List<Event> processedEvents = new ArrayList<>();
+
+    public Object getMetaData(String key) {
         return metaData.get(key);
     }
 
-    public void put(String key, Object value) {
+    public void putMetaData(String key, Object value) {
         metaData.put(key, value);
     }
 
-    public void addEvent(Event event) {
+    public void pushEvent(@Nonnull Event event) {
+        SysException.nullThrow(event);
         events.add(event);
     }
 
-    public List<Event> getEvents() {
-        return events;
+    @Nullable
+    public Event popEvent() {
+        Event event = null;
+        if (!events.isEmpty()) {
+            event = events.remove(0);
+            processedEvents.add(event);
+        }
+        return event;
+    }
+
+    public List<Event> getProcessedEvents() {
+        return processedEvents;
     }
 
 }

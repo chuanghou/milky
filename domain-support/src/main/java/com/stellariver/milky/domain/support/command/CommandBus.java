@@ -45,6 +45,8 @@ public class CommandBus {
                     && Command.class.isAssignableFrom(parameterTypes[0])
                     && parameterTypes[1] == Context.class);
 
+    static public final ThreadLocal<Context> tLContext = ThreadLocal.withInitial(Context::new);
+
     private final Map<Class<? extends Command>, Handler> commandHandlers = new HashMap<>();
 
     private final Map<Class<? extends Command>, Map<String, ContextValueProvider>> contextValueProviders = new HashMap<>();
@@ -62,8 +64,6 @@ public class CommandBus {
     private final EventBus eventBus;
 
     private final boolean enableMq;
-
-    static public final ThreadLocal<List<Event>> threadLocalEvents = ThreadLocal.withInitial(ArrayList::new);
 
     public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
                       EventBus eventBus, String[] scanPackages, boolean enableMq) {
@@ -226,16 +226,41 @@ public class CommandBus {
         });
     }
 
+    /**
+     * 针对应用层调用的命令总线接口
+     * @param command 外部命令
+     * @param <T> 命令泛型
+     * @return 总结结果
+     */
+    public <T extends Command> Object publicSend(T command) {
+        Object result;
+        Context context = tLContext.get();
+        try {
+            result = send(command);
+            context.getProcessedEvents().forEach(event -> Runner.run(() -> eventBus.asyncRoute(event, context)));
+        } finally {
+            tLContext.remove();
+        }
+        return result;
+    }
+    /**
+     * 针对内部事件调用的命令总线接口
+     * @param command 命令
+     * @param <T> 命令泛型
+     * @return 总结结果
+     */
     public <T extends Command> Object send(T command) {
+
         SysException.nullThrow(command);
-        Context context = new Context();
         Handler commandHandler= commandHandlers.get(command.getClass());
         SysException.nullThrow(commandHandler, ErrorEnum.HANDLER_NOT_EXIST.message(Json.toJson(command)));
+
         Object result = null;
+        Context context = tLContext.get();
         String lockKey = command.getClass().getName() + "_" + command.getAggregationId();
         try {
             if (concurrentOperate.tryLock(lockKey, command.lockExpireSeconds())) {
-                 result = doSend(command, context, commandHandler);
+                result = doSend(command, context, commandHandler);
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
             } else {
@@ -244,14 +269,14 @@ public class CommandBus {
                 BizException.falseThrow(retryResult, () -> ErrorEnum.CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doSend(command, context, commandHandler);
             }
-            threadLocalEvents.get().forEach(event -> Runner.run(() -> eventBus.commitRoute(event)));
         } finally {
-            threadLocalEvents.get().clear();
             boolean unlock = concurrentOperate.unlock(command.getAggregationId());
             SysException.falseThrow(unlock, "unlock " + command.getAggregationId() + " failure!");
         }
+
         return result;
     }
+
 
     @SneakyThrows
     private  <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
@@ -282,7 +307,14 @@ public class CommandBus {
         Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).orElseGet(ArrayList::new)
                 .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context));
-        context.getEvents().forEach(event -> Runner.run(() -> eventBus.route(event)));
+
+        Event event = context.popEvent();
+        while (event != null) {
+            Event finalEvent = event;
+            Runner.run(() -> eventBus.syncRoute(finalEvent));
+            event = context.popEvent();
+        }
+
         return result;
     }
 
@@ -293,7 +325,7 @@ public class CommandBus {
         ContextValueProvider valueProvider = providers.get(key);
         SysException.nullThrow(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
         Arrays.stream(valueProvider.getRequiredKeys())
-                .filter(requiredKey -> Objects.equals(null, context.get(requiredKey)))
+                .filter(requiredKey -> Objects.equals(null, context.getMetaData(requiredKey)))
                 .forEach(k -> invokeContextValueProvider(command, k, context, providers, referKeys));
         Object contextPrepareBean = valueProvider.getContextPrepareBean();
         Method providerMethod = valueProvider.getMethod();
