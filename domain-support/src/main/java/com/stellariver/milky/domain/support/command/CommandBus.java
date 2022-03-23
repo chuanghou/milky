@@ -273,14 +273,14 @@ public class CommandBus {
         String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
         try {
             if (concurrentOperate.tryLock(lockKey, command.lockExpireSeconds())) {
-                result = doSend(command, context, commandHandler);
+                result = doRoute(command, context, commandHandler);
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
             } else {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
                 boolean retryResult = concurrentOperate.tryRetryLock(lockKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
                 BizException.falseThrow(retryResult, () -> CONCURRENCY_VIOLATION.message(Json.toJson(command)));
-                result = doSend(command, context, commandHandler);
+                result = doRoute(command, context, commandHandler);
             }
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregateId());
@@ -298,13 +298,13 @@ public class CommandBus {
 
 
     @SneakyThrows
-    private  <T extends Command> Object doSend(T command, Context context, Handler commandHandler) {
+    private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         Repository repository = domainRepositories.get(commandHandler.clazz);
         SysException.nullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
         Map<String, DependencyProvider> providerMap =
                 Optional.ofNullable(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
         commandHandler.getRequiredKeys().forEach(key ->
-                invokeContextValueProvider(command, key, context, providerMap, new HashSet<>()));
+                invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
         AggregateRoot aggregate;
         Object result = null;
         Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
@@ -330,18 +330,19 @@ public class CommandBus {
         return result;
     }
 
-    private <T extends Command> void invokeContextValueProvider(T command, String key, Context context,
-                                                                Map<String, DependencyProvider> providers, Set<String> referKeys) {
+    private <T extends Command> void invokeDependencyProvider(T command, String key, Context context,
+                                                              Map<String, DependencyProvider> providers,
+                                                              Set<String> referKeys) {
         SysException.trueThrow(referKeys.contains(key), "required key " + key + "circular reference!");
         referKeys.add(key);
         DependencyProvider valueProvider = providers.get(key);
         SysException.nullThrow(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
         Arrays.stream(valueProvider.getRequiredKeys())
                 .filter(requiredKey -> Objects.equals(null, context.getMetaData(requiredKey)))
-                .forEach(k -> invokeContextValueProvider(command, k, context, providers, referKeys));
-        Object contextPrepareBean = valueProvider.getContextPrepareBean();
-        Method providerMethod = valueProvider.getMethod();
-        Runner.invoke(contextPrepareBean, providerMethod, command, context);
+                .forEach(k -> invokeDependencyProvider(command, k, context, providers, referKeys));
+        Object bean = valueProvider.getBean();
+        Method method = valueProvider.getMethod();
+        Runner.invoke(bean, method, command, context);
     }
 
     @Data
@@ -366,7 +367,7 @@ public class CommandBus {
 
         private String[] requiredKeys;
 
-        private Object contextPrepareBean;
+        private Object bean;
 
         private Method method;
 
