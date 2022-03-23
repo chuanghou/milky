@@ -6,6 +6,7 @@ import com.stellariver.milky.domain.support.base.ScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
+import com.stellariver.milky.domain.support.depend.MessageRepository;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.util.BeanUtils;
 import com.stellariver.milky.spring.partner.SpringBeanLoader;
@@ -23,9 +24,11 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     public CommandBus commandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
-                                 EventBus eventBus, ScanPackages scanPackages, MilkyProperties milkyProperties) {
+                                 EventBus eventBus, ScanPackages scanPackages, MilkyProperties milkyProperties,
+                                 MessageRepository messageRepository) {
         boolean enableMq = milkyProperties.isEnableMq();
-        return new CommandBus(beanLoader, concurrentOperate, eventBus, scanPackages.getPackages(), enableMq);
+        return new CommandBus(beanLoader, concurrentOperate,
+                eventBus, scanPackages.getPackages(), enableMq, messageRepository);
     }
 
     @Bean

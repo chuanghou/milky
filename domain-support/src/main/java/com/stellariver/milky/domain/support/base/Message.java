@@ -18,7 +18,6 @@ import java.util.UUID;
 
 @Data
 @SuperBuilder
-@AllArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public abstract class Message {
 

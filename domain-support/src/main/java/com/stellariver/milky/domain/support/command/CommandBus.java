@@ -14,6 +14,7 @@ import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.context.DependencyKey;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
+import com.stellariver.milky.domain.support.depend.MessageRepository;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
@@ -67,12 +68,16 @@ public class CommandBus {
 
     private final boolean enableMq;
 
+    private final MessageRepository messageRepository;
+
     public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
-                      EventBus eventBus, String[] scanPackages, boolean enableMq) {
+                      EventBus eventBus, String[] scanPackages, boolean enableMq,
+                      MessageRepository messageRepository) {
         this.beanLoader = beanLoader;
         this.concurrentOperate = concurrentOperate;
         this.eventBus = eventBus;
         this.enableMq = enableMq;
+        this.messageRepository = messageRepository;
         init(scanPackages);
     }
 
@@ -245,15 +250,15 @@ public class CommandBus {
     public <T extends Command> Object send(T command, Context context, Invocation invocation) {
         Object result;
         tLContext.set(context);
+        Long invocationId = invocation.getInvocationId();
+        InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
+        command.setInvokeTrace(invokeTrace);
         try {
-            Long invocationId = invocation.getInvocationId();
-            InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
-            command.setInvokeTrace(invokeTrace);
             result = route(command);
             context.getProcessedEvents().forEach(event -> Runner.run(() -> eventBus.asyncRoute(event, context)));
-            //TODO invoke trace 记录
             Map<String, Object> metaData = context.getMetaData();
             List<Message> recordedMessages = context.getRecordedMessages();
+            messageRepository.batchInsert(recordedMessages, metaData);
         } finally {
             tLContext.remove();
         }

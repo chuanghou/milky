@@ -4,11 +4,12 @@ import com.stellariver.milky.domain.support.base.Message;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface MessageRepository {
 
 
-    void batchInsert(List<Message> messages);
+    void batchInsert(List<Message> messages, Map<String, Object> metaData);
 
     List<Message> query(MessageQuery query);
 

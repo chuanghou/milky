@@ -16,12 +16,10 @@ public class MessageQuery {
 
     List<String> aggregateId;
 
+    List<Class<? extends Message>> classes;
+
     Date start;
 
     Date end;
-
-    List<Class<? extends Message>> classes;
-
-
 
 }

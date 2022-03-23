@@ -14,14 +14,14 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public abstract class Event extends Message {
 
     @Builder.Default
     private boolean aggregateChange = true;
 
-    public Event(InvokeTrace invokeTrace) {
-        super(invokeTrace);
+    public Event(String aggregateId, InvokeTrace invokeTrace, boolean aggregateChange) {
+        super(aggregateId, invokeTrace);
+        this.aggregateChange = aggregateChange;
     }
 
     public boolean sourcedAggregateChange() {

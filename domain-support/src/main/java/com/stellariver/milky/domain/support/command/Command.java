@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.command;
 
+import com.stellariver.milky.domain.support.InvokeTrace;
 import com.stellariver.milky.domain.support.base.Message;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;
@@ -11,7 +12,6 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 abstract public class Command extends Message {
 
     public boolean allowAsync() {
@@ -28,6 +28,10 @@ abstract public class Command extends Message {
 
     public long[] violationRandomSleepRange() {
         return new long[]{100L, 300L};
+    }
+
+    public Command(String aggregateId, InvokeTrace invokeTrace) {
+        super(aggregateId, invokeTrace);
     }
 
 }
