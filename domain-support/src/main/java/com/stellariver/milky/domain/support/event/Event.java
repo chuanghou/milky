@@ -19,13 +19,4 @@ public abstract class Event extends Message {
     @Builder.Default
     private boolean aggregateChange = true;
 
-    public Event(String aggregateId, InvokeTrace invokeTrace, boolean aggregateChange) {
-        super(aggregateId, invokeTrace);
-        this.aggregateChange = aggregateChange;
-    }
-
-    public boolean sourcedAggregateChange() {
-        return aggregateChange;
-    }
-
 }

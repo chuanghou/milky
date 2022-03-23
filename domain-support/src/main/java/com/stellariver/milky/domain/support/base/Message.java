@@ -21,20 +21,11 @@ import java.util.UUID;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public abstract class Message {
 
-    protected Long id;
-
-    protected String aggregateId;
+    @Builder.Default
+    protected Long id = BeanUtils.getBean(IdBuilder.class).build();
 
     protected InvokeTrace invokeTrace;
 
-    public Message(String aggregateId, InvokeTrace invokeTrace) {
-        this.id = BeanUtils.getBean(IdBuilder.class).build();
-        this.aggregateId = aggregateId;
-        this.invokeTrace = invokeTrace;
-    }
-
-    public String getAggregateId() {
-        return aggregateId;
-    }
+    abstract public String getAggregateId();
 
 }

@@ -30,8 +30,4 @@ abstract public class Command extends Message {
         return new long[]{100L, 300L};
     }
 
-    public Command(String aggregateId, InvokeTrace invokeTrace) {
-        super(aggregateId, invokeTrace);
-    }
-
 }

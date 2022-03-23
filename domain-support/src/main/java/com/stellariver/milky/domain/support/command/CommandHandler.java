@@ -11,6 +11,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD, CONSTRUCTOR})
 public @interface CommandHandler {
 
-    String[] requiredKeys() default {};
+    String[] dependencyKeys() default {};
 
 }

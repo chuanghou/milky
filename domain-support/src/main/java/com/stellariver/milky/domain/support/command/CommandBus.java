@@ -192,7 +192,7 @@ public class CommandBus {
             CommandHandler annotation = method.getAnnotation(CommandHandler.class);
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
             boolean hasReturn = !method.getReturnType().getName().equals("void");
-            List<String> requiredKeys = Arrays.asList(annotation.requiredKeys());
+            List<String> requiredKeys = Arrays.asList(annotation.dependencyKeys());
             Handler handler = new Handler(clazz, method, null, hasReturn, requiredKeys);
             commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
         });
@@ -204,7 +204,7 @@ public class CommandBus {
         constructors.forEach(constructor -> {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             CommandHandler annotation = constructor.getAnnotation(CommandHandler.class);
-            List<String> requiredKeys = Arrays.asList(annotation.requiredKeys());
+            List<String> requiredKeys = Arrays.asList(annotation.dependencyKeys());
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) constructor.getDeclaringClass();
             Handler handler = new Handler(clazz, null, constructor, false, requiredKeys);
             commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
