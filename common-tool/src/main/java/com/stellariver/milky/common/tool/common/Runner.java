@@ -17,7 +17,7 @@ public class Runner {
 
     static final Logger log = Logger.getLogger(Runner.class);
 
-    static private Map<String, Object> recordSignature(Serializable lambda) {
+    static private Map<String, Object> getSignature(Serializable lambda) {
         Map<String, Object> lambdaInfos = SLambda.resolve(lambda);
         StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
         StreamMap<String, Object> streamMap = StreamMap.init();
@@ -26,6 +26,15 @@ public class Runner {
                 .put("invokeMethodName", stackTraceElement.getMethodName())
                 .put(lambdaInfos).getMap();
 
+    }
+
+    public static Map<String, Object> getSignature(Object bean, Method method, Object... params) {
+        Map<String, Object> args = new HashMap<>();
+        StreamMap<String, Object> streamMap = StreamMap.init();
+        IntStream.range(0, params.length).forEach(index -> streamMap.put("arg" + index, Json.toJson(params[index])));
+        return streamMap.put("invokeClassName", bean.getClass().getName())
+                .put("methodName", method.getName())
+                .put(args).getMap();
     }
 
     static public Object invoke(Object bean, Method method, Object... params) {
@@ -39,23 +48,12 @@ public class Runner {
     @SneakyThrows
     static private Object invoke(boolean withLog, Object bean, Method method, Object... params) {
         Object result = null;
-        Map<String, Object> args = new HashMap<>();
-        StreamMap<String, Object> streamMap = StreamMap.init();
-        IntStream.range(0, params.length).forEach(index -> streamMap.put("arg" + index, Json.toJson(params[index])));
-        Map<String, Object> signature = streamMap.put("invokeClassName", bean.getClass().getName())
-                .put("methodName", method.getName())
-                .put(args).getMap();
         Throwable throwableBackup = null;
         try {
             result = method.invoke(bean, params);
         } catch (InvocationTargetException ex) {
             Throwable targetException = ex.getTargetException();
             throwableBackup = targetException;
-            if (targetException instanceof BizException) {
-                throw (BizException) ex.getTargetException();
-            } else if (targetException instanceof SysException) {
-                throw (SysException) ex.getTargetException();
-            }
             throw targetException;
         } catch (Throwable ex) {
             throwableBackup = ex;
@@ -63,9 +61,11 @@ public class Runner {
         } finally {
             if (throwableBackup == null) {
                 if (withLog) {
+                    Map<String, Object> signature = getSignature(bean, method, params);
                     log.with(signature).with("result", Json.toJson(result)).info("");
                 }
             } else {
+                Map<String, Object> signature = getSignature(bean, method, params);
                 log.with(signature).error("", throwableBackup);
             }
         }
@@ -82,7 +82,6 @@ public class Runner {
 
     @SneakyThrows
     static private <R> R call(boolean withLog, SCallable<R> callable) {
-        Map<String, Object> signature = recordSignature(callable);
         R result = null;
         Throwable throwableBackup = null;
         try {
@@ -95,12 +94,10 @@ public class Runner {
             throwableBackup = throwable;
             throw throwable;
         } finally {
-            if (throwableBackup == null) {
-                if (withLog) {
-                    log.with(signature).with("result", Json.toJson(result)).info("");
-                }
+            if (throwableBackup == null && withLog) {
+                log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
             } else {
-                log.with(signature).error("", throwableBackup);
+                log.with(getSignature(callable)).error("", throwableBackup);
             }
         }
         return result;
@@ -116,7 +113,6 @@ public class Runner {
 
     @SneakyThrows
     static public <R> R call(boolean withLog, SCallable<R> callable, Function<R, Boolean> check) {
-        Map<String, Object> signature = recordSignature(callable);
         R result = null;
         Throwable throwableBackup = null;
         try {
@@ -132,12 +128,10 @@ public class Runner {
             throwableBackup = throwable;
             throw throwable;
         } finally {
-            if (throwableBackup == null) {
-                if (withLog) {
-                    log.with(signature).with("result", Json.toJson(result)).info("");
-                }
+            if (throwableBackup == null && withLog) {
+                log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
             } else {
-                log.with(signature).error("", throwableBackup);
+                log.with(getSignature(callable)).error("", throwableBackup);
             }
         }
         return result;
@@ -169,7 +163,6 @@ public class Runner {
                                             Function<R, Boolean> check,
                                             Function<R, T> getData,
                                             T defaultValue) {
-        Map<String, Object> signature = recordSignature(callable);
         R result = null;
         Throwable throwableBackup = null;
         try {
@@ -185,12 +178,10 @@ public class Runner {
         } catch (Throwable throwable) {
             throwableBackup = throwable;
         } finally {
-            if (throwableBackup == null) {
-                if (withLog) {
-                    log.with(signature).with("result", Json.toJson(result)).info("");
-                }
+            if (throwableBackup == null && withLog) {
+                log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
             } else {
-                log.with(signature).with("defaultValue", defaultValue).error("", throwableBackup);
+                log.with(getSignature(callable)).with("defaultValue", defaultValue).error("", throwableBackup);
             }
         }
         return defaultValue;
@@ -205,7 +196,6 @@ public class Runner {
     }
 
     static private void run(boolean withLog, SRunnable runnable) {
-        Map<String, Object> signature = recordSignature(runnable);
         Throwable throwableBackup = null;
         try {
             runnable.run();
@@ -213,28 +203,31 @@ public class Runner {
             throwableBackup = throwable;
             throw throwable;
         } finally {
-            if (throwableBackup == null) {
-                if (withLog) {
-                    log.with(signature).info("");
-                }
+            if (throwableBackup == null && withLog) {
+                log.with(getSignature(runnable)).info("");
             } else {
-                log.with(signature).error("", throwableBackup);
+                log.with(getSignature(runnable)).error("", throwableBackup);
             }
         }
     }
 
     static public void fallbackableRun(SRunnable runnable) {
-        Map<String, Object> signature = recordSignature(runnable);
+        fallbackableRun(false, runnable);
+    }
+    static public void fallbackableRunWithLog(SRunnable runnable) {
+        fallbackableRun(true, runnable);
+    }
+    static public void fallbackableRun(boolean withLog, SRunnable runnable) {
         Throwable throwableBackup = null;
         try {
             runnable.run();
         } catch (Throwable throwable) {
            throwableBackup = throwable;
         } finally {
-            if (throwableBackup == null) {
-                log.with(signature).info("");
+            if (throwableBackup == null && withLog) {
+                log.with(getSignature(runnable)).info("");
             } else {
-                log.with(signature).error("", throwableBackup);
+                log.with(getSignature(runnable)).error("", throwableBackup);
             }
         }
     }
