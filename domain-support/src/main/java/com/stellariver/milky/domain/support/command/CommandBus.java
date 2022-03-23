@@ -8,6 +8,7 @@ import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.Invocation;
 import com.stellariver.milky.domain.support.InvokeTrace;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
+import com.stellariver.milky.domain.support.base.Message;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.context.DependencyKey;
@@ -250,6 +251,9 @@ public class CommandBus {
             command.setInvokeTrace(invokeTrace);
             result = route(command);
             context.getProcessedEvents().forEach(event -> Runner.run(() -> eventBus.asyncRoute(event, context)));
+            //TODO invoke trace 记录
+            Map<String, Object> metaDatas = context.getMetaDatas();
+            List<Message> recordedMessages = context.getRecordedMessages();
         } finally {
             tLContext.remove();
         }
@@ -271,6 +275,7 @@ public class CommandBus {
             command.setInvokeTrace(InvokeTrace.build(context.peekEvent()));
         }
         String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
+        context.recordMessage(command);
         try {
             if (concurrentOperate.tryLock(lockKey, command.lockExpireSeconds())) {
                 result = doRoute(command, context, commandHandler);
@@ -282,6 +287,7 @@ public class CommandBus {
                 BizException.falseThrow(retryResult, () -> CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doRoute(command, context, commandHandler);
             }
+            tLContext.get().clearDependencies();
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregateId());
             SysException.falseThrow(unlock, "unlock " + command.getAggregateId() + " failure!");

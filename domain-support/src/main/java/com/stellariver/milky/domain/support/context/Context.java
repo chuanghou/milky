@@ -2,7 +2,7 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.SysException;
-import com.stellariver.milky.domain.support.Invocation;
+import com.stellariver.milky.domain.support.base.Message;
 import com.stellariver.milky.domain.support.event.Event;
 
 import javax.annotation.Nonnull;
@@ -22,12 +22,18 @@ public class Context{
 
     private final List<Event> processedEvents = new ArrayList<>();
 
+    private final List<Message> recordedMessages = new ArrayList<>();
+
     public Object getMetaData(String key) {
         return metaData.get(key);
     }
 
     public void putMetaData(String key, Object value) {
         metaData.put(key, value);
+    }
+
+    public Map<String, Object> getMetaDatas() {
+        return new HashMap<>(metaData);
     }
 
     public Object getDependency(String key) {
@@ -38,9 +44,23 @@ public class Context{
         dependencies.put(key, value);
     }
 
+    public void clearDependencies() {
+        dependencies.clear();
+    }
+
     public void pushEvent(@Nonnull Event event) {
         SysException.nullThrow(event);
         events.add(event);
+        recordMessage(event);
+    }
+
+    public void recordMessage(@Nonnull Message message) {
+        SysException.nullThrow(message);
+        recordedMessages.add(message);
+    }
+
+    public List<Message> getRecordedMessages() {
+        return recordedMessages;
     }
 
     @Nullable
