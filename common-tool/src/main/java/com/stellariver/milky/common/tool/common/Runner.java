@@ -28,8 +28,16 @@ public class Runner {
 
     }
 
-    @SneakyThrows
     static public Object invoke(Object bean, Method method, Object... params) {
+        return invoke(false, bean, method, params);
+    }
+
+    static public Object invokeWithLog(Object bean, Method method, Object... params) {
+        return invoke(true, bean, method, params);
+    }
+
+    @SneakyThrows
+    static private Object invoke(boolean withLog, Object bean, Method method, Object... params) {
         Object result = null;
         Map<String, Object> args = new HashMap<>();
         StreamMap<String, Object> streamMap = StreamMap.init();
@@ -54,7 +62,9 @@ public class Runner {
             throw ex;
         } finally {
             if (throwableBackup == null) {
-                log.with(signature).with("result", Json.toJson(result)).info("");
+                if (withLog) {
+                    log.with(signature).with("result", Json.toJson(result)).info("");
+                }
             } else {
                 log.with(signature).error("", throwableBackup);
             }
@@ -62,8 +72,16 @@ public class Runner {
         return result;
     }
 
-    @SneakyThrows
     static public <R> R call(SCallable<R> callable) {
+        return call(false, callable);
+    }
+
+    static public <R> R callWithLog(SCallable<R> callable) {
+        return call(true, callable);
+    }
+
+    @SneakyThrows
+    static private <R> R call(boolean withLog, SCallable<R> callable) {
         Map<String, Object> signature = recordSignature(callable);
         R result = null;
         Throwable throwableBackup = null;
@@ -71,11 +89,6 @@ public class Runner {
             result = callable.call();
         } catch (InvocationTargetException ex) {
             Throwable targetException = ex.getTargetException();
-            if (targetException instanceof BizException) {
-                throw (BizException) ex.getTargetException();
-            } else if (targetException instanceof SysException) {
-                throw (SysException) ex.getTargetException();
-            }
             throwableBackup = targetException;
             throw targetException;
         } catch (Throwable throwable) {
@@ -83,7 +96,9 @@ public class Runner {
             throw throwable;
         } finally {
             if (throwableBackup == null) {
-                log.with(signature).with("result", Json.toJson(result)).info("");
+                if (withLog) {
+                    log.with(signature).with("result", Json.toJson(result)).info("");
+                }
             } else {
                 log.with(signature).error("", throwableBackup);
             }
@@ -91,8 +106,16 @@ public class Runner {
         return result;
     }
 
-    @SneakyThrows
     static public <R> R call(SCallable<R> callable, Function<R, Boolean> check) {
+        return call(false, callable, check);
+    }
+
+    static public <R> R callWithLog(SCallable<R> callable, Function<R, Boolean> check) {
+        return call(true, callable, check);
+    }
+
+    @SneakyThrows
+    static public <R> R call(boolean withLog, SCallable<R> callable, Function<R, Boolean> check) {
         Map<String, Object> signature = recordSignature(callable);
         R result = null;
         Throwable throwableBackup = null;
@@ -104,18 +127,15 @@ public class Runner {
         } catch (InvocationTargetException ex) {
             Throwable targetException = ex.getTargetException();
             throwableBackup = targetException;
-            if (targetException instanceof BizException) {
-                throw (BizException) ex.getTargetException();
-            } else if (targetException instanceof SysException) {
-                throw (SysException) ex.getTargetException();
-            }
             throw targetException;
         } catch (Throwable throwable) {
             throwableBackup = throwable;
             throw throwable;
         } finally {
             if (throwableBackup == null) {
-                log.with(signature).with("result", Json.toJson(result)).info("");
+                if (withLog) {
+                    log.with(signature).with("result", Json.toJson(result)).info("");
+                }
             } else {
                 log.with(signature).error("", throwableBackup);
             }
@@ -126,9 +146,26 @@ public class Runner {
     static public <R, T> T call(SCallable<R> callable, Function<R, Boolean> check, Function<R, T> getData) {
         return getData.apply(call(callable, check));
     }
+    static public <R, T> T callWithLog(SCallable<R> callable, Function<R, Boolean> check, Function<R, T> getData) {
+        return getData.apply(call(true, callable, check));
+    }
+
+    static public <R, T> T fallbackableCall(SCallable<R> callable,
+                                            Function<R, Boolean> check,
+                                            Function<R, T> getData,
+                                            T defaultValue) {
+        return fallbackableCall(false, callable, check, getData, defaultValue);
+    }
+
+    static public <R, T> T fallbackableCallWithLog(SCallable<R> callable,
+                                            Function<R, Boolean> check,
+                                            Function<R, T> getData,
+                                            T defaultValue) {
+        return fallbackableCall(true, callable, check, getData, defaultValue);
+    }
 
     @SneakyThrows
-    static public <R, T> T fallbackableCall(SCallable<R> callable,
+    static private  <R, T> T fallbackableCall(boolean withLog, SCallable<R> callable,
                                             Function<R, Boolean> check,
                                             Function<R, T> getData,
                                             T defaultValue) {
@@ -144,17 +181,14 @@ public class Runner {
         } catch (InvocationTargetException ex) {
             Throwable targetException = ex.getTargetException();
             throwableBackup = targetException;
-            if (targetException instanceof BizException) {
-                throw (BizException) ex.getTargetException();
-            } else if (targetException instanceof SysException) {
-                throw (SysException) ex.getTargetException();
-            }
             throw targetException;
         } catch (Throwable throwable) {
             throwableBackup = throwable;
         } finally {
             if (throwableBackup == null) {
-                log.with(signature).with("result", Json.toJson(result)).info("");
+                if (withLog) {
+                    log.with(signature).with("result", Json.toJson(result)).info("");
+                }
             } else {
                 log.with(signature).with("defaultValue", defaultValue).error("", throwableBackup);
             }
@@ -162,8 +196,15 @@ public class Runner {
         return defaultValue;
     }
 
-
     static public void run(SRunnable runnable) {
+        run(false, runnable);
+    }
+
+    static public void runWithLog(SRunnable runnable) {
+        run(true, runnable);
+    }
+
+    static private void run(boolean withLog, SRunnable runnable) {
         Map<String, Object> signature = recordSignature(runnable);
         Throwable throwableBackup = null;
         try {
@@ -173,7 +214,9 @@ public class Runner {
             throw throwable;
         } finally {
             if (throwableBackup == null) {
-                log.with(signature).info("");
+                if (withLog) {
+                    log.with(signature).info("");
+                }
             } else {
                 log.with(signature).error("", throwableBackup);
             }
