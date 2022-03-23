@@ -145,15 +145,17 @@ public class CommandBus {
     private void prepareRepositories() {
         List<DomainRepository> repositories = beanLoader.getBeansOfType(DomainRepository.class);
         repositories.forEach(bean -> {
-            List<Method> methods = Arrays.stream(bean.getClass().getMethods()).filter(m -> Objects.equals(m.getName(), "save"))
-                    .filter(m -> !m.getParameterTypes()[0].equals(Object.class))
+            List<Method> methods = Arrays.stream(bean.getClass().getMethods())
+                    .filter(m -> Objects.equals(m.getName(), "save"))
+                    .filter(m -> m.getParameterTypes().length == 2)
                     .collect(Collectors.toList());
             Method saveMethod = methods.get(0);
             Class<?> aggregateClazz = saveMethod.getParameterTypes()[0];
             Class<?> repositoryClazz = bean.getClass();
-            Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
-            BizException.nullThrow(getMethod);
-            Repository repository = new Repository(bean, getMethod, saveMethod);
+            Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class);
+            Method updateMethod = getMethod(repositoryClazz,"updateByAggregateId", aggregateClazz, Context.class);
+            SysException.nullThrow(getMethod, updateMethod);
+            Repository repository = new Repository(bean, getMethod, saveMethod, updateMethod);
             domainRepositories.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
         });
     }
@@ -316,12 +318,13 @@ public class CommandBus {
                 }
                 throw new SysException(e);
             }
+            Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
         } else {
             aggregate = (AggregateRoot) Runner.invoke(repository.bean, repository.getMethod, command.getAggregateId(), context);
             result = Runner.invoke(aggregate, commandHandler.method, command, context);
+            boolean present = context.peekEvents().stream().anyMatch(Event::isAggregateChange);
+            If.isTrue(present, () -> Runner.invoke(repository.bean, repository.saveMethod, aggregate, context));
         }
-        boolean present = context.peekEvents().stream().anyMatch(Event::isAggregateChange);
-        If.isTrue(present, () -> Runner.invoke(repository.bean, repository.saveMethod, aggregate, context));
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
                 .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context)));
         return result;
@@ -350,6 +353,8 @@ public class CommandBus {
         private Method getMethod;
 
         private Method saveMethod;
+
+        private Method updateMethod;
 
     }
 

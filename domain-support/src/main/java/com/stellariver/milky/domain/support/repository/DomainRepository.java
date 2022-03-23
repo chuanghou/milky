@@ -4,9 +4,11 @@ import com.stellariver.milky.domain.support.context.Context;
 
 public interface DomainRepository<T> {
 
-    T getByAggregateId(String aggregateId, Context context);
+    void save(T t, Context context);
 
     T getByAggregateId(String aggregateId);
 
-    void save(T t, Context context);
+    void updateByAggregateId(T t, Context context);
+
+
 }
