@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.base;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.stellariver.milky.domain.support.IdBuilder;
 import com.stellariver.milky.domain.support.Invocation;
 import com.stellariver.milky.domain.support.InvokeTrace;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @Data
 @SuperBuilder
 @AllArgsConstructor
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public abstract class Message {
 
     protected Long id;
