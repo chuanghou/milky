@@ -48,7 +48,7 @@ public class Context{
         dependencies.clear();
     }
 
-    public void pushEvent(@Nonnull Event event) {
+    public void publish(@Nonnull Event event) {
         SysException.nullThrow(event);
         events.add(event);
         recordMessage(event);
@@ -84,6 +84,8 @@ public class Context{
     public Event peekEvent() {
         return events.get(0);
     }
+
+
 
 }
 

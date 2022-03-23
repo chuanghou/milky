@@ -24,13 +24,18 @@ public abstract class Message {
 
     protected Long id;
 
+    protected String aggregateId;
+
     protected InvokeTrace invokeTrace;
 
-    public Message(InvokeTrace invokeTrace) {
+    public Message(String aggregateId, InvokeTrace invokeTrace) {
         this.id = BeanUtils.getBean(IdBuilder.class).build();
+        this.aggregateId = aggregateId;
         this.invokeTrace = invokeTrace;
     }
 
-    abstract public String getAggregateId();
+    public String getAggregateId() {
+        return aggregateId;
+    }
 
 }

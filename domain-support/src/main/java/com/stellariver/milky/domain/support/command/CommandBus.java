@@ -242,9 +242,9 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    public <T extends Command> Object send(T command, Invocation invocation) {
+    public <T extends Command> Object send(T command, Context context, Invocation invocation) {
         Object result;
-        Context context = tLContext.get();
+        tLContext.set(context);
         try {
             Long invocationId = invocation.getInvocationId();
             InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
@@ -252,7 +252,7 @@ public class CommandBus {
             result = route(command);
             context.getProcessedEvents().forEach(event -> Runner.run(() -> eventBus.asyncRoute(event, context)));
             //TODO invoke trace 记录
-            Map<String, Object> metaDatas = context.getMetaData();
+            Map<String, Object> metaData = context.getMetaData();
             List<Message> recordedMessages = context.getRecordedMessages();
         } finally {
             tLContext.remove();
