@@ -8,8 +8,7 @@ import lombok.SneakyThrows;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -19,7 +18,7 @@ public class Runner {
 
     static private Map<String, Object> getSignature(Serializable lambda) {
         Map<String, Object> lambdaInfos = SLambda.resolve(lambda);
-        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
+        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[4];
         StreamMap<String, Object> streamMap = StreamMap.init();
         return streamMap.put("invokeClassName", stackTraceElement.getClassName())
                 .put("invokeLineNumber", stackTraceElement.getLineNumber())
@@ -59,12 +58,10 @@ public class Runner {
             throwableBackup = ex;
             throw ex;
         } finally {
-            if (throwableBackup == null) {
-                if (withLog) {
-                    Map<String, Object> signature = getSignature(bean, method, params);
-                    log.with(signature).with("result", Json.toJson(result)).info("");
-                }
-            } else {
+            if (throwableBackup == null && withLog) {
+                Map<String, Object> signature = getSignature(bean, method, params);
+                log.with(signature).with("result", Json.toJson(result)).info("");
+            } else if (throwableBackup != null){
                 Map<String, Object> signature = getSignature(bean, method, params);
                 log.with(signature).error("", throwableBackup);
             }
@@ -96,7 +93,7 @@ public class Runner {
         } finally {
             if (throwableBackup == null && withLog) {
                 log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
-            } else {
+            } else if (throwableBackup != null){
                 log.with(getSignature(callable)).error("", throwableBackup);
             }
         }
@@ -130,7 +127,7 @@ public class Runner {
         } finally {
             if (throwableBackup == null && withLog) {
                 log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
-            } else {
+            } else if (throwableBackup != null){
                 log.with(getSignature(callable)).error("", throwableBackup);
             }
         }
@@ -180,7 +177,7 @@ public class Runner {
         } finally {
             if (throwableBackup == null && withLog) {
                 log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
-            } else {
+            } else if (throwableBackup != null){
                 log.with(getSignature(callable)).with("defaultValue", defaultValue).error("", throwableBackup);
             }
         }
@@ -205,7 +202,7 @@ public class Runner {
         } finally {
             if (throwableBackup == null && withLog) {
                 log.with(getSignature(runnable)).info("");
-            } else {
+            } else if (throwableBackup != null){
                 log.with(getSignature(runnable)).error("", throwableBackup);
             }
         }
@@ -226,7 +223,7 @@ public class Runner {
         } finally {
             if (throwableBackup == null && withLog) {
                 log.with(getSignature(runnable)).info("");
-            } else {
+            } else if (throwableBackup != null){
                 log.with(getSignature(runnable)).error("", throwableBackup);
             }
         }

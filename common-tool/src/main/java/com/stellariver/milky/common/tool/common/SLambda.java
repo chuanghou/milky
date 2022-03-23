@@ -23,7 +23,7 @@ public class SLambda {
         Object bean = sLambda.getCapturedArg(0);
         result.put("bean", Json.toJson(bean));
         result.put("beanClassName", bean.getClass().getName());
-        for (int i = 1; i < sLambda.getCapturedArgCount() - 1; i++) {
+        for (int i = 1; i < sLambda.getCapturedArgCount(); i++) {
             result.put("arg" + (i - 1), Json.toJson(sLambda.getCapturedArg(i)));
         }
         return result;
