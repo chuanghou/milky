@@ -28,7 +28,7 @@ public class Runner {
 
     }
 
-    public static Map<String, Object> getSignature(Object bean, Method method, Object... params) {
+    static private Map<String, Object> getSignature(Object bean, Method method, Object... params) {
         Map<String, Object> args = new HashMap<>();
         StreamMap<String, Object> streamMap = StreamMap.init();
         IntStream.range(0, params.length).forEach(index -> streamMap.put("arg" + index, Json.toJson(params[index])));
