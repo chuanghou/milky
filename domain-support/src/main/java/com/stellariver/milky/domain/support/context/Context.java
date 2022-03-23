@@ -32,7 +32,7 @@ public class Context{
         metaData.put(key, value);
     }
 
-    public Map<String, Object> getMetaDatas() {
+    public Map<String, Object> getMetaData() {
         return new HashMap<>(metaData);
     }
 

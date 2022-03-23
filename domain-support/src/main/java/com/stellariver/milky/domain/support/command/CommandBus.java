@@ -252,7 +252,7 @@ public class CommandBus {
             result = route(command);
             context.getProcessedEvents().forEach(event -> Runner.run(() -> eventBus.asyncRoute(event, context)));
             //TODO invoke trace 记录
-            Map<String, Object> metaDatas = context.getMetaDatas();
+            Map<String, Object> metaDatas = context.getMetaData();
             List<Message> recordedMessages = context.getRecordedMessages();
         } finally {
             tLContext.remove();
