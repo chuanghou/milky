@@ -281,20 +281,22 @@ public class CommandBus {
         }
         String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
         context.recordMessage(command);
+        String encryptionKey = UUID.randomUUID().toString();
         try {
-            if (concurrentOperate.tryLock(lockKey, command.lockExpireSeconds())) {
+            if (concurrentOperate.tryLock(lockKey, encryptionKey, command.lockExpireSeconds())) {
                 result = doRoute(command, context, commandHandler);
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
             } else {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
-                boolean retryResult = concurrentOperate.tryRetryLock(lockKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
+
+                boolean retryResult = concurrentOperate.tryRetryLock(lockKey, encryptionKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
                 BizException.falseThrow(retryResult, () -> CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doRoute(command, context, commandHandler);
             }
             tLContext.get().clearDependencies();
         } finally {
-            boolean unlock = concurrentOperate.unlock(command.getAggregateId());
+            boolean unlock = concurrentOperate.unlock(command.getAggregateId(), encryptionKey);
             SysException.falseThrow(unlock, "unlock " + command.getAggregateId() + " failure!");
         }
         Event event = context.popEvent();
