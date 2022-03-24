@@ -16,12 +16,16 @@ public interface ConcurrentOperate {
 
 
     @SneakyThrows
-    default boolean tryRetryLock(String lockKey, String encryptionKey, int secondsToExpire, int times, long sleepTime) {
-        SysException.nullThrow(lockKey);
-        SysException.trueThrow(times <= 0, "retry times should not smaller than 0 or equal with 0");
-        SysException.trueThrow(sleepTime > 5000, "sleep time is too long");
+    default boolean tryRetryLock(RetryParameter retryParameter) {
+        SysException.nullThrow(retryParameter.getLockKey());
+        SysException.trueThrow(retryParameter.getTimes() <= 0, "retry times should not smaller than 0 or equal with 0");
+        SysException.trueThrow(retryParameter.getSleepTimeMils() > 5000, "sleep time is too long");
+        int times = retryParameter.getTimes();
+        String lockKey = retryParameter.getLockKey();
+        String encryptionKey = retryParameter.getEncryptionKey();
+        int secondsToExpire = retryParameter.getSecondsToExpire();
         while (times-- > 0) {
-            Thread.sleep(sleepTime);
+            Thread.sleep(retryParameter.getSleepTimeMils());
             if (tryLock(lockKey, encryptionKey, secondsToExpire)) {
                 return true;
             }

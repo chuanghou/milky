@@ -15,6 +15,7 @@ import com.stellariver.milky.domain.support.context.DependencyKey;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.depend.MessageRepository;
+import com.stellariver.milky.domain.support.depend.RetryParameter;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
@@ -289,8 +290,13 @@ public class CommandBus {
                 concurrentOperate.sendOrderly(command);
             } else {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
-
-                boolean retryResult = concurrentOperate.tryRetryLock(lockKey, encryptionKey, command.lockExpireSeconds(), command.retryTimes(), sleepTimeMs);
+                RetryParameter retryParameter = RetryParameter.builder().lockKey(lockKey)
+                        .encryptionKey(encryptionKey)
+                        .secondsToExpire(command.lockExpireSeconds())
+                        .times(command.retryTimes())
+                        .sleepTimeMils(sleepTimeMs)
+                        .build();
+                boolean retryResult = concurrentOperate.tryRetryLock(retryParameter);
                 BizException.falseThrow(retryResult, () -> CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doRoute(command, context, commandHandler);
             }
