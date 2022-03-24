@@ -1,6 +1,8 @@
 package com.stellariver.milky.common.tool.common;
 
+import com.stellariver.milky.common.tool.dependency.LogConfig;
 import com.stellariver.milky.common.tool.log.Logger;
+import com.stellariver.milky.common.tool.util.BeanUtils;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import lombok.SneakyThrows;
@@ -58,7 +60,7 @@ public class Runner {
             throwableBackup = ex;
             throw ex;
         } finally {
-            if (throwableBackup == null && withLog) {
+            if ((throwableBackup == null && withLog) || BeanUtils.getBean(LogConfig.class).force()) {
                 Map<String, Object> signature = getSignature(bean, method, params);
                 log.with(signature).with("result", Json.toJson(result)).info("");
             } else if (throwableBackup != null){
@@ -91,7 +93,7 @@ public class Runner {
             throwableBackup = throwable;
             throw throwable;
         } finally {
-            if (throwableBackup == null && withLog) {
+            if ((throwableBackup == null && withLog) || BeanUtils.getBean(LogConfig.class).force()) {
                 log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
             } else if (throwableBackup != null){
                 log.with(getSignature(callable)).error("", throwableBackup);
@@ -125,7 +127,7 @@ public class Runner {
             throwableBackup = throwable;
             throw throwable;
         } finally {
-            if (throwableBackup == null && withLog) {
+            if ((throwableBackup == null && withLog) || BeanUtils.getBean(LogConfig.class).force()) {
                 log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
             } else if (throwableBackup != null){
                 log.with(getSignature(callable)).error("", throwableBackup);
@@ -175,7 +177,7 @@ public class Runner {
         } catch (Throwable throwable) {
             throwableBackup = throwable;
         } finally {
-            if (throwableBackup == null && withLog) {
+            if ((throwableBackup == null && withLog) || BeanUtils.getBean(LogConfig.class).force()) {
                 log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
             } else if (throwableBackup != null){
                 log.with(getSignature(callable)).with("defaultValue", defaultValue).error("", throwableBackup);
@@ -200,7 +202,7 @@ public class Runner {
             throwableBackup = throwable;
             throw throwable;
         } finally {
-            if (throwableBackup == null && withLog) {
+            if ((throwableBackup == null && withLog) || BeanUtils.getBean(LogConfig.class).force()) {
                 log.with(getSignature(runnable)).info("");
             } else if (throwableBackup != null){
                 log.with(getSignature(runnable)).error("", throwableBackup);
@@ -221,7 +223,7 @@ public class Runner {
         } catch (Throwable throwable) {
            throwableBackup = throwable;
         } finally {
-            if (throwableBackup == null && withLog) {
+            if ((throwableBackup == null && withLog) || BeanUtils.getBean(LogConfig.class).force()) {
                 log.with(getSignature(runnable)).info("");
             } else if (throwableBackup != null){
                 log.with(getSignature(runnable)).error("", throwableBackup);
