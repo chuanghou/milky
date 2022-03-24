@@ -309,6 +309,7 @@ public class CommandBus {
 
 
     @SneakyThrows
+    @SuppressWarnings("unchecked")
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         Repository repository = domainRepositories.get(commandHandler.clazz);
         SysException.nullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
@@ -331,7 +332,9 @@ public class CommandBus {
             }
             Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
         } else {
-            aggregate = (AggregateRoot) Runner.invoke(repository.bean, repository.getMethod, command.getAggregateId(), context);
+            Optional<? extends AggregateRoot> optional = (Optional<? extends AggregateRoot>)
+                    Runner.invoke(repository.bean, repository.getMethod, command.getAggregateId(), context);
+            aggregate = optional.orElseThrow(() -> new SysException("aggregateId: " + command.getAggregateId() + " not exists!"));
             result = Runner.invoke(aggregate, commandHandler.method, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::isAggregateChange);
             If.isTrue(present, () -> Runner.invoke(repository.bean, repository.saveMethod, aggregate, context));
