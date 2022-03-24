@@ -1,6 +1,6 @@
 package com.stellariver.milky.starter;
 
-import com.stellariver.milky.domain.support.depend.BeanLoader;
+import com.stellariver.milky.common.tool.dependency.BeanLoader;
 import com.stellariver.milky.spring.partner.SpringBeanLoader;
 
 import java.lang.annotation.Annotation;

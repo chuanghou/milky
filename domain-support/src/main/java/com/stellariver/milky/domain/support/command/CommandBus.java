@@ -12,7 +12,7 @@ import com.stellariver.milky.domain.support.base.Message;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.context.DependencyKey;
-import com.stellariver.milky.domain.support.depend.BeanLoader;
+import com.stellariver.milky.common.tool.dependency.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.depend.MessageRepository;
 import com.stellariver.milky.domain.support.event.Event;

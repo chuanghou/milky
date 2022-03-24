@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support;
 
-import com.stellariver.milky.domain.support.util.BeanUtils;
+import com.stellariver.milky.common.tool.util.BeanUtils;
 import lombok.Data;
 
 import java.util.HashMap;
