@@ -6,7 +6,7 @@ import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.common.tool.dependency.BeanLoader;
+import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptors;

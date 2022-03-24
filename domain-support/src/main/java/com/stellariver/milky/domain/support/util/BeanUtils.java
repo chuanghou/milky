@@ -1,6 +1,6 @@
-package com.stellariver.milky.common.tool.util;
+package com.stellariver.milky.domain.support.util;
 
-import com.stellariver.milky.common.tool.dependency.BeanLoader;
+import com.stellariver.milky.domain.support.depend.BeanLoader;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
