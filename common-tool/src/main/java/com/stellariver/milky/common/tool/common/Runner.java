@@ -78,8 +78,6 @@ public class Runner {
 
     @SneakyThrows
     static public void run(Option<Object,Object> option, SRunnable callable) {
-        SysException.trueThrow(option.getCheck() != null,  ErrorEnumBase.PARAM_IS_NULL);
-        SysException.trueThrow(option.getTransfer() != null,  ErrorEnumBase.PARAM_IS_NULL);
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
         do {
@@ -107,8 +105,7 @@ public class Runner {
 
     @SneakyThrows
     static private  <R, T> T checkout(Option<R,T> option, SCallable<R> callable) {
-        SysException.trueThrow(option.getCheck() == null,  ErrorEnumBase.PARAM_IS_NULL);
-        SysException.trueThrow(option.getTransfer() == null,  ErrorEnumBase.PARAM_IS_NULL);
+        SysException.nullThrow(option.getCheck(), option.getTransfer());
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
