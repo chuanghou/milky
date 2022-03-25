@@ -14,7 +14,7 @@ public class RetryParameter {
 
     String encryptionKey;
 
-    int secondsToExpire;
+    int milsToExpire;
 
     int times;
 

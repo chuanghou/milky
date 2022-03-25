@@ -10,7 +10,7 @@ public interface ConcurrentOperate {
 
     void receiveCommand(Command command);
 
-    boolean tryLock(String lockKey, String encryptionKey, int secondsToExpire);
+    boolean tryLock(String lockKey, String encryptionKey, int milsToExpire);
 
     boolean unlock(String lockKey, String encryptionKey);
 
@@ -23,10 +23,10 @@ public interface ConcurrentOperate {
         int times = retryParameter.getTimes();
         String lockKey = retryParameter.getLockKey();
         String encryptionKey = retryParameter.getEncryptionKey();
-        int secondsToExpire = retryParameter.getSecondsToExpire();
+        int milsToExpire = retryParameter.getMilsToExpire();
         while (times-- > 0) {
             Thread.sleep(retryParameter.getSleepTimeMils());
-            if (tryLock(lockKey, encryptionKey, secondsToExpire)) {
+            if (tryLock(lockKey, encryptionKey, milsToExpire)) {
                 return true;
             }
         }
