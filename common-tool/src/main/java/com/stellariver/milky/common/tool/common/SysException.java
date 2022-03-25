@@ -46,27 +46,27 @@ public class SysException extends RuntimeException {
         }
     }
 
-    static public void trueThrow(boolean test, Supplier<Error> supplier) {
+    static public void trueThrow(boolean test, Error error) {
         if (test) {
-            throw new SysException(supplier.get());
+            throw new SysException(error);
         }
     }
 
-    static public void falseThrow(boolean test, Supplier<Error> supplier) {
+    static public void falseThrow(boolean test, Error error) {
         if (!test) {
-            throw new SysException(supplier.get());
+            throw new SysException(error);
         }
     }
 
-    static public void trueThrow(boolean test, String message) {
+    static public void trueThrow(boolean test, Supplier<String> supplier) {
         if (test) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(message));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(supplier.get()));
         }
     }
 
-    static public void falseThrow(boolean test, String message) {
+    static public void falseThrow(boolean test, Supplier<String> supplier) {
         if (!test) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(message));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(supplier.get()));
         }
     }
 }

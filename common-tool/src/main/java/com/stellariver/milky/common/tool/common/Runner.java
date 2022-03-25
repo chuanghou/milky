@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class Runner {
@@ -68,164 +67,105 @@ public class Runner {
         }
         return result;
     }
-
-    static public <R> R call(SCallable<R> callable) {
-        return call(false, callable);
-    }
-
-    static public <R> R callWithLog(SCallable<R> callable) {
-        return call(true, callable);
+    static public  void run(SRunnable runnable) {
+        Option<Object, Object> option = Option.builder().build();
+        run(option, runnable);
     }
 
     @SneakyThrows
-    static private <R> R call(boolean withLog, SCallable<R> callable) {
-        R result = null;
+    static public void run(Option<Object,Object> option, SRunnable callable) {
+        SysException.trueThrow(option.getCheck() != null,  ErrorEnumBase.PARAM_IS_NULL);
+        SysException.trueThrow(option.getTransfer() != null,  ErrorEnumBase.PARAM_IS_NULL);
         Throwable throwableBackup = null;
-        try {
-            result = callable.call();
-        } catch (InvocationTargetException ex) {
-            Throwable targetException = ex.getTargetException();
-            throwableBackup = targetException;
-            throw targetException;
-        } catch (Throwable throwable) {
-            throwableBackup = throwable;
-            throw throwable;
-        } finally {
-            if (throwableBackup == null && withLog) {
-                log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
-            } else if (throwableBackup != null){
-                log.with(getSignature(callable)).error("", throwableBackup);
+        int retryTimes = option.getRetryTimes();
+        do {
+            try {
+                callable.run();
+            } catch (Throwable throwable) {
+                throwableBackup = throwable;
+                if (retryTimes == 0) {
+                    throw throwableBackup;
+                }
+            } finally {
+                if (throwableBackup == null && option.isWithLog()) {
+                    log.with(getSignature(callable)).info("");
+                } else if (throwableBackup != null){
+                    log.with(getSignature(callable)).error("", throwableBackup);
+                }
             }
-        }
-        return result;
+        } while (retryTimes-- > 0);
+        throw new SysException("unreached part!");
     }
 
-    static public <R> R call(SCallable<R> callable, Function<R, Boolean> check) {
-        return call(false, callable, check);
-    }
-
-    static public <R> R callWithLog(SCallable<R> callable, Function<R, Boolean> check) {
-        return call(true, callable, check);
+    static private  <R, T> T invoke(SCallable<R> callable) {
+        Option<R, T> option = Option.<R, T>builder().build();
+        return invoke(option, callable);
     }
 
     @SneakyThrows
-    static public <R> R call(boolean withLog, SCallable<R> callable, Function<R, Boolean> check) {
+    static private  <R, T> T invoke(Option<R,T> option, SCallable<R> callable) {
+        SysException.trueThrow(option.getCheck() == null,  ErrorEnumBase.PARAM_IS_NULL);
+        SysException.trueThrow(option.getTransfer() == null,  ErrorEnumBase.PARAM_IS_NULL);
         R result = null;
         Throwable throwableBackup = null;
-        try {
-            result = callable.call();
-            if (!check.apply(result)) {
-                throw new SysException(Json.toJson(result));
+        int retryTimes = option.getRetryTimes();
+        do {
+            try {
+                result = callable.call();
+                R finalResult = result;
+                SysException.falseThrow(option.getCheck().apply(result), () -> Json.toJson(finalResult));
+                return option.getTransfer().apply(callable.call());
+            } catch (Throwable throwable) {
+                if (throwable instanceof InvocationTargetException) {
+                    throwableBackup = ((InvocationTargetException) throwable).getTargetException();
+                } else {
+                    throwableBackup = throwable;
+                }
+                if (retryTimes == 0) {
+                    if (option.getDefaultValue() == null) {
+                        throw throwableBackup;
+                    }
+                    return option.getDefaultValue();
+                }
+            } finally {
+                if (throwableBackup == null && option.isWithLog()) {
+                    log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
+                } else if (throwableBackup != null){
+                    log.with(getSignature(callable)).with("defaultValue", option.getDefaultValue()).error("", throwableBackup);
+                }
             }
-        } catch (InvocationTargetException ex) {
-            Throwable targetException = ex.getTargetException();
-            throwableBackup = targetException;
-            throw targetException;
-        } catch (Throwable throwable) {
-            throwableBackup = throwable;
-            throw throwable;
-        } finally {
-            if (throwableBackup == null && withLog) {
-                log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
-            } else if (throwableBackup != null){
-                log.with(getSignature(callable)).error("", throwableBackup);
-            }
-        }
-        return result;
-    }
-
-    static public <R, T> T call(SCallable<R> callable, Function<R, Boolean> check, Function<R, T> getData) {
-        return getData.apply(call(callable, check));
-    }
-    static public <R, T> T callWithLog(SCallable<R> callable, Function<R, Boolean> check, Function<R, T> getData) {
-        return getData.apply(call(true, callable, check));
-    }
-
-    static public <R, T> T fallbackableCall(SCallable<R> callable,
-                                            Function<R, Boolean> check,
-                                            Function<R, T> getData,
-                                            T defaultValue) {
-        return fallbackableCall(false, callable, check, getData, defaultValue);
-    }
-
-    static public <R, T> T fallbackableCallWithLog(SCallable<R> callable,
-                                            Function<R, Boolean> check,
-                                            Function<R, T> getData,
-                                            T defaultValue) {
-        return fallbackableCall(true, callable, check, getData, defaultValue);
+        } while (retryTimes-- > 0);
+        throw new SysException("unreached part!");
     }
 
     @SneakyThrows
-    static private  <R, T> T fallbackableCall(boolean withLog, SCallable<R> callable,
-                                            Function<R, Boolean> check,
-                                            Function<R, T> getData,
-                                            T defaultValue) {
+    static public <R> R call(Option<R, ?> option, SCallable<R> callable) {
+        SysException.trueThrow(option.getCheck() != null,  ErrorEnumBase.CONFIG_ERROR);
+        SysException.trueThrow(option.getTransfer() != null,  ErrorEnumBase.CONFIG_ERROR);
+        SysException.trueThrow(option.getDefaultValue() != null,  ErrorEnumBase.CONFIG_ERROR);
         R result = null;
         Throwable throwableBackup = null;
-        try {
-            result = callable.call();
-            if (check.apply(result)) {
-                return getData.apply(callable.call());
+        int retryTimes = option.getRetryTimes();
+        do {
+            try {
+                return callable.call();
+            } catch (Throwable throwable) {
+                if (throwable instanceof InvocationTargetException) {
+                    throwableBackup = ((InvocationTargetException) throwable).getTargetException();
+                } else {
+                    throwableBackup = throwable;
+                }
+                if (retryTimes == 0) {
+                    throw throwableBackup;
+                }
+            } finally {
+                if (throwableBackup == null && option.isWithLog()) {
+                    log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
+                } else if (throwableBackup != null){
+                    log.with(getSignature(callable)).with("defaultValue", option.getDefaultValue()).error("", throwableBackup);
+                }
             }
-            return defaultValue;
-        } catch (InvocationTargetException ex) {
-            Throwable targetException = ex.getTargetException();
-            throwableBackup = targetException;
-            throw targetException;
-        } catch (Throwable throwable) {
-            throwableBackup = throwable;
-        } finally {
-            if (throwableBackup == null && withLog) {
-                log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
-            } else if (throwableBackup != null){
-                log.with(getSignature(callable)).with("defaultValue", defaultValue).error("", throwableBackup);
-            }
-        }
-        return defaultValue;
-    }
-
-    static public void run(SRunnable runnable) {
-        run(false, runnable);
-    }
-
-    static public void runWithLog(SRunnable runnable) {
-        run(true, runnable);
-    }
-
-    static private void run(boolean withLog, SRunnable runnable) {
-        Throwable throwableBackup = null;
-        try {
-            runnable.run();
-        } catch (Throwable throwable) {
-            throwableBackup = throwable;
-            throw throwable;
-        } finally {
-            if (throwableBackup == null && withLog) {
-                log.with(getSignature(runnable)).info("");
-            } else if (throwableBackup != null){
-                log.with(getSignature(runnable)).error("", throwableBackup);
-            }
-        }
-    }
-
-    static public void fallbackableRun(SRunnable runnable) {
-        fallbackableRun(false, runnable);
-    }
-    static public void fallbackableRunWithLog(SRunnable runnable) {
-        fallbackableRun(true, runnable);
-    }
-    static public void fallbackableRun(boolean withLog, SRunnable runnable) {
-        Throwable throwableBackup = null;
-        try {
-            runnable.run();
-        } catch (Throwable throwable) {
-           throwableBackup = throwable;
-        } finally {
-            if (throwableBackup == null && withLog) {
-                log.with(getSignature(runnable)).info("");
-            } else if (throwableBackup != null){
-                log.with(getSignature(runnable)).error("", throwableBackup);
-            }
-        }
+        } while (retryTimes-- > 0);
+        throw new SysException("unreached part!");
     }
 }
