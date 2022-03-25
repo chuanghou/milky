@@ -67,7 +67,7 @@ public class Runner {
         }
         return result;
     }
-    static public  void run(SRunnable runnable) {
+    static public void run(SRunnable runnable) {
         Option<Object, Object> option = Option.builder().build();
         run(option, runnable);
     }
@@ -94,7 +94,6 @@ public class Runner {
                 }
             }
         } while (retryTimes-- > 0);
-        throw new SysException("unreached part!");
     }
 
     static private  <R, T> T invoke(SCallable<R> callable) {
