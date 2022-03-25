@@ -15,6 +15,51 @@ public class Runner {
 
     static final Logger log = Logger.getLogger(Runner.class);
 
+    static private Map<String, Object> getSignature(Object bean, Method method, Object... params) {
+        Map<String, Object> args = new HashMap<>();
+        StreamMap<String, Object> streamMap = StreamMap.init();
+        IntStream.range(0, params.length).forEach(index -> streamMap.put("arg" + index, Json.toJson(params[index])));
+        return streamMap.put("invokeClassName", bean.getClass().getName())
+                .put("methodName", method.getName())
+                .put(args).getMap();
+    }
+
+    static public Object invoke(Object bean, Method method, Object... params) {
+        Option<Object, Object> option = Option.builder().build();
+        return invoke(option, bean, method, params);
+    }
+
+    @SneakyThrows
+    static private Object invoke(Option<Object, Object> option, Object bean, Method method, Object... params) {
+        Object result = null;
+        Throwable throwableBackup = null;
+        boolean success = true;
+        int retryTimes = option.getRetryTimes();
+        do {
+            try {
+                result = method.invoke(bean, params);
+            } catch (Throwable ex) {
+                success = false;
+                if (ex instanceof InvocationTargetException) {
+                    throwableBackup = ((InvocationTargetException) ex).getTargetException();
+                } else {
+                    throwableBackup = ex;
+                }
+                if (retryTimes == 0) {
+                    throw throwableBackup;
+                }
+            } finally {
+                Map<String, Object> signature = getSignature(bean, method, params);
+                if (throwableBackup == null && option.isWithLog()) {
+                    log.with(signature).with("result", Json.toJson(result)).info("");
+                } else if (throwableBackup != null){
+                    log.with(signature).error("", throwableBackup);
+                }
+            }
+        } while (!success && retryTimes-- > 0);
+        return result;
+    }
+
     static private Map<String, Object> getSignature(Serializable lambda) {
         Map<String, Object> lambdaInfos = SLambda.resolve(lambda);
         StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[4];
@@ -26,47 +71,6 @@ public class Runner {
 
     }
 
-    static private Map<String, Object> getSignature(Object bean, Method method, Object... params) {
-        Map<String, Object> args = new HashMap<>();
-        StreamMap<String, Object> streamMap = StreamMap.init();
-        IntStream.range(0, params.length).forEach(index -> streamMap.put("arg" + index, Json.toJson(params[index])));
-        return streamMap.put("invokeClassName", bean.getClass().getName())
-                .put("methodName", method.getName())
-                .put(args).getMap();
-    }
-
-    static public Object invoke(Object bean, Method method, Object... params) {
-        return invoke(false, bean, method, params);
-    }
-
-    static public Object invokeWithLog(Object bean, Method method, Object... params) {
-        return invoke(true, bean, method, params);
-    }
-
-    @SneakyThrows
-    static private Object invoke(boolean withLog, Object bean, Method method, Object... params) {
-        Object result = null;
-        Throwable throwableBackup = null;
-        try {
-            result = method.invoke(bean, params);
-        } catch (InvocationTargetException ex) {
-            Throwable targetException = ex.getTargetException();
-            throwableBackup = targetException;
-            throw targetException;
-        } catch (Throwable ex) {
-            throwableBackup = ex;
-            throw ex;
-        } finally {
-            if (throwableBackup == null && withLog) {
-                Map<String, Object> signature = getSignature(bean, method, params);
-                log.with(signature).with("result", Json.toJson(result)).info("");
-            } else if (throwableBackup != null){
-                Map<String, Object> signature = getSignature(bean, method, params);
-                log.with(signature).error("", throwableBackup);
-            }
-        }
-        return result;
-    }
     static public void run(SRunnable runnable) {
         Option<Object, Object> option = Option.builder().build();
         run(option, runnable);
@@ -96,13 +100,13 @@ public class Runner {
         } while (retryTimes-- > 0);
     }
 
-    static private  <R, T> T invoke(SCallable<R> callable) {
+    static private  <R, T> T checkout(SCallable<R> callable) {
         Option<R, T> option = Option.<R, T>builder().build();
-        return invoke(option, callable);
+        return checkout(option, callable);
     }
 
     @SneakyThrows
-    static private  <R, T> T invoke(Option<R,T> option, SCallable<R> callable) {
+    static private  <R, T> T checkout(Option<R,T> option, SCallable<R> callable) {
         SysException.trueThrow(option.getCheck() == null,  ErrorEnumBase.PARAM_IS_NULL);
         SysException.trueThrow(option.getTransfer() == null,  ErrorEnumBase.PARAM_IS_NULL);
         R result = null;
