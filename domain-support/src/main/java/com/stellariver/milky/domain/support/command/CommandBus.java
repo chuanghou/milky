@@ -284,7 +284,7 @@ public class CommandBus {
         context.recordMessage(command);
         String encryptionKey = UUID.randomUUID().toString();
         try {
-            if (concurrentOperate.tryLock(lockKey, encryptionKey, command.lockExpireSeconds())) {
+            if (concurrentOperate.tryLock(lockKey, encryptionKey, command.lockExpireMils())) {
                 result = doRoute(command, context, commandHandler);
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
@@ -292,7 +292,7 @@ public class CommandBus {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
                 RetryParameter retryParameter = RetryParameter.builder().lockKey(lockKey)
                         .encryptionKey(encryptionKey)
-                        .secondsToExpire(command.lockExpireSeconds())
+                        .milsToExpire(command.lockExpireMils())
                         .times(command.retryTimes())
                         .sleepTimeMils(sleepTimeMs)
                         .build();
