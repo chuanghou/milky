@@ -39,7 +39,7 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(name = "beanLoader")
+    @ConditionalOnMissingBean
     BeanLoader beanLoader(SpringBeanLoader springBeanLoader) {
         BeanLoaderImpl beanLoader = new BeanLoaderImpl(springBeanLoader);
         BeanUtils.setBeanLoader(beanLoader);
@@ -53,11 +53,11 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(name = "asyncExecutorService")
+    @ConditionalOnMissingBean
     public ExecutorService asyncExecutorService() {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error("", e))
-                .setNameFormat("event-handler-url-thread-%d")
+                .setNameFormat("async-event-handler-url-thread-%d")
                 .build();
 
         return new ThreadPoolExecutor(10, 20, 5,
