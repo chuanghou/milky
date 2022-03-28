@@ -23,6 +23,7 @@ public class DomainSupportAutoConfiguration {
     private static final Logger log = Logger.getLogger(DomainSupportAutoConfiguration.class);
 
     @Bean
+    @ConditionalOnMissingBean
     public CommandBus commandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
                                  EventBus eventBus, ScanPackages scanPackages, MilkyProperties milkyProperties,
                                  MessageRepository messageRepository) {
@@ -32,6 +33,7 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public EventBus eventBus(BeanLoader beanLoader, ExecutorService asyncExecutorService) {
         return new EventBus(beanLoader, asyncExecutorService);
     }
@@ -45,6 +47,7 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     SpringBeanLoader springBeanLoader(ApplicationContext applicationContext) {
         return new SpringBeanLoader(applicationContext);
     }
@@ -53,7 +56,7 @@ public class DomainSupportAutoConfiguration {
     @ConditionalOnMissingBean(name = "asyncExecutorService")
     public ExecutorService asyncExecutorService() {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setUncaughtExceptionHandler((t, e) -> log.error("|线程名={}|错误信息={}|", t.getName(), e.getMessage(), e))
+                .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error("", e))
                 .setNameFormat("event-handler-url-thread-%d")
                 .build();
 
