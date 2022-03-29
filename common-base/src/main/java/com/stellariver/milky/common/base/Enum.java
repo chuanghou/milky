@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Enum {
 
-    private String code;
-
     private String name;
+
+    private String label;
 
 }

@@ -1,5 +1,8 @@
-package com.stellariver.milky.common.tool.common;
+package com.stellariver.milky.common.tool.util;
 
+
+import com.stellariver.milky.common.tool.common.ErrorEnumBase;
+import com.stellariver.milky.common.tool.common.SysException;
 
 public class If {
 
