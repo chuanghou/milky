@@ -5,18 +5,26 @@ import java.util.concurrent.*;
 
 public class AsyncExecutorService extends ThreadPoolExecutor {
 
-    List<ThreadLocalPasser<?>> threadLocalPassers;
+    private final List<ThreadLocalPasser<?>> threadLocalPassers;
 
-    public AsyncExecutorService(AsyncExecutorConfiguration configuration, ThreadFactory threadFactory,
+    public AsyncExecutorService(AsyncExecutorConfiguration configuration,
+                                ThreadFactory threadFactory,
+                                CallerRunsPolicy callerRunsPolicy,
                                 List<ThreadLocalPasser<?>> threadLocalPassers) {
         super(configuration.getCorePoolSize(),
                 configuration.getMaximumPoolSize(),
                 configuration.getKeepAliveTimeMinutes(),
-                TimeUnit.MINUTES, new ArrayBlockingQueue<>(configuration.getBlockingQueueCapacity()),
-                threadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
+                TimeUnit.MINUTES,
+                new ArrayBlockingQueue<>(configuration.getBlockingQueueCapacity()),
+                threadFactory, callerRunsPolicy);
         this.threadLocalPassers = threadLocalPassers;
     }
 
+    public AsyncExecutorService(AsyncExecutorConfiguration configuration,
+                                ThreadFactory threadFactory,
+                                List<ThreadLocalPasser<?>> threadLocalPassers) {
+        this(configuration, threadFactory, new ThreadPoolExecutor.CallerRunsPolicy(), threadLocalPassers);
+    }
 
     @Override
     protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
