@@ -1,4 +1,4 @@
-package com.stellariver.milky.domain.support.event;
+package com.stellariver.milky.domain.support.util;
 
 import java.util.HashMap;
 import java.util.List;

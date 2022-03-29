@@ -1,16 +1,16 @@
 package com.stellariver.milky.domain.support.util;
 
-import com.stellariver.milky.domain.support.depend.BeanLoader;
+import com.stellariver.milky.domain.support.dependency.BeanLoader;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-public class BeanUtils {
+public class BeanUtil {
 
     static private BeanLoader beanLoader;
 
     static public void setBeanLoader(BeanLoader beanLoader) {
-        BeanUtils.beanLoader = beanLoader;
+        BeanUtil.beanLoader = beanLoader;
     }
 
     static public List<Object> getBeansForAnnotation(Class<? extends Annotation> annotationType) {

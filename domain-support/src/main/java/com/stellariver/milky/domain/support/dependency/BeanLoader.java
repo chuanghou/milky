@@ -1,4 +1,4 @@
-package com.stellariver.milky.domain.support.depend;
+package com.stellariver.milky.domain.support.dependency;
 
 import java.lang.annotation.Annotation;
 import java.util.List;

@@ -1,6 +1,7 @@
-package com.stellariver.milky.domain.support.depend;
+package com.stellariver.milky.domain.support.dependency;
 
 import com.stellariver.milky.common.tool.common.SysException;
+import com.stellariver.milky.domain.support.base.RetryParameter;
 import com.stellariver.milky.domain.support.command.Command;
 import lombok.SneakyThrows;
 

@@ -1,4 +1,4 @@
-package com.stellariver.milky.domain.support;
+package com.stellariver.milky.domain.support.invocation;
 
 import com.stellariver.milky.domain.support.base.Message;
 import lombok.AllArgsConstructor;

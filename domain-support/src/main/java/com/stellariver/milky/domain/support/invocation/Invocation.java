@@ -1,6 +1,7 @@
-package com.stellariver.milky.domain.support;
+package com.stellariver.milky.domain.support.invocation;
 
-import com.stellariver.milky.domain.support.util.BeanUtils;
+import com.stellariver.milky.domain.support.dependency.IdBuilder;
+import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -15,7 +16,7 @@ public class Invocation {
 
     private Invocation(Map<String, Object> parameters) {
         this.parameters = parameters;
-        this.invocationId = BeanUtils.getBean(IdBuilder.class).build();
+        this.invocationId = BeanUtil.getBean(IdBuilder.class).build();
     }
 
     static public Invocation build(Map<String, Object> parameters) {

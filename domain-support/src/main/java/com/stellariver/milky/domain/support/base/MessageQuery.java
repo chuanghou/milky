@@ -1,4 +1,4 @@
-package com.stellariver.milky.domain.support.depend;
+package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.domain.support.base.Message;
 import lombok.*;

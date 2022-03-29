@@ -2,21 +2,20 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.tool.log.Logger;
-import com.stellariver.milky.domain.support.IdBuilder;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkyRepositories;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
-import com.stellariver.milky.domain.support.depend.BeanLoader;
-import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
-import com.stellariver.milky.domain.support.depend.InvocationRepository;
-import com.stellariver.milky.domain.support.depend.MessageRepository;
-import com.stellariver.milky.domain.support.event.AsyncExecutorConfiguration;
-import com.stellariver.milky.domain.support.event.AsyncExecutorService;
+import com.stellariver.milky.domain.support.dependency.BeanLoader;
+import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
+import com.stellariver.milky.domain.support.dependency.InvocationRepository;
+import com.stellariver.milky.domain.support.dependency.MessageRepository;
+import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
+import com.stellariver.milky.domain.support.util.AsyncExecutorService;
 import com.stellariver.milky.domain.support.event.EventBus;
-import com.stellariver.milky.domain.support.event.ThreadLocalPasser;
-import com.stellariver.milky.domain.support.util.BeanUtils;
+import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
+import com.stellariver.milky.domain.support.util.BeanUtil;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -62,7 +61,7 @@ public class DomainSupportAutoConfiguration {
     @Bean
     BeanLoader beanLoader(ApplicationContext applicationContext) {
         BeanLoaderImpl beanLoader = new BeanLoaderImpl(applicationContext);
-        BeanUtils.setBeanLoader(beanLoader);
+        BeanUtil.setBeanLoader(beanLoader);
         return beanLoader;
     }
 

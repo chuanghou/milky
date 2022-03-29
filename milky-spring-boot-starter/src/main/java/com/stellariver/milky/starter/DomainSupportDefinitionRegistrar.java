@@ -2,11 +2,11 @@ package com.stellariver.milky.starter;
 
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
-import com.stellariver.milky.domain.support.depend.InvocationRepository;
-import com.stellariver.milky.domain.support.depend.MessageRepository;
+import com.stellariver.milky.domain.support.dependency.InvocationRepository;
+import com.stellariver.milky.domain.support.dependency.MessageRepository;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
-import com.stellariver.milky.domain.support.repository.DomainRepository;
+import com.stellariver.milky.domain.support.dependency.DomainRepository;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ResourceLoaderAware;

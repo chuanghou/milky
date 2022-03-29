@@ -1,4 +1,4 @@
-package com.stellariver.milky.domain.support;
+package com.stellariver.milky.domain.support.dependency;
 
 public interface IdBuilder {
 

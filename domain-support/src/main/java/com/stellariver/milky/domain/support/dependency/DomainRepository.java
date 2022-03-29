@@ -1,4 +1,4 @@
-package com.stellariver.milky.domain.support.repository;
+package com.stellariver.milky.domain.support.dependency;
 
 import com.stellariver.milky.domain.support.context.Context;
 

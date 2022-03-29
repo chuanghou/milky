@@ -1,7 +1,5 @@
 package com.stellariver.milky.domain.support.event;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.stellariver.milky.domain.support.InvokeTrace;
 import com.stellariver.milky.domain.support.base.Message;
 import lombok.Builder;
 import lombok.Data;
