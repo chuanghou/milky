@@ -4,10 +4,14 @@ import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.spring.partner.AspectTool;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+@Aspect
+@Component
 public class LogInfoSupport {
 
     static Logger log= Logger.getLogger(LogInfoSupport.class);
@@ -20,17 +24,17 @@ public class LogInfoSupport {
         Object result = null;
         Date startTime = new Date();
         AspectTool.MethodInfo methodInfo = AspectTool.methodInfo(proceedingJoinPoint);
-        log.with("methodInfo", methodInfo).with("startTime", startTime);
         try {
             result = proceedingJoinPoint.proceed();
         } finally {
             Date endTime = new Date();
             LogInfo logInfo = methodInfo.getMethod().getAnnotation(LogInfo.class);
             String logTag = logInfo.logTag().equals("default") ? methodInfo.methodReference() : logInfo.logTag();
-            log.with("result", result).with("endTime", endTime)
+            log.with("methodInfo", methodInfo).with("startTime", startTime)
+                    .with("result", result).with("endTime", endTime)
                     .with("cost", endTime.getTime() - startTime.getTime())
                     .withLogTag(logTag)
-                    .info(null);
+                    .info("");
         }
         return result;
     }
