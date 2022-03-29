@@ -16,25 +16,27 @@ public class ThreadLocalFutureTask<T> extends FutureTask<T> {
     public ThreadLocalFutureTask(Callable<T> callable, List<ThreadLocalPasser<?>> threadLocalPassers) {
         super(callable);
         this.threadLocalPassers = threadLocalPassers;
-        threadLocalPassers.forEach(threadLocalPasser ->
-                threadLocals.put((Class<? extends ThreadLocalPasser<?>>) threadLocalPasser.getClass(),
-                        threadLocalPasser.prepareThreadLocal()));
+        threadLocalPassers.forEach(passer -> {
+            Class<? extends ThreadLocalPasser<?>> clazz = (Class<? extends ThreadLocalPasser<?>>) passer.getClass();
+            threadLocals.put(clazz, passer.prepareThreadLocal());
+        });
     }
 
     @SuppressWarnings("unchecked")
     public ThreadLocalFutureTask(Runnable runnable, T value, List<ThreadLocalPasser<?>> threadLocalPassers) {
         super(runnable, value);
         this.threadLocalPassers = threadLocalPassers;
-        threadLocalPassers.forEach(threadLocalPasser ->
-                threadLocals.put((Class<? extends ThreadLocalPasser<?>>) threadLocalPasser.getClass(),
-                        threadLocalPasser.prepareThreadLocal()));
+        threadLocalPassers.forEach(passer -> {
+            Class<? extends ThreadLocalPasser<?>> clazz = (Class<? extends ThreadLocalPasser<?>>) passer.getClass();
+            threadLocals.put(clazz, passer.prepareThreadLocal());
+        });
     }
 
     @Override
     public void run() {
         try {
             threadLocalPassers.forEach(threadLocalPasser -> {
-                Object threadLocal = threadLocals.get(ThreadLocalPasser.class);
+                Object threadLocal = threadLocals.get(threadLocalPasser.getClass());
                 threadLocalPasser.pass(threadLocal);
             });
             super.run();
@@ -42,4 +44,5 @@ public class ThreadLocalFutureTask<T> extends FutureTask<T> {
             threadLocalPassers.forEach(ThreadLocalPasser::clearThreadLocal);
         }
     }
+
 }

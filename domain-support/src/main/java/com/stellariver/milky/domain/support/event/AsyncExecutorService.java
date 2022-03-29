@@ -7,7 +7,8 @@ public class AsyncExecutorService extends ThreadPoolExecutor {
 
     List<ThreadLocalPasser<?>> threadLocalPassers;
 
-    public AsyncExecutorService(AsyncExecutorConfiguration configuration, ThreadFactory threadFactory, List<ThreadLocalPasser<?>> threadLocalPassers) {
+    public AsyncExecutorService(AsyncExecutorConfiguration configuration, ThreadFactory threadFactory,
+                                List<ThreadLocalPasser<?>> threadLocalPassers) {
         super(configuration.getCorePoolSize(),
                 configuration.getMaximumPoolSize(),
                 configuration.getKeepAliveTimeMinutes(),
