@@ -1,36 +1,37 @@
 package com.stellariver.milky.starter;
 
 import com.stellariver.milky.domain.support.depend.BeanLoader;
-import com.stellariver.milky.spring.partner.SpringBeanLoader;
+import org.springframework.context.ApplicationContext;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BeanLoaderImpl implements BeanLoader {
 
-    private final SpringBeanLoader springBeanLoader;
+    private final ApplicationContext applicationContext;
 
-    public BeanLoaderImpl(SpringBeanLoader springBeanLoader) {
-        this.springBeanLoader = springBeanLoader;
+    public BeanLoaderImpl(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     @Override
     public List<Object> getBeansForAnnotation(Class<? extends Annotation> annotationType) {
-        return springBeanLoader.getBeansForAnnotation(annotationType);
+        return new ArrayList<>(applicationContext.getBeansWithAnnotation(annotationType).values());
     }
 
     @Override
     public <T> List<T> getBeansOfType(Class<T> type) {
-        return springBeanLoader.getBeansOfType(type);
+        return new ArrayList<>(applicationContext.getBeansOfType(type).values());
     }
 
     @Override
     public <T> T getBean(Class<T> requiredType) {
-        return springBeanLoader.getBean(requiredType);
+        return applicationContext.getBean(requiredType);
     }
 
     @Override
     public Object getBean(String beanName) {
-        return springBeanLoader.getBean(beanName);
+        return applicationContext.getBean(beanName);
     }
 }

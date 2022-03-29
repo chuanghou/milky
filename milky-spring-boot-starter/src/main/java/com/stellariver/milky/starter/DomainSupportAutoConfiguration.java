@@ -13,7 +13,6 @@ import com.stellariver.milky.domain.support.event.AsyncExecutorService;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.event.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.BeanUtils;
-import com.stellariver.milky.spring.partner.SpringBeanLoader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -44,16 +43,10 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    BeanLoader beanLoader(SpringBeanLoader springBeanLoader) {
-        BeanLoaderImpl beanLoader = new BeanLoaderImpl(springBeanLoader);
+    BeanLoader beanLoader(ApplicationContext applicationContext) {
+        BeanLoaderImpl beanLoader = new BeanLoaderImpl(applicationContext);
         BeanUtils.setBeanLoader(beanLoader);
         return beanLoader;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    SpringBeanLoader springBeanLoader(ApplicationContext applicationContext) {
-        return new SpringBeanLoader(applicationContext);
     }
 
     @Bean
@@ -74,6 +67,5 @@ public class DomainSupportAutoConfiguration {
 
         return new AsyncExecutorService(configuration, threadFactory, threadLocalPassers);
     }
-
 
 }
