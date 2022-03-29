@@ -1,6 +1,6 @@
 package com.stellariver.milky.starter;
 
-import com.stellariver.milky.domain.support.base.ScanPackages;
+import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.depend.InvocationRepository;
 import com.stellariver.milky.domain.support.depend.MessageRepository;
@@ -39,8 +39,8 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         }
         String[] scanPackages = Arrays.stream(enableMilky.getStringArray("scanPackages"))
                 .filter(StringUtils::hasText).toArray(String[]::new);
-        BeanDefinitionBuilder scanPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(ScanPackages.class);
-        scanPackagesBeanBuilder.addPropertyValue("packages", scanPackages);
+        BeanDefinitionBuilder scanPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(MilkyScanPackages.class);
+        scanPackagesBeanBuilder.addPropertyValue("scanPackages", scanPackages);
         registry.registerBeanDefinition("scanPackages", scanPackagesBeanBuilder.getBeanDefinition());
         ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry, false);
         scanner.setResourceLoader(resourceLoader);

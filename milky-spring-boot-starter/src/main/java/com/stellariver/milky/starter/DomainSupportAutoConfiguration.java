@@ -5,7 +5,7 @@ import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkyRepositories;
 import com.stellariver.milky.domain.support.base.MilkySupport;
-import com.stellariver.milky.domain.support.base.ScanPackages;
+import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.event.AsyncExecutorConfiguration;
@@ -28,8 +28,8 @@ public class DomainSupportAutoConfiguration {
     private static final Logger log = Logger.getLogger(DomainSupportAutoConfiguration.class);
 
     @Bean
-    public MilkyConfiguration milkyConfiguration(ScanPackages scanPackages, MilkProperties milkProperties) {
-        return new MilkyConfiguration(milkProperties.enableMq, scanPackages.getPackages());
+    public MilkyConfiguration milkyConfiguration(MilkyScanPackages milkyScanPackages, MilkProperties milkProperties) {
+        return new MilkyConfiguration(milkProperties.enableMq, milkyScanPackages.getScanPackages());
     }
 
     @Bean
