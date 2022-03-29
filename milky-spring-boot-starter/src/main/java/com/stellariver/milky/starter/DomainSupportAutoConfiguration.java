@@ -40,8 +40,7 @@ public class DomainSupportAutoConfiguration {
 
 
     @Bean
-    public CommandBus commandBus(MilkySupport milkySupport, MilkyConfiguration milkyConfiguration,
-                                 AsyncExecutorService asyncExecutorService) {
+    public CommandBus commandBus(MilkySupport milkySupport, MilkyConfiguration milkyConfiguration) {
         return CommandBus.builder().milkySupport(milkySupport)
                 .configuration(milkyConfiguration)
                 .init();
