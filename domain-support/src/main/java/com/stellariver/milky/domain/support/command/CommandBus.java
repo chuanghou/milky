@@ -20,8 +20,8 @@ import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.dependency.DomainRepository;
-import com.stellariver.milky.domain.support.dependency.InvocationRepository;
-import com.stellariver.milky.domain.support.dependency.MessageRepository;
+import com.stellariver.milky.domain.support.dependency.MilkyRepository;
+import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -58,17 +58,13 @@ public class CommandBus {
 
     private final Map<Class<? extends Command>, List<Interceptor>> afterCommandInterceptors = new HashMap<>();
 
-    private BeanLoader beanLoader;
-
     private ConcurrentOperate concurrentOperate;
 
     private EventBus eventBus;
 
     private boolean enableMq;
 
-    private MessageRepository messageRepository;
-
-    private InvocationRepository invocationRepository;
+    private MilkyRepository milkyRepository;
 
     private AsyncExecutorService asyncExecutorService;
 
@@ -79,16 +75,10 @@ public class CommandBus {
     }
 
     public CommandBus milkySupport(MilkySupport milkySupport) {
-        this.asyncExecutorService = milkySupport.getAsyncExecutorService();
         this.eventBus = milkySupport.getEventBus();
-        this.beanLoader = milkySupport.getBeanLoader();
         this.concurrentOperate = milkySupport.getConcurrentOperate();
-        return this;
-    }
-
-    public CommandBus repositories(MilkyRepositories repositories) {
-        this.invocationRepository = repositories.getInvocationRepository();
-        this.messageRepository = repositories.getMessageRepository();
+        this.milkyRepository = milkySupport.getMilkyRepository();
+        this.asyncExecutorService = milkySupport.getAsyncExecutorService();
         return this;
     }
 
@@ -123,14 +113,14 @@ public class CommandBus {
         HashMap<Class<? extends Command>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
-        beanLoader.getBeansOfType(BusInterceptors.class).stream()
+        BeanUtil.getBeansOfType(BusInterceptors.class).stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> format.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())
                 .forEach(method -> {
                     BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
                     Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
-                    Object bean = beanLoader.getBean(method.getDeclaringClass());
+                    Object bean = BeanUtil.getBean(method.getDeclaringClass());
                     Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
                             .order(annotation.order()).posEnum(annotation.pos()).build();
                     tempInterceptorsMap.computeIfAbsent(commandClass, cC -> new ArrayList<>()).add(interceptor);
@@ -165,7 +155,7 @@ public class CommandBus {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void prepareRepositories() {
-        List<DomainRepository> repositories = beanLoader.getBeansOfType(DomainRepository.class);
+        List<DomainRepository> repositories = BeanUtil.getBeansOfType(DomainRepository.class);
         repositories.forEach(bean -> {
             List<Method> methods = Arrays.stream(bean.getClass().getMethods())
                     .filter(m -> Objects.equals(m.getName(), "save"))
@@ -231,7 +221,7 @@ public class CommandBus {
     private void prepareContextValueProviders(Reflections reflections) {
         Map<Class<? extends Command>, Map<String, DependencyProvider>> tempProviders = new HashMap<>();
 
-        List<Method> methods = beanLoader.getBeansOfType(DependencyPrepares.class)
+        List<Method> methods = BeanUtil.getBeansOfType(DependencyPrepares.class)
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
                 .filter(method -> method.isAnnotationPresent(DependencyKey.class))
@@ -241,7 +231,7 @@ public class CommandBus {
             Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
             String key = method.getAnnotation(DependencyKey.class).value();
             String[] requiredKeys = method.getAnnotation(DependencyKey.class).requiredKeys();
-            Object bean = beanLoader.getBean(method.getDeclaringClass());
+            Object bean = BeanUtil.getBean(method.getDeclaringClass());
             DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method);
             Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
             SysException.trueThrow(valueProviderMap.containsKey(key),
@@ -274,8 +264,10 @@ public class CommandBus {
             context.getProcessedEvents().forEach(event -> eventBus.asyncRoute(event, context));
             Map<String, Object> metaData = context.getMetaData();
             List<Message> recordedMessages = context.getRecordedMessages();
-            asyncExecutorService.execute(() -> messageRepository.batchInsert(recordedMessages, metaData));
-            asyncExecutorService.execute(() -> invocationRepository.insert(invocation, metaData));
+            asyncExecutorService.execute(() -> {
+                milkyRepository.insert(invocation, metaData);
+                milkyRepository.batchInsert(recordedMessages, metaData);
+            });
         } finally {
             tLContext.remove();
         }

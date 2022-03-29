@@ -3,14 +3,12 @@ package com.stellariver.milky.starter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
-import com.stellariver.milky.domain.support.base.MilkyRepositories;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
-import com.stellariver.milky.domain.support.dependency.InvocationRepository;
-import com.stellariver.milky.domain.support.dependency.MessageRepository;
+import com.stellariver.milky.domain.support.dependency.MilkyRepository;
 import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
 import com.stellariver.milky.domain.support.util.AsyncExecutorService;
 import com.stellariver.milky.domain.support.event.EventBus;
@@ -36,21 +34,17 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     public MilkySupport milkySupport(ConcurrentOperate concurrentOperate, EventBus eventBus,
-                                     AsyncExecutorService asyncExecutorService, BeanLoader beanLoader) {
-        return new MilkySupport(concurrentOperate, eventBus, asyncExecutorService, beanLoader);
+                                     MilkyRepository milkyRepository, AsyncExecutorService asyncExecutorService) {
+        return new MilkySupport(concurrentOperate, eventBus, milkyRepository, asyncExecutorService);
     }
 
-    @Bean
-    public MilkyRepositories milkyRepositories(MessageRepository messageRepository,
-                                               InvocationRepository invocationRepository) {
-        return new MilkyRepositories(messageRepository, invocationRepository);
-    }
 
     @Bean
-    public CommandBus commandBus(MilkySupport milkySupport,
-                                 MilkyRepositories milkyRepositories, MilkyConfiguration milkyConfiguration) {
+    public CommandBus commandBus(MilkySupport milkySupport, MilkyConfiguration milkyConfiguration,
+                                 AsyncExecutorService asyncExecutorService) {
         return CommandBus.builder().milkySupport(milkySupport)
-                .repositories(milkyRepositories).configuration(milkyConfiguration).init();
+                .configuration(milkyConfiguration)
+                .init();
     }
 
     @Bean

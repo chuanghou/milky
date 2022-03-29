@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
+import com.stellariver.milky.domain.support.dependency.MilkyRepository;
 import com.stellariver.milky.domain.support.util.AsyncExecutorService;
 import com.stellariver.milky.domain.support.event.EventBus;
 import lombok.*;
@@ -14,8 +15,8 @@ public class MilkySupport {
 
     EventBus eventBus;
 
-    AsyncExecutorService asyncExecutorService;
+    MilkyRepository milkyRepository;
 
-    BeanLoader beanLoader;
+    AsyncExecutorService asyncExecutorService;
 
 }
