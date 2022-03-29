@@ -8,5 +8,8 @@ public class ScanPackages {
         return packages;
     }
 
-    public void  setPackages(String[] packages) {this.packages = packages;}
+    public void  setPackages(String[] packages) {
+        this.packages = packages;
+    }
+
 }

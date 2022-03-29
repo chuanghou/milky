@@ -2,14 +2,19 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.tool.log.Logger;
+import com.stellariver.milky.domain.support.base.MilkyConfiguration;
+import com.stellariver.milky.domain.support.base.MilkyRepositories;
+import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.ScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
+import com.stellariver.milky.domain.support.depend.InvocationRepository;
 import com.stellariver.milky.domain.support.depend.MessageRepository;
-import com.stellariver.milky.domain.support.event.AsyncEventRouterExecutorService;
+import com.stellariver.milky.domain.support.event.AsyncExecutorConfiguration;
+import com.stellariver.milky.domain.support.event.AsyncExecutorService;
 import com.stellariver.milky.domain.support.event.EventBus;
-import com.stellariver.milky.domain.support.event.ThreadLocalTransfer;
+import com.stellariver.milky.domain.support.event.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.BeanUtils;
 import com.stellariver.milky.spring.partner.SpringBeanLoader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -17,29 +22,26 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 
-@EnableConfigurationProperties(MilkyProperties.class)
+@EnableConfigurationProperties(MilkProperties.class)
 public class DomainSupportAutoConfiguration {
 
     private static final Logger log = Logger.getLogger(DomainSupportAutoConfiguration.class);
 
     @Bean
-    @ConditionalOnMissingBean
-    public CommandBus commandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
-                                 EventBus eventBus, ScanPackages scanPackages, MilkyProperties milkyProperties,
-                                 MessageRepository messageRepository) {
-        boolean enableMq = milkyProperties.isEnableMq();
-        return new CommandBus(beanLoader, concurrentOperate,
-                eventBus, scanPackages.getPackages(), enableMq, messageRepository);
+    public MilkyConfiguration milkyConfiguration(ScanPackages scanPackages, MilkProperties milkProperties) {
+        return new MilkyConfiguration(milkProperties.enableMq, scanPackages.getPackages());
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public EventBus eventBus(BeanLoader beanLoader, ExecutorService asyncExecutorService) {
+    public CommandBus commandBus(MilkySupport support, MilkyRepositories repositories, MilkyConfiguration configuration) {
+        return CommandBus.builder().milkySupport(support).repositories(repositories).configuration(configuration).init();
+    }
+
+    @Bean
+    public EventBus eventBus(BeanLoader beanLoader, AsyncExecutorService asyncExecutorService) {
         return new EventBus(beanLoader, asyncExecutorService);
     }
 
@@ -59,15 +61,21 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ExecutorService asyncExecutorService(List<ThreadLocalTransfer<?>> threadLocalTransfers) {
+    public ExecutorService asyncExecutorService(List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
+
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error("", e))
                 .setNameFormat("async-event-handler-url-thread-%d")
                 .build();
 
-        return new AsyncEventRouterExecutorService(10, 20, 5,
-                TimeUnit.MINUTES, new ArrayBlockingQueue<>(500),
-                threadFactory, new ThreadPoolExecutor.CallerRunsPolicy(), threadLocalTransfers);
+        AsyncExecutorConfiguration configuration = AsyncExecutorConfiguration.builder()
+                .corePoolSize(properties.getCorePoolSize())
+                .maximumPoolSize(properties.getMaximumPoolSize())
+                .keepAliveTimeMinutes(properties.getKeepAliveTimeMinutes())
+                .blockingQueueCapacity(properties.getBlockingQueueCapacity())
+                .build();
+
+        return new AsyncExecutorService(configuration, threadFactory, threadLocalPassers);
     }
 
 

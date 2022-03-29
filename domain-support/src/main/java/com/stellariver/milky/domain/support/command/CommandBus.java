@@ -7,15 +7,12 @@ import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.Invocation;
 import com.stellariver.milky.domain.support.InvokeTrace;
-import com.stellariver.milky.domain.support.base.AggregateRoot;
-import com.stellariver.milky.domain.support.base.Message;
+import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.context.DependencyKey;
-import com.stellariver.milky.domain.support.depend.BeanLoader;
-import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
-import com.stellariver.milky.domain.support.depend.MessageRepository;
-import com.stellariver.milky.domain.support.depend.RetryParameter;
+import com.stellariver.milky.domain.support.depend.*;
+import com.stellariver.milky.domain.support.event.AsyncExecutorService;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
@@ -44,12 +41,10 @@ import static com.stellariver.milky.domain.support.ErrorEnum.HANDLER_NOT_EXIST;
 
 public class CommandBus {
 
-    static final private Predicate<Class<?>[]> format = parameterTypes ->
-            (parameterTypes.length == 2
-            && Command.class.isAssignableFrom(parameterTypes[0])
-            && parameterTypes[1] == Context.class);
+    private static final Predicate<Class<?>[]> format = parameterTypes -> (parameterTypes.length == 2
+            && Command.class.isAssignableFrom(parameterTypes[0]) && parameterTypes[1] == Context.class);
 
-    static public final ThreadLocal<Context> tLContext = ThreadLocal.withInitial(Context::new);
+    private static final ThreadLocal<Context> tLContext = ThreadLocal.withInitial(Context::new);
 
     private final Map<Class<? extends Command>, Handler> commandHandlers = new HashMap<>();
 
@@ -61,33 +56,50 @@ public class CommandBus {
 
     private final Map<Class<? extends Command>, List<Interceptor>> afterCommandInterceptors = new HashMap<>();
 
-    private final BeanLoader beanLoader;
+    private BeanLoader beanLoader;
 
-    private final ConcurrentOperate concurrentOperate;
+    private ConcurrentOperate concurrentOperate;
 
-    private final EventBus eventBus;
+    private EventBus eventBus;
 
-    private final boolean enableMq;
+    private boolean enableMq;
 
-    private final MessageRepository messageRepository;
+    private MessageRepository messageRepository;
 
-    public CommandBus(BeanLoader beanLoader, ConcurrentOperate concurrentOperate,
-                      EventBus eventBus, String[] scanPackages, boolean enableMq,
-                      MessageRepository messageRepository) {
-        this.beanLoader = beanLoader;
-        this.concurrentOperate = concurrentOperate;
-        this.eventBus = eventBus;
-        this.enableMq = enableMq;
-        this.messageRepository = messageRepository;
-        init(scanPackages);
+    private InvocationRepository invocationRepository;
+
+    private AsyncExecutorService asyncExecutorService;
+
+    private String[] scanPackages;
+
+    static public CommandBus builder() {
+        return new CommandBus();
     }
 
+    public CommandBus milkySupport(MilkySupport milkySupport) {
+        this.asyncExecutorService = milkySupport.getAsyncExecutorService();
+        this.eventBus = milkySupport.getEventBus();
+        this.beanLoader = milkySupport.getBeanLoader();
+        this.concurrentOperate = milkySupport.getConcurrentOperate();
+        return this;
+    }
 
-    void init(String[] scanPackages) {
+    public CommandBus repositories(MilkyRepositories repositories) {
+        this.invocationRepository = repositories.getInvocationRepository();
+        this.messageRepository = repositories.getMessageRepository();
+        return this;
+    }
+
+    public CommandBus configuration(MilkyConfiguration configuration) {
+        this.enableMq = configuration.isEnableMq();
+        this.scanPackages = configuration.getScanPackages();
+        return this;
+    }
+
+    public CommandBus init() {
 
         ConfigurationBuilder configuration = new ConfigurationBuilder()
-                .forPackages(scanPackages)
-                .addScanners(new SubTypesScanner());
+                .forPackages(scanPackages).addScanners(new SubTypesScanner());
 
         Reflections reflections = new Reflections(configuration);
 
@@ -99,6 +111,7 @@ public class CommandBus {
 
         prepareCommandBusInterceptors();
 
+        return this;
     }
     @SuppressWarnings("unchecked")
     private void prepareCommandBusInterceptors() {
@@ -256,10 +269,11 @@ public class CommandBus {
         command.setInvokeTrace(invokeTrace);
         try {
             result = route(command);
-            context.getProcessedEvents().forEach(event -> Runner.run(() -> eventBus.asyncRoute(event, context)));
+            context.getProcessedEvents().forEach(event -> eventBus.asyncRoute(event, context));
             Map<String, Object> metaData = context.getMetaData();
             List<Message> recordedMessages = context.getRecordedMessages();
-            messageRepository.batchInsert(recordedMessages, metaData);
+            asyncExecutorService.execute(() -> messageRepository.batchInsert(recordedMessages, metaData));
+            asyncExecutorService.execute(() -> invocationRepository.insert(invocation, metaData));
         } finally {
             tLContext.remove();
         }
@@ -309,7 +323,7 @@ public class CommandBus {
         while (event != null) {
             event.setInvokeTrace(InvokeTrace.build(event));
             Event finalEvent = event;
-            Runner.run(() -> eventBus.syncRoute(finalEvent));
+            Runner.run(() -> eventBus.syncRoute(finalEvent, tLContext.get()));
             event = context.popEvent();
         }
         return result;

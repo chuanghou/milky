@@ -8,38 +8,38 @@ import java.util.concurrent.FutureTask;
 
 public class ThreadLocalFutureTask<T> extends FutureTask<T> {
 
-    private final List<ThreadLocalTransfer<?>> threadLocalTransfers;
+    private final List<ThreadLocalPasser<?>> threadLocalPassers;
 
-    private final Map<Class<? extends ThreadLocalTransfer<?>>, Object> threadLocals = new HashMap<>();
+    private final Map<Class<? extends ThreadLocalPasser<?>>, Object> threadLocals = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    public ThreadLocalFutureTask(Callable<T> callable, List<ThreadLocalTransfer<?>> threadLocalTransfers) {
+    public ThreadLocalFutureTask(Callable<T> callable, List<ThreadLocalPasser<?>> threadLocalPassers) {
         super(callable);
-        this.threadLocalTransfers = threadLocalTransfers;
-        threadLocalTransfers.forEach(threadLocalTransfer ->
-                threadLocals.put((Class<? extends ThreadLocalTransfer<?>>) threadLocalTransfer.getClass(),
-                        threadLocalTransfer.prepareThreadLocal()));
+        this.threadLocalPassers = threadLocalPassers;
+        threadLocalPassers.forEach(threadLocalPasser ->
+                threadLocals.put((Class<? extends ThreadLocalPasser<?>>) threadLocalPasser.getClass(),
+                        threadLocalPasser.prepareThreadLocal()));
     }
 
     @SuppressWarnings("unchecked")
-    public ThreadLocalFutureTask(Runnable runnable, T value, List<ThreadLocalTransfer<?>> threadLocalTransfers) {
+    public ThreadLocalFutureTask(Runnable runnable, T value, List<ThreadLocalPasser<?>> threadLocalPassers) {
         super(runnable, value);
-        this.threadLocalTransfers = threadLocalTransfers;
-        threadLocalTransfers.forEach(threadLocalTransfer ->
-                threadLocals.put((Class<? extends ThreadLocalTransfer<?>>) threadLocalTransfer.getClass(),
-                        threadLocalTransfer.prepareThreadLocal()));
+        this.threadLocalPassers = threadLocalPassers;
+        threadLocalPassers.forEach(threadLocalPasser ->
+                threadLocals.put((Class<? extends ThreadLocalPasser<?>>) threadLocalPasser.getClass(),
+                        threadLocalPasser.prepareThreadLocal()));
     }
 
     @Override
     public void run() {
         try {
-            threadLocalTransfers.forEach(threadLocalTransfer -> {
-                Object threadLocal = threadLocals.get(ThreadLocalTransfer.class);
-                threadLocalTransfer.fillThreadLocal(threadLocal);
+            threadLocalPassers.forEach(threadLocalPasser -> {
+                Object threadLocal = threadLocals.get(ThreadLocalPasser.class);
+                threadLocalPasser.pass(threadLocal);
             });
             super.run();
         } finally {
-            threadLocalTransfers.forEach(ThreadLocalTransfer::clearThreadLocal);
+            threadLocalPassers.forEach(ThreadLocalPasser::clearThreadLocal);
         }
     }
 }

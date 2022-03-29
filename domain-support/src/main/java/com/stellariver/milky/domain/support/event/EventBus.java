@@ -40,7 +40,7 @@ public class EventBus {
     private final Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    public EventBus(BeanLoader beanLoader, ExecutorService asyncExecutorService) {
+    public EventBus(BeanLoader beanLoader, AsyncExecutorService asyncExecutorService) {
 
         List<EventRouters> beans = beanLoader.getBeansOfType(EventRouters.class);
         List<Method> methods = beans.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
@@ -100,8 +100,7 @@ public class EventBus {
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
     }
 
-    public void syncRoute(Event event) {
-        Context context = CommandBus.tLContext.get();
+    public void syncRoute(Event event, Context context) {
         Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
                 .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context)));
         Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
