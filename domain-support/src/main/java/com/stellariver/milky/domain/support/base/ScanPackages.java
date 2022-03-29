@@ -1,15 +1,10 @@
 package com.stellariver.milky.domain.support.base;
 
+import lombok.Data;
+
+@Data
 public class ScanPackages {
 
     String[] packages;
-
-    public String[] getPackages() {
-        return packages;
-    }
-
-    public void  setPackages(String[] packages) {
-        this.packages = packages;
-    }
 
 }
