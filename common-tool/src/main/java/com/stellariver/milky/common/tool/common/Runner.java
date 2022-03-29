@@ -104,7 +104,7 @@ public class Runner {
     }
 
     @SneakyThrows
-    static private  <R, T> T checkout(Option<R,T> option, SCallable<R> callable) {
+    static public  <R, T> T checkout(Option<R,T> option, SCallable<R> callable) {
         SysException.nullThrow(option.getCheck(), option.getTransfer());
         R result = null;
         Throwable throwableBackup = null;
