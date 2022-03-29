@@ -3,6 +3,7 @@ package com.stellariver.milky.common.base;
 import lombok.ToString;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @ToString
@@ -45,8 +46,8 @@ public class Error {
         return new Error(code, "undefined");
     }
 
-    public Error message(String message) {
-        return this.toBuilder().message(message).build();
+    public Error message(Object message) {
+        return this.toBuilder().message(Objects.toString(message)).build();
     }
 
     public CodeBuilder toBuilder() {
