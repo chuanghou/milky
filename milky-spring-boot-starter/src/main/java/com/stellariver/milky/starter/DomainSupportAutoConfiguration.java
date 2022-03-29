@@ -7,7 +7,9 @@ import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
 import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
 import com.stellariver.milky.domain.support.depend.MessageRepository;
+import com.stellariver.milky.domain.support.event.AsyncEventRouterExecutorService;
 import com.stellariver.milky.domain.support.event.EventBus;
+import com.stellariver.milky.domain.support.event.ThreadLocalTransfer;
 import com.stellariver.milky.domain.support.util.BeanUtils;
 import com.stellariver.milky.spring.partner.SpringBeanLoader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -15,6 +17,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 @EnableConfigurationProperties(MilkyProperties.class)
@@ -54,14 +59,16 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ExecutorService asyncExecutorService() {
+    public ExecutorService asyncExecutorService(List<ThreadLocalTransfer<?>> threadLocalTransfers) {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error("", e))
                 .setNameFormat("async-event-handler-url-thread-%d")
                 .build();
 
-        return new ThreadPoolExecutor(10, 20, 5,
+        return new AsyncEventRouterExecutorService(10, 20, 5,
                 TimeUnit.MINUTES, new ArrayBlockingQueue<>(500),
-                threadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
+                threadFactory, new ThreadPoolExecutor.CallerRunsPolicy(), threadLocalTransfers);
     }
+
+
 }
