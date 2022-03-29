@@ -15,7 +15,7 @@ public class ThreadLocalCacheSupport {
 
     private static final int MAX_CACHE_SIZE = 1000;
 
-    private static final int LIVE_MIL_SEC = 1000;
+    private static final int LIVE_MIL_SEC = 5000;
 
     private static final Object NULL = new Object();
 

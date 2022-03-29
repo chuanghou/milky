@@ -2,12 +2,16 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.tool.log.Logger;
+import com.stellariver.milky.domain.support.IdBuilder;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkyRepositories;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.depend.BeanLoader;
+import com.stellariver.milky.domain.support.depend.ConcurrentOperate;
+import com.stellariver.milky.domain.support.depend.InvocationRepository;
+import com.stellariver.milky.domain.support.depend.MessageRepository;
 import com.stellariver.milky.domain.support.event.AsyncExecutorConfiguration;
 import com.stellariver.milky.domain.support.event.AsyncExecutorService;
 import com.stellariver.milky.domain.support.event.EventBus;
@@ -32,9 +36,22 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    public CommandBus commandBus(MilkySupport support, MilkyRepositories repositories, MilkyConfiguration configuration) {
-        return CommandBus.builder().milkySupport(support)
-                .repositories(repositories).configuration(configuration).init();
+    public MilkySupport milkySupport(ConcurrentOperate concurrentOperate, EventBus eventBus,
+                                     AsyncExecutorService asyncExecutorService, BeanLoader beanLoader) {
+        return new MilkySupport(concurrentOperate, eventBus, asyncExecutorService, beanLoader);
+    }
+
+    @Bean
+    public MilkyRepositories milkyRepositories(MessageRepository messageRepository,
+                                               InvocationRepository invocationRepository) {
+        return new MilkyRepositories(messageRepository, invocationRepository);
+    }
+
+    @Bean
+    public CommandBus commandBus(MilkySupport milkySupport,
+                                 MilkyRepositories milkyRepositories, MilkyConfiguration milkyConfiguration) {
+        return CommandBus.builder().milkySupport(milkySupport)
+                .repositories(milkyRepositories).configuration(milkyConfiguration).init();
     }
 
     @Bean
@@ -54,8 +71,8 @@ public class DomainSupportAutoConfiguration {
     public ExecutorService asyncExecutorService(List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
 
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error("", e))
-                .setNameFormat("async-event-handler-url-thread-%d")
+                .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error(e.getMessage(), e))
+                .setNameFormat("async-thread-%d")
                 .build();
 
         AsyncExecutorConfiguration configuration = AsyncExecutorConfiguration.builder()
