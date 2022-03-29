@@ -33,7 +33,8 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     public CommandBus commandBus(MilkySupport support, MilkyRepositories repositories, MilkyConfiguration configuration) {
-        return CommandBus.builder().milkySupport(support).repositories(repositories).configuration(configuration).init();
+        return CommandBus.builder().milkySupport(support)
+                .repositories(repositories).configuration(configuration).init();
     }
 
     @Bean
@@ -42,7 +43,6 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
     BeanLoader beanLoader(ApplicationContext applicationContext) {
         BeanLoaderImpl beanLoader = new BeanLoaderImpl(applicationContext);
         BeanUtils.setBeanLoader(beanLoader);

@@ -34,4 +34,5 @@ public class BeanLoaderImpl implements BeanLoader {
     public Object getBean(String beanName) {
         return applicationContext.getBean(beanName);
     }
+
 }
