@@ -306,7 +306,7 @@ public class CommandBus {
                         .sleepTimeMils(sleepTimeMs)
                         .build();
                 boolean retryResult = concurrentOperate.tryRetryLock(retryParameter);
-                BizException.falseThrow(retryResult, () -> CONCURRENCY_VIOLATION.message(Json.toJson(command)));
+                BizException.falseThrow(retryResult, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doRoute(command, context, commandHandler);
             }
             tLContext.get().clearDependencies();
