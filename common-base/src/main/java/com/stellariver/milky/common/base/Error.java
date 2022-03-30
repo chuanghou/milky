@@ -46,8 +46,8 @@ public class Error {
         return new Error(code, "undefined");
     }
 
-    public Error message(Object message) {
-        return this.toBuilder().message(Objects.toString(message)).build();
+    public Error message(String message) {
+        return this.toBuilder().message(message).build();
     }
 
     public CodeBuilder toBuilder() {
