@@ -138,6 +138,16 @@ public class Runner {
         throw new SysException("unreached part!");
     }
 
+    static public <R> R call(SCallable<R> callable) {
+        Option<R, Object> option = Option.<R, Object>builder().build();
+        return call(option, callable);
+    }
+
+    static public <R> R logCall(SCallable<R> callable) {
+        Option<R, Object> option = Option.<R, Object>builder().withLog(true).build();
+        return call(option, callable);
+    }
+
     @SneakyThrows
     static public <R> R call(Option<R, ?> option, SCallable<R> callable) {
         SysException.trueThrow(option.getCheck() != null,  ErrorEnumBase.CONFIG_ERROR);
