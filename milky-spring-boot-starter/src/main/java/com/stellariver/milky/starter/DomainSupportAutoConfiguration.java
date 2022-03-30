@@ -60,7 +60,7 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ExecutorService asyncExecutorService(List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
+    public AsyncExecutorService asyncExecutorService(List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
 
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error(e.getMessage(), e))
