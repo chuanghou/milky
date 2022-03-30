@@ -5,6 +5,7 @@ import lombok.ToString;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @ToString
 public class Error {
@@ -44,6 +45,10 @@ public class Error {
 
     static public Error code(String code) {
         return new Error(code, "undefined");
+    }
+
+    public Error message(Supplier<String> supplier) {
+        return this.toBuilder().message(supplier.get()).build();
     }
 
     public Error message(String message) {
