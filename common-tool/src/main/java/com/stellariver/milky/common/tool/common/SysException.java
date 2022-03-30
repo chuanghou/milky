@@ -58,15 +58,15 @@ public class SysException extends RuntimeException {
         }
     }
 
-    static public void trueThrow(boolean test, Supplier<String> supplier) {
+    static public void trueThrow(boolean test, Object object) {
         if (test) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(supplier.get()));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(Objects.toString(object)));
         }
     }
 
-    static public void falseThrow(boolean test, Supplier<String> supplier) {
+    static public void falseThrow(boolean test,  Object object) {
         if (!test) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(supplier.get()));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(Objects.toString(object)));
         }
     }
 }

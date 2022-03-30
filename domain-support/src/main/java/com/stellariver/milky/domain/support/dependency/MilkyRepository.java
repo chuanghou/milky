@@ -8,7 +8,6 @@ import java.util.Map;
 
 public interface MilkyRepository {
 
-
     void insert(Invocation invocation, Map<String, Object> metaData);
 
     void batchInsert(List<Message> messages, Map<String, Object> metaData);
