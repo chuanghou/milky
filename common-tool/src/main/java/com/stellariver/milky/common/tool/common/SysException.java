@@ -1,6 +1,7 @@
 package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.base.Error;
+import com.stellariver.milky.common.tool.util.Json;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -60,13 +61,13 @@ public class SysException extends RuntimeException {
 
     static public void trueThrow(boolean test, Object object) {
         if (test) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(Objects.toString(object)));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(Json.toJson(object)));
         }
     }
 
     static public void falseThrow(boolean test,  Object object) {
         if (!test) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(Objects.toString(object)));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(Json.toJson(object)));
         }
     }
 }

@@ -113,7 +113,7 @@ public class Runner {
             try {
                 result = callable.call();
                 R finalResult = result;
-                SysException.falseThrow(option.getCheck().apply(result), () -> Json.toJson(finalResult));
+                SysException.falseThrow(option.getCheck().apply(result), finalResult);
                 return option.getTransfer().apply(callable.call());
             } catch (Throwable throwable) {
                 if (throwable instanceof InvocationTargetException) {

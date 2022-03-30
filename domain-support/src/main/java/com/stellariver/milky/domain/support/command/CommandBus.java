@@ -236,7 +236,7 @@ public class CommandBus {
             DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method);
             Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
             SysException.trueThrow(valueProviderMap.containsKey(key),
-                    () -> "对于" + commandClass.getName() + "对于" + key + "提供了两个dependencyProvider");
+                    "对于" + commandClass.getName() + "对于" + key + "提供了两个dependencyProvider");
             valueProviderMap.put(key, dependencyProvider);
         });
 
@@ -312,7 +312,7 @@ public class CommandBus {
             tLContext.get().clearDependencies();
         } finally {
             boolean unlock = concurrentOperate.unlock(command.getAggregateId(), encryptionKey);
-            SysException.falseThrow(unlock, () -> "unlock " + command.getAggregateId() + " failure!");
+            SysException.falseThrow(unlock, "unlock " + command.getAggregateId() + " failure!");
         }
         Event event = context.popEvent();
         while (event != null) {
@@ -364,7 +364,7 @@ public class CommandBus {
     private <T extends Command> void invokeDependencyProvider(T command, String key, Context context,
                                                               Map<String, DependencyProvider> providers,
                                                               Set<String> referKeys) {
-        SysException.trueThrow(referKeys.contains(key), () -> "required key " + key + "circular reference!");
+        SysException.trueThrow(referKeys.contains(key), "required key " + key + "circular reference!");
         referKeys.add(key);
         DependencyProvider valueProvider = providers.get(key);
         SysException.nullThrow(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
