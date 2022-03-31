@@ -7,12 +7,12 @@ import lombok.ToString;
 @Data
 @ToString
 @AllArgsConstructor
-public class Operator {
+public class Employee {
 
     private String id;
 
     private String name;
 
-    public static final Operator system = new Operator("system", "system");
+    public static final Employee system = new Employee("system", "system");
 
 }
