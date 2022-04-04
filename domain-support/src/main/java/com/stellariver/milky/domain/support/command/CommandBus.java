@@ -165,7 +165,7 @@ public class CommandBus {
             Method saveMethod = methods.get(0);
             Class<?> aggregateClazz = saveMethod.getParameterTypes()[0];
             Class<?> repositoryClazz = bean.getClass();
-            Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class);
+            Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
             Method updateMethod = getMethod(repositoryClazz,"updateByAggregateId", aggregateClazz, Context.class);
             SysException.nullThrow(getMethod, updateMethod);
             Repository repository = new Repository(bean, getMethod, saveMethod, updateMethod);
@@ -355,7 +355,7 @@ public class CommandBus {
             aggregate = optional.orElseThrow(() -> new SysException("aggregateId: " + command.getAggregateId() + " not exists!"));
             result = Runner.invoke(aggregate, commandHandler.method, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::isAggregateChange);
-            If.isTrue(present, () -> Runner.invoke(repository.bean, repository.saveMethod, aggregate, context));
+            If.isTrue(present, () -> Runner.invoke(repository.bean, repository.updateMethod, aggregate, context));
         }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
                 .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context)));

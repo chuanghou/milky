@@ -1,7 +1,9 @@
 package com.stellariver.milky.demo.domain.item;
 
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
+import com.stellariver.milky.demo.domain.item.command.ItemUpdateCommand;
 import com.stellariver.milky.demo.domain.item.event.ItemCreatedEvent;
+import com.stellariver.milky.demo.domain.item.event.ItemTitleChangedEvent;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.command.CommandHandler;
 import com.stellariver.milky.domain.support.context.Context;
@@ -26,6 +28,15 @@ public class Item extends AggregateRoot {
         this.itemId = command.getItemId();
         this.title = command.getTitle();
         context.publish(ItemCreatedEvent.builder().itemId(itemId).build());
+    }
+
+    @CommandHandler
+    public void handle(ItemUpdateCommand command, Context context) {
+        String originalTitle = this.title;
+        this.title = command.getNewTitle();
+        ItemTitleChangedEvent event = ItemTitleChangedEvent.builder()
+                .itemId(itemId).oldTitle(originalTitle).newTitle(this.title).build();
+        context.publish(event);
     }
 
     @Override

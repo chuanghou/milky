@@ -23,11 +23,14 @@ public class ItemDomainRepository implements DomainRepository<Item> {
     }
 
     @Override
-    public Optional<Item> getByAggregateId(String aggregateId) {
+    public Optional<Item> getByAggregateId(String aggregateId, Context context) {
         Long itemId = Long.valueOf(aggregateId);
         ItemDO itemDO = itemDOMapper.selectById(itemId);
-        Item item = Item.builder().itemId(itemDO.getItemId()).title(itemDO.getTitle()).build();
-        return Optional.of(item);
+        if (itemDO != null) {
+            Item item = Item.builder().itemId(itemDO.getItemId()).title(itemDO.getTitle()).build();
+            return Optional.of(item);
+        }
+        return Optional.empty();
     }
 
     @Override

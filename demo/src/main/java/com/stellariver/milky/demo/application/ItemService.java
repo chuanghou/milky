@@ -1,9 +1,13 @@
 package com.stellariver.milky.demo.application;
 
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.common.base.Result;
+import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
+import com.stellariver.milky.demo.domain.item.command.ItemUpdateCommand;
+import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
@@ -15,6 +19,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
+
+import static com.stellariver.milky.demo.basic.ErrorEnum.ITEM_NOT_EXIST;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +29,8 @@ import java.util.Map;
 public class ItemService {
 
     CommandBus commandBus;
+
+    ItemRepository itemRepository;
 
     public Item publishItem(String title) {
         IdBuilder idBuilder = BeanUtil.getBean(IdBuilder.class);
@@ -34,4 +43,15 @@ public class ItemService {
         return (Item) commandBus.send(command, context);
     }
 
+
+    public void changeTitle(Long itemId, String newTitle, Employee operator) {
+        Optional<Item> itemOptional = itemRepository.getByItemId(itemId);
+        BizException.trueThrow(!itemOptional.isPresent(), ITEM_NOT_EXIST.message("找不到相应item，itemId:" + itemId));
+        ItemUpdateCommand command = ItemUpdateCommand.builder().itemId(itemId).newTitle(newTitle).build();
+        Map<String, Object> parameters = StreamMap.<String, Object>init().put("newTitle", newTitle)
+                .put("operator", operator)
+                .getMap();
+        Context context = Context.fromParameters(parameters);
+        commandBus.send(command, context);
+    }
 }

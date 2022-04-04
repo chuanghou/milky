@@ -8,7 +8,7 @@ public interface DomainRepository<T> {
 
     void save(T t, Context context);
 
-    Optional<T> getByAggregateId(String aggregateId);
+    Optional<T> getByAggregateId(String aggregateId, Context context);
 
     void updateByAggregateId(T t, Context context);
 
