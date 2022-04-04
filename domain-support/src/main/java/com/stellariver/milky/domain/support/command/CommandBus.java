@@ -6,7 +6,6 @@ import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnum;
-import com.stellariver.milky.domain.support.invocation.Invocation;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.context.Context;
@@ -21,7 +20,7 @@ import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.dependency.DomainRepository;
-import com.stellariver.milky.domain.support.dependency.MilkyRepository;
+import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -65,7 +64,7 @@ public class CommandBus {
 
     private boolean enableMq;
 
-    private MilkyRepository milkyRepository;
+    private TraceRepository traceRepository;
 
     private AsyncExecutorService asyncExecutorService;
 
@@ -78,7 +77,7 @@ public class CommandBus {
     public CommandBus milkySupport(MilkySupport milkySupport) {
         this.eventBus = milkySupport.getEventBus();
         this.concurrentOperate = milkySupport.getConcurrentOperate();
-        this.milkyRepository = milkySupport.getMilkyRepository();
+        this.traceRepository = milkySupport.getTraceRepository();
         this.asyncExecutorService = milkySupport.getAsyncExecutorService();
         return this;
     }
@@ -161,6 +160,7 @@ public class CommandBus {
             List<Method> methods = Arrays.stream(bean.getClass().getMethods())
                     .filter(m -> Objects.equals(m.getName(), "save"))
                     .filter(m -> m.getParameterTypes().length == 2)
+                    .filter(m -> m.getParameterTypes()[0] != Object.class)
                     .collect(Collectors.toList());
             Method saveMethod = methods.get(0);
             Class<?> aggregateClazz = saveMethod.getParameterTypes()[0];
@@ -254,20 +254,21 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    public <T extends Command> Object send(T command, Context context, Invocation invocation) {
+    public <T extends Command> Object send(T command, Context context) {
         Object result;
         tLContext.set(context);
-        Long invocationId = invocation.getInvocationId();
+        Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
         command.setInvokeTrace(invokeTrace);
         try {
             result = route(command);
             context.getProcessedEvents().forEach(event -> eventBus.asyncRoute(event, context));
             Map<String, Object> metaData = context.getMetaData();
+            Map<String, Object> parameters = context.getParameters();
             List<Message> recordedMessages = context.getRecordedMessages();
             asyncExecutorService.execute(() -> {
-                milkyRepository.insert(invocation, metaData);
-                milkyRepository.batchInsert(recordedMessages, metaData);
+                traceRepository.insert(invocationId, parameters);
+                traceRepository.batchInsert(recordedMessages, metaData);
             });
         } finally {
             tLContext.remove();
@@ -283,7 +284,7 @@ public class CommandBus {
     public <T extends Command> Object route(T command) {
         SysException.nullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());
-        SysException.nullThrow(commandHandler, HANDLER_NOT_EXIST.message(Json.toJson(command)));
+        SysException.isNullThrow(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
         Context context = tLContext.get();
         if (command.getInvokeTrace() == null) {
@@ -316,7 +317,7 @@ public class CommandBus {
         }
         Event event = context.popEvent();
         while (event != null) {
-            event.setInvokeTrace(InvokeTrace.build(event));
+            event.setInvokeTrace(InvokeTrace.build(command));
             Event finalEvent = event;
             Runner.run(() -> eventBus.syncRoute(finalEvent, tLContext.get()));
             event = context.popEvent();

@@ -3,7 +3,9 @@ package com.stellariver.milky.domain.support.context;
 
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.domain.support.base.Message;
+import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.event.Event;
+import com.stellariver.milky.domain.support.util.BeanUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,6 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Context{
+
+    private Map<String, Object> parameters;
+
+    private Long invocationId;
 
     private final Map<String, Object> metaData = new HashMap<>();
 
@@ -85,8 +91,21 @@ public class Context{
         return events.get(0);
     }
 
+    public static Context fromParameters(Map<String, Object> parameters) {
+        Context context = new Context();
+        context.parameters = new HashMap<>(parameters);
+        context.invocationId = BeanUtil.getBean(IdBuilder.class).build();
+        parameters.forEach(context::putMetaData);
+        return context;
+    }
 
+    public Long getInvocationId() {
+        return invocationId;
+    }
 
+    public Map<String, Object> getParameters() {
+        return new HashMap<>(parameters);
+    }
 }
 
 

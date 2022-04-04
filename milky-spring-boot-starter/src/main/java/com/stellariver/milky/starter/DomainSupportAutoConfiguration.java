@@ -8,7 +8,7 @@ import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
-import com.stellariver.milky.domain.support.dependency.MilkyRepository;
+import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
 import com.stellariver.milky.domain.support.util.AsyncExecutorService;
 import com.stellariver.milky.domain.support.event.EventBus;
@@ -34,8 +34,8 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     public MilkySupport milkySupport(ConcurrentOperate concurrentOperate, EventBus eventBus,
-                                     MilkyRepository milkyRepository, AsyncExecutorService asyncExecutorService) {
-        return new MilkySupport(concurrentOperate, eventBus, milkyRepository, asyncExecutorService);
+                                     TraceRepository traceRepository, AsyncExecutorService asyncExecutorService) {
+        return new MilkySupport(concurrentOperate, eventBus, traceRepository, asyncExecutorService);
     }
 
 

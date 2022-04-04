@@ -41,7 +41,7 @@ public class SysException extends RuntimeException {
         }
     }
 
-    static public void nullThrow(Object param, Supplier<Error> supplier) {
+    static public void isNullThrow(Object param, Supplier<Error> supplier) {
         if (param == null) {
             throw new SysException(supplier.get());
         }

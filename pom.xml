@@ -18,6 +18,7 @@
         <module>milky-spring-boot-starter</module>
         <module>spring-partner</module>
         <module>milky-dependencies</module>
+        <module>demo</module>
     </modules>
 
     <properties>
@@ -48,6 +49,11 @@
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
                 <artifactId>common-tool</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
+                <artifactId>milky-spring-boot-starter</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>

@@ -6,9 +6,9 @@ import com.stellariver.milky.domain.support.invocation.Invocation;
 import java.util.List;
 import java.util.Map;
 
-public interface MilkyRepository {
+public interface TraceRepository {
 
-    void insert(Invocation invocation, Map<String, Object> metaData);
+    void insert(Long invocationId, Map<String, Object> parameters);
 
     void batchInsert(List<Message> messages, Map<String, Object> metaData);
 

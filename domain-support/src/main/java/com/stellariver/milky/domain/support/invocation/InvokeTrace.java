@@ -10,9 +10,11 @@ public class InvokeTrace {
 
     private Long invocationId;
 
-    private Long lastTriggerId;
+    private Long triggerId;
 
     static public InvokeTrace build(Message message) {
-        return new InvokeTrace(message.getInvokeTrace().getInvocationId(), message.getId());
+        Long messageId = message.getId();
+        Long invocationId = message.getInvokeTrace().getInvocationId();
+        return new InvokeTrace(invocationId, messageId);
     }
 }

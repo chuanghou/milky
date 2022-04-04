@@ -2,7 +2,8 @@ package com.stellariver.milky.starter;
 
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
-import com.stellariver.milky.domain.support.dependency.MilkyRepository;
+import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
+import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.dependency.DomainRepository;
@@ -48,8 +49,9 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         scanner.addIncludeFilter(new AssignableTypeFilter(EventRouters.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(DomainRepository.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BusInterceptors.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(MilkyRepository.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(TraceRepository.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ThreadLocalPasser.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(ConcurrentOperate.class) );
         scanner.scan(scanPackages);
     }
 }
