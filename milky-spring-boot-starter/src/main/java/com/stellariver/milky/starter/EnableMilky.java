@@ -11,6 +11,6 @@ import java.lang.annotation.*;
 @Import({DomainSupportDefinitionRegistrar.class, DomainSupportAutoConfiguration.class})
 public @interface EnableMilky {
 
-    String[] scanPackages();
+    String[] value();
 
 }

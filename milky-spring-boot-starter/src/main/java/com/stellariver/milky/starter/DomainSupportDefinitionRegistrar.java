@@ -37,7 +37,7 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         if (enableMilky == null) {
             return;
         }
-        String[] scanPackages = Arrays.stream(enableMilky.getStringArray("scanPackages"))
+        String[] scanPackages = Arrays.stream(enableMilky.getStringArray("value"))
                 .filter(StringUtils::hasText).toArray(String[]::new);
         BeanDefinitionBuilder scanPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(MilkyScanPackages.class);
         scanPackagesBeanBuilder.addPropertyValue("scanPackages", scanPackages);
