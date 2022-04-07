@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo.adapter.repository;
 
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.demo.domain.item.command.ItemUpdateCommand;
 import com.stellariver.milky.demo.infrastructure.database.InvocationStoreDO;
 import com.stellariver.milky.demo.infrastructure.database.InvocationStoreMapper;
 import com.stellariver.milky.demo.infrastructure.database.MessageStoreDO;
@@ -42,5 +43,13 @@ public class TraceRepositoryImpl implements TraceRepository {
                      .build()
                  )
                  .forEach(messageStoreMapper::insert);
+    }
+
+    public static void main(String[] args) {
+        String command = "test";
+        System.out.println(command.getClass().getSimpleName());
+        System.out.println(command.getClass().getCanonicalName());
+        System.out.println(command.getClass().getTypeName());
+        System.out.println(command.getClass().getName());
     }
 }

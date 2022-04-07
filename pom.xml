@@ -78,6 +78,11 @@
                 <artifactId>guava</artifactId>
                 <version>30.1.1-jre</version>
             </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib-nodep</artifactId>
+                <version>3.3.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
