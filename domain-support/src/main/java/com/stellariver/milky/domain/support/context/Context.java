@@ -16,8 +16,6 @@ import java.util.Map;
 
 public class Context{
 
-    private Map<String, Object> parameters;
-
     private Long invocationId;
 
     private final Map<String, Object> metaData = new HashMap<>();
@@ -93,7 +91,6 @@ public class Context{
 
     public static Context fromParameters(Map<String, Object> parameters) {
         Context context = new Context();
-        context.parameters = new HashMap<>(parameters);
         context.invocationId = BeanUtil.getBean(IdBuilder.class).build();
         parameters.forEach(context::putMetaData);
         return context;
@@ -103,9 +100,6 @@ public class Context{
         return invocationId;
     }
 
-    public Map<String, Object> getParameters() {
-        return new HashMap<>(parameters);
-    }
 }
 
 
