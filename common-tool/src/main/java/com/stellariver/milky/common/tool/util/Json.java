@@ -12,10 +12,13 @@ import java.util.Map;
 @Slf4j
 public class Json {
 
-    private static final ObjectMapper MAPPER = JsonMapper.builder()
-            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-            .configure(MapperFeature.AUTO_DETECT_FIELDS, true)
-            .build();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    static {
+        MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        MAPPER.configure(MapperFeature.AUTO_DETECT_FIELDS,true);
+    }
 
     @SneakyThrows
     public static String toJson(Object target) {
