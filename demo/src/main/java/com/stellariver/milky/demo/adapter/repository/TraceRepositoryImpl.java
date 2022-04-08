@@ -26,7 +26,7 @@ public class TraceRepositoryImpl implements TraceRepository {
 
     @Override
     public void insert(Long invocationId, Context context) {
-        Employee operator = (Employee) context.getParameters().get("operator");
+        Employee operator = (Employee) context.getMetaData().get("operator");
         InvocationStoreDO invocationStoreDO = InvocationStoreDO.builder().id(invocationId)
                 .operatorId(operator.getId())
                 .operatorName(operator.getName())

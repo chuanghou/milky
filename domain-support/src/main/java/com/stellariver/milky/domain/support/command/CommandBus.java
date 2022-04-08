@@ -254,8 +254,9 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    public <T extends Command> Object send(T command, Context context) {
+    public <T extends Command> Object send(T command, Map<String, Object> parameters) {
         Object result;
+        Context context = Context.fromParameters(parameters);
         tLContext.set(context);
         Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);

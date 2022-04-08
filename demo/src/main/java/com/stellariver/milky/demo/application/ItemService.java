@@ -39,8 +39,7 @@ public class ItemService {
         Map<String, Object> parameters = StreamMap.<String, Object>init().put("title", title)
                 .put("operator", Employee.system)
                 .getMap();
-        Context context = Context.fromParameters(parameters);
-        return (Item) commandBus.send(command, context);
+        return (Item) commandBus.send(command, parameters);
     }
 
 
@@ -51,7 +50,6 @@ public class ItemService {
         Map<String, Object> parameters = StreamMap.<String, Object>init().put("newTitle", newTitle)
                 .put("operator", operator)
                 .getMap();
-        Context context = Context.fromParameters(parameters);
-        commandBus.send(command, context);
+        commandBus.send(command, parameters);
     }
 }
