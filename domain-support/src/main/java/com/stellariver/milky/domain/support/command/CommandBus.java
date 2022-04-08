@@ -263,12 +263,10 @@ public class CommandBus {
         try {
             result = route(command);
             context.getProcessedEvents().forEach(event -> eventBus.asyncRoute(event, context));
-            Map<String, Object> metaData = context.getMetaData();
-            Map<String, Object> parameters = context.getParameters();
             List<Message> recordedMessages = context.getRecordedMessages();
             asyncExecutorService.execute(() -> {
-                traceRepository.insert(invocationId, parameters);
-                traceRepository.batchInsert(recordedMessages, metaData);
+                traceRepository.insert(invocationId, context);
+                traceRepository.batchInsert(recordedMessages, context);
             });
         } finally {
             tLContext.remove();

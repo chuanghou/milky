@@ -7,6 +7,7 @@ import com.stellariver.milky.demo.infrastructure.database.InvocationStoreMapper;
 import com.stellariver.milky.demo.infrastructure.database.MessageStoreDO;
 import com.stellariver.milky.demo.infrastructure.database.MessageStoreMapper;
 import com.stellariver.milky.domain.support.base.Message;
+import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,8 @@ public class TraceRepositoryImpl implements TraceRepository {
     MessageStoreMapper messageStoreMapper;
 
     @Override
-    public void insert(Long invocationId, Map<String, Object> parameters) {
-        Employee operator = (Employee) parameters.get("operator");
+    public void insert(Long invocationId, Context context) {
+        Employee operator = (Employee) context.getParameters().get("operator");
         InvocationStoreDO invocationStoreDO = InvocationStoreDO.builder().id(invocationId)
                 .operatorId(operator.getId())
                 .operatorName(operator.getName())
@@ -34,7 +35,7 @@ public class TraceRepositoryImpl implements TraceRepository {
     }
 
     @Override
-    public void batchInsert(List<Message> messages, Map<String, Object> metaData) {
+    public void batchInsert(List<Message> messages, Context context) {
          messages.stream().map(m -> MessageStoreDO.builder().id(m.getId())
                      .aggregateId(m.getAggregateId())
                      .className(m.getClass().getName())
