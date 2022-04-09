@@ -29,9 +29,7 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -157,14 +155,14 @@ public class CommandBus {
     private void prepareRepositories() {
         List<DomainRepository> repositories = BeanUtil.getBeansOfType(DomainRepository.class);
         repositories.forEach(bean -> {
-            List<Method> methods = Arrays.stream(bean.getClass().getMethods())
-                    .filter(m -> Objects.equals(m.getName(), "save"))
-                    .filter(m -> m.getParameterTypes().length == 2)
-                    .filter(m -> m.getParameterTypes()[0] != Object.class)
-                    .collect(Collectors.toList());
-            Method saveMethod = methods.get(0);
-            Class<?> aggregateClazz = saveMethod.getParameterTypes()[0];
+            Optional<Type> optional = Arrays.stream(bean.getClass().getGenericInterfaces())
+                    .map(i -> (ParameterizedType) i)
+                    .filter(t -> Objects.equals(t.getRawType(), DomainRepository.class))
+                    .map(t -> t.getActualTypeArguments()[0]).findFirst();
+            SysException.falseThrow(optional.isPresent(), ErrorEnum.CONFIG_ERROR);
+            Class<?> aggregateClazz = (Class<?>) optional.get();
             Class<?> repositoryClazz = bean.getClass();
+            Method saveMethod = getMethod(repositoryClazz,"save", aggregateClazz, Context.class);
             Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
             Method updateMethod = getMethod(repositoryClazz,"updateByAggregateId", aggregateClazz, Context.class);
             SysException.nullThrow(getMethod, updateMethod);
