@@ -1,6 +1,7 @@
 package com.stellariver.milky.common.tool.common;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -39,8 +40,8 @@ public class SystemClock {
         return instance().currentTimeMillis();
     }
 
-    public static String nowDate() {
-        return new Timestamp(instance().currentTimeMillis()).toString();
+    public static Date date() {
+        return new Date(instance().currentTimeMillis());
     }
 
     private void scheduleClockUpdating() {

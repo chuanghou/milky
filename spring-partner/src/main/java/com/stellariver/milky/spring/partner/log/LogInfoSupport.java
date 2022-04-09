@@ -23,17 +23,18 @@ public class LogInfoSupport {
     @Around("pointCut()")
     public Object log(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         Object result = null;
-        long startTime = SystemClock.now();
+        Date startTime = SystemClock.date();
+        long start = SystemClock.now();
         AspectTool.MethodInfo methodInfo = AspectTool.methodInfo(proceedingJoinPoint);
         try {
             result = proceedingJoinPoint.proceed();
         } finally {
-            long endTime = SystemClock.now();
+            Date endTime = SystemClock.date();
             LogInfo logInfo = methodInfo.getMethod().getAnnotation(LogInfo.class);
             String logTag = logInfo.logTag().equals("default") ? methodInfo.methodReference() : logInfo.logTag();
             log.with("methodInfo", methodInfo).with("startTime", startTime)
                     .with("result", result).with("endTime", endTime)
-                    .with("cost", endTime - startTime)
+                    .with("cost", SystemClock.now() - start)
                     .withLogTag(logTag)
                     .info("");
         }
