@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.SysException;
+import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.base.Message;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.event.Event;
@@ -33,6 +34,12 @@ public class Context{
     }
 
     public void putMetaData(String key, Object value) {
+        SysException.trueThrowGetError(metaData.containsKey(key),
+                () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
+        metaData.put(key, value);
+    }
+
+    public void replaceMetaData(String key, Object value) {
         metaData.put(key, value);
     }
 

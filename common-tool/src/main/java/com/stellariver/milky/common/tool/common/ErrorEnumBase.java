@@ -15,6 +15,8 @@ public class ErrorEnumBase {
 
     public static final Error CONFIG_ERROR = Error.code("CONFIG_ERROR").message("配置错误");
 
+    public static final Error META_DATA_DUPLICATE_KEY = Error.code("META_DATA_DUPLICATE_KEY");
+
     public static final Error CONCURRENCY_VIOLATION = Error.code("CONCURRENCY_VIOLATION").message("并发操作失败");
 
     public static Error message(Supplier<String> supplier) {

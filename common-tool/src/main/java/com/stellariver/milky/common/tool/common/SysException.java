@@ -47,6 +47,12 @@ public class SysException extends RuntimeException {
         }
     }
 
+    static public void trueThrowGetError(boolean test, Supplier<Error> supplier) {
+        if (test) {
+            throw new SysException(supplier.get());
+        }
+    }
+
     static public void trueThrow(boolean test, Error error) {
         if (test) {
             throw new SysException(error);
@@ -56,6 +62,12 @@ public class SysException extends RuntimeException {
     static public void falseThrow(boolean test, Error error) {
         if (!test) {
             throw new SysException(error);
+        }
+    }
+
+    static public void trueThrowGetMessage(boolean test, Supplier<Object> supplier) {
+        if (test) {
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(Json.toJson(supplier.get())));
         }
     }
 
