@@ -1,5 +1,6 @@
 package com.stellariver.milky.spring.partner.log;
 
+import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.spring.partner.AspectTool;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -22,17 +23,17 @@ public class LogInfoSupport {
     @Around("pointCut()")
     public Object log(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         Object result = null;
-        Date startTime = new Date();
+        long startTime = SystemClock.now();
         AspectTool.MethodInfo methodInfo = AspectTool.methodInfo(proceedingJoinPoint);
         try {
             result = proceedingJoinPoint.proceed();
         } finally {
-            Date endTime = new Date();
+            long endTime = SystemClock.now();
             LogInfo logInfo = methodInfo.getMethod().getAnnotation(LogInfo.class);
             String logTag = logInfo.logTag().equals("default") ? methodInfo.methodReference() : logInfo.logTag();
             log.with("methodInfo", methodInfo).with("startTime", startTime)
                     .with("result", result).with("endTime", endTime)
-                    .with("cost", endTime.getTime() - startTime.getTime())
+                    .with("cost", endTime - startTime)
                     .withLogTag(logTag)
                     .info("");
         }
