@@ -53,10 +53,6 @@ public class Context{
         metaDatas.put(key, value);
     }
 
-    public Map<String, Object> getMetaDatas() {
-        return new HashMap<>(metaDatas);
-    }
-
     public Object getDependency(String key) {
         return dependencies.get(key);
     }

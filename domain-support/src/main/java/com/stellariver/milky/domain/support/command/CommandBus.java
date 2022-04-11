@@ -127,9 +127,9 @@ public class CommandBus {
         // according to inherited relation to collect final command interceptors map, all ancestor interceptor
         tempInterceptorsMap.forEach((commandClass, tempInterceptors) -> {
             List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass)
-                    .stream().filter(c -> c.isAssignableFrom(Command.class)).collect(Collectors.toList());
+                    .stream().filter(Command.class::isAssignableFrom).collect(Collectors.toList());
             ancestorClasses.forEach(ancestor -> {
-                List<Interceptor> ancestorInterceptors = tempInterceptorsMap.get(ancestor);
+                List<Interceptor> ancestorInterceptors = Optional.ofNullable(tempInterceptorsMap.get(ancestor)).orElseGet(ArrayList::new);
                 finalInterceptorsMap.computeIfAbsent(commandClass, c -> new ArrayList<>()).addAll(ancestorInterceptors);
             });
         });
@@ -197,7 +197,8 @@ public class CommandBus {
             CommandHandler annotation = method.getAnnotation(CommandHandler.class);
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
             String name = method.getName();
-            SysException.trueThrow(Objects.equals(name, "handle"), ErrorEnum.CONFIG_ERROR.message("command handler's name should be handle"));
+            SysException.trueThrow(!Objects.equals(name, "handle"),
+                    ErrorEnum.CONFIG_ERROR.message("command handler's name should be handle, not " + name));
             boolean hasReturn = !method.getReturnType().getName().equals("void");
             List<String> requiredKeys = Arrays.asList(annotation.dependencyKeys());
             Handler handler = new Handler(clazz, method, null, hasReturn, requiredKeys);

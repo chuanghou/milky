@@ -24,10 +24,11 @@ public class TraceRepositoryImpl implements TraceRepository {
 
     @Override
     public void insert(Long invocationId, Context context) {
-        Employee operator = (Employee) context.getMetaDatas().get("operator");
+        Employee operator = (Employee) context.getMetaData("operator");
         InvocationStoreDO invocationStoreDO = InvocationStoreDO.builder().id(invocationId)
                 .operatorId(operator.getId())
                 .operatorName(operator.getName())
+                .operatorSource((String) context.getMetaData("operatorSource"))
                 .build();
         invocationStoreMapper.insert(invocationStoreDO);
     }
@@ -44,11 +45,4 @@ public class TraceRepositoryImpl implements TraceRepository {
                  .forEach(messageStoreMapper::insert);
     }
 
-    public static void main(String[] args) {
-        String command = "test";
-        System.out.println(command.getClass().getSimpleName());
-        System.out.println(command.getClass().getCanonicalName());
-        System.out.println(command.getClass().getTypeName());
-        System.out.println(command.getClass().getName());
-    }
 }

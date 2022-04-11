@@ -76,9 +76,10 @@ public class EventBus {
         // according to inherited relation to collect final command interceptors map, all ancestor interceptor
         tempInterceptorsMap.forEach((eventClass, tempInterceptors) -> {
             List<Class<? extends Event>> ancestorClasses = Reflect.ancestorClasses(eventClass)
-                    .stream().filter(c -> c.isAssignableFrom(Event.class)).collect(Collectors.toList());
+                    .stream().filter(Event.class::isAssignableFrom).collect(Collectors.toList());
             ancestorClasses.forEach(ancestor -> {
-                List<Interceptor> ancestorInterceptors = tempInterceptorsMap.get(ancestor);
+                List<Interceptor> ancestorInterceptors =
+                        Optional.ofNullable(tempInterceptorsMap.get(ancestor)).orElseGet(ArrayList::new);
                 finalInterceptorsMap.computeIfAbsent(eventClass, c -> new ArrayList<>()).addAll(ancestorInterceptors);
             });
         });
