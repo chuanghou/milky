@@ -19,7 +19,9 @@ public class Context{
 
     private Long invocationId;
 
-    private final Map<String, Object> metaData = new HashMap<>();
+    private final Map<String, Object> parameters = new HashMap<>();
+
+    private final Map<String, Object> metaDatas = new HashMap<>();
 
     private final Map<String, Object> dependencies = new HashMap<>();
 
@@ -30,21 +32,29 @@ public class Context{
     private final List<Message> recordedMessages = new ArrayList<>();
 
     public Object getMetaData(String key) {
-        return metaData.get(key);
+        Object metaData = parameters.get(key);
+        if (metaData == null) {
+             metaData = metaDatas.get(key);
+        }
+        return metaData;
     }
 
     public void putMetaData(String key, Object value) {
-        SysException.trueThrowGetError(metaData.containsKey(key),
+        SysException.trueThrowGetError(parameters.containsKey(key),
+                () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message("parameters include this key"));
+        SysException.trueThrowGetError(metaDatas.containsKey(key),
                 () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
-        metaData.put(key, value);
+        metaDatas.put(key, value);
     }
 
     public void replaceMetaData(String key, Object value) {
-        metaData.put(key, value);
+        SysException.trueThrowGetError(parameters.containsKey(key),
+                () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message("parameters include this key"));
+        metaDatas.put(key, value);
     }
 
-    public Map<String, Object> getMetaData() {
-        return new HashMap<>(metaData);
+    public Map<String, Object> getMetaDatas() {
+        return new HashMap<>(metaDatas);
     }
 
     public Object getDependency(String key) {
@@ -99,7 +109,7 @@ public class Context{
     public static Context fromParameters(Map<String, Object> parameters) {
         Context context = new Context();
         context.invocationId = BeanUtil.getBean(IdBuilder.class).build();
-        parameters.forEach(context::putMetaData);
+        context.parameters.putAll(parameters);
         return context;
     }
 

@@ -1,7 +1,6 @@
 package com.stellariver.milky.demo.adapter.repository;
 
 import com.stellariver.milky.common.base.Employee;
-import com.stellariver.milky.demo.domain.item.command.ItemUpdateCommand;
 import com.stellariver.milky.demo.infrastructure.database.InvocationStoreDO;
 import com.stellariver.milky.demo.infrastructure.database.InvocationStoreMapper;
 import com.stellariver.milky.demo.infrastructure.database.MessageStoreDO;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -26,7 +24,7 @@ public class TraceRepositoryImpl implements TraceRepository {
 
     @Override
     public void insert(Long invocationId, Context context) {
-        Employee operator = (Employee) context.getMetaData().get("operator");
+        Employee operator = (Employee) context.getMetaDatas().get("operator");
         InvocationStoreDO invocationStoreDO = InvocationStoreDO.builder().id(invocationId)
                 .operatorId(operator.getId())
                 .operatorName(operator.getName())
