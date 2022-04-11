@@ -14,7 +14,8 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public abstract class Event extends Message {
 
-    @Builder.Default
-    private boolean aggregateChange = true;
+    public boolean aggregateChanged() {
+        return true;
+    }
 
 }

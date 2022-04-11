@@ -196,10 +196,17 @@ public class CommandBus {
             Class<?>[] parameterTypes = method.getParameterTypes();
             CommandHandler annotation = method.getAnnotation(CommandHandler.class);
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
+            String name = method.getName();
+            SysException.trueThrow(Objects.equals(name, "handle"), ErrorEnum.CONFIG_ERROR.message("command handler's name should be handle"));
             boolean hasReturn = !method.getReturnType().getName().equals("void");
             List<String> requiredKeys = Arrays.asList(annotation.dependencyKeys());
             Handler handler = new Handler(clazz, method, null, hasReturn, requiredKeys);
-            commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
+            Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
+            if (commandHandlers.containsKey(commandType)) {
+                throw new SysException(ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
+            } else {
+                commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
+            }
         });
 
         List<Constructor<?>> constructors = classes.stream().map(Class::getDeclaredConstructors).flatMap(Stream::of)
@@ -212,7 +219,12 @@ public class CommandBus {
             List<String> requiredKeys = Arrays.asList(annotation.dependencyKeys());
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) constructor.getDeclaringClass();
             Handler handler = new Handler(clazz, null, constructor, false, requiredKeys);
-            commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
+            Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
+            if (commandHandlers.containsKey(commandType)) {
+                throw new SysException(ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
+            } else {
+                commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
+            }
         });
     }
 
@@ -351,7 +363,7 @@ public class CommandBus {
                     Runner.invoke(repository.bean, repository.getMethod, command.getAggregateId(), context);
             aggregate = optional.orElseThrow(() -> new SysException("aggregateId: " + command.getAggregateId() + " not exists!"));
             result = Runner.invoke(aggregate, commandHandler.method, command, context);
-            boolean present = context.peekEvents().stream().anyMatch(Event::isAggregateChange);
+            boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
             If.isTrue(present, () -> Runner.invoke(repository.bean, repository.updateMethod, aggregate, context));
         }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
