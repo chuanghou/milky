@@ -3,14 +3,14 @@ package com.stellariver.milky.domain.support.util;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class AsyncExecutorService extends ThreadPoolExecutor {
+public class AsyncExecutor extends ThreadPoolExecutor {
 
     private final List<ThreadLocalPasser<?>> threadLocalPassers;
 
-    public AsyncExecutorService(AsyncExecutorConfiguration configuration,
-                                ThreadFactory threadFactory,
-                                CallerRunsPolicy callerRunsPolicy,
-                                List<ThreadLocalPasser<?>> threadLocalPassers) {
+    public AsyncExecutor(AsyncExecutorConfiguration configuration,
+                         ThreadFactory threadFactory,
+                         CallerRunsPolicy callerRunsPolicy,
+                         List<ThreadLocalPasser<?>> threadLocalPassers) {
         super(configuration.getCorePoolSize(),
                 configuration.getMaximumPoolSize(),
                 configuration.getKeepAliveTimeMinutes(),
@@ -20,9 +20,9 @@ public class AsyncExecutorService extends ThreadPoolExecutor {
         this.threadLocalPassers = threadLocalPassers;
     }
 
-    public AsyncExecutorService(AsyncExecutorConfiguration configuration,
-                                ThreadFactory threadFactory,
-                                List<ThreadLocalPasser<?>> threadLocalPassers) {
+    public AsyncExecutor(AsyncExecutorConfiguration configuration,
+                         ThreadFactory threadFactory,
+                         List<ThreadLocalPasser<?>> threadLocalPassers) {
         this(configuration, threadFactory, new ThreadPoolExecutor.CallerRunsPolicy(), threadLocalPassers);
     }
 

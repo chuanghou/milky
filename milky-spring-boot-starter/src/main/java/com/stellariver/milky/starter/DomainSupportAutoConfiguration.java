@@ -10,7 +10,7 @@ import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
-import com.stellariver.milky.domain.support.util.AsyncExecutorService;
+import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.BeanUtil;
@@ -34,8 +34,8 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     public MilkySupport milkySupport(ConcurrentOperate concurrentOperate, EventBus eventBus,
-                                     TraceRepository traceRepository, AsyncExecutorService asyncExecutorService) {
-        return new MilkySupport(concurrentOperate, eventBus, traceRepository, asyncExecutorService);
+                                     TraceRepository traceRepository, AsyncExecutor asyncExecutor) {
+        return new MilkySupport(concurrentOperate, eventBus, traceRepository, asyncExecutor);
     }
 
 
@@ -47,8 +47,8 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    public EventBus eventBus(BeanLoader beanLoader, AsyncExecutorService asyncExecutorService) {
-        return new EventBus(beanLoader, asyncExecutorService);
+    public EventBus eventBus(BeanLoader beanLoader, AsyncExecutor asyncExecutor) {
+        return new EventBus(beanLoader, asyncExecutor);
     }
 
     @Bean
@@ -60,7 +60,7 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AsyncExecutorService asyncExecutorService(List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
+    public AsyncExecutor asyncExecutorService(List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
 
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error(e.getMessage(), e))
@@ -74,7 +74,7 @@ public class DomainSupportAutoConfiguration {
                 .blockingQueueCapacity(properties.getBlockingQueueCapacity())
                 .build();
 
-        return new AsyncExecutorService(configuration, threadFactory, threadLocalPassers);
+        return new AsyncExecutor(configuration, threadFactory, threadLocalPassers);
     }
 
 }

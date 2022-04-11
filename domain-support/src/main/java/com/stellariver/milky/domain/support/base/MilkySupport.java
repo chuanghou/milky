@@ -2,7 +2,7 @@ package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
-import com.stellariver.milky.domain.support.util.AsyncExecutorService;
+import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import com.stellariver.milky.domain.support.event.EventBus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,6 +16,6 @@ public class MilkySupport {
 
     TraceRepository traceRepository;
 
-    AsyncExecutorService asyncExecutorService;
+    AsyncExecutor asyncExecutor;
 
 }

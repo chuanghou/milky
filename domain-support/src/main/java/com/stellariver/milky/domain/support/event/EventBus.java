@@ -3,7 +3,7 @@ package com.stellariver.milky.domain.support.event;
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.util.AsyncExecutorService;
+import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.BeanLoader;
@@ -40,7 +40,7 @@ public class EventBus {
     private final Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    public EventBus(BeanLoader beanLoader, AsyncExecutorService asyncExecutorService) {
+    public EventBus(BeanLoader beanLoader, AsyncExecutor asyncExecutor) {
 
         List<EventRouters> beans = beanLoader.getBeansOfType(EventRouters.class);
         List<Method> methods = beans.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
@@ -51,7 +51,7 @@ public class EventBus {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             Router router = Router.builder().bean(bean).method(method)
-                    .type(annotation.type()).executorService(asyncExecutorService)
+                    .type(annotation.type()).executorService(asyncExecutor)
                     .build();
             routerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(router);
         });

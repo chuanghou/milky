@@ -12,7 +12,7 @@ import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.context.DependencyKey;
 import com.stellariver.milky.domain.support.dependency.*;
-import com.stellariver.milky.domain.support.util.AsyncExecutorService;
+import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
@@ -64,7 +64,7 @@ public class CommandBus {
 
     private TraceRepository traceRepository;
 
-    private AsyncExecutorService asyncExecutorService;
+    private AsyncExecutor asyncExecutor;
 
     private String[] scanPackages;
 
@@ -76,7 +76,7 @@ public class CommandBus {
         this.eventBus = milkySupport.getEventBus();
         this.concurrentOperate = milkySupport.getConcurrentOperate();
         this.traceRepository = milkySupport.getTraceRepository();
-        this.asyncExecutorService = milkySupport.getAsyncExecutorService();
+        this.asyncExecutor = milkySupport.getAsyncExecutor();
         return this;
     }
 
@@ -275,7 +275,7 @@ public class CommandBus {
             result = route(command);
             context.getProcessedEvents().forEach(event -> eventBus.asyncRoute(event, context));
             List<Message> recordedMessages = context.getRecordedMessages();
-            asyncExecutorService.execute(() -> {
+            asyncExecutor.execute(() -> {
                 traceRepository.insert(invocationId, context);
                 traceRepository.batchInsert(recordedMessages, context);
             });
