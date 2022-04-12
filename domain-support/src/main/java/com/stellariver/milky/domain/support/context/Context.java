@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.SysException;
+import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.base.Message;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
@@ -21,7 +22,7 @@ public class Context{
 
     private final Map<String, Object> parameters = new HashMap<>();
 
-    private final Map<String, Object> metaDatas = new HashMap<>();
+    private final Map<String, Object> metaData = new HashMap<>();
 
     private final Map<String, Object> dependencies = new HashMap<>();
 
@@ -31,26 +32,30 @@ public class Context{
 
     private final List<Message> recordedMessages = new ArrayList<>();
 
-    public Object getMetaData(String key) {
-        Object metaData = parameters.get(key);
-        if (metaData == null) {
-             metaData = metaDatas.get(key);
-        }
-        return metaData;
+    public Object peekMetaData(String key) {
+        return metaData.get(key);
     }
 
+    public Map<String, Object> getAllMetaData() {
+        return StreamMap.init(metaData).getMap();
+    }
+
+    public Object peekParameter(String key) {
+        return parameters.get(key);
+    }
+
+    public Map<String, Object> getAllParameters() {
+        return StreamMap.init(parameters).getMap();
+    }
+
+
     public void putMetaData(String key, Object value) {
-        SysException.trueThrowGetError(parameters.containsKey(key),
-                () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message("parameters include this key"));
-        SysException.trueThrowGetError(metaDatas.containsKey(key),
-                () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
-        metaDatas.put(key, value);
+        SysException.trueThrowGetError(metaData.containsKey(key), () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
+        metaData.put(key, value);
     }
 
     public void replaceMetaData(String key, Object value) {
-        SysException.trueThrowGetError(parameters.containsKey(key),
-                () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message("parameters include this key"));
-        metaDatas.put(key, value);
+        metaData.put(key, value);
     }
 
     public Object getDependency(String key) {

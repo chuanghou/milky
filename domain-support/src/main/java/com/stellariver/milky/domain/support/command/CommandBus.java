@@ -380,7 +380,7 @@ public class CommandBus {
         DependencyProvider valueProvider = providers.get(key);
         SysException.nullThrow(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
         Arrays.stream(valueProvider.getRequiredKeys())
-                .filter(requiredKey -> Objects.equals(null, context.getMetaData(requiredKey)))
+                .filter(requiredKey -> Objects.equals(null, context.peekMetaData(requiredKey)))
                 .forEach(k -> invokeDependencyProvider(command, k, context, providers, referKeys));
         Object bean = valueProvider.getBean();
         Method method = valueProvider.getMethod();

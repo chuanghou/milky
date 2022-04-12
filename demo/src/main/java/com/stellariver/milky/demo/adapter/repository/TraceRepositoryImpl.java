@@ -24,11 +24,11 @@ public class TraceRepositoryImpl implements TraceRepository {
 
     @Override
     public void insert(Long invocationId, Context context) {
-        Employee operator = (Employee) context.getMetaData("operator");
+        Employee operator = (Employee) context.peekMetaData("operator");
         InvocationStoreDO invocationStoreDO = InvocationStoreDO.builder().id(invocationId)
                 .operatorId(operator.getId())
                 .operatorName(operator.getName())
-                .operatorSource((String) context.getMetaData("operatorSource"))
+                .operatorSource((String) context.peekMetaData("operatorSource"))
                 .build();
         invocationStoreMapper.insert(invocationStoreDO);
     }
