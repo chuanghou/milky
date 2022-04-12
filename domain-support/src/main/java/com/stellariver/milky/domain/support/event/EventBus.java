@@ -3,14 +3,13 @@ package com.stellariver.milky.domain.support.event;
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.util.AsyncExecutor;
+import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
-import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
+import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,13 +22,8 @@ import java.util.stream.Collectors;
 
 public class EventBus {
 
-    static final private Predicate<Class<?>[]> eventRouterFormat =
-            parameterTypes -> (parameterTypes.length == 2
-                    && Event.class.isAssignableFrom(parameterTypes[0])
-                    && parameterTypes[1] == Context.class);
-
-    static final private Predicate<Class<?>[]> eventInterceptorFormat =
-            parameterTypes -> (parameterTypes.length == 2
+    static final private Predicate<Class<?>[]> format =
+                    parameterTypes -> (parameterTypes.length == 2
                     && Event.class.isAssignableFrom(parameterTypes[0])
                     && parameterTypes[1] == Context.class);
 
@@ -40,18 +34,19 @@ public class EventBus {
     private final Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    public EventBus(BeanLoader beanLoader, AsyncExecutor asyncExecutor) {
+    public EventBus(MilkySupport milkySupport) {
 
-        List<EventRouters> beans = beanLoader.getBeansOfType(EventRouters.class);
-        List<Method> methods = beans.stream().map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> eventRouterFormat.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(EventRouter.class)).collect(Collectors.toList());
+        List<Method> methods = milkySupport.getEventRouters().stream()
+                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .filter(m -> format.test(m.getParameterTypes()))
+                .filter(m -> m.isAnnotationPresent(EventRouter.class))
+                .collect(Collectors.toList());
         methods.forEach(method -> {
             EventRouter annotation = method.getAnnotation(EventRouter.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
-            Object bean = beanLoader.getBean(method.getDeclaringClass());
+            Object bean = BeanUtil.getBean(method.getDeclaringClass());
             Router router = Router.builder().bean(bean).method(method)
-                    .type(annotation.type()).executorService(asyncExecutor)
+                    .type(annotation.type()).executorService(milkySupport.getAsyncExecutor())
                     .build();
             routerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(router);
         });
@@ -60,14 +55,14 @@ public class EventBus {
         HashMap<Class<? extends Event>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
-        beanLoader.getBeansOfType(BusInterceptors.class).stream()
+        milkySupport.getBusInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> eventInterceptorFormat.test(m.getParameterTypes()))
+                .filter(m -> format.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())
                 .forEach(method -> {
                     BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
                     Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
-                    Object bean = beanLoader.getBean(method.getDeclaringClass());
+                    Object bean = BeanUtil.getBean(method.getDeclaringClass());
                     Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
                             .order(annotation.order()).posEnum(annotation.pos()).build();
                     tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor);
@@ -132,9 +127,9 @@ public class EventBus {
 
         public void route(Event event, Context context) {
             if (Objects.equals(type, TypeEnum.SYNC)) {
-                Runner.invoke(bean, method, context);
+                Runner.invoke(bean, method, event, context);
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                executorService.submit(() -> Runner.invoke(bean, method, context));
+                executorService.submit(() -> Runner.invoke(bean, method, event, context));
             } else {
                 throw new BizException(ErrorEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }

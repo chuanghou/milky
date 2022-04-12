@@ -11,9 +11,11 @@ import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TraceRepositoryImpl implements TraceRepository {
@@ -24,7 +26,7 @@ public class TraceRepositoryImpl implements TraceRepository {
 
     @Override
     public void insert(Long invocationId, Context context) {
-        Employee operator = (Employee) context.peekMetaData("operator");
+        Employee operator = (Employee) context.peekParameter("operator");
         InvocationStoreDO invocationStoreDO = InvocationStoreDO.builder().id(invocationId)
                 .operatorId(operator.getId())
                 .operatorName(operator.getName())

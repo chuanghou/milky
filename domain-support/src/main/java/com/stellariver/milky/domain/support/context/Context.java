@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.SysException;
+import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.base.Message;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class Context{
 
@@ -104,6 +106,9 @@ public class Context{
     }
 
     public Event peekEvent() {
+        if (Collect.isEmpty(events)) {
+            return null;
+        }
         return events.get(0);
     }
 

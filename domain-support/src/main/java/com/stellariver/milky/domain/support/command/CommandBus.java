@@ -41,8 +41,12 @@ import static com.stellariver.milky.domain.support.ErrorEnum.HANDLER_NOT_EXIST;
 
 public class CommandBus {
 
-    private static final Predicate<Class<?>[]> format = parameterTypes -> (parameterTypes.length == 2
-            && Command.class.isAssignableFrom(parameterTypes[0]) && parameterTypes[1] == Context.class);
+    private static final Predicate<Class<?>[]> format =
+            parameterTypes -> (parameterTypes.length == 2
+                && Command.class.isAssignableFrom(parameterTypes[0])
+                && parameterTypes[1] == Context.class);
+
+    private static CommandBus instance;
 
     private static final ThreadLocal<Context> tLContext = ThreadLocal.withInitial(Context::new);
 
@@ -50,68 +54,61 @@ public class CommandBus {
 
     private final Map<Class<? extends Command>, Map<String, DependencyProvider>> contextValueProviders = new HashMap<>();
 
-    private final Map<Class<? extends AggregateRoot>, Repository> domainRepositories = new HashMap<>();
+    private final Map<Class<? extends AggregateRoot>, Repository> domainRepositoryMap = new HashMap<>();
 
     private final Map<Class<? extends Command>, List<Interceptor>> beforeCommandInterceptors = new HashMap<>();
 
     private final Map<Class<? extends Command>, List<Interceptor>> afterCommandInterceptors = new HashMap<>();
 
-    private ConcurrentOperate concurrentOperate;
+    private final ConcurrentOperate concurrentOperate;
 
-    private EventBus eventBus;
+    private final EventBus eventBus;
 
-    private boolean enableMq;
+    private final boolean enableMq;
 
-    private TraceRepository traceRepository;
+    private final TraceRepository traceRepository;
 
-    private AsyncExecutor asyncExecutor;
+    private final AsyncExecutor asyncExecutor;
 
-    private String[] scanPackages;
+    private final Reflections reflections;
 
-    static public CommandBus builder() {
-        return new CommandBus();
-    }
 
-    public CommandBus milkySupport(MilkySupport milkySupport) {
-        this.eventBus = milkySupport.getEventBus();
+    public CommandBus(MilkySupport milkySupport, EventBus eventBus, MilkyConfiguration milkyConfiguration) {
+
         this.concurrentOperate = milkySupport.getConcurrentOperate();
         this.traceRepository = milkySupport.getTraceRepository();
         this.asyncExecutor = milkySupport.getAsyncExecutor();
-        return this;
-    }
-
-    public CommandBus configuration(MilkyConfiguration configuration) {
-        this.enableMq = configuration.isEnableMq();
-        this.scanPackages = configuration.getScanPackages();
-        return this;
-    }
-
-    public CommandBus init() {
+        this.eventBus = eventBus;
+        this.enableMq = milkyConfiguration.isEnableMq();
 
         ConfigurationBuilder configuration = new ConfigurationBuilder()
-                .forPackages(scanPackages).addScanners(new SubTypesScanner());
+                .forPackages(milkyConfiguration.getScanPackages())
+                .addScanners(new SubTypesScanner());
+        this.reflections = new Reflections(configuration);
 
-        Reflections reflections = new Reflections(configuration);
+        prepareCommandHandlers();
 
-        prepareCommandHandlers(reflections);
+        prepareContextValueProviders(milkySupport);
 
-        prepareContextValueProviders(reflections);
+        prepareRepositories(milkySupport);
 
-        prepareRepositories();
+        prepareCommandBusInterceptors(milkySupport);
 
-        prepareCommandBusInterceptors();
+        instance = this;
 
-        return this;
     }
+
+
+
     @SuppressWarnings("unchecked")
-    private void prepareCommandBusInterceptors() {
+    private void prepareCommandBusInterceptors(MilkySupport milkySupport) {
 
         HashMap<Class<? extends Command>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
 
         HashMap<Class<? extends Command>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
-        BeanUtil.getBeansOfType(BusInterceptors.class).stream()
+        milkySupport.getBusInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> format.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())
@@ -151,10 +148,9 @@ public class CommandBus {
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private void prepareRepositories() {
-        List<DomainRepository> repositories = BeanUtil.getBeansOfType(DomainRepository.class);
-        repositories.forEach(bean -> {
+    @SuppressWarnings("unchecked")
+    private void prepareRepositories(MilkySupport milkySupport) {
+        milkySupport.getDomainRepositories().forEach(bean -> {
             Optional<Type> optional = Arrays.stream(bean.getClass().getGenericInterfaces())
                     .map(i -> (ParameterizedType) i)
                     .filter(t -> Objects.equals(t.getRawType(), DomainRepository.class))
@@ -167,7 +163,7 @@ public class CommandBus {
             Method updateMethod = getMethod(repositoryClazz,"updateByAggregateId", aggregateClazz, Context.class);
             SysException.nullThrow(getMethod, updateMethod);
             Repository repository = new Repository(bean, getMethod, saveMethod, updateMethod);
-            domainRepositories.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
+            domainRepositoryMap.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
         });
     }
 
@@ -182,7 +178,7 @@ public class CommandBus {
     }
 
     @SuppressWarnings("unchecked")
-    private void prepareCommandHandlers(Reflections reflections) {
+    private void prepareCommandHandlers() {
         Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);
 
         boolean secondInherited = classes.stream().map(Reflect::ancestorClasses).anyMatch(list -> list.size() > 3);
@@ -230,10 +226,10 @@ public class CommandBus {
     }
 
     @SuppressWarnings("unchecked")
-    private void prepareContextValueProviders(Reflections reflections) {
+    private void prepareContextValueProviders(MilkySupport milkySupport) {
         Map<Class<? extends Command>, Map<String, DependencyProvider>> tempProviders = new HashMap<>();
 
-        List<Method> methods = BeanUtil.getBeansOfType(DependencyPrepares.class)
+        List<Method> methods = milkySupport.getDependencyPrepares()
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
                 .filter(method -> method.isAnnotationPresent(DependencyKey.class))
@@ -259,13 +255,22 @@ public class CommandBus {
         });
     }
 
+
+    static public <T extends Command> Object send(T command, Map<String, Object> parameters) {
+        return instance.doSend(command, parameters);
+    }
+
+    static public <T extends Command> Object send(T command) {
+        return instance.route(command);
+    }
+
     /**
      * 针对应用层调用的命令总线接口
      * @param command 外部命令
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    public <T extends Command> Object send(T command, Map<String, Object> parameters) {
+    private <T extends Command> Object doSend(T command, Map<String, Object> parameters) {
         Object result;
         Context context = Context.fromParameters(parameters);
         tLContext.set(context);
@@ -291,7 +296,7 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    public <T extends Command> Object route(T command) {
+    private <T extends Command> Object route(T command) {
         SysException.nullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());
         SysException.isNullThrow(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
@@ -339,7 +344,7 @@ public class CommandBus {
     @SneakyThrows
     @SuppressWarnings("unchecked")
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
-        Repository repository = domainRepositories.get(commandHandler.clazz);
+        Repository repository = domainRepositoryMap.get(commandHandler.clazz);
         SysException.nullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
         Map<String, DependencyProvider> providerMap =
                 Optional.ofNullable(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);

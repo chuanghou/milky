@@ -6,9 +6,13 @@ import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
+import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
+import com.stellariver.milky.domain.support.dependency.DomainRepository;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
+import com.stellariver.milky.domain.support.event.EventRouters;
+import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
 import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import com.stellariver.milky.domain.support.event.EventBus;
@@ -33,22 +37,34 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    public MilkySupport milkySupport(ConcurrentOperate concurrentOperate, EventBus eventBus,
-                                     TraceRepository traceRepository, AsyncExecutor asyncExecutor) {
-        return new MilkySupport(concurrentOperate, eventBus, traceRepository, asyncExecutor);
+    public MilkySupport milkySupport(ConcurrentOperate concurrentOperate,
+                                        TraceRepository traceRepository,
+                                        AsyncExecutor asyncExecutor,
+                                        List<DependencyPrepares> dependencyPrepares,
+                                        List<BusInterceptors> busInterceptors,
+                                        List<EventRouters> eventRouters,
+                                        List<DomainRepository<?>> domainRepositories,
+                                        BeanLoader beanLoader) {
+        return MilkySupport.builder().concurrentOperate(concurrentOperate)
+                .traceRepository(traceRepository)
+                .asyncExecutor(asyncExecutor)
+                .dependencyPrepares(dependencyPrepares)
+                .busInterceptors(busInterceptors)
+                .eventRouters(eventRouters)
+                .domainRepositories(domainRepositories)
+                .beanLoader(beanLoader)
+                .build();
     }
 
 
     @Bean
-    public CommandBus commandBus(MilkySupport milkySupport, MilkyConfiguration milkyConfiguration) {
-        return CommandBus.builder().milkySupport(milkySupport)
-                .configuration(milkyConfiguration)
-                .init();
+    public CommandBus commandBus(MilkySupport milkySupport, EventBus eventBus, MilkyConfiguration milkyConfiguration) {
+        return new CommandBus(milkySupport, eventBus, milkyConfiguration);
     }
 
     @Bean
-    public EventBus eventBus(BeanLoader beanLoader, AsyncExecutor asyncExecutor) {
-        return new EventBus(beanLoader, asyncExecutor);
+    public EventBus eventBus(MilkySupport milkySupport) {
+        return new EventBus(milkySupport);
     }
 
     @Bean
