@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ClassUtils;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class TraceRepositoryImpl implements TraceRepository {
     public void batchInsert(List<Message> messages, Context context) {
          messages.stream().map(m -> MessageStoreDO.builder().id(m.getId())
                      .aggregateId(m.getAggregateId())
-                     .className(m.getClass().getName())
+                     .className(ClassUtils.getShortName(m.getClass()))
                      .invocationId(m.getInvokeTrace().getInvocationId())
                      .triggerId(m.getInvokeTrace().getTriggerId())
                      .build()
