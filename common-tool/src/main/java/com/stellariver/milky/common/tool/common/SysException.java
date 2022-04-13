@@ -47,15 +47,13 @@ public class SysException extends RuntimeException {
         }
     }
 
-    static public void nullThrowMessage(Object param, String message) {
+    static public void nullThrowMessage(Object param, Object object) {
         if (param == null) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(message));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(Objects.toString(object)));
         }
     }
 
-
-
-    static public void trueGetError(boolean test, Supplier<Error> supplier) {
+    static public void trueThrowGet(boolean test, Supplier<Error> supplier) {
         if (test) {
             throw new SysException(supplier.get());
         }
@@ -67,15 +65,15 @@ public class SysException extends RuntimeException {
         }
     }
 
-    static public void falseThrow(boolean test, Error error) {
-        if (!test) {
-            throw new SysException(error);
+    static public void falseThrowGet(boolean test, Supplier<Error> supplier) {
+        if (test) {
+            throw new SysException(supplier.get());
         }
     }
 
-    static public void trueThrowGetMessage(boolean test, Supplier<Object> supplier) {
-        if (test) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(Json.toJson(supplier.get())));
+    static public void falseThrow(boolean test, Error error) {
+        if (!test) {
+            throw new SysException(error);
         }
     }
 

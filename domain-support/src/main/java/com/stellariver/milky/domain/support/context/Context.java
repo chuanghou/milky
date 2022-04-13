@@ -50,7 +50,7 @@ public class Context{
 
 
     public void putMetaData(String key, Object value) {
-        SysException.trueGetError(metaData.containsKey(key), () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
+        SysException.trueThrowGet(metaData.containsKey(key), () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
         metaData.put(key, value);
     }
 
