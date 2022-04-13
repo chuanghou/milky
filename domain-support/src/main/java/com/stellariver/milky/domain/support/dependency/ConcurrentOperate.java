@@ -18,7 +18,7 @@ public interface ConcurrentOperate {
 
     @SneakyThrows
     default boolean tryRetryLock(RetryParameter retryParameter) {
-        SysException.nullThrow(retryParameter.getLockKey());
+        SysException.anyNullThrow(retryParameter.getLockKey());
         SysException.trueThrow(retryParameter.getTimes() <= 0, "retry times should not smaller than 0 or equal with 0");
         SysException.trueThrow(retryParameter.getSleepTimeMils() > 5000, "sleep time is too long");
         int times = retryParameter.getTimes();

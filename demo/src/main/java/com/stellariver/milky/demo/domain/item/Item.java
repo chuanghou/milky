@@ -23,10 +23,16 @@ public class Item extends AggregateRoot {
 
     String title;
 
-    @CommandHandler
+    Long sellerId;
+
+    String userName;
+
+    @CommandHandler(dependencyKeys = "userName")
     public Item(ItemCreateCommand command, Context context) {
         this.itemId = command.getItemId();
         this.title = command.getTitle();
+        this.sellerId = command.getSellerId();
+        this.userName = (String) context.peekMetaData("userName");
         context.publish(ItemCreatedEvent.builder().itemId(itemId).build());
     }
 

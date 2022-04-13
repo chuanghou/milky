@@ -19,4 +19,8 @@ public class ItemDO {
 
     String title;
 
+    Long sellerId;
+
+    String userName;
+
 }

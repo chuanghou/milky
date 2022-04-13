@@ -2,7 +2,6 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.SysException;
-import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.base.Message;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class Context{
 
@@ -52,7 +50,7 @@ public class Context{
 
 
     public void putMetaData(String key, Object value) {
-        SysException.trueThrowGetError(metaData.containsKey(key), () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
+        SysException.trueGetError(metaData.containsKey(key), () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
         metaData.put(key, value);
     }
 
@@ -73,13 +71,13 @@ public class Context{
     }
 
     public void publish(@Nonnull Event event) {
-        SysException.nullThrow(event);
+        SysException.anyNullThrow(event);
         events.add(event);
         recordMessage(event);
     }
 
     public void recordMessage(@Nonnull Message message) {
-        SysException.nullThrow(message);
+        SysException.anyNullThrow(message);
         recordedMessages.add(message);
     }
 

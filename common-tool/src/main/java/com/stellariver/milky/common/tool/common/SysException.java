@@ -34,20 +34,28 @@ public class SysException extends RuntimeException {
         return this.errorCode;
     }
 
-    static public void nullThrow(Object... params) {
+    static public void anyNullThrow(Object... params) {
         boolean containNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
         if (containNullValue) {
             throw new SysException(ErrorEnumBase.PARAM_IS_NULL);
         }
     }
 
-    static public void isNullThrow(Object param, Supplier<Error> supplier) {
+    static public void nullThrow(Object param, Supplier<Error> supplier) {
         if (param == null) {
             throw new SysException(supplier.get());
         }
     }
 
-    static public void trueThrowGetError(boolean test, Supplier<Error> supplier) {
+    static public void nullThrowMessage(Object param, String message) {
+        if (param == null) {
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(message));
+        }
+    }
+
+
+
+    static public void trueGetError(boolean test, Supplier<Error> supplier) {
         if (test) {
             throw new SysException(supplier.get());
         }

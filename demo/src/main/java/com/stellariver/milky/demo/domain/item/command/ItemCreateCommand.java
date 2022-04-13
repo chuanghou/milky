@@ -17,6 +17,8 @@ public class ItemCreateCommand extends Command {
 
     String title;
 
+    Long sellerId;
+
     @Override
     public String getAggregateId() {
         return itemId.toString();

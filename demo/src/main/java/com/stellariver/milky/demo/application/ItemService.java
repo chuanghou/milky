@@ -8,6 +8,7 @@ import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemUpdateCommand;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.domain.support.command.CommandBus;
+import com.stellariver.milky.domain.support.context.DependencyKey;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AccessLevel;
@@ -29,14 +30,16 @@ public class ItemService {
 
     ItemRepository itemRepository;
 
-    public Item publishItem(String title) {
+    public Item publishItem(Long sellerId, String title) {
         IdBuilder idBuilder = BeanUtil.getBean(IdBuilder.class);
         Long itemId = idBuilder.build("item");
-        ItemCreateCommand command = ItemCreateCommand.builder().itemId(itemId).title(title).build();
+        ItemCreateCommand command = ItemCreateCommand.builder()
+                .sellerId(sellerId)
+                .itemId(itemId).title(title).build();
         Map<String, Object> parameters = StreamMap.<String, Object>init().put("title", title)
                 .put("operator", Employee.system)
                 .getMap();
-        return (Item) commandBus.publicSend(command, parameters);
+        return (Item) CommandBus.publicSend(command, parameters);
     }
 
 
@@ -47,6 +50,6 @@ public class ItemService {
         Map<String, Object> parameters = StreamMap.<String, Object>init().put("newTitle", newTitle)
                 .put("operator", operator)
                 .getMap();
-        commandBus.publicSend(command, parameters);
+        CommandBus.publicSend(command, parameters);
     }
 }

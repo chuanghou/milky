@@ -31,6 +31,8 @@ create table item
 (
     item_id bigint auto_increment,
     title   varchar(100) not null,
+    seller_id   bigint not null,
+    user_name   varchar(100) not null,
     constraint item_item_id_uindex
         unique (item_id)
 );

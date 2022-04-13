@@ -9,7 +9,6 @@ import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.context.DependencyKey;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.util.AsyncExecutor;
@@ -17,7 +16,6 @@ import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
-import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.dependency.DomainRepository;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
@@ -161,7 +159,7 @@ public class CommandBus {
             Method saveMethod = getMethod(repositoryClazz,"save", aggregateClazz, Context.class);
             Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
             Method updateMethod = getMethod(repositoryClazz,"updateByAggregateId", aggregateClazz, Context.class);
-            SysException.nullThrow(getMethod, updateMethod);
+            SysException.anyNullThrow(getMethod, updateMethod);
             Repository repository = new Repository(bean, getMethod, saveMethod, updateMethod);
             domainRepositoryMap.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
         });
@@ -298,9 +296,9 @@ public class CommandBus {
      * @return 总结结果
      */
     private <T extends Command> Object route(T command) {
-        SysException.nullThrow(command);
+        SysException.anyNullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());
-        SysException.isNullThrow(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
+        SysException.nullThrow(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
         Context context = tLContext.get();
         String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
@@ -343,7 +341,7 @@ public class CommandBus {
     @SuppressWarnings("unchecked")
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         Repository repository = domainRepositoryMap.get(commandHandler.clazz);
-        SysException.nullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
+        SysException.anyNullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
         Map<String, DependencyProvider> providerMap =
                 Optional.ofNullable(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
         commandHandler.getRequiredKeys().forEach(key ->
@@ -381,7 +379,7 @@ public class CommandBus {
         SysException.trueThrow(referKeys.contains(key), "required key " + key + "circular reference!");
         referKeys.add(key);
         DependencyProvider valueProvider = providers.get(key);
-        SysException.nullThrow(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
+        SysException.nullThrowMessage(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
         Arrays.stream(valueProvider.getRequiredKeys())
                 .filter(requiredKey -> Objects.equals(null, context.peekMetaData(requiredKey)))
                 .forEach(k -> invokeDependencyProvider(command, k, context, providers, referKeys));

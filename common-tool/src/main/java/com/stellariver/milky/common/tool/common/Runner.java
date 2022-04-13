@@ -105,7 +105,7 @@ public class Runner {
 
     @SneakyThrows
     static public <R, T> T checkout(Option<R,T> option, SCallable<R> callable) {
-        SysException.nullThrow(option.getCheck(), option.getTransfer());
+        SysException.anyNullThrow(option.getCheck(), option.getTransfer());
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();

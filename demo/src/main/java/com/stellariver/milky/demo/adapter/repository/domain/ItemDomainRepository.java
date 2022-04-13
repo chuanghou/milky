@@ -18,7 +18,11 @@ public class ItemDomainRepository implements DomainRepository<Item> {
 
     @Override
     public void save(Item item, Context context) {
-        ItemDO itemDO = ItemDO.builder().itemId(item.getItemId()).title(item.getTitle()).build();
+        ItemDO itemDO = ItemDO.builder().itemId(item.getItemId())
+                .title(item.getTitle())
+                .sellerId(item.getSellerId())
+                .userName(item.getUserName())
+                .build();
         itemDOMapper.insert(itemDO);
     }
 

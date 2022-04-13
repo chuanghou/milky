@@ -21,7 +21,7 @@ public class ItemController {
 
     @GetMapping("publish")
     public Result<Boolean> publish(String title) {
-        Item item = itemService.publishItem(title);
+        Item item = itemService.publishItem(10086L, title);
         return Result.success();
     }
 
