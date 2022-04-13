@@ -49,11 +49,11 @@ public class Runner {
                     throw throwableBackup;
                 }
             } finally {
-                Map<String, Object> signature = getSignature(bean, method, params);
+//                Map<String, Object> signature = getSignature(bean, method, params);
                 if (throwableBackup == null && option.isWithLog()) {
-                    log.with(signature).with("result", Json.toJson(result)).info("");
+//                    log.with(signature).with("result", Json.toJson(result)).info("");
                 } else if (throwableBackup != null){
-                    log.with(signature).error("", throwableBackup);
+//                    log.with(signature).error("", throwableBackup);
                 }
             }
         } while (!success && retryTimes-- > 0);

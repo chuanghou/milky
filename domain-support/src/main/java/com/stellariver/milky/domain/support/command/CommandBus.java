@@ -256,12 +256,13 @@ public class CommandBus {
     }
 
 
-    static public <T extends Command> Object send(T command, Map<String, Object> parameters) {
+    static public <T extends Command> Object publicSend(T command, Map<String, Object> parameters) {
         return instance.doSend(command, parameters);
     }
 
-    static public <T extends Command> Object send(T command) {
-        return instance.route(command);
+    static public <T extends Command> void eventDrive(T command, Event sourceEvent) {
+        command.setInvokeTrace(InvokeTrace.build(sourceEvent));
+        instance.route(command);
     }
 
     /**
@@ -302,9 +303,6 @@ public class CommandBus {
         SysException.isNullThrow(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
         Context context = tLContext.get();
-        if (command.getInvokeTrace() == null) {
-            command.setInvokeTrace(InvokeTrace.build(context.peekEvent()));
-        }
         String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
         context.recordMessage(command);
         String encryptionKey = UUID.randomUUID().toString();

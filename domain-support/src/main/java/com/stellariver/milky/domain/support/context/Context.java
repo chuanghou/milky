@@ -101,17 +101,6 @@ public class Context{
         return processedEvents;
     }
 
-    public List<Event> peekEvents() {
-        return new ArrayList<>(events);
-    }
-
-    public Event peekEvent() {
-        if (Collect.isEmpty(events)) {
-            return null;
-        }
-        return events.get(0);
-    }
-
     public static Context fromParameters(Map<String, Object> parameters) {
         Context context = new Context();
         context.invocationId = BeanUtil.getBean(IdBuilder.class).build();

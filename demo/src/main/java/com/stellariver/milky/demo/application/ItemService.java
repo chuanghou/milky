@@ -1,7 +1,6 @@
 package com.stellariver.milky.demo.application;
 
 import com.stellariver.milky.common.base.Employee;
-import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.demo.domain.item.Item;
@@ -9,9 +8,7 @@ import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemUpdateCommand;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.domain.support.command.CommandBus;
-import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
-import com.stellariver.milky.domain.support.invocation.Invocation;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +36,7 @@ public class ItemService {
         Map<String, Object> parameters = StreamMap.<String, Object>init().put("title", title)
                 .put("operator", Employee.system)
                 .getMap();
-        return (Item) commandBus.send(command, parameters);
+        return (Item) commandBus.publicSend(command, parameters);
     }
 
 
@@ -50,6 +47,6 @@ public class ItemService {
         Map<String, Object> parameters = StreamMap.<String, Object>init().put("newTitle", newTitle)
                 .put("operator", operator)
                 .getMap();
-        commandBus.send(command, parameters);
+        commandBus.publicSend(command, parameters);
     }
 }
