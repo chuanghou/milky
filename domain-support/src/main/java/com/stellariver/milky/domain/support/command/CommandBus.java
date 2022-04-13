@@ -257,11 +257,11 @@ public class CommandBus {
     }
 
 
-    static public <T extends Command> Object publicSend(T command, Map<String, Object> parameters) {
+    static public <T extends Command> Object accept(T command, Map<String, Object> parameters) {
         return instance.doSend(command, parameters);
     }
 
-    static public <T extends Command> void eventDrive(T command, Event sourceEvent) {
+    static public <T extends Command> void driveByEvent(T command, Event sourceEvent) {
         command.setInvokeTrace(InvokeTrace.build(sourceEvent));
         instance.route(command);
     }
