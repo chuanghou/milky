@@ -23,4 +23,6 @@ public class InvocationStoreDO {
 
     String operatorSource;
 
+    boolean success;
+
 }

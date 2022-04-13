@@ -1,6 +1,7 @@
 package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.*;
+import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.If;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
@@ -38,6 +39,8 @@ import static com.stellariver.milky.domain.support.ErrorEnum.AGGREGATE_INHERITED
 import static com.stellariver.milky.domain.support.ErrorEnum.HANDLER_NOT_EXIST;
 
 public class CommandBus {
+
+    private static Logger log = Logger.getLogger(CommandBus.class);
 
     private static final Predicate<Class<?>[]> format =
             parameterTypes -> (parameterTypes.length == 2
@@ -284,6 +287,14 @@ public class CommandBus {
                 traceRepository.insert(invocationId, context);
                 traceRepository.batchInsert(recordedMessages, context);
             });
+        } catch (Throwable throwable) {
+            log.with("context", Json.toJson(context)).error("", throwable);
+            List<Message> recordedMessages = context.getRecordedMessages();
+            asyncExecutor.execute(() -> {
+                traceRepository.insert(invocationId, context, false);
+                traceRepository.batchInsert(recordedMessages, context);
+            });
+            throw throwable;
         } finally {
             tLContext.remove();
         }

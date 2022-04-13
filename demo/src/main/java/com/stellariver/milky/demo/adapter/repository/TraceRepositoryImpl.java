@@ -26,12 +26,13 @@ public class TraceRepositoryImpl implements TraceRepository {
     MessageStoreMapper messageStoreMapper;
 
     @Override
-    public void insert(Long invocationId, Context context) {
+    public void insert(Long invocationId, Context context, boolean success) {
         Employee operator = (Employee) context.peekParameter("operator");
         InvocationStoreDO invocationStoreDO = InvocationStoreDO.builder().id(invocationId)
                 .operatorId(operator.getId())
                 .operatorName(operator.getName())
                 .operatorSource((String) context.peekMetaData("operatorSource"))
+                .success(success)
                 .build();
         invocationStoreMapper.insert(invocationStoreDO);
     }

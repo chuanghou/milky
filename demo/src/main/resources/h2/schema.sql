@@ -18,6 +18,7 @@ create table invocation_store
     operator_id   varchar(10) not null,
     operator_name varchar(20) not null,
     operator_source varchar(50) not null,
+    success tinyint not null,
     constraint invocation_store_id_uindex
         unique (id)
 );

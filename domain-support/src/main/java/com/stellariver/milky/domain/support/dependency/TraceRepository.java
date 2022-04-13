@@ -9,8 +9,12 @@ import java.util.Map;
 
 public interface TraceRepository {
 
-    void insert(Long invocationId, Context context);
+    default void insert(Long invocationId, Context context) {
+        insert(invocationId, context, true);
+    }
 
     void batchInsert(List<Message> messages,Context context);
+
+    void insert(Long invocationId, Context context, boolean success);
 
 }
