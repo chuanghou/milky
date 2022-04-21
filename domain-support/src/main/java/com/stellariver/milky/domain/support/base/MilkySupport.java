@@ -5,12 +5,9 @@ import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import com.stellariver.milky.domain.support.dependency.DomainRepository;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
-import com.stellariver.milky.domain.support.event.EventRouter;
 import com.stellariver.milky.domain.support.event.EventRouters;
-import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
-import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
+import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.util.AsyncExecutor;
-import com.stellariver.milky.domain.support.event.EventBus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -29,7 +26,7 @@ public class MilkySupport {
 
     List<DependencyPrepares> dependencyPrepares;
 
-    List<BusInterceptors> busInterceptors;
+    List<Interceptors> interceptors;
 
     List<EventRouters> eventRouters;
 

@@ -5,7 +5,7 @@ import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.event.EventRouters;
-import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
+import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.dependency.DomainRepository;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -48,7 +48,7 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         scanner.addIncludeFilter(new AssignableTypeFilter(DependencyPrepares.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(EventRouters.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(DomainRepository.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(BusInterceptors.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(Interceptors.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(TraceRepository.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ThreadLocalPasser.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ConcurrentOperate.class) );

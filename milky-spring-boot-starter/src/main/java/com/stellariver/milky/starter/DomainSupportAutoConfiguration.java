@@ -12,7 +12,7 @@ import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import com.stellariver.milky.domain.support.dependency.DomainRepository;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.event.EventRouters;
-import com.stellariver.milky.domain.support.interceptor.BusInterceptors;
+import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
 import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import com.stellariver.milky.domain.support.event.EventBus;
@@ -41,7 +41,7 @@ public class DomainSupportAutoConfiguration {
                                         TraceRepository traceRepository,
                                         AsyncExecutor asyncExecutor,
                                         List<DependencyPrepares> dependencyPrepares,
-                                        List<BusInterceptors> busInterceptors,
+                                        List<Interceptors> interceptors,
                                         List<EventRouters> eventRouters,
                                         List<DomainRepository<?>> domainRepositories,
                                         BeanLoader beanLoader) {
@@ -49,7 +49,7 @@ public class DomainSupportAutoConfiguration {
                 .traceRepository(traceRepository)
                 .asyncExecutor(asyncExecutor)
                 .dependencyPrepares(dependencyPrepares)
-                .busInterceptors(busInterceptors)
+                .interceptors(interceptors)
                 .eventRouters(eventRouters)
                 .domainRepositories(domainRepositories)
                 .beanLoader(beanLoader)

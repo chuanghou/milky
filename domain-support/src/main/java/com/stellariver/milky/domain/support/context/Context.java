@@ -36,7 +36,7 @@ public class Context{
         return metaData.get(key);
     }
 
-    public Map<String, Object> getAllMetaData() {
+    public Map<String, Object> getMetaData() {
         return StreamMap.init(metaData).getMap();
     }
 
@@ -44,7 +44,7 @@ public class Context{
         return parameters.get(key);
     }
 
-    public Map<String, Object> getAllParameters() {
+    public Map<String, Object> getParameters() {
         return StreamMap.init(parameters).getMap();
     }
 

@@ -6,7 +6,7 @@ import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
+import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.util.BeanUtil;
@@ -55,12 +55,12 @@ public class EventBus {
         HashMap<Class<? extends Event>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
-        milkySupport.getBusInterceptors().stream()
+        milkySupport.getInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> format.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())
+                .filter(m -> m.isAnnotationPresent(Intercept.class)).collect(Collectors.toList())
                 .forEach(method -> {
-                    BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
+                    Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
                     Object bean = BeanUtil.getBean(method.getDeclaringClass());
                     Interceptor interceptor = Interceptor.builder().bean(bean).method(method)

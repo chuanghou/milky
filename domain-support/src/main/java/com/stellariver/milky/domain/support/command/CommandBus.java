@@ -15,7 +15,7 @@ import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
-import com.stellariver.milky.domain.support.interceptor.BusInterceptor;
+import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.dependency.DomainRepository;
@@ -40,7 +40,7 @@ import static com.stellariver.milky.domain.support.ErrorEnum.HANDLER_NOT_EXIST;
 
 public class CommandBus {
 
-    private static Logger log = Logger.getLogger(CommandBus.class);
+    private static final Logger log = Logger.getLogger(CommandBus.class);
 
     private static final Predicate<Class<?>[]> format =
             parameterTypes -> (parameterTypes.length == 2
@@ -109,12 +109,12 @@ public class CommandBus {
         HashMap<Class<? extends Command>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
-        milkySupport.getBusInterceptors().stream()
+        milkySupport.getInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> format.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(BusInterceptor.class)).collect(Collectors.toList())
+                .filter(m -> m.isAnnotationPresent(Intercept.class)).collect(Collectors.toList())
                 .forEach(method -> {
-                    BusInterceptor annotation = method.getAnnotation(BusInterceptor.class);
+                    Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
                     Object bean = BeanUtil.getBean(method.getDeclaringClass());
                     Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
@@ -122,8 +122,10 @@ public class CommandBus {
                     tempInterceptorsMap.computeIfAbsent(commandClass, cC -> new ArrayList<>()).add(interceptor);
                 });
 
+        Set<Class<? extends Command>> commandClasses = reflections.getSubTypesOf(Command.class);
+
         // according to inherited relation to collect final command interceptors map, all ancestor interceptor
-        tempInterceptorsMap.forEach((commandClass, tempInterceptors) -> {
+        commandClasses.forEach(commandClass -> {
             List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass)
                     .stream().filter(Command.class::isAssignableFrom).collect(Collectors.toList());
             ancestorClasses.forEach(ancestor -> {
