@@ -10,6 +10,7 @@ import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.reflections.Reflections;
 
 import java.util.List;
 
@@ -31,6 +32,8 @@ public class MilkySupport {
     List<EventRouters> eventRouters;
 
     List<DomainRepository<?>> domainRepositories;
+
+    Reflections reflections;
 
     BeanLoader beanLoader;
 

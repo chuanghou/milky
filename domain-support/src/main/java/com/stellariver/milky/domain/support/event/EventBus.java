@@ -3,8 +3,10 @@ package com.stellariver.milky.domain.support.event;
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.util.Reflect;
+import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.ErrorEnum;
+import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
@@ -68,13 +70,16 @@ public class EventBus {
                     tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor);
                 });
 
+
+
+        Set<Class<? extends Event>> eventClasses = milkySupport.getReflections().getSubTypesOf(Event.class);
+
         // according to inherited relation to collect final command interceptors map, all ancestor interceptor
-        tempInterceptorsMap.forEach((eventClass, tempInterceptors) -> {
+        eventClasses.forEach(eventClass -> {
             List<Class<? extends Event>> ancestorClasses = Reflect.ancestorClasses(eventClass)
                     .stream().filter(Event.class::isAssignableFrom).collect(Collectors.toList());
             ancestorClasses.forEach(ancestor -> {
-                List<Interceptor> ancestorInterceptors =
-                        Optional.ofNullable(tempInterceptorsMap.get(ancestor)).orElseGet(ArrayList::new);
+                List<Interceptor> ancestorInterceptors = Optional.ofNullable(tempInterceptorsMap.get(ancestor)).orElseGet(ArrayList::new);
                 finalInterceptorsMap.computeIfAbsent(eventClass, c -> new ArrayList<>()).addAll(ancestorInterceptors);
             });
         });

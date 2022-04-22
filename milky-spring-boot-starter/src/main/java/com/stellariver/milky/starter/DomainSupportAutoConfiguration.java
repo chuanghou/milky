@@ -18,6 +18,9 @@ import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.BeanUtil;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ConfigurationBuilder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -44,7 +47,12 @@ public class DomainSupportAutoConfiguration {
                                         List<Interceptors> interceptors,
                                         List<EventRouters> eventRouters,
                                         List<DomainRepository<?>> domainRepositories,
-                                        BeanLoader beanLoader) {
+                                        BeanLoader beanLoader,
+                                        MilkyConfiguration milkyConfiguration) {
+        ConfigurationBuilder configuration = new ConfigurationBuilder()
+                .forPackages(milkyConfiguration.getScanPackages())
+                .addScanners(new SubTypesScanner());
+        Reflections reflections = new Reflections(configuration);
         return MilkySupport.builder().concurrentOperate(concurrentOperate)
                 .traceRepository(traceRepository)
                 .asyncExecutor(asyncExecutor)
@@ -53,6 +61,7 @@ public class DomainSupportAutoConfiguration {
                 .eventRouters(eventRouters)
                 .domainRepositories(domainRepositories)
                 .beanLoader(beanLoader)
+                .reflections(reflections)
                 .build();
     }
 

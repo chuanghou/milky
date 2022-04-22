@@ -81,11 +81,7 @@ public class CommandBus {
         this.asyncExecutor = milkySupport.getAsyncExecutor();
         this.eventBus = eventBus;
         this.enableMq = milkyConfiguration.isEnableMq();
-
-        ConfigurationBuilder configuration = new ConfigurationBuilder()
-                .forPackages(milkyConfiguration.getScanPackages())
-                .addScanners(new SubTypesScanner());
-        this.reflections = new Reflections(configuration);
+        this.reflections = milkySupport.getReflections();
 
         prepareCommandHandlers();
 
