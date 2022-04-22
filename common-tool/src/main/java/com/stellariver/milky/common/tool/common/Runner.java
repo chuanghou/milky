@@ -49,11 +49,11 @@ public class Runner {
                     throw throwableBackup;
                 }
             } finally {
-//                Map<String, Object> signature = getSignature(bean, method, params);
-                if (throwableBackup == null && option.isWithLog()) {
-//                    log.with(signature).with("result", Json.toJson(result)).info("");
+                Map<String, Object> signature = getSignature(bean, method, params);
+                if (throwableBackup == null && option.isAlwaysLog()) {
+                    log.with(signature).with("result", Json.toJson(result)).info("");
                 } else if (throwableBackup != null){
-//                    log.with(signature).error("", throwableBackup);
+                    log.with(signature).error("", throwableBackup);
                 }
             }
         } while (!success && retryTimes-- > 0);
@@ -89,7 +89,7 @@ public class Runner {
                     throw throwableBackup;
                 }
             } finally {
-                if (throwableBackup == null && option.isWithLog()) {
+                if (throwableBackup == null && option.isAlwaysLog()) {
                     log.with(getSignature(callable)).info("");
                 } else if (throwableBackup != null){
                     log.with(getSignature(callable)).error("", throwableBackup);
@@ -104,7 +104,7 @@ public class Runner {
     }
 
     @SneakyThrows
-    static public <R, T> T checkout(Option<R,T> option, SCallable<R> callable) {
+    static public <R, T> T checkout(Option<R, T> option, SCallable<R> callable) {
         SysException.anyNullThrow(option.getCheck(), option.getTransfer());
         R result = null;
         Throwable throwableBackup = null;
@@ -128,8 +128,8 @@ public class Runner {
                     return option.getDefaultValue();
                 }
             } finally {
-                if (throwableBackup == null && option.isWithLog()) {
-                    log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
+                if (throwableBackup == null && option.isAlwaysLog()) {
+                    log.with(getSignature(callable)).with("result", Json.toJson(result)).info("null");
                 } else if (throwableBackup != null){
                     log.with(getSignature(callable)).with("defaultValue", option.getDefaultValue()).error("", throwableBackup);
                 }
@@ -143,22 +143,15 @@ public class Runner {
         return call(option, callable);
     }
 
-    static public <R> R logCall(SCallable<R> callable) {
-        Option<R, Object> option = Option.<R, Object>builder().withLog(true).build();
-        return call(option, callable);
-    }
-
     @SneakyThrows
     static public <R> R call(Option<R, ?> option, SCallable<R> callable) {
-        SysException.trueThrow(option.getCheck() != null,  ErrorEnumBase.CONFIG_ERROR);
-        SysException.trueThrow(option.getTransfer() != null,  ErrorEnumBase.CONFIG_ERROR);
-        SysException.trueThrow(option.getDefaultValue() != null,  ErrorEnumBase.CONFIG_ERROR);
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
         do {
             try {
-                return callable.call();
+                result = callable.call();
+                return result;
             } catch (Throwable throwable) {
                 if (throwable instanceof InvocationTargetException) {
                     throwableBackup = ((InvocationTargetException) throwable).getTargetException();
@@ -169,8 +162,8 @@ public class Runner {
                     throw throwableBackup;
                 }
             } finally {
-                if (throwableBackup == null && option.isWithLog()) {
-                    log.with(getSignature(callable)).with("result", Json.toJson(result)).info("");
+                if (throwableBackup == null && option.isAlwaysLog()) {
+                    log.with(getSignature(callable)).with("result", Json.toJson(result)).info("null");
                 } else if (throwableBackup != null){
                     log.with(getSignature(callable)).with("defaultValue", option.getDefaultValue()).error("", throwableBackup);
                 }
