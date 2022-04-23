@@ -1,32 +1,19 @@
 package com.stellariver.milky.common.base;
 
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@SuperBuilder(builderMethodName = "mapResultBuilder")
-public class MapResult<K, T> extends Result<T> {
+public class MapResult<K, T> {
 
-    @Builder.Default
-    private List<K> failureKeys = new ArrayList<>();
 
-    @Builder.Default
-    private Map<K, Result<T>> resultMap = new HashMap<>();
+    private final Map<K, Result<T>> resultMap = new HashMap<>();
 
     public void put(K key, Result<T> result) {
-        if (!result.getSuccess()) {
-            failureKeys.add(key);
-        }
+
         resultMap.put(key, result);
     }
 
-    public Result<T> get(K key) {
+    public Result<T> getResult(K key) {
         return resultMap.get(key);
     }
 
@@ -34,8 +21,12 @@ public class MapResult<K, T> extends Result<T> {
         return Optional.ofNullable(resultMap.get(key)).map(Result::getData).orElse(null);
     }
 
-    public List<T> getDataList() {
-        return resultMap.values().stream().filter(Result::getSuccess).map(Result::getData).collect(Collectors.toList());
+    public Set<T> values() {
+        return resultMap.values().stream().map(Result::getData).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    public Set<K> keys() {
+        return resultMap.keySet();
     }
 
 }

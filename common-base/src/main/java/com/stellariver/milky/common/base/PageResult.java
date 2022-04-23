@@ -12,6 +12,7 @@ public class PageResult<T> extends Result<List<T>> {
     private final long total;
 
     private PageResult(List<T> data, long total, long pageNo, long pageSize) {
+        super();
         this.success = true;
         this.data = data;
         this.total = total;
@@ -31,15 +32,11 @@ public class PageResult<T> extends Result<List<T>> {
         return total;
     }
 
-    public static <T> PageResult<T> success(List<T> t, long total, long pageNo, long pageSize) {
-        return new PageResult<>(t, total, pageNo, pageSize);
+    public static <T> PageResult<T> success(List<T> data, long total, long pageNo, long pageSize) {
+        return new PageResult<>(data, total, pageNo, pageSize);
     }
 
     public static <T> PageResult<T> empty(long pageNo, long pageSize) {
-        return success(Collections.emptyList(), 0L, pageNo, pageSize);
-    }
-
-    public static <T> PageResult<T> empty(int pageNo, int pageSize) {
         return success(Collections.emptyList(), 0L, pageNo, pageSize);
     }
 

@@ -1,50 +1,47 @@
 package com.stellariver.milky.common.base;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-@Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+
 public class Result<T> implements Serializable {
-    /**
-     * 请求结果码
-     */
-    @Builder.Default
+
     protected Boolean success = true;
 
-    /**
-     * 请求结果数据体
-     */
     protected T data;
 
-    /**
-     * 普通请求只包含一个errorCode
-     */
     protected String errorCode;
 
-    /**
-     * 普通请求只包含一个errorCodeMessage
-     */
-    protected String errorMessage;
+    protected String message;
 
 
-    /**
-     * 异常对象
-     */
-    protected Throwable throwable;
+    protected Result() {
+    }
 
-    /**
-     * 单一请求需要返回多个errorCode
-     */
+    public Boolean getSuccess() {
+        return success;
+    }
+
+
+    public T getData() {
+        return data;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public List<Error> getErrors() {
+        return errors;
+    }
+
     protected List<Error> errors;
 
     public static <T> Result<T> success() {
@@ -53,34 +50,27 @@ public class Result<T> implements Serializable {
 
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<>();
-        result.setData(data);
+        result.data = data;
         return result;
     }
 
     public static <T> Result<T> with(Error error) {
-        return Result.<T>builder().errorCode(error.getCode())
-                .errorMessage(error.getMessage())
-                .errors(Collections.singletonList(error))
-                .success(false)
-                .build();
-    }
-
-    public static <T> Result<T> with(Error error, Throwable throwable) {
-        return Result.<T>builder().errorCode(error.getCode())
-                .errorMessage(error.getMessage())
-                .throwable(throwable)
-                .errors(Collections.singletonList(error))
-                .success(false)
-                .build();
+        Result<T> result = new Result<>();
+        result.success = false;
+        result.errorCode =error.getCode();
+        result.message = error.getMessage();
+        result.errors = Collections.singletonList(error);
+        return result;
     }
 
     public static <T> Result<T> with(List<Error> errors) {
-        Error error = errors.get(0);
-        return Result.<T>builder().errorCode(error.getCode())
-                .errorMessage(error.getMessage())
-                .errors(Collections.singletonList(error))
-                .success(false)
-                .build();
+        Result<T> result = new Result<>();
+        result.success = false;
+        result.errorCode = errors.get(0).getCode();
+        result.message = errors.get(0).getMessage();
+        result.errors = errors;
+        return result;
     }
+
 
 }
