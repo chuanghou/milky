@@ -45,18 +45,19 @@ public class Error {
     }
 
     public Error message(Supplier<String> supplier) {
-        return this.toBuilder().message(supplier.get()).build();
+        return this.copy().message(supplier.get());
     }
 
     public Error message(String message) {
-        return this.toBuilder().message(message).build();
+        return this.copy().message(message);
     }
 
-    public Error message(Object object) {return this.toBuilder().message(Objects.toString(object)).build();}
+    public Error message(Object object) {return this.copy().message(Objects.toString(object));}
 
-    private ErrorBuilder toBuilder() {
-        return new ErrorBuilder().code(this.code).message(this.message).extendInfo(this.extendInfo);
+    private Error copy() {
+        return new ErrorBuilder().code(this.code).message(this.message).extendInfo(this.extendInfo).build();
     }
+
     @Override
     public String toString() {
         return "ErrorCode.ErrorCodeBuilder(code=" + this.code + ", message=" + this.message +  ", extendInfo=" + this.extendInfo + ")";
