@@ -1,20 +1,18 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.tool.util.Collect;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public interface BaseQuery<T, ID> {
 
     default Optional<T> queryById(ID id) {
-        List<T> ts = queryByIds(Collections.singletonList(id));
-        if (Collect.isEmpty(ts)) {
-            return Optional.empty();
-        }
-        return Optional.of(ts.get(0));
+        Map<ID, T> mapResult = queryMapByIds(new HashSet<>(Collections.singletonList(id)));
+        return Optional.ofNullable(mapResult.get(id));
     }
 
-    List<T> queryByIds(List<ID> ids);
+    default List<T> queryByIds(List<ID> ids) {
+        return new ArrayList<>(queryMapByIds(new HashSet<>(ids)).values());
+    }
+
+    Map<ID, T> queryMapByIds(Set<ID> ids);
 }
