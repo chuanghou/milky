@@ -24,7 +24,7 @@ public class Error {
         this.extendInfo = extendInfo;
     }
 
-    public static ErrorBuilder builder() {
+    private static ErrorBuilder builder() {
         return new ErrorBuilder();
     }
 
@@ -54,7 +54,7 @@ public class Error {
 
     public Error message(Object object) {return this.toBuilder().message(Objects.toString(object)).build();}
 
-    public ErrorBuilder toBuilder() {
+    private ErrorBuilder toBuilder() {
         return new ErrorBuilder().code(this.code).message(this.message).extendInfo(this.extendInfo);
     }
     @Override
@@ -62,7 +62,7 @@ public class Error {
         return "ErrorCode.ErrorCodeBuilder(code=" + this.code + ", message=" + this.message +  ", extendInfo=" + this.extendInfo + ")";
     }
 
-    public static class ErrorBuilder {
+    private static class ErrorBuilder {
         private String code;
         private String message;
         private Map<String, Object> extendInfo;
