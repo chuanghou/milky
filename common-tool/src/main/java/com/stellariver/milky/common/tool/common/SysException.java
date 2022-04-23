@@ -6,7 +6,7 @@ import com.stellariver.milky.common.tool.util.Json;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class SysException extends RuntimeException {
+public class SysException extends BaseException {
 
     private final String errorCode;
 
@@ -47,9 +47,9 @@ public class SysException extends RuntimeException {
         }
     }
 
-    static public void nullThrowMessage(Object param, Object object) {
+    static public void nullThrowMessage(Object param, Object messageObject) {
         if (param == null) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(Objects.toString(object)));
+            throw new SysException(Json.toJson(messageObject));
         }
     }
 
@@ -65,27 +65,23 @@ public class SysException extends RuntimeException {
         }
     }
 
-    static public void falseThrowGet(boolean test, Supplier<Error> supplier) {
+    static public void trueThrow(boolean test, Object object) {
         if (test) {
-            throw new SysException(supplier.get());
+            throw new SysException(Json.toJson(object));
         }
+    }
+
+
+    static public void falseThrowGet(boolean test, Supplier<Error> supplier) {
+        trueThrowGet(!test, supplier);
     }
 
     static public void falseThrow(boolean test, Error error) {
-        if (!test) {
-            throw new SysException(error);
-        }
+        trueThrow(!test, error);
     }
 
-    static public void trueThrow(boolean test, Object object) {
-        if (test) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(Json.toJson(object)));
-        }
-    }
 
     static public void falseThrow(boolean test,  Object object) {
-        if (!test) {
-            throw new SysException(ErrorEnumBase.UNDEFINED.message(Json.toJson(object)));
-        }
+        trueThrow(!test, object);
     }
 }

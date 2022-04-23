@@ -165,7 +165,7 @@ public class Runner {
                 if (throwableBackup == null && option.isAlwaysLog()) {
                     log.with(getSignature(callable)).with("result", Json.toJson(result)).info("null");
                 } else if (throwableBackup != null){
-                    log.with(getSignature(callable)).with("defaultValue", option.getDefaultValue()).error("", throwableBackup);
+                    log.with(getSignature(callable)).error("", throwableBackup);
                 }
             }
         } while (retryTimes-- > 0);

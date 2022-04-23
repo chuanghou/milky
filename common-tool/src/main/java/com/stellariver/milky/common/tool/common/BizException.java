@@ -2,6 +2,7 @@ package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.base.Error;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.Json;
 
 import java.util.*;
 import java.util.function.Function;
@@ -9,7 +10,7 @@ import java.util.function.Supplier;
 
 /**
  */
-public class BizException extends RuntimeException {
+public class BizException extends BaseException {
 
     private final String errorCode;
 
@@ -44,18 +45,10 @@ public class BizException extends RuntimeException {
         return errors;
     }
 
-    static public void nullThrow(Object... params) {
-        boolean haveNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
-        if (haveNullValue) {
-            throw new BizException(ErrorEnumBase.PARAM_IS_NULL);
-        }
-    }
 
-    static public <T, K> void nullThrow(T param, Function<T, K> deepFinder) {
-        if (param == null) {
-            throw new BizException(ErrorEnumBase.PARAM_IS_NULL);
-        }
-        if (deepFinder.apply(param) == null) {
+    static public void anyNullThrow(Object... params) {
+        boolean containNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
+        if (containNullValue) {
             throw new BizException(ErrorEnumBase.PARAM_IS_NULL);
         }
     }
@@ -66,14 +59,11 @@ public class BizException extends RuntimeException {
         }
     }
 
-    static public void nullThrow(Object param, Error error) {
-        if (param == null) {
-            throw new BizException(error);
-        }
-    }
 
-    static public void with(Error error) {
-        throw new BizException(error);
+    static public void trueThrowGet(boolean test, Supplier<Error> supplier) {
+        if (test) {
+            throw new BizException(supplier.get());
+        }
     }
 
     static public void trueThrow(boolean test, Error error) {
@@ -82,36 +72,13 @@ public class BizException extends RuntimeException {
         }
     }
 
+
+    static public void falseThrowGet(boolean test, Supplier<Error> supplier) {
+        trueThrowGet(!test, supplier);
+    }
+
     static public void falseThrow(boolean test, Error error) {
-        if (!test) {
-            throw new BizException(error);
-        }
-    }
-
-    static private ThreadLocal<List<Error>> temporaryErrors;
-
-    /**
-     * 对于任何一个init函数都必须在有try-final块里面有 removeTemporaryErrorCodes（）操作
-     */
-    static public void initTemporaryErrors() {
-        temporaryErrors = new ThreadLocal<>();
-        temporaryErrors.set(new ArrayList<>());
-    }
-
-    static public void removeTemporaryErrors() {
-        Optional.ofNullable(temporaryErrors).ifPresent(ThreadLocal::remove);
-    }
-
-    static public void addTemporaryError(Error error) {
-        Optional.ofNullable(temporaryErrors)
-                .map(ThreadLocal::get)
-                .orElseThrow(() -> new BizException(ErrorEnumBase
-                        .CONFIG_ERROR.message("temporaryErrorCodes container need explicitly init!")))
-                .add(error);
-    }
-
-    static public List<Error> getTemporaryErrors() {
-        return Optional.ofNullable(temporaryErrors).map(ThreadLocal::get).orElse(new ArrayList<>());
+        trueThrow(!test, error);
     }
 
 }
