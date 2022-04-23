@@ -13,7 +13,7 @@ public class Error {
 
     private Map<String, Object> extendInfo;
 
-    protected Error(String code, String message){
+    private Error(String code, String message){
         this.code = code;
         this.message = message;
     }
