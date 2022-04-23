@@ -1,7 +1,6 @@
 package com.stellariver.milky.common.base;
 
 
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
