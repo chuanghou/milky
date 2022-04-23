@@ -60,7 +60,11 @@ public class Error {
 
     @Override
     public String toString() {
-        return "ErrorCode.ErrorCodeBuilder(code=" + this.code + ", message=" + this.message +  ", extendInfo=" + this.extendInfo + ")";
+        return "Error{" +
+                "code='" + code + '\'' +
+                ", message='" + message + '\'' +
+                ", extendInfo=" + extendInfo +
+                '}';
     }
 
     private static class ErrorBuilder {
