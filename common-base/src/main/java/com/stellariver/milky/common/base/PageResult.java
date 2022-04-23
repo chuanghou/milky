@@ -5,11 +5,15 @@ import java.util.List;
 
 public class PageResult<T> extends Result<List<T>> {
 
-    private final long pageNo;
+    private long pageNo;
 
-    private final long pageSize;
+    private long pageSize;
 
-    private final long total;
+    private long total;
+
+    private PageResult() {
+        super();
+    }
 
     private PageResult(List<T> data, long total, long pageNo, long pageSize) {
         super();
@@ -38,6 +42,24 @@ public class PageResult<T> extends Result<List<T>> {
 
     public static <T> PageResult<T> empty(long pageNo, long pageSize) {
         return success(Collections.emptyList(), 0L, pageNo, pageSize);
+    }
+
+    public static <T> PageResult<T> error(Error error) {
+        PageResult<T> pageResult = new PageResult<>();
+        pageResult.success = false;
+        pageResult.errorCode =error.getCode();
+        pageResult.message = error.getMessage();
+        pageResult.errors = Collections.singletonList(error);
+        return pageResult;
+    }
+
+    public static <T> PageResult<T> errors(List<Error> errors) {
+        PageResult<T> pageResult = new PageResult<>();
+        pageResult.success = false;
+        pageResult.errorCode = errors.get(0).getCode();
+        pageResult.message = errors.get(0).getMessage();
+        pageResult.errors = errors;
+        return pageResult;
     }
 
 }

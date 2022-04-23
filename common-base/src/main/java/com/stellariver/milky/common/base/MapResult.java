@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 public class MapResult<K, T> {
 
-
     private final Map<K, Result<T>> resultMap = new HashMap<>();
 
     public void put(K key, Result<T> result) {
