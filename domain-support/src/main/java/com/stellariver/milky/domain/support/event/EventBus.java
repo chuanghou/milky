@@ -68,8 +68,6 @@ public class EventBus {
                     tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor);
                 });
 
-
-
         Set<Class<? extends Event>> eventClasses = milkySupport.getReflections().getSubTypesOf(Event.class);
 
         // according to inherited relation to collect final command interceptors map, all ancestor interceptor
