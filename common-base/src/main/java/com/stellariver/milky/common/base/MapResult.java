@@ -7,9 +7,13 @@ public class MapResult<K, T> {
 
     private final Map<K, Result<T>> resultMap = new HashMap<>();
 
-    public void put(K key, Result<T> result) {
-
+    public MapResult<K, T> put(K key, Result<T> result) {
         resultMap.put(key, result);
+        return this;
+    }
+
+    public boolean containsKey(K k) {
+        return resultMap.containsKey(k);
     }
 
     public Result<T> getResult(K key) {
@@ -20,12 +24,13 @@ public class MapResult<K, T> {
         return Optional.ofNullable(resultMap.get(key)).map(Result::getData).orElse(null);
     }
 
+    public Set<K> keys() {
+        return resultMap.keySet();
+    }
+
     public Set<T> values() {
         return resultMap.values().stream().map(Result::getData).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
-    public Set<K> keys() {
-        return resultMap.keySet();
-    }
 
 }

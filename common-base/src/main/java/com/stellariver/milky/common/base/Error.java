@@ -48,15 +48,11 @@ public class Error {
         return this.copy().message(supplier.get());
     }
 
-    public Error message(String message) {
-        return this.copy().message(message);
+    public Error message(String object) {
+        return this.copy().message(Objects.toString(object));
     }
 
     public Error message(Object object) {return this.copy().message(Objects.toString(object));}
-
-    private Error copy() {
-        return new ErrorBuilder().code(this.code).message(this.message).extendInfo(this.extendInfo).build();
-    }
 
     @Override
     public String toString() {
@@ -65,6 +61,10 @@ public class Error {
                 ", message='" + message + '\'' +
                 ", extendInfo=" + extendInfo +
                 '}';
+    }
+
+    private Error copy() {
+        return new ErrorBuilder().code(this.code).message(this.message).extendInfo(this.extendInfo).build();
     }
 
     private static class ErrorBuilder {

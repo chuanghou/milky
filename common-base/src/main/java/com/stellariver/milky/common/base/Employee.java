@@ -2,6 +2,8 @@ package com.stellariver.milky.common.base;
 
 public class Employee {
 
+    public static final Employee system = new Employee("system", "system");
+
     private final String id;
 
     private final String name;
@@ -16,9 +18,7 @@ public class Employee {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
-
-    public static final Employee system = new Employee("system", "system");
 
 }

@@ -193,8 +193,9 @@ public class CommandBus {
             SysException.trueThrow(!Objects.equals(name, "handle"),
                     ErrorEnum.CONFIG_ERROR.message("command handler's name should be handle, not " + name));
             boolean hasReturn = !method.getReturnType().getName().equals("void");
-            List<String> requiredKeys = Arrays.asList(annotation.dependencyKeys());
-            Handler handler = new Handler(clazz, method, null, hasReturn, requiredKeys);
+            boolean isStatic = Modifier.isStatic(method.getModifiers());
+            List<String> requiredKeys = Arrays.asList(annotation.dependencies());
+            Handler handler = new Handler(clazz, method, null, isStatic, hasReturn, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
             if (commandHandlers.containsKey(commandType)) {
                 throw new SysException(ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
@@ -210,9 +211,9 @@ public class CommandBus {
         constructors.forEach(constructor -> {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             CommandHandler annotation = constructor.getAnnotation(CommandHandler.class);
-            List<String> requiredKeys = Arrays.asList(annotation.dependencyKeys());
+            List<String> requiredKeys = Arrays.asList(annotation.dependencies());
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) constructor.getDeclaringClass();
-            Handler handler = new Handler(clazz, null, constructor, false, requiredKeys);
+            Handler handler = new Handler(clazz, null, constructor, false, true, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
             if (commandHandlers.containsKey(commandType)) {
                 throw new SysException(ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
@@ -367,13 +368,16 @@ public class CommandBus {
                 throw new SysException(e);
             }
             Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
-        } else {
+        } else if (!commandHandler.isStatic){
             Optional<? extends AggregateRoot> optional = (Optional<? extends AggregateRoot>)
                     Runner.invoke(repository.bean, repository.getMethod, command.getAggregateId(), context);
             aggregate = optional.orElseThrow(() -> new SysException("aggregateId: " + command.getAggregateId() + " not exists!"));
             result = Runner.invoke(aggregate, commandHandler.method, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
             If.isTrue(present, () -> Runner.invoke(repository.bean, repository.updateMethod, aggregate, context));
+        } else {
+            aggregate = (AggregateRoot) Runner.invoke(null, commandHandler.method, command, context);
+            Runner.invoke(repository.bean, repository.updateMethod, aggregate, context);
         }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
                 .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context)));
@@ -432,6 +436,8 @@ public class CommandBus {
         private Method method;
 
         private Constructor<?> constructor;
+
+        private boolean isStatic;
 
         private boolean hasReturn;
 

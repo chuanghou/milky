@@ -2,6 +2,6 @@ package com.stellariver.milky.common.base;
 
 public class ErrorEnum {
 
-    static public final Error SYSTEM_EXCPTION = Error.code("SYSTEM_EXCEPTION").message("系统异常");
+    public static final Error SYSTEM_EXCEPTION = Error.code("SYSTEM_EXCEPTION").message("系统异常");
 
 }

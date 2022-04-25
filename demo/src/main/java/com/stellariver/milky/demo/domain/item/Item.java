@@ -27,7 +27,7 @@ public class Item extends AggregateRoot {
 
     String userName;
 
-    @CommandHandler(dependencyKeys = "userName")
+    @CommandHandler(dependencies = "userName")
     public Item(ItemCreateCommand command, Context context) {
         this.itemId = command.getItemId();
         this.title = command.getTitle();
