@@ -18,10 +18,9 @@ public class Result<T> implements Serializable {
 
     protected List<Error> errors;
 
-    public Boolean getSuccess() {
+    public Boolean isSuccess() {
         return success;
     }
-
 
     public T getData() {
         return this.data;
@@ -36,7 +35,7 @@ public class Result<T> implements Serializable {
     }
 
     public List<Error> getErrors() {
-        return errors;
+        return this.errors;
     }
 
     public static <T> Result<T> success() {
@@ -66,6 +65,5 @@ public class Result<T> implements Serializable {
         result.errors = errors;
         return result;
     }
-
 
 }
