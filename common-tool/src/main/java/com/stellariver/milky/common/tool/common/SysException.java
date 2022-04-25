@@ -41,6 +41,12 @@ public class SysException extends BaseException {
         }
     }
 
+    static public void nullThrow(Object param) {
+        if (param == null) {
+            throw new SysException(ErrorEnumBase.PARAM_IS_NULL);
+        }
+    }
+
     static public void nullThrow(Object param, Supplier<Error> supplier) {
         if (param == null) {
             throw new SysException(supplier.get());
@@ -71,7 +77,6 @@ public class SysException extends BaseException {
         }
     }
 
-
     static public void falseThrowGet(boolean test, Supplier<Error> supplier) {
         trueThrowGet(!test, supplier);
     }
@@ -79,7 +84,6 @@ public class SysException extends BaseException {
     static public void falseThrow(boolean test, Error error) {
         trueThrow(!test, error);
     }
-
 
     static public void falseThrow(boolean test,  Object object) {
         trueThrow(!test, object);

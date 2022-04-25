@@ -1,6 +1,5 @@
 package com.stellariver.milky.common.base;
 
-
 public class Enum {
 
     private final String code;

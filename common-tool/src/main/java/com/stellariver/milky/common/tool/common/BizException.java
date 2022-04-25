@@ -2,7 +2,6 @@ package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.base.Error;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.common.tool.util.Json;
 
 import java.util.*;
 import java.util.function.Function;
@@ -53,6 +52,7 @@ public class BizException extends BaseException {
         }
     }
 
+
     static public void nullThrow(Object param, Supplier<Error> supplier) {
         if (param == null) {
             throw new BizException(supplier.get());
@@ -71,7 +71,6 @@ public class BizException extends BaseException {
             throw new BizException(error);
         }
     }
-
 
     static public void falseThrowGet(boolean test, Supplier<Error> supplier) {
         trueThrowGet(!test, supplier);

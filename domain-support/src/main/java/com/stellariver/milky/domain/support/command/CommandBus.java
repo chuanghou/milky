@@ -118,7 +118,6 @@ public class CommandBus {
 
         Set<Class<? extends Command>> commandClasses = reflections.getSubTypesOf(Command.class);
 
-        // according to inherited relation to collect final command interceptors map, all ancestor interceptor
         commandClasses.forEach(commandClass -> {
             List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass)
                     .stream().filter(Command.class::isAssignableFrom).collect(Collectors.toList());
@@ -377,7 +376,7 @@ public class CommandBus {
             If.isTrue(present, () -> Runner.invoke(repository.bean, repository.updateMethod, aggregate, context));
         } else {
             aggregate = (AggregateRoot) Runner.invoke(null, commandHandler.method, command, context);
-            Runner.invoke(repository.bean, repository.updateMethod, aggregate, context);
+            Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
         }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
                 .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context)));

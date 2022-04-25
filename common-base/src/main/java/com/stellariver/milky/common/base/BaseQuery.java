@@ -7,19 +7,24 @@ public interface BaseQuery<T, ID> {
 
     Map<ID, T> queryMapByIds(Set<ID> ids);
 
-    default T queryById(ID id) {
-        Map<ID, T> mapResult = queryMapByIds(new HashSet<>(Collections.singletonList(id)));
-        return Optional.of(mapResult.get(id))
-                .orElseThrow(() -> new RuntimeException(String.format("entity of %s not exists", id)));
+    default Set<T> querySetById(ID id) {
+        return new HashSet<>(queryMapByIds(new HashSet<>(Collections.singletonList(id))).values());
+    }
+
+    default List<T> queryListByIds(Set<ID> ids) {
+        return new ArrayList<>(queryMapByIds(ids).values());
     }
 
     default Optional<T> queryByIdOptional(ID id) {
-        Map<ID, T> mapResult = queryMapByIds(new HashSet<>(Collections.singletonList(id)));
-        return Optional.ofNullable(mapResult.get(id));
+        Set<ID> ids = new HashSet<>(Collections.singletonList(id));
+        Map<ID, T> tMap = queryMapByIds(ids);
+        return Optional.ofNullable(tMap).map(m -> m.get(id));
     }
 
-    default Set<T> queryByIds(Set<ID> ids) {
-        return new HashSet<>(queryMapByIds(ids).values());
+    default T queryById(ID id) {
+        Map<ID, T> mapResult = queryMapByIds(new HashSet<>(Collections.singletonList(id)));
+        return Optional.of(mapResult.get(id))
+                .orElseThrow(() -> new RuntimeException(String.format("could not find " + id)));
     }
 
 }

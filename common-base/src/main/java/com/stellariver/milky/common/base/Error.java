@@ -48,11 +48,13 @@ public class Error {
         return this.copy().message(supplier.get());
     }
 
-    public Error message(String object) {
+    public Error message(Objects object) {
         return this.copy().message(Objects.toString(object));
     }
 
-    public Error message(Object object) {return this.copy().message(Objects.toString(object));}
+    public Error message(String message) {
+        return this.copy().message(message);
+    }
 
     @Override
     public String toString() {

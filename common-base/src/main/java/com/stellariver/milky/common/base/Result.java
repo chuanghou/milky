@@ -16,9 +16,7 @@ public class Result<T> implements Serializable {
 
     protected String message;
 
-
-    protected Result() {
-    }
+    protected List<Error> errors;
 
     public Boolean getSuccess() {
         return success;
@@ -26,22 +24,20 @@ public class Result<T> implements Serializable {
 
 
     public T getData() {
-        return data;
+        return this.data;
     }
 
     public String getErrorCode() {
-        return errorCode;
+        return this.errorCode;
     }
 
     public String getMessage() {
-        return message;
+        return this.message;
     }
 
     public List<Error> getErrors() {
         return errors;
     }
-
-    protected List<Error> errors;
 
     public static <T> Result<T> success() {
         return new Result<>();
@@ -56,7 +52,7 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> with(Error error) {
         Result<T> result = new Result<>();
         result.success = false;
-        result.errorCode =error.getCode();
+        result.errorCode = error.getCode();
         result.message = error.getMessage();
         result.errors = Collections.singletonList(error);
         return result;

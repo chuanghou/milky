@@ -109,7 +109,7 @@ public class Collect {
     public static <T> Set<T> inter(Collection<T> collection1, Collection<T> collection2) {
         Set<T> set1 = Optional.ofNullable(collection1).map(HashSet::new).orElseGet(HashSet::new);
         Set<T> set2 = Optional.ofNullable(collection2).map(HashSet::new).orElseGet(HashSet::new);
-        return Sets.difference(set1, set2);
+        return Sets.intersection(set1, set2);
     }
 
     public static <T> Set<T> symmetric(Collection<T> collection1, Collection<T> collection2) {

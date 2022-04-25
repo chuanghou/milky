@@ -6,18 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BaseException extends RuntimeException {
+public abstract class BaseException extends RuntimeException {
 
 
-    protected BaseException(String message) {
+    public BaseException(String message) {
         super(message);
     }
 
-    protected BaseException(String message, Throwable cause) {
+    public BaseException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    protected BaseException(Throwable cause) {
+    public BaseException(Throwable cause) {
         super(cause);
     }
 
@@ -46,5 +46,4 @@ public class BaseException extends RuntimeException {
     static public List<Error> getTemporaryErrors() {
         return Optional.ofNullable(temporaryErrors).map(ThreadLocal::get).orElse(new ArrayList<>());
     }
-
 }

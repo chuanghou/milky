@@ -1,0 +1,17 @@
+package com.stellariver.milky.common.tool.common;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Key {
+
+    String nameSpace;
+
+    String identifier;
+
+}
