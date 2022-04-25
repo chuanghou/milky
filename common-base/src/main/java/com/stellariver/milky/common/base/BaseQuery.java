@@ -7,8 +7,8 @@ public interface BaseQuery<T, ID> {
 
     Map<ID, T> queryMapByIds(Set<ID> ids);
 
-    default Set<T> querySetById(ID id) {
-        return new HashSet<>(queryMapByIds(new HashSet<>(Collections.singletonList(id))).values());
+    default Set<T> querySetByIds(Set<ID> ids) {
+        return new HashSet<>(queryMapByIds(ids).values());
     }
 
     default List<T> queryListByIds(Set<ID> ids) {
@@ -22,9 +22,9 @@ public interface BaseQuery<T, ID> {
     }
 
     default T queryById(ID id) {
-        Map<ID, T> mapResult = queryMapByIds(new HashSet<>(Collections.singletonList(id)));
-        return Optional.of(mapResult.get(id))
-                .orElseThrow(() -> new RuntimeException(String.format("could not find " + id)));
+        Set<ID> ids = new HashSet<>(Collections.singletonList(id));
+        Map<ID, T> tMap = queryMapByIds(ids);
+        return Optional.ofNullable(tMap).map(m -> m.get(id)).orElseThrow(() -> new RuntimeException(String.format("could not find " + id)));
     }
 
 }
