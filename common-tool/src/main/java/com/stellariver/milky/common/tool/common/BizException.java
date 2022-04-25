@@ -44,7 +44,6 @@ public class BizException extends BaseException {
         return errors;
     }
 
-
     static public void anyNullThrow(Object... params) {
         boolean containNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
         if (containNullValue) {
@@ -52,13 +51,11 @@ public class BizException extends BaseException {
         }
     }
 
-
     static public void nullThrow(Object param, Supplier<Error> supplier) {
         if (param == null) {
             throw new BizException(supplier.get());
         }
     }
-
 
     static public void trueThrowGet(boolean test, Supplier<Error> supplier) {
         if (test) {

@@ -16,7 +16,7 @@ public class SysException extends BaseException {
     }
 
     public SysException(Object object) {
-        super(Objects.toString(object));
+        super(Json.toJson(object));
         this.errorCode = ErrorEnumBase.UNDEFINED.getCode();
     }
 
