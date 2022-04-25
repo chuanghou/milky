@@ -48,7 +48,7 @@ public class Error {
         return this.copy().message(supplier.get());
     }
 
-    public Error message(Objects object) {
+    public Error message(Object object) {
         return this.copy().message(Objects.toString(object));
     }
 
