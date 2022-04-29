@@ -77,7 +77,6 @@ public class EventBus {
                             .order(annotation.order()).posEnum(annotation.pos()).build();
                     Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
                                     .forEach(eC -> tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor));
-                    tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor);
                 });
 
         // divided into before and after
