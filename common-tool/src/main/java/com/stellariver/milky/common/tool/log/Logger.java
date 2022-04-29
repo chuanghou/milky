@@ -73,7 +73,7 @@ public class Logger implements org.slf4j.Logger {
 
     private void afterLog() {
         MortalMap<String, String> originalContents = originalThreadLocalContents.get();
-        if(!Collect.isEmpty(originalContents)) {
+        if (Collect.isNotEmpty(originalContents)) {
             originalContents.forEach(MDC::put);
             originalContents.clear();
         }
