@@ -293,12 +293,6 @@ public class CommandBus {
         instance.route(command);
     }
 
-    /**
-     * 针对内部事件调用的命令总线接口
-     * @param command 命令
-     * @param <T> 命令泛型
-     * @return 总结结果
-     */
     private <T extends Command> Object route(T command) {
         SysException.anyNullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());

@@ -62,6 +62,7 @@ public class EventBus {
                         routerMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
                     });
         });
+
         HashMap<Class<? extends Event>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
@@ -76,7 +77,7 @@ public class EventBus {
                     Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
                             .order(annotation.order()).posEnum(annotation.pos()).build();
                     Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
-                                    .forEach(eC -> tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor));
+                            .forEach(eC -> tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor));
                 });
 
         // divided into before and after
