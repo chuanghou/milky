@@ -13,7 +13,7 @@ import java.util.Map;
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@FieldDefaults(level = AccessLevel.PACKAGE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CommandRecord extends MessageRecord{
 
     Map<String, Object> dependencies;

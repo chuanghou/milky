@@ -56,7 +56,7 @@ public class Error {
         return this.copy().withMessage(message);
     }
 
-    public Error withMessage(String message) {
+    private Error withMessage(String message) {
         this.message = message;
         return this;
     }

@@ -67,15 +67,15 @@ public class Logger implements org.slf4j.Logger {
     }
 
     private String buildLogTag() {
-        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[4];
-        return String.format("%s#%s", stackTraceElement.getClassName(), stackTraceElement.getLineNumber());
+        StackTraceElement stackElement = Thread.currentThread().getStackTrace()[4];
+        return String.format("%s#%s", stackElement.getClassName(), stackElement.getLineNumber());
     }
 
     private void afterLog() {
         MortalMap<String, String> originalContents = originalThreadLocalContents.get();
         if(!Collect.isEmpty(originalContents)) {
-            originalThreadLocalContents.get().forEach(MDC::put);
-            originalThreadLocalContents.get().clear();
+            originalContents.forEach(MDC::put);
+            originalContents.clear();
         }
     }
 
