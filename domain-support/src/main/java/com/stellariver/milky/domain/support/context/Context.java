@@ -4,7 +4,10 @@ package com.stellariver.milky.domain.support.context;
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.domain.support.ErrorEnum;
+import com.stellariver.milky.domain.support.base.CommandRecord;
+import com.stellariver.milky.domain.support.base.EventRecord;
 import com.stellariver.milky.domain.support.base.Message;
+import com.stellariver.milky.domain.support.base.MessageRecord;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.util.BeanUtil;
@@ -30,7 +33,7 @@ public class Context{
 
     private final List<Event> processedEvents = new ArrayList<>();
 
-    private final List<Message> recordedMessages = new ArrayList<>();
+    private final List<MessageRecord> messageRecords = new ArrayList<>();
 
     public Object peekMetaData(String key) {
         return metaData.get(key);
@@ -62,6 +65,10 @@ public class Context{
         return dependencies.get(key);
     }
 
+    public Map<String, Object> getDependencies() {
+        return dependencies;
+    }
+
     public void putDependency(String key, Object value) {
         dependencies.put(key, value);
     }
@@ -72,27 +79,28 @@ public class Context{
 
     public void publish(@Nonnull Event event) {
         SysException.anyNullThrow(event);
-        events.add(event);
-        recordMessage(event);
+        events.add(0, event);
     }
 
-    public void recordMessage(@Nonnull Message message) {
-        SysException.anyNullThrow(message);
-        recordedMessages.add(message);
+    public void recordCommand(@Nonnull CommandRecord commandRecord) {
+        SysException.anyNullThrow(commandRecord);
+        messageRecords.add(commandRecord);
     }
 
-    public List<Message> getRecordedMessages() {
-        return recordedMessages;
+    public void recordEvent(@Nonnull EventRecord eventRecord) {
+        SysException.anyNullThrow(eventRecord);
+        messageRecords.add(eventRecord);
+    }
+
+    public List<MessageRecord> getMessageRecords() {
+        return messageRecords;
     }
 
     @Nullable
-    public Event popEvent() {
-        Event event = null;
-        if (!events.isEmpty()) {
-            event = events.remove(0);
-            processedEvents.add(event);
-        }
-        return event;
+    public List<Event> popEvents() {
+        List<Event> popEvents = new ArrayList<>(this.events);
+        events.clear();
+        return popEvents;
     }
 
     public List<Event> getProcessedEvents() {

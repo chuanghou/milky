@@ -15,6 +15,7 @@ public class Reflect {
             classes.add((Class<? extends T>) superClazz);
             superClazz = superClazz.getSuperclass();
         }
+        classes.add((Class<? extends T>) superClazz);
         Collections.reverse(classes);
         return classes;
     }

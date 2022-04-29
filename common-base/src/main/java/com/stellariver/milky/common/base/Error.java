@@ -9,7 +9,7 @@ public class Error {
 
     private final String code;
 
-    private final String message;
+    private String message;
 
     private Map<String, Object> extendInfo;
 
@@ -45,15 +45,20 @@ public class Error {
     }
 
     public Error message(Supplier<String> supplier) {
-        return this.copy().message(supplier.get());
+        return this.copy().withMessage(supplier.get());
     }
 
     public Error message(Object object) {
-        return this.copy().message(Objects.toString(object));
+        return this.copy().withMessage(Objects.toString(object));
     }
 
     public Error message(String message) {
-        return this.copy().message(message);
+        return this.copy().withMessage(message);
+    }
+
+    public Error withMessage(String message) {
+        this.message = message;
+        return this;
     }
 
     @Override

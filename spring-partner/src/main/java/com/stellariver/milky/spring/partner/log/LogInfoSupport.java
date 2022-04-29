@@ -30,12 +30,9 @@ public class LogInfoSupport {
             result = proceedingJoinPoint.proceed();
         } finally {
             Date endTime = SystemClock.date();
-            LogInfo logInfo = methodInfo.getMethod().getAnnotation(LogInfo.class);
-            String logTag = logInfo.logTag().equals("default") ? methodInfo.methodReference() : logInfo.logTag();
             log.with("methodInfo", methodInfo).with("startTime", startTime)
                     .with("result", result).with("endTime", endTime)
                     .with("cost", SystemClock.now() - start)
-                    .withLogTag(logTag)
                     .info("");
         }
         return result;

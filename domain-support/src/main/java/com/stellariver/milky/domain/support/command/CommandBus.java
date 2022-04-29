@@ -87,16 +87,14 @@ public class CommandBus {
 
         prepareRepositories(milkySupport);
 
-        prepareCommandBusInterceptors(milkySupport);
+        prepareCommandInterceptors(milkySupport);
 
         instance = this;
 
     }
 
-
-
     @SuppressWarnings("unchecked")
-    private void prepareCommandBusInterceptors(MilkySupport milkySupport) {
+    private void prepareCommandInterceptors(MilkySupport milkySupport) {
 
         HashMap<Class<? extends Command>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
 
@@ -176,10 +174,8 @@ public class CommandBus {
     @SuppressWarnings("unchecked")
     private void prepareCommandHandlers() {
         Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);
-
         boolean secondInherited = classes.stream().map(Reflect::ancestorClasses).anyMatch(list -> list.size() > 3);
         SysException.trueThrow(secondInherited, AGGREGATE_INHERITED);
-
         List<Method> methods = classes.stream().map(Class::getMethods).flatMap(Stream::of)
                 .filter(m -> format.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
@@ -257,11 +253,6 @@ public class CommandBus {
         return instance.doSend(command, parameters);
     }
 
-    static public <T extends Command> void driveByEvent(T command, Event sourceEvent) {
-        command.setInvokeTrace(InvokeTrace.build(sourceEvent));
-        instance.route(command);
-    }
-
     /**
      * 针对应用层调用的命令总线接口
      * @param command 外部命令
@@ -278,14 +269,14 @@ public class CommandBus {
         try {
             result = route(command);
             context.getProcessedEvents().forEach(event -> eventBus.asyncRoute(event, context));
-            List<Message> recordedMessages = context.getRecordedMessages();
+            List<MessageRecord> messageRecords = context.getMessageRecords();
             asyncExecutor.execute(() -> {
                 traceRepository.insert(invocationId, context);
-                traceRepository.batchInsert(recordedMessages, context);
+                traceRepository.batchInsert(messageRecords, context);
             });
         } catch (Throwable throwable) {
             log.with("context", Json.toJson(context)).error("", throwable);
-            List<Message> recordedMessages = context.getRecordedMessages();
+            List<MessageRecord> recordedMessages = context.getMessageRecords();
             asyncExecutor.execute(() -> {
                 traceRepository.insert(invocationId, context, false);
                 traceRepository.batchInsert(recordedMessages, context);
@@ -296,6 +287,12 @@ public class CommandBus {
         }
         return result;
     }
+
+    static public <T extends Command> void driveByEvent(T command, Event sourceEvent) {
+        command.setInvokeTrace(InvokeTrace.build(sourceEvent));
+        instance.route(command);
+    }
+
     /**
      * 针对内部事件调用的命令总线接口
      * @param command 命令
@@ -309,7 +306,6 @@ public class CommandBus {
         Object result = null;
         Context context = tLContext.get();
         String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
-        context.recordMessage(command);
         String encryptionKey = UUID.randomUUID().toString();
         try {
             if (concurrentOperate.tryLock(lockKey, encryptionKey, command.lockExpireMils())) {
@@ -333,13 +329,11 @@ public class CommandBus {
             boolean unlock = concurrentOperate.unlock(command.getAggregateId(), encryptionKey);
             SysException.falseThrow(unlock, "unlock " + command.getAggregateId() + " failure!");
         }
-        Event event = context.popEvent();
-        while (event != null) {
+        context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
-            Event finalEvent = event;
-            Runner.run(() -> eventBus.syncRoute(finalEvent, tLContext.get()));
-            event = context.popEvent();
-        }
+            context.recordEvent(EventRecord.builder().message(event).build());
+            Runner.run(() -> eventBus.syncRoute(event, tLContext.get()));
+        });
         return result;
     }
 
@@ -355,6 +349,8 @@ public class CommandBus {
                 invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
         AggregateRoot aggregate;
         Object result = null;
+        CommandRecord commandRecord = CommandRecord.builder().message(command).dependencies(context.getDependencies()).build();
+        context.recordCommand(commandRecord);
         Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
                 .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context)));
         if (commandHandler.constructor != null) {

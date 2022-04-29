@@ -15,7 +15,7 @@ abstract public class Command extends Message {
     }
 
     public int lockExpireMils() {
-        return 3000;
+        return 5000;
     }
 
     public int retryTimes() {

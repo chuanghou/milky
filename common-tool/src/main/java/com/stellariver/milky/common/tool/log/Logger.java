@@ -1,6 +1,7 @@
 package com.stellariver.milky.common.tool.log;
 
 import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.util.Collect;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
@@ -26,10 +27,6 @@ public class Logger implements org.slf4j.Logger {
         this.log = LoggerFactory.getLogger(clazz);
     }
 
-    public Logger withLogTag(Object value) {
-        return with("logTag", value);
-    }
-
     public Logger with(Map<String, Object> infos) {
         infos.forEach(this::with);
         return this;
@@ -53,11 +50,11 @@ public class Logger implements org.slf4j.Logger {
     }
 
     private void beforeLog() {
-        Map<String, String> logContents = threadLocalContents.get();
-        if (logContents == null || logContents.isEmpty()) {
-            // 如果没有没有存储任何信息，那就直接返回
-            return;
+        if (threadLocalContents.get() == null) {
+            threadLocalContents.set(new MortalMap<>());
         }
+        Map<String, String> logContents = threadLocalContents.get();
+        logContents.put("logTag", buildLogTag());
         if (originalThreadLocalContents.get() == null) {
             originalThreadLocalContents.set(new MortalMap<>());
         }
@@ -69,9 +66,17 @@ public class Logger implements org.slf4j.Logger {
         logContents.clear();
     }
 
+    private String buildLogTag() {
+        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[4];
+        return String.format("%s#%s", stackTraceElement.getClassName(), stackTraceElement.getLineNumber());
+    }
+
     private void afterLog() {
-        originalThreadLocalContents.get().forEach(MDC::put);
-        originalThreadLocalContents.get().clear();
+        MortalMap<String, String> originalContents = originalThreadLocalContents.get();
+        if(!Collect.isEmpty(originalContents)) {
+            originalThreadLocalContents.get().forEach(MDC::put);
+            originalThreadLocalContents.get().clear();
+        }
     }
 
     @Override

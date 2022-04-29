@@ -13,6 +13,7 @@ import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -41,6 +42,7 @@ public class EventBus {
                 .filter(m -> format.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .collect(Collectors.toList());
+        Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
         methods.forEach(method -> {
             EventRouter annotation = method.getAnnotation(EventRouter.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
@@ -48,11 +50,19 @@ public class EventBus {
             Router router = Router.builder().bean(bean).method(method)
                     .type(annotation.type()).executorService(milkySupport.getAsyncExecutor())
                     .build();
-            routerMap.computeIfAbsent(eventClass, eC -> new ArrayList<>()).add(router);
+            tempRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).add(router);
         });
 
+        Reflections reflections = milkySupport.getReflections();
+        Set<Class<? extends Event>> eventClasses = reflections.getSubTypesOf(Event.class);
+        eventClasses.forEach(eventClass -> {
+            Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
+                    .forEach(aC -> {
+                        List<Router> routers = Optional.ofNullable(tempRouterMap.get(aC)).orElseGet(ArrayList::new);
+                        routerMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
+                    });
+        });
         HashMap<Class<? extends Event>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
-        HashMap<Class<? extends Event>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
         milkySupport.getInterceptors().stream()
@@ -65,23 +75,13 @@ public class EventBus {
                     Object bean = BeanUtil.getBean(method.getDeclaringClass());
                     Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
                             .order(annotation.order()).posEnum(annotation.pos()).build();
+                    Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
+                                    .forEach(eC -> tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor));
                     tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor);
                 });
 
-        Set<Class<? extends Event>> eventClasses = milkySupport.getReflections().getSubTypesOf(Event.class);
-
-        // according to inherited relation to collect final command interceptors map, all ancestor interceptor
-        eventClasses.forEach(eventClass -> {
-            List<Class<? extends Event>> ancestorClasses = Reflect.ancestorClasses(eventClass)
-                    .stream().filter(Event.class::isAssignableFrom).collect(Collectors.toList());
-            ancestorClasses.forEach(ancestor -> {
-                List<Interceptor> ancestorInterceptors = Optional.ofNullable(tempInterceptorsMap.get(ancestor)).orElseGet(ArrayList::new);
-                finalInterceptorsMap.computeIfAbsent(eventClass, c -> new ArrayList<>()).addAll(ancestorInterceptors);
-            });
-        });
-
         // divided into before and after
-        finalInterceptorsMap.forEach((commandClass, interceptors) -> {
+        tempInterceptorsMap.forEach((commandClass, interceptors) -> {
             List<Interceptor> beforeInterceptors = interceptors.stream()
                     .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.BEFORE)).collect(Collectors.toList());
             beforeEventInterceptors.put(commandClass, beforeInterceptors);

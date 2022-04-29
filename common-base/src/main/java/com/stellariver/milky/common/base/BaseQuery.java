@@ -24,7 +24,8 @@ public interface BaseQuery<T, ID> {
     default T queryById(ID id) {
         Set<ID> ids = new HashSet<>(Collections.singletonList(id));
         Map<ID, T> tMap = queryMapByIds(ids);
-        return Optional.ofNullable(tMap).map(m -> m.get(id)).orElseThrow(() -> new RuntimeException(String.format("could not find " + id)));
+        return Optional.ofNullable(tMap).map(m -> m.get(id)).orElseThrow(
+                () -> new RuntimeException(String.format("could not find %s", id)));
     }
 
 }
