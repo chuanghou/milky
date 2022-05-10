@@ -21,6 +21,8 @@ public class ErrorEnumBase {
 
     public static final Error CONCURRENCY_VIOLATION = Error.code("CONCURRENCY_VIOLATION").message("并发操作失败");
 
+    public static final Error ENTITY_NOT_FOUND = Error.code("ENTITY_NOT_FOUND");
+
     public static Error message(Supplier<String> supplier) {
         return ErrorEnumBase.UNDEFINED.message(supplier.get());
     }

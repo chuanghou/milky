@@ -1,5 +1,7 @@
-package com.stellariver.milky.common.base;
+package com.stellariver.milky.common.tool.common;
 
+
+import com.stellariver.milky.common.tool.util.Json;
 
 import java.util.*;
 
@@ -25,7 +27,7 @@ public interface BaseQuery<T, ID> {
         Set<ID> ids = new HashSet<>(Collections.singletonList(id));
         Map<ID, T> tMap = queryMapByIds(ids);
         return Optional.ofNullable(tMap).map(m -> m.get(id)).orElseThrow(
-                () -> new RuntimeException(String.format("could not find %s", id)));
+                () -> new BizException(ErrorEnumBase.ENTITY_NOT_FOUND.message("id:" + Json.toJson(id))));
     }
 
 }

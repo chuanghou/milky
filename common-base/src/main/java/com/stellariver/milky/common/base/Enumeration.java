@@ -1,12 +1,12 @@
 package com.stellariver.milky.common.base;
 
-public class Enum {
+public class Enumeration {
 
     private final String code;
 
     private final String name;
 
-    public Enum(String code, String name) {
+    public Enumeration(String code, String name) {
         this.code = code;
         this.name = name;
     }

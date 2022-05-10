@@ -22,5 +22,7 @@ public class Option<R, T> {
 
     Function<R, T> transfer;
 
+    Function<R, String> logResultSelector;
+
     T defaultValue;
 }

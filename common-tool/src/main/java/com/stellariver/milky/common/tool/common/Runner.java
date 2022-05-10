@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class Runner {
@@ -112,8 +113,7 @@ public class Runner {
         do {
             try {
                 result = callable.call();
-                R finalResult = result;
-                SysException.falseThrow(option.getCheck().apply(result), finalResult);
+                SysException.falseThrow(option.getCheck().apply(result), result);
                 return option.getTransfer().apply(callable.call());
             } catch (Throwable throwable) {
                 if (throwable instanceof InvocationTargetException) {
@@ -129,7 +129,8 @@ public class Runner {
                 }
             } finally {
                 if (throwableBackup == null && option.isAlwaysLog()) {
-                    log.with(getSignature(callable)).with("result", Json.toJson(result)).info("null");
+                    Function<R, String> printer = Optional.ofNullable(option.getLogResultSelector()).orElse(Json::toJson);
+                    log.with(getSignature(callable)).with("result", printer.apply(result)).info("");
                 } else if (throwableBackup != null){
                     log.with(getSignature(callable)).with("defaultValue", option.getDefaultValue()).error("", throwableBackup);
                 }
@@ -163,7 +164,8 @@ public class Runner {
                 }
             } finally {
                 if (throwableBackup == null && option.isAlwaysLog()) {
-                    log.with(getSignature(callable)).with("result", Json.toJson(result)).info("null");
+                    Function<R, String> printer = Optional.ofNullable(option.getLogResultSelector()).orElse(Json::toJson);
+                    log.with(getSignature(callable)).with("result", printer.apply(result)).info("");
                 } else if (throwableBackup != null){
                     log.with(getSignature(callable)).error("", throwableBackup);
                 }

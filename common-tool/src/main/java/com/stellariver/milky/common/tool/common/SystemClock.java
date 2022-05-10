@@ -1,5 +1,7 @@
 package com.stellariver.milky.common.tool.common;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -42,6 +44,22 @@ public class SystemClock {
 
     public static Date date() {
         return new Date(instance().currentTimeMillis());
+    }
+
+    public static Date yesterday() {
+        return beforeNDays(1);
+    }
+
+    public static String yesterdayDs() {
+        return DateFormatUtils.format(beforeNDays(1), "yyyyMMdd");
+    }
+
+    public static Date beforeNDays(int days) {
+        return new Date(instance().currentTimeMillis() - 1000L * 3600L * 24 * days);
+    }
+
+    public static Date beforeNHours(int hours) {
+        return new Date(instance().currentTimeMillis() - 1000L * 3600L * hours);
     }
 
     private void scheduleClockUpdating() {
