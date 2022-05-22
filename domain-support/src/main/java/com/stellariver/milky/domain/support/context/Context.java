@@ -3,14 +3,12 @@ package com.stellariver.milky.domain.support.context;
 
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.StreamMap;
-import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +33,6 @@ public class Context{
     public Map<NameType<?>, Object> getMetaData() {
         return StreamMap.init(metaData).getMap();
     }
-
 
     public Object getDependency(NameType<?> key) {
         return dependencies.get(key);
@@ -72,7 +69,6 @@ public class Context{
         return messageRecords;
     }
 
-    @Nullable
     public List<Event> popEvents() {
         finalRouteEvents.addAll(events);
         List<Event> popEvents = new ArrayList<>(events);
