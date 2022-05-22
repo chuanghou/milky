@@ -3,6 +3,7 @@ package com.stellariver.milky.domain.support.event;
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.util.Reflect;
+import com.stellariver.milky.domain.support.base.CommitAction;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.context.Context;
@@ -13,6 +14,7 @@ import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
@@ -23,10 +25,16 @@ import java.util.stream.Collectors;
 
 public class EventBus {
 
-    static final private Predicate<Class<?>[]> format =
+    static final private Predicate<Class<?>[]> commonFormat =
                     parameterTypes -> (parameterTypes.length == 2
                     && Event.class.isAssignableFrom(parameterTypes[0])
                     && parameterTypes[1] == Context.class);
+
+    static final private Predicate<Class<?>[]> transactionFormat =
+            parameterTypes -> (parameterTypes.length == 3
+                    && Event.class.isAssignableFrom(parameterTypes[0])
+                    && parameterTypes[1] == CommitAction.class
+                    && parameterTypes[2] == Context.class);
 
     private final Map<Class<? extends Event>, List<Router>> routerMap = new HashMap<>();
 
@@ -39,7 +47,7 @@ public class EventBus {
 
         List<Method> methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> format.test(m.getParameterTypes()))
+                .filter(m -> commonFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .collect(Collectors.toList());
         Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
@@ -55,20 +63,18 @@ public class EventBus {
 
         Reflections reflections = milkySupport.getReflections();
         Set<Class<? extends Event>> eventClasses = reflections.getSubTypesOf(Event.class);
-        eventClasses.forEach(eventClass -> {
-            Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
-                    .forEach(aC -> {
-                        List<Router> routers = Optional.ofNullable(tempRouterMap.get(aC)).orElseGet(ArrayList::new);
-                        routerMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
-                    });
-        });
+        eventClasses.forEach(eventClass -> Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
+                .forEach(aC -> {
+                    List<Router> routers = Optional.ofNullable(tempRouterMap.get(aC)).orElseGet(ArrayList::new);
+                    routerMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
+                }));
 
         HashMap<Class<? extends Event>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
         milkySupport.getInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> format.test(m.getParameterTypes()))
+                .filter(m -> commonFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(Intercept.class)).collect(Collectors.toList())
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
@@ -110,7 +116,10 @@ public class EventBus {
     public void finalRoute(Event event, Context context) {
         Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
                 .stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
-                .forEach(router -> Runner.run(() -> router.route(event, context)));
+                .forEach(router -> router.route(event, context));
+        Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
+                .stream().filter(router -> router.type.equals(TypeEnum.TRANSACTION))
+                .forEach(router -> router.route(event, CommitAction.COMMIT, context));
     }
 
     @Data
@@ -126,13 +135,24 @@ public class EventBus {
 
         private ExecutorService executorService;
 
+        @SneakyThrows
         public void route(Event event, Context context) {
             if (Objects.equals(type, TypeEnum.SYNC)) {
                 Runner.invoke(bean, method, event, context);
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                executorService.submit(() -> Runner.invoke(bean, method, event, context));
+                executorService.submit(() ->method.invoke(bean, event, context));
             } else {
                 throw new BizException(ErrorEnum.CONFIG_ERROR.message("only support sync and async invoke"));
+            }
+        }
+
+
+        @SneakyThrows
+        public void route(Event event, CommitAction commitAction, Context context) {
+            if (Objects.equals(type, TypeEnum.TRANSACTION)) {
+                method.invoke(bean, event, commitAction, context);
+            } else {
+                throw new BizException(ErrorEnum.CONFIG_ERROR.message("not transaction type event handler"));
             }
         }
     }
