@@ -36,25 +36,8 @@ public class Context{
         return StreamMap.init(metaData).getMap();
     }
 
-    public Object peekParameter(NameType<?> key) {
-        return parameters.get(key);
-    }
 
-    public Map<NameType<?>, Object> getParameters() {
-        return StreamMap.init(parameters).getMap();
-    }
-
-
-    public void putMetaData(NameType<?> key, Object value) {
-        SysException.trueThrowGet(metaData.containsKey(key), () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
-        metaData.put(key, value);
-    }
-
-    public void replaceMetaData(NameType<?> key, Object value) {
-        metaData.put(key, value);
-    }
-
-    public Object getDependency(String key) {
+    public Object getDependency(NameType<?> key) {
         return dependencies.get(key);
     }
 
@@ -62,7 +45,7 @@ public class Context{
         return dependencies;
     }
 
-    public void putDependency(String key, Object value) {
+    public void putDependency(NameType<?> key, Object value) {
         dependencies.put(key, value);
     }
 
@@ -91,7 +74,8 @@ public class Context{
 
     @Nullable
     public List<Event> popEvents() {
-        List<Event> popEvents = new ArrayList<>(this.events);
+        finalRouteEvents.addAll(events);
+        List<Event> popEvents = new ArrayList<>(events);
         events.clear();
         return popEvents;
     }
@@ -104,10 +88,11 @@ public class Context{
         return new ArrayList<>(events);
     }
 
-    public static Context fromParameters(Map<String, Object> parameters) {
+    public static Context build(Map<NameType<?>, Object> parameters) {
         Context context = new Context();
         context.invocationId = BeanUtil.getBean(IdBuilder.class).build();
         context.parameters.putAll(parameters);
+        context.metaData.putAll(parameters);
         return context;
     }
 

@@ -33,8 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.stellariver.milky.common.tool.common.ErrorEnumBase.CONCURRENCY_VIOLATION;
-import static com.stellariver.milky.domain.support.ErrorEnum.AGGREGATE_INHERITED;
-import static com.stellariver.milky.domain.support.ErrorEnum.HANDLER_NOT_EXIST;
+import static com.stellariver.milky.domain.support.ErrorEnum.*;
 
 public class CommandBus {
 
@@ -249,7 +248,7 @@ public class CommandBus {
     }
 
 
-    static public <T extends Command> Object accept(T command, Map<String, Object> parameters) {
+    static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters) {
         return instance.doSend(command, parameters);
     }
 
@@ -259,23 +258,22 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    private <T extends Command> Object doSend(T command, Map<String, Object> parameters) {
+    private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters) {
         Object result;
-        Context context = Context.fromParameters(parameters);
+        Context context = Context.build(parameters);
         tLContext.set(context);
         Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
         command.setInvokeTrace(invokeTrace);
         try {
             result = route(command);
-            context.getFinalRouteEvents().forEach(event -> eventBus.asyncRoute(event, context));
+            context.getFinalRouteEvents().forEach(event -> eventBus.finalRoute(event, context));
             List<MessageRecord> messageRecords = context.getMessageRecords();
             asyncExecutor.execute(() -> {
                 traceRepository.insert(invocationId, context);
                 traceRepository.batchInsert(messageRecords, context);
             });
         } catch (Throwable throwable) {
-            log.with("context", Json.toJson(context)).error("", throwable);
             List<MessageRecord> recordedMessages = context.getMessageRecords();
             asyncExecutor.execute(() -> {
                 traceRepository.insert(invocationId, context, false);
@@ -299,10 +297,11 @@ public class CommandBus {
         SysException.nullThrow(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
         Context context = tLContext.get();
-        String lockKey = command.getClass().getName() + "_" + command.getAggregateId();
         String encryptionKey = UUID.randomUUID().toString();
+        NameSpace nameSpace = NameSpace.build(command.getClass());
+        String lockKey = command.getAggregateId();
         try {
-            if (concurrentOperate.tryLock(lockKey, encryptionKey, command.lockExpireMils())) {
+            if (concurrentOperate.tryLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils())) {
                 result = doRoute(command, context, commandHandler);
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
@@ -320,13 +319,16 @@ public class CommandBus {
             }
             tLContext.get().clearDependencies();
         } finally {
-            boolean unlock = concurrentOperate.unlock(command.getAggregateId(), encryptionKey);
+            boolean unlock = concurrentOperate.unlock(nameSpace, command.getAggregateId(), encryptionKey);
+            if (!unlock) {
+                log.arg0(nameSpace).arg1(lockKey).error("UNLOCK_FAILURE");
+            }
             SysException.falseThrow(unlock, "unlock " + command.getAggregateId() + " failure!");
         }
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
             context.recordEvent(EventRecord.builder().message(event).build());
-            Runner.run(() -> eventBus.syncRoute(event, tLContext.get()));
+            eventBus.syncRoute(event, tLContext.get());
         });
         return result;
     }
@@ -346,7 +348,7 @@ public class CommandBus {
         CommandRecord commandRecord = CommandRecord.builder().message(command).dependencies(context.getDependencies()).build();
         context.recordCommand(commandRecord);
         Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
-                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context)));
+                .forEach(interceptor -> interceptor.invoke(command, context)));
         if (commandHandler.constructor != null) {
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
@@ -356,20 +358,21 @@ public class CommandBus {
                 }
                 throw new SysException(e);
             }
-            Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
+            repository.save(aggregate, context);
         } else if (!commandHandler.isStatic){
             Optional<? extends AggregateRoot> optional = (Optional<? extends AggregateRoot>)
-                    Runner.invoke(repository.bean, repository.getMethod, command.getAggregateId(), context);
-            aggregate = optional.orElseThrow(() -> new SysException("aggregateId: " + command.getAggregateId() + " not exists!"));
-            result = Runner.invoke(aggregate, commandHandler.method, command, context);
+                    repository.getByAggregateId(command.getAggregateId(), context);
+            aggregate = optional.orElseThrow(() -> new SysException(AGGREGATE_NOT_EXISTED
+                    .message("aggregateId: " + command.getAggregateId() + " not exists!")));
+            result = commandHandler.invoke(aggregate, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
-            If.isTrue(present, () -> Runner.invoke(repository.bean, repository.updateMethod, aggregate, context));
+            If.isTrue(present, () -> repository.update(aggregate, context));
         } else {
-            aggregate = (AggregateRoot) Runner.invoke(null, commandHandler.method, command, context);
-            Runner.invoke(repository.bean, repository.saveMethod, aggregate, context);
+            aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
+            repository.save(aggregate, context);
         }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
-                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), command, context)));
+                .forEach(interceptor -> interceptor.invoke(command, context)));
         return result;
     }
 
@@ -380,12 +383,12 @@ public class CommandBus {
         referKeys.add(key);
         DependencyProvider valueProvider = providers.get(key);
         SysException.nullThrowMessage(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
+        Map<String, Object> stringKeyDependencies = new HashMap<>();
+        context.getDependencies().forEach((k, v) -> stringKeyDependencies.put(k.getName(), v));
         Arrays.stream(valueProvider.getRequiredKeys())
-                .filter(requiredKey -> Objects.equals(null, context.peekMetaData(requiredKey)))
+                .filter(requiredKey -> Objects.equals(null, stringKeyDependencies.get(requiredKey)))
                 .forEach(k -> invokeDependencyProvider(command, k, context, providers, referKeys));
-        Object bean = valueProvider.getBean();
-        Method method = valueProvider.getMethod();
-        Runner.invoke(bean, method, command, context);
+        valueProvider.invoke(command, context);
     }
 
     @Data
@@ -400,6 +403,21 @@ public class CommandBus {
 
         private Method updateMethod;
 
+        @SneakyThrows
+        public void save(Object aggregate, Context context) {
+            Runner.invoke(bean, saveMethod, aggregate, context);
+        }
+
+        @SneakyThrows
+        public Object getByAggregateId(String aggregateId, Context context) {
+            return Runner.invoke(bean, getMethod, aggregateId, context);
+        }
+
+        @SneakyThrows
+        public void update(Object aggregate, Context context) {
+            Runner.invoke(bean, updateMethod, aggregate, context);
+        }
+
     }
 
     @Data
@@ -413,6 +431,11 @@ public class CommandBus {
         private Object bean;
 
         private Method method;
+
+        @SneakyThrows
+        public void invoke(Object object, Context context) {
+            Runner.invoke(bean, method, object, context);
+        }
 
     }
 
@@ -431,6 +454,11 @@ public class CommandBus {
         private boolean hasReturn;
 
         private List<String> requiredKeys;
+
+        @SneakyThrows
+        public Object invoke(AggregateRoot aggregate, Object object, Context context) {
+            return Runner.invoke(aggregate, method, object, context);
+        }
 
     }
 }
