@@ -47,7 +47,7 @@ public class EventBus {
 
         List<Method> methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> commonFormat.test(m.getParameterTypes()))
+                .filter(m -> commonFormat.test(m.getParameterTypes()) || transactionFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .collect(Collectors.toList());
         Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
@@ -105,12 +105,15 @@ public class EventBus {
 
     public void syncRoute(Event event, Context context) {
         Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
-                .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context)));
+                .forEach(interceptor -> interceptor.invoke(event, context)));
         Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
                 .stream().filter(router -> router.type.equals(TypeEnum.SYNC))
-                .forEach(router -> Runner.run(() -> router.route(event, context)));
+                .forEach(router ->  router.route(event, context));
+        Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
+                .stream().filter(router -> router.type.equals(TypeEnum.TRANSACTION))
+                .forEach(router ->  router.route(event, CommitAction.PRE_COMMIT, context));
         Optional.ofNullable(afterEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
-            .forEach(interceptor -> Runner.invoke(interceptor.getBean(), interceptor.getMethod(), event, context)));
+            .forEach(interceptor -> interceptor.invoke(event, context)));
     }
 
     public void finalRoute(Event event, Context context) {
@@ -140,12 +143,11 @@ public class EventBus {
             if (Objects.equals(type, TypeEnum.SYNC)) {
                 Runner.invoke(bean, method, event, context);
             } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                executorService.submit(() ->method.invoke(bean, event, context));
+                executorService.submit(() -> method.invoke(bean, event, context));
             } else {
                 throw new BizException(ErrorEnum.CONFIG_ERROR.message("only support sync and async invoke"));
             }
         }
-
 
         @SneakyThrows
         public void route(Event event, CommitAction commitAction, Context context) {
@@ -155,6 +157,7 @@ public class EventBus {
                 throw new BizException(ErrorEnum.CONFIG_ERROR.message("not transaction type event handler"));
             }
         }
+
     }
 
 }
