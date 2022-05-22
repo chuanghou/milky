@@ -1,8 +1,11 @@
 package com.stellariver.milky.domain.support.interceptor;
 
+import com.stellariver.milky.common.tool.common.Runner;
+import com.stellariver.milky.domain.support.context.Context;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.SneakyThrows;
 
 import java.lang.reflect.Method;
 
@@ -18,4 +21,9 @@ public class Interceptor {
     private PosEnum posEnum;
 
     private int order;
+
+    @SneakyThrows
+    public void invoke(Object object, Context context) {
+        Runner.invoke(bean, method, object, context);
+    }
 }

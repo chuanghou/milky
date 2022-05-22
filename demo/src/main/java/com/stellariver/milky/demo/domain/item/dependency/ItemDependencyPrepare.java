@@ -10,6 +10,5 @@ public class ItemDependencyPrepare implements DependencyPrepares {
     @DependencyKey("userName")
     public void prepare(ItemCreateCommand command, Context context) {
 
-        context.putMetaData("userName", command.getSellerId() + "test");
     }
 }

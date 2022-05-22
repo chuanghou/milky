@@ -11,11 +11,9 @@ public class ItemCommandInterceptors implements Interceptors {
 
     @Intercept(pos = PosEnum.BEFORE)
     public void changeOperator(ItemCreateCommand command, Context context) {
-        context.putMetaData("operatorSource" , "tom");
     }
 
     @Intercept(pos = PosEnum.AFTER)
     public void changeOperator(ItemUpdateCommand command, Context context) {
-        context.putMetaData("operatorSource" , "tom");
     }
 }

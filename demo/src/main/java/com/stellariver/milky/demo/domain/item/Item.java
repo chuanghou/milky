@@ -32,7 +32,6 @@ public class Item extends AggregateRoot {
         this.itemId = command.getItemId();
         this.title = command.getTitle();
         this.sellerId = command.getSellerId();
-        this.userName = (String) context.peekMetaData("userName");
         context.publish(ItemCreatedEvent.builder().itemId(itemId).build());
     }
 
