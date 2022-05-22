@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.base;
 
-public class Employee implements Displayable{
+public class Employee implements Displayable {
 
     private final String id;
 
