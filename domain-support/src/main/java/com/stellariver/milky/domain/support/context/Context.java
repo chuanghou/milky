@@ -4,10 +4,7 @@ package com.stellariver.milky.domain.support.context;
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.domain.support.ErrorEnum;
-import com.stellariver.milky.domain.support.base.CommandRecord;
-import com.stellariver.milky.domain.support.base.EventRecord;
-import com.stellariver.milky.domain.support.base.Message;
-import com.stellariver.milky.domain.support.base.MessageRecord;
+import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.util.BeanUtil;
@@ -23,41 +20,37 @@ public class Context{
 
     private Long invocationId;
 
-    private final Map<String, Object> parameters = new HashMap<>();
+    private final Map<NameType<?>, Object> parameters = new HashMap<>();
 
-    private final Map<String, Object> metaData = new HashMap<>();
+    private final Map<NameType<?>, Object> metaData = new HashMap<>();
 
-    private final Map<String, Object> dependencies = new HashMap<>();
+    private final Map<NameType<?>, Object> dependencies = new HashMap<>();
 
     private final List<Event> events = new ArrayList<>();
 
-    private final List<Event> processedEvents = new ArrayList<>();
+    private final List<Event> finalRouteEvents = new ArrayList<>();
 
     private final List<MessageRecord> messageRecords = new ArrayList<>();
 
-    public Object peekMetaData(String key) {
-        return metaData.get(key);
-    }
-
-    public Map<String, Object> getMetaData() {
+    public Map<NameType<?>, Object> getMetaData() {
         return StreamMap.init(metaData).getMap();
     }
 
-    public Object peekParameter(String key) {
+    public Object peekParameter(NameType<?> key) {
         return parameters.get(key);
     }
 
-    public Map<String, Object> getParameters() {
+    public Map<NameType<?>, Object> getParameters() {
         return StreamMap.init(parameters).getMap();
     }
 
 
-    public void putMetaData(String key, Object value) {
+    public void putMetaData(NameType<?> key, Object value) {
         SysException.trueThrowGet(metaData.containsKey(key), () -> ErrorEnum.META_DATA_DUPLICATE_KEY.message(key));
         metaData.put(key, value);
     }
 
-    public void replaceMetaData(String key, Object value) {
+    public void replaceMetaData(NameType<?> key, Object value) {
         metaData.put(key, value);
     }
 
@@ -65,7 +58,7 @@ public class Context{
         return dependencies.get(key);
     }
 
-    public Map<String, Object> getDependencies() {
+    public Map<NameType<?>, Object> getDependencies() {
         return dependencies;
     }
 
@@ -103,8 +96,8 @@ public class Context{
         return popEvents;
     }
 
-    public List<Event> getProcessedEvents() {
-        return processedEvents;
+    public List<Event> getFinalRouteEvents() {
+        return finalRouteEvents;
     }
 
     public List<Event> peekEvents() {

@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.dependency;
 
+import com.stellariver.milky.common.tool.common.NameSpace;
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.domain.support.base.RetryParameter;
 import com.stellariver.milky.domain.support.command.Command;
@@ -11,10 +12,9 @@ public interface ConcurrentOperate {
 
     void receiveCommand(Command command);
 
-    boolean tryLock(String lockKey, String encryptionKey, int milsToExpire);
+    boolean tryLock(NameSpace nameSpace, String lockKey, String encryptionKey, int milsToExpire);
 
-    boolean unlock(String lockKey, String encryptionKey);
-
+    boolean unlock(NameSpace nameSpace, String lockKey, String encryptionKey);
 
     @SneakyThrows
     default boolean tryRetryLock(RetryParameter retryParameter) {
@@ -27,7 +27,7 @@ public interface ConcurrentOperate {
         int milsToExpire = retryParameter.getMilsToExpire();
         while (times-- > 0) {
             Thread.sleep(retryParameter.getSleepTimeMils());
-            if (tryLock(lockKey, encryptionKey, milsToExpire)) {
+            if (tryLock(retryParameter.getNameSpace(), lockKey, encryptionKey, milsToExpire)) {
                 return true;
             }
         }

@@ -155,7 +155,7 @@ public class CommandBus {
             Method saveMethod = getMethod(repositoryClazz,"save", aggregateClazz, Context.class);
             Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
             Method updateMethod = getMethod(repositoryClazz,"updateByAggregateId", aggregateClazz, Context.class);
-            SysException.anyNullThrow(getMethod, updateMethod);
+            SysException.anyNullThrow(saveMethod, getMethod, updateMethod);
             Repository repository = new Repository(bean, getMethod, saveMethod, updateMethod);
             domainRepositoryMap.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
         });
@@ -268,7 +268,7 @@ public class CommandBus {
         command.setInvokeTrace(invokeTrace);
         try {
             result = route(command);
-            context.getProcessedEvents().forEach(event -> eventBus.asyncRoute(event, context));
+            context.getFinalRouteEvents().forEach(event -> eventBus.asyncRoute(event, context));
             List<MessageRecord> messageRecords = context.getMessageRecords();
             asyncExecutor.execute(() -> {
                 traceRepository.insert(invocationId, context);
