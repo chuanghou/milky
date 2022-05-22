@@ -47,19 +47,19 @@ public class SystemClock {
     }
 
     public static Date yesterday() {
-        return beforeNDays(1);
+        return beforeNow(1);
     }
 
     public static String yesterdayDs() {
-        return DateFormatUtils.format(beforeNDays(1), "yyyyMMdd");
+        return DateFormatUtils.format(yesterday(), "yyyyMMdd");
     }
 
-    public static Date beforeNDays(int days) {
-        return new Date(instance().currentTimeMillis() - 1000L * 3600L * 24 * days);
+    public static Date beforeNow(int days) {
+        return new Date(instance().currentTimeMillis() - 1000L * 3600 * 24 * days);
     }
 
-    public static Date beforeNHours(int hours) {
-        return new Date(instance().currentTimeMillis() - 1000L * 3600L * hours);
+    public static String beforeNowDs(int days) {
+        return DateFormatUtils.format(beforeNow(days), "yyyyMMdd");
     }
 
     private void scheduleClockUpdating() {

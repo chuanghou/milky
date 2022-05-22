@@ -25,4 +25,7 @@ public class Option<R, T> {
     Function<R, String> logResultSelector;
 
     T defaultValue;
+
+    @Builder.Default
+    int stackTraceLevel = 3;
 }

@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.base;
 
-public class Employee {
+public class Employee implements Displayable{
 
     private final String id;
 
@@ -19,5 +19,10 @@ public class Employee {
 
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public String display() {
+        return "操作人: " + id + "_" + name;
     }
 }

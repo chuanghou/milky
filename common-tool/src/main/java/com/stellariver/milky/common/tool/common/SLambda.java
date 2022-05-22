@@ -20,11 +20,9 @@ public class SLambda {
         if (sLambda.getCapturedArgCount() == 0) {
             return result;
         }
-        Object bean = sLambda.getCapturedArg(0);
-        result.put("beanClassName", bean.getClass().getName());
-        SysException.trueThrow(sLambda.getCapturedArgCount() > 10, "too much parameters!");
+        SysException.trueThrow(sLambda.getCapturedArgCount() > 6, "too much parameters!");
         for (int i = 1; i < sLambda.getCapturedArgCount(); i++) {
-            result.put("arg" + (i - 1), Json.toJson(sLambda.getCapturedArg(i)));
+            result.put("arg" + (i - 1), sLambda.getCapturedArg(i));
         }
         return result;
     }

@@ -26,6 +26,10 @@ public class Result<T> implements Serializable {
         return this.data;
     }
 
+    public void setData(T data) {
+        this.data = data;
+    }
+
     public String getErrorCode() {
         return this.errorCode;
     }

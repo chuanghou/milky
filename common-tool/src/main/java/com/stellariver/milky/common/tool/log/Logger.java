@@ -2,6 +2,7 @@ package com.stellariver.milky.common.tool.log;
 
 import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.Json;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
@@ -32,6 +33,31 @@ public class Logger implements org.slf4j.Logger {
         return this;
     }
 
+    public Logger arg0(Object value) {
+        with("arg0", value);
+        return this;
+    }
+
+    public Logger arg1(Object value) {
+        with("arg1", value);
+        return this;
+    }
+
+    public Logger arg2(Object value) {
+        with("arg2", value);
+        return this;
+    }
+
+    public Logger arg3(Object value) {
+        with("arg3", value);
+        return this;
+    }
+
+    public Logger arg4(Object value) {
+        with("arg4", value);
+        return this;
+    }
+
     public Logger with(String key, Object value) {
         if (key == null) {
             log.error("log key shouldn't be null");
@@ -45,7 +71,13 @@ public class Logger implements org.slf4j.Logger {
             log.error("log key:{} already exists, it may from duplicate keys in one log expression, or memory leak. " +
                     "It's very dangerous, there must have a log expression which did not end with info(), error() and so on", key);
         }
-        contents.put(key, Objects.toString(value));
+        String valueString;
+        if (value instanceof String) {
+            valueString = (String) value;
+        } else {
+            valueString = Json.toJson(value);
+        }
+        contents.put(key, valueString);
         return this;
     }
 
@@ -53,22 +85,19 @@ public class Logger implements org.slf4j.Logger {
         if (threadLocalContents.get() == null) {
             threadLocalContents.set(new MortalMap<>());
         }
-        Map<String, String> logContents = threadLocalContents.get();
-        logContents.put("logTag", buildLogTag());
+
         if (originalThreadLocalContents.get() == null) {
             originalThreadLocalContents.set(new MortalMap<>());
         }
+        MortalMap<String, String> logContents = threadLocalContents.get();
         logContents.forEach((k, v) -> {
             originalThreadLocalContents.get().put(k, MDC.get(k));
             MDC.put(k, v);
         });
-
+        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[3];
+        int lineNumber = stackTraceElement.getLineNumber();
+        MDC.put("_line", Integer.toString(lineNumber));
         logContents.clear();
-    }
-
-    private String buildLogTag() {
-        StackTraceElement stackElement = Thread.currentThread().getStackTrace()[4];
-        return String.format("%s#%s", stackElement.getClassName(), stackElement.getLineNumber());
     }
 
     private void afterLog() {
@@ -77,6 +106,7 @@ public class Logger implements org.slf4j.Logger {
             originalContents.forEach(MDC::put);
             originalContents.clear();
         }
+        MDC.remove("_line");
     }
 
     @Override
