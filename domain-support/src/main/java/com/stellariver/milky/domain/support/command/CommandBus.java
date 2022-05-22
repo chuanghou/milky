@@ -307,7 +307,9 @@ public class CommandBus {
                 concurrentOperate.sendOrderly(command);
             } else {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
-                RetryParameter retryParameter = RetryParameter.builder().lockKey(lockKey)
+                RetryParameter retryParameter = RetryParameter.builder()
+                        .nameSpace(nameSpace)
+                        .lockKey(lockKey)
                         .encryptionKey(encryptionKey)
                         .milsToExpire(command.lockExpireMils())
                         .times(command.retryTimes())
@@ -319,11 +321,10 @@ public class CommandBus {
             }
             tLContext.get().clearDependencies();
         } finally {
-            boolean unlock = concurrentOperate.unlock(nameSpace, command.getAggregateId(), encryptionKey);
+            boolean unlock = concurrentOperate.unlock(nameSpace, lockKey, encryptionKey);
             if (!unlock) {
                 log.arg0(nameSpace).arg1(lockKey).error("UNLOCK_FAILURE");
             }
-            SysException.falseThrow(unlock, "unlock " + command.getAggregateId() + " failure!");
         }
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
