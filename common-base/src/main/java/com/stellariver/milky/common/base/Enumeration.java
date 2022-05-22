@@ -6,8 +6,8 @@ public class Enumeration {
 
     private final String name;
 
-    public Enumeration(String code, String name) {
-        this.id = code;
+    public Enumeration(String id, String name) {
+        this.id = id;
         this.name = name;
     }
 
