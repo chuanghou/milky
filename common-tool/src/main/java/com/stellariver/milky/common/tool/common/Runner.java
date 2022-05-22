@@ -17,14 +17,10 @@ public class Runner {
 
     static final Logger log = Logger.getLogger(Runner.class);
 
-
-
     static private Pair<String, Map<String, Object>> getSignature(Serializable lambda, int stackTraceLevel) {
         Map<String, Object> lambdaInfos = SLambda.resolve(lambda);
         StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[stackTraceLevel];
-        StreamMap<String, Object> streamMap = StreamMap.init();
         return Pair.of(stackTraceElement.toString(), lambdaInfos);
-
     }
 
     static public void run(SRunnable runnable) {
@@ -91,7 +87,7 @@ public class Runner {
                     Function<R, String> printer = Optional.ofNullable(option.getLogResultSelector()).orElse(Json::toJson);
                     log.with(signature.getRight()).with("result", printer.apply(result)).info(signature.getLeft());
                 } else if (throwableBackup != null){
-                    log.with(signature.getRight()).with("defaultValue", option.getDefaultValue()).error(signature.getLeft(), throwableBackup);
+                    log.with(signature.getRight()).error(signature.getLeft(), throwableBackup);
                 }
             }
         } while (retryTimes-- > 0);
