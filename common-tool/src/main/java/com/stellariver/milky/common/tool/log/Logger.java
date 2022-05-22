@@ -89,6 +89,7 @@ public class Logger implements org.slf4j.Logger {
         if (originalThreadLocalContents.get() == null) {
             originalThreadLocalContents.set(new MortalMap<>());
         }
+
         MortalMap<String, String> logContents = threadLocalContents.get();
         logContents.forEach((k, v) -> {
             originalThreadLocalContents.get().put(k, MDC.get(k));
