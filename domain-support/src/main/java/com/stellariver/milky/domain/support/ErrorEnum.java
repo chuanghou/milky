@@ -11,7 +11,6 @@ public class ErrorEnum extends ErrorEnumBase {
 
     public static final Error AGGREGATE_INHERITED= Error.code("AGGREGATE_INHERITED").message("aggregate couldn't be inherited!");
 
-
     public static final Error AGGREGATE_NOT_EXISTED= Error.code("AGGREGATE_NOT_EXISTED").message("aggregate couldn't be found!");
 
 }

@@ -108,10 +108,10 @@ public class EventBus {
                 .forEach(interceptor -> interceptor.invoke(event, context)));
         Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
                 .stream().filter(router -> router.type.equals(TypeEnum.SYNC))
-                .forEach(router ->  router.route(event, context));
+                .forEach(router -> router.route(event, context));
         Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
                 .stream().filter(router -> router.type.equals(TypeEnum.TRANSACTION))
-                .forEach(router ->  router.route(event, CommitAction.PRE_COMMIT, context));
+                .forEach(router -> router.route(event, CommitAction.PRE_COMMIT, context));
         Optional.ofNullable(afterEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
             .forEach(interceptor -> interceptor.invoke(event, context)));
     }
