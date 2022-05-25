@@ -123,7 +123,7 @@ public class Collect {
     }
 
     public static boolean isNotEmpty(Map<?, ?> map) {
-        return isEmpty(map);
+        return !isEmpty(map);
     }
 
     public static boolean isEmpty(Collection<?> collection) {

@@ -3,6 +3,7 @@ package com.stellariver.milky.common.tool.log;
 import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
+import lombok.EqualsAndHashCode;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
@@ -687,7 +688,9 @@ public class Logger implements org.slf4j.Logger {
             }
             long currentTimeMillis = SystemClock.now();
             V result = super.put(key, value);
-            queue.add(new LiveKey<>(key, currentTimeMillis + liveMillis));
+            LiveKey<K> liveKey = new LiveKey<>(key, currentTimeMillis + liveMillis);
+            queue.remove(liveKey);
+            queue.add(liveKey);
             removeDeath(currentTimeMillis);
             return result;
         }
@@ -823,10 +826,12 @@ public class Logger implements org.slf4j.Logger {
     }
 
 
+    @EqualsAndHashCode
     static private class LiveKey<K> implements Comparable<LiveKey<K>>{
 
         private final K key;
 
+        @EqualsAndHashCode.Exclude
         private final long deathMillis;
 
         public LiveKey(K key, long deathMillis) {
