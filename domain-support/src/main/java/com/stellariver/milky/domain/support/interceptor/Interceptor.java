@@ -1,6 +1,7 @@
 package com.stellariver.milky.domain.support.interceptor;
 
 import com.stellariver.milky.common.tool.common.Runner;
+import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,7 @@ public class Interceptor {
     private int order;
 
     @SneakyThrows
-    public void invoke(Object object, Context context) {
-        Runner.invoke(bean, method, object, context);
+    public void invoke(Object object, AggregateRoot aggregateRoot, Context context) {
+        Runner.invoke(bean, method, aggregateRoot, object, context);
     }
 }

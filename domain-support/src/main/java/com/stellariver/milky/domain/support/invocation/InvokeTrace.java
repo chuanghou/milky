@@ -3,8 +3,10 @@ package com.stellariver.milky.domain.support.invocation;
 import com.stellariver.milky.domain.support.base.Message;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class InvokeTrace {
 

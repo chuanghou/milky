@@ -1,12 +1,14 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.common.tool.util.Json;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Map;
 
-public class ListNameType<L, V> extends NameType<L> {
+public class ListNameType< V> extends NameType<List<V>> {
 
+    @Getter
     private final Class<?> vClazz;
 
     public ListNameType(String name, Class<?> vClazz) {
@@ -15,13 +17,13 @@ public class ListNameType<L, V> extends NameType<L> {
     }
 
     @SuppressWarnings("unchecked")
-    public L extractFrom(Map<NameType<?>, Object> map) {
-        return (L) map.get(this);
+    public List<V> extractFrom(Map<NameType<?>, Object> map) {
+        return (List<V>) map.get(this);
     }
 
     @SuppressWarnings("unchecked")
-    public L parseJson(String json) {
-        return (L) Json.parseList(json, vClazz);
+    public List<V> parseJson(String json) {
+        return (List<V>) Json.parseList(json, vClazz);
     }
 
 }

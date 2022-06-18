@@ -4,8 +4,6 @@ public enum TypeEnum {
 
     SYNC,
 
-    ASYNC,
-
-    TRANSACTION
+    ASYNC
 
 }
