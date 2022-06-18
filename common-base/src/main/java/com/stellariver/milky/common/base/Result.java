@@ -52,21 +52,12 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static <T> Result<T> with(Error error) {
+    public static <T> Result<T> errorResult(Error error) {
         Result<T> result = new Result<>();
         result.success = false;
         result.errorCode = error.getCode();
         result.message = error.getMessage();
         result.errors = Collections.singletonList(error);
-        return result;
-    }
-
-    public static <T> Result<T> with(List<Error> errors) {
-        Result<T> result = new Result<>();
-        result.success = false;
-        result.errorCode = errors.get(0).getCode();
-        result.message = errors.get(0).getMessage();
-        result.errors = errors;
         return result;
     }
 

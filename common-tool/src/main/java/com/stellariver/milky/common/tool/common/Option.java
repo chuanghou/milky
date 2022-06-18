@@ -18,7 +18,8 @@ public class Option<R, T> {
     @Builder.Default
     int retryTimes = 0;
 
-    Function<R, Boolean> check;
+    @Builder.Default
+    Function<R, Boolean> check = r -> true;
 
     Function<R, T> transfer;
 

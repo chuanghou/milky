@@ -59,6 +59,22 @@ public class Logger implements org.slf4j.Logger {
         return this;
     }
 
+    public Logger result(Object value) {
+        with("result", value);
+        return this;
+    }
+
+    public Logger cost(Object value) {
+        with("cost", value);
+        return this;
+    }
+
+    public Logger success(Object value) {
+        with("success", value);
+        return this;
+    }
+
+
     public Logger with(String key, Object value) {
         if (key == null) {
             log.error("log key shouldn't be null");

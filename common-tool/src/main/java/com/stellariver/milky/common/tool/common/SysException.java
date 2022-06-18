@@ -1,6 +1,7 @@
 package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.base.Error;
+import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.tool.util.Json;
 
 import java.util.*;
@@ -8,30 +9,24 @@ import java.util.function.Supplier;
 
 public class SysException extends BaseException {
 
-    private final String errorCode;
-
-    public SysException(Error error) {
-        super(error.getMessage());
-        this.errorCode = error.getCode();
+    public SysException(String message) {
+        super(ErrorEnum.SYSTEM_EXCEPTION.message(message));
     }
 
     public SysException(Object object) {
-        super(Json.toJson(object));
-        this.errorCode = ErrorEnumBase.UNDEFINED.getCode();
+        super(ErrorEnum.SYSTEM_EXCEPTION.message(Json.toJson(object)));
+    }
+
+    public SysException(Error error) {
+        super(error);
     }
 
     public SysException(Error error, Throwable t) {
-        super(error.getMessage(), t);
-        this.errorCode = error.getCode();
+        super(error, t);
     }
 
-    public SysException(Throwable t) {
-        super(t);
-        this.errorCode = ErrorEnumBase.UNDEFINED.getCode();
-    }
-
-    public String getErrorCode() {
-        return this.errorCode;
+    public SysException(List<Error> errors, Throwable t) {
+        super(errors, t);
     }
 
     static public void anyNullThrow(Object... params) {
@@ -55,7 +50,7 @@ public class SysException extends BaseException {
 
     static public void nullThrowMessage(Object param, Object messageObject) {
         if (param == null) {
-            throw new SysException(Json.toJson(messageObject));
+            throw new SysException(ErrorEnumBase.PARAM_IS_NULL.message(messageObject));
         }
     }
 
@@ -73,7 +68,7 @@ public class SysException extends BaseException {
 
     static public void trueThrow(boolean test, Object object) {
         if (test) {
-            throw new SysException(Json.toJson(object));
+            throw new SysException(ErrorEnumBase.UNDEFINED.message(object));
         }
     }
 

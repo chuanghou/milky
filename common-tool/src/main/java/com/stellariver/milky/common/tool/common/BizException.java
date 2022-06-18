@@ -10,38 +10,15 @@ import java.util.function.Supplier;
 /**
  */
 public class BizException extends BaseException {
-
-    private final String errorCode;
-
-    private final List<Error> errors;
-
     public BizException(Error error) {
-        super(error.getMessage());
-        this.errorCode = error.getCode();
-        this.errors = Collections.singletonList(error);
+        super(error);
     }
     public BizException(Error error, Throwable t) {
-        super(error.getMessage(), t);
-        this.errorCode = error.getCode();
-        this.errors = Collections.singletonList(error);
+        super(error, t);
     }
 
     public BizException(List<Error> errors, Throwable t) {
-        super(errors.get(0).getMessage(), t);
-        this.errorCode = errors.get(0).getCode();
-        this.errors = errors;
-    }
-
-    public String getErrorCode() {
-        return this.errorCode;
-    }
-
-    public Error getFirstError() {
-        return errors.get(0);
-    }
-
-    public List<Error> getErrors() {
-        return errors;
+        super(errors, t);
     }
 
     static public void anyNullThrow(Object... params) {

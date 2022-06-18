@@ -8,14 +8,14 @@ import java.util.*;
 
 public interface BaseQuery<T, ID> {
 
-    Map<ID, T> queryMapByIds(Set<ID> ids);
-
-    default Map<ID, T> queryMapByIdsFilterEmptyIds(Set<ID> ids) {
+    default Map<ID, T> queryMapByIds(Set<ID> ids) {
         if (Collect.isEmpty(ids)) {
             return new HashMap<>();
         }
-        return queryMapByIds(ids);
+        return queryMapByIdsFilterEmptyIds(ids);
     }
+
+    Map<ID, T> queryMapByIdsFilterEmptyIds(Set<ID> ids);
 
     default Set<T> querySetByIds(Set<ID> ids) {
         return new HashSet<>(queryMapByIdsFilterEmptyIds(ids).values());

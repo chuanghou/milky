@@ -1,8 +1,7 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Json;
-import com.stellariver.milky.common.tool.util.StreamMap;
+import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -11,11 +10,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
+@CustomLog
 public class Runner {
-
-    static final Logger log = Logger.getLogger(Runner.class);
 
     static private Pair<String, Map<String, Object>> getSignature(Serializable lambda, int stackTraceLevel) {
         Map<String, Object> lambdaInfos = SLambda.resolve(lambda);
@@ -64,6 +61,7 @@ public class Runner {
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
+        long now = SystemClock.now();
         do {
             try {
                 result = callable.call();
@@ -85,9 +83,9 @@ public class Runner {
                 Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
                 if (throwableBackup == null && option.isAlwaysLog()) {
                     Function<R, String> printer = Optional.ofNullable(option.getLogResultSelector()).orElse(Json::toJson);
-                    log.with(signature.getRight()).with("result", printer.apply(result)).info(signature.getLeft());
+                    log.with(signature.getRight()).result(printer.apply(result)).cost(SystemClock.now() - now).info(signature.getLeft());
                 } else if (throwableBackup != null){
-                    log.with(signature.getRight()).error(signature.getLeft(), throwableBackup);
+                    log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
                 }
             }
         } while (retryTimes-- > 0);
@@ -105,6 +103,7 @@ public class Runner {
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
+        long now = SystemClock.now();
         do {
             try {
                 result = callable.call();
@@ -122,9 +121,9 @@ public class Runner {
                 Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
                 if (throwableBackup == null && option.isAlwaysLog()) {
                     Function<R, String> printer = Optional.ofNullable(option.getLogResultSelector()).orElse(Json::toJson);
-                    log.with(signature.getRight()).with("result", printer.apply(result)).info(signature.getLeft());
+                    log.with(signature.getRight()).result(printer.apply(result)).cost(SystemClock.now() - now).info(signature.getLeft());
                 } else if (throwableBackup != null){
-                    log.with(signature.getRight()).error(signature.getLeft(), throwableBackup);
+                    log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
                 }
             }
         } while (retryTimes-- > 0);

@@ -1,17 +1,20 @@
 package com.stellariver.milky.common.base;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Employee implements Displayable {
 
-    private final String id;
+    private String id;
 
-    private final String name;
+    private String name;
 
     public static final Employee system = new Employee("system", "system");
 
-    public Employee(String id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 
     public String getId() {
         return this.id;
@@ -22,7 +25,7 @@ public class Employee implements Displayable {
     }
 
     @Override
-    public String display() {
-        return "操作人: " + id + "_" + name;
+    public String getDisplay() {
+        return id + "_" + name;
     }
 }

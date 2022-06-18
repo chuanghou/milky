@@ -1,21 +1,14 @@
 package com.stellariver.milky.common.base;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class Enumeration {
 
-    private final String id;
+    private String code;
 
-    private final String name;
+    private String name;
 
-    public Enumeration(String id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
 }

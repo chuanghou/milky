@@ -5,11 +5,7 @@ import java.util.List;
 
 public class PageResult<T> extends Result<List<T>> {
 
-    private long pageNo;
-
-    private long pageSize;
-
-    private long total;
+    private final Paginator paginator = new Paginator();
 
     private PageResult() {
         super();
@@ -19,21 +15,14 @@ public class PageResult<T> extends Result<List<T>> {
         super();
         this.success = true;
         this.data = data;
-        this.total = total;
-        this.pageNo = pageNo;
-        this.pageSize = pageSize;
+        paginator.setPage(pageNo);
+        paginator.setItemsPerPage(pageSize);
+        paginator.setPages(20);
+        paginator.setItems(total);
     }
 
-    public long getPageNo() {
-        return pageNo;
-    }
-
-    public long getPageSize() {
-        return pageSize;
-    }
-
-    public long getTotal() {
-        return total;
+    public Paginator getPaginator() {
+        return this.paginator;
     }
 
     public static <T> PageResult<T> success(List<T> data, long total, long pageNo, long pageSize) {
@@ -44,22 +33,14 @@ public class PageResult<T> extends Result<List<T>> {
         return success(Collections.emptyList(), 0L, pageNo, pageSize);
     }
 
-    public static <T> PageResult<T> error(Error error) {
-        PageResult<T> pageResult = new PageResult<>();
-        pageResult.success = false;
-        pageResult.errorCode =error.getCode();
-        pageResult.message = error.getMessage();
-        pageResult.errors = Collections.singletonList(error);
-        return pageResult;
-    }
 
-    public static <T> PageResult<T> errors(List<Error> errors) {
-        PageResult<T> pageResult = new PageResult<>();
-        pageResult.success = false;
-        pageResult.errorCode = errors.get(0).getCode();
-        pageResult.message = errors.get(0).getMessage();
-        pageResult.errors = errors;
-        return pageResult;
+    public static <T> PageResult<T> errorPageResult(Error error) {
+        PageResult<T> result = new PageResult<>();
+        result.success = false;
+        result.errorCode = error.getCode();
+        result.message = error.getMessage();
+        result.errors = Collections.singletonList(error);
+        return result;
     }
 
 }

@@ -1,13 +1,16 @@
 package com.stellariver.milky.common.base;
 
+import lombok.Data;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+@Data
 public class Error {
 
-    private final String code;
+    private String code;
 
     private String message;
 
