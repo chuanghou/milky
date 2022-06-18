@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 /**
  */
 public class BizException extends BaseException {
+
     public BizException(Error error) {
         super(error);
     }

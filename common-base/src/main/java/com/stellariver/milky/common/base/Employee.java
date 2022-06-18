@@ -15,7 +15,6 @@ public class Employee implements Displayable {
 
     public static final Employee system = new Employee("system", "system");
 
-
     public String getId() {
         return this.id;
     }
