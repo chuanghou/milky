@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.event;
 
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
+import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.base.CommitAction;
 import com.stellariver.milky.domain.support.base.MilkySupport;
@@ -119,31 +120,29 @@ public class EventBus {
                 .collect(Collectors.toList());
 
         this.batchRouters = methods.stream().map(method -> {
-            B
-        })
+            BatchEventRouter annotation = method.getAnnotation(BatchEventRouter.class);
+            Class<? extends Event> eventClass = (Class<? extends Event>)((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
+            Object bean = BeanUtil.getBean(method.getDeclaringClass());
+            return BatchRouter.builder().bean(bean).method(method)
+                    .eventClass(eventClass)
+                    .order(annotation.order())
+                    .executorService(milkySupport.getAsyncExecutor())
+                    .build();
+        }).sorted(Comparator.comparing(BatchRouter::getOrder)).collect(Collectors.toList());
 
     }
 
-    public void syncRoute(Event event, Context context) {
+    public void route(Event event, Context context) {
         Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
-                .forEach(interceptor -> interceptor.invoke(event, context)));
+                .forEach(interceptor -> interceptor.invoke(event, null, context)));
         Optional.ofNullable(singleEventRouterMap.get(event.getClass())).orElseGet(ArrayList::new)
-                .stream().filter(router -> router.type.equals(TypeEnum.SYNC))
                 .forEach(router -> router.route(event, context));
-        Optional.ofNullable(singleEventRouterMap.get(event.getClass())).orElseGet(ArrayList::new)
-                .stream().filter(router -> router.type.equals(TypeEnum.TRANSACTION))
-                .forEach(router -> router.route(event, CommitAction.PRE_COMMIT, context));
         Optional.ofNullable(afterEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
-            .forEach(interceptor -> interceptor.invoke(event, context)));
+            .forEach(interceptor -> interceptor.invoke(event, null, context)));
     }
 
-    public void finalRoute(Event event, Context context) {
-        Optional.ofNullable(singleEventRouterMap.get(event.getClass())).orElseGet(ArrayList::new)
-                .stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
-                .forEach(router -> router.route(event, context));
-        Optional.ofNullable(singleEventRouterMap.get(event.getClass())).orElseGet(ArrayList::new)
-                .stream().filter(router -> router.type.equals(TypeEnum.TRANSACTION))
-                .forEach(router -> router.route(event, CommitAction.COMMIT, context));
+    public void batchRoute(List<? extends Event> events, Context context) {
+        batchRouters.forEach(batchRouter -> batchRouter.route(events, context));
     }
 
     @Data
@@ -161,24 +160,40 @@ public class EventBus {
 
         @SneakyThrows
         public void route(Event event, Context context) {
-            if (Objects.equals(type, TypeEnum.SYNC)) {
-                Runner.invoke(bean, method, event, context);
-            } else if (Objects.equals(type, TypeEnum.ASYNC)){
-                executorService.submit(() -> method.invoke(bean, event, context));
-            } else {
-                throw new BizException(ErrorEnum.CONFIG_ERROR.message("only support sync and async invoke"));
-            }
+            Runner.invoke(bean, method, event, context);
         }
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    static public class BatchRouter<T extends Class<? extends Event>> {
+
+        private T eventClass;
+
+        private final Object bean;
+
+        private final Method method;
+
+        private boolean asyncable;
+
+        private int order;
+
+        private ExecutorService executorService;
 
         @SneakyThrows
-        public void route(Event event, CommitAction commitAction, Context context) {
-            if (Objects.equals(type, TypeEnum.TRANSACTION)) {
-                method.invoke(bean, event, commitAction, context);
+        public void route(List<? extends Event> events, Context context) {
+            events = events.stream().filter(event -> eventClass.isAssignableFrom(event.getClass())).collect(Collectors.toList());
+            if (Collect.isEmpty(events)) {
+                return;
+            }
+            if (asyncable) {
+                List<? extends Event> finalEvents = events;
+                executorService.submit(() -> method.invoke(bean, finalEvents, context));
             } else {
-                throw new BizException(ErrorEnum.CONFIG_ERROR.message("not transaction type event handler"));
+                Runner.invoke(bean, method, events, context);
             }
         }
-
     }
 
 }
