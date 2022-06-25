@@ -46,10 +46,11 @@ public class Runner {
                     if (retryTimes == 0) {
                         log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
                     } else {
-                        log.with(signature.getRight()).cost(SystemClock.now() - now).info(signature.getLeft());
+                        log.with(signature.getRight()).cost(SystemClock.now() - now).warn(signature.getLeft(), throwableBackup);
                     }
                 } else {
                     If.isTrue(option.isAlwaysLog(), () -> log.with(signature.getRight()).info(signature.getLeft()));
+                    retryTimes = 0;
                 }
             }
         } while (retryTimes-- > 0);
