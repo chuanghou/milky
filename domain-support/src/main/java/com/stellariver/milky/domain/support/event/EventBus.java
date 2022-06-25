@@ -41,7 +41,7 @@ public class EventBus {
         }
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Type actualTypeArgument = ((ParameterizedType) genericParameterTypes[0]).getActualTypeArguments()[0];
-        return actualTypeArgument instanceof Class<?> && Event.class.isAssignableFrom(parameterTypes[1]);
+        return actualTypeArgument instanceof Class<?> && Event.class.isAssignableFrom((Class<?>)actualTypeArgument);
     };
 
     private final Map<Class<? extends Event>, List<Router>> singleEventRouterMap = new HashMap<>();
