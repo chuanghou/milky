@@ -7,6 +7,7 @@ import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.util.BeanUtil;
+import lombok.Getter;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -18,8 +19,10 @@ public class Context{
 
     private Long invocationId;
 
+    @Getter
     private final Map<NameType<?>, Object> parameters = new HashMap<>();
 
+    @Getter
     private final Map<NameType<?>, Object> metaData = new HashMap<>();
 
     private final Map<NameType<?>, Object> dependencies = new HashMap<>();
