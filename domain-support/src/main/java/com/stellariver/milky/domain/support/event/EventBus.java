@@ -1,12 +1,9 @@
 package com.stellariver.milky.domain.support.event;
 
-import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.base.CommitAction;
 import com.stellariver.milky.domain.support.base.MilkySupport;
-import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
@@ -38,7 +35,7 @@ public class EventBus {
     static final private Predicate<Method> batchEventFormat = method -> {
         Class<?>[] parameterTypes = method.getParameterTypes();
         boolean parametersMatch = parameterTypes.length == 2 &&
-                List.class.isAssignableFrom(parameterTypes[0] && Context.class.isAssignableFrom(parameterTypes[1]));
+                List.class.isAssignableFrom(parameterTypes[0]) && Context.class.isAssignableFrom(parameterTypes[1]));
         if (!parametersMatch) {
             return false;
         }
@@ -121,7 +118,7 @@ public class EventBus {
 
         this.batchRouters = methods.stream().map(method -> {
             BatchEventRouter annotation = method.getAnnotation(BatchEventRouter.class);
-            Class<? extends Event> eventClass = (Class<? extends Event>)((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
+            Class<? extends Event> eventClass = (Class<? extends Event>) ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
             return BatchRouter.builder().bean(bean).method(method)
                     .eventClass(eventClass)
@@ -153,8 +150,6 @@ public class EventBus {
         private final Object bean;
 
         private final Method method;
-
-        private final TypeEnum type;
 
         private ExecutorService executorService;
 
