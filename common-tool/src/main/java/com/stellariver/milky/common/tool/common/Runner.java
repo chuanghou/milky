@@ -1,5 +1,6 @@
 package com.stellariver.milky.common.tool.common;
 
+import com.stellariver.milky.common.tool.util.If;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -30,7 +31,9 @@ public class Runner {
     static public void run(Option<Object,Object> option, SRunnable callable) {
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
+        Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
         do {
+            long now = SystemClock.now();
             try {
                 callable.run();
             } catch (Throwable throwable) {
@@ -39,11 +42,14 @@ public class Runner {
                     throw throwableBackup;
                 }
             } finally {
-                Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
-                if (throwableBackup == null && option.isAlwaysLog()) {
-                    log.with(signature.getRight()).info(signature.getLeft());
-                } else if (throwableBackup != null){
-                    log.with(signature.getRight()).error(signature.getLeft(), throwableBackup);
+                if (throwableBackup != null) {
+                    if (retryTimes == 0) {
+                        log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
+                    } else {
+                        log.with(signature.getRight()).cost(SystemClock.now() - now).info(signature.getLeft());
+                    }
+                } else {
+                    If.isTrue(option.isAlwaysLog(), () -> log.with(signature.getRight()).info(signature.getLeft()));
                 }
             }
         } while (retryTimes-- > 0);
@@ -61,8 +67,9 @@ public class Runner {
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
-        long now = SystemClock.now();
+        Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
         do {
+            long now = SystemClock.now();
             try {
                 result = callable.call();
                 SysException.falseThrow(option.getCheck().apply(result), result);
@@ -80,12 +87,15 @@ public class Runner {
                     return option.getDefaultValue();
                 }
             } finally {
-                Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
                 if (throwableBackup == null && option.isAlwaysLog()) {
                     Function<R, String> printer = Optional.ofNullable(option.getLogResultSelector()).orElse(Json::toJson);
                     log.with(signature.getRight()).result(printer.apply(result)).cost(SystemClock.now() - now).info(signature.getLeft());
                 } else if (throwableBackup != null){
-                    log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
+                    if (retryTimes == 0) {
+                        log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
+                    } else {
+                        log.with(signature.getRight()).cost(SystemClock.now() - now).warn(signature.getLeft(), throwableBackup);
+                    }
                 }
             }
         } while (retryTimes-- > 0);
@@ -103,8 +113,9 @@ public class Runner {
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
-        long now = SystemClock.now();
+        Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
         do {
+            long now = SystemClock.now();
             try {
                 result = callable.call();
                 return result;
@@ -118,12 +129,15 @@ public class Runner {
                     throw throwableBackup;
                 }
             } finally {
-                Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
                 if (throwableBackup == null && option.isAlwaysLog()) {
                     Function<R, String> printer = Optional.ofNullable(option.getLogResultSelector()).orElse(Json::toJson);
                     log.with(signature.getRight()).result(printer.apply(result)).cost(SystemClock.now() - now).info(signature.getLeft());
                 } else if (throwableBackup != null){
-                    log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
+                    if (retryTimes == 0) {
+                        log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
+                    } else {
+                        log.with(signature.getRight()).cost(SystemClock.now() - now).warn(signature.getLeft(), throwableBackup);
+                    }
                 }
             }
         } while (retryTimes-- > 0);

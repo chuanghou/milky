@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-
 public class Result<T> implements Serializable {
 
     protected Boolean success = true;
@@ -26,6 +25,8 @@ public class Result<T> implements Serializable {
         return this.data;
     }
 
+
+
     public void setData(T data) {
         this.data = data;
     }
@@ -42,6 +43,17 @@ public class Result<T> implements Serializable {
         return this.errors;
     }
 
+    @Override
+    public String toString() {
+        return "Result{" +
+                "success=" + success +
+                ", data=" + data +
+                ", errorCode='" + errorCode + '\'' +
+                ", message='" + message + '\'' +
+                ", errors=" + errors +
+                '}';
+    }
+
     public static <T> Result<T> success() {
         return new Result<>();
     }
@@ -52,12 +64,21 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static <T> Result<T> errorResult(Error error) {
+    public static <T> Result<T> error(Error error) {
         Result<T> result = new Result<>();
         result.success = false;
         result.errorCode = error.getCode();
         result.message = error.getMessage();
         result.errors = Collections.singletonList(error);
+        return result;
+    }
+
+    public static <T> Result<T> error(List<Error> errors) {
+        Result<T> result = new Result<>();
+        result.success = false;
+        result.errorCode = errors.get(0).getCode();
+        result.message = errors.get(0).getMessage();
+        result.errors = errors;
         return result;
     }
 

@@ -44,6 +44,12 @@ public class CommandBus {
                 && Command.class.isAssignableFrom(parameterTypes[0])
                 && parameterTypes[1] == Context.class);
 
+    private static final Predicate<Class<?>[]> interceptorFormat =
+            parameterTypes -> (parameterTypes.length == 3
+                    && Command.class.isAssignableFrom(parameterTypes[0])
+                    && AggregateRoot.class.isAssignableFrom(parameterTypes[1])
+                    && parameterTypes[2] == Context.class;
+
     private static CommandBus instance;
 
     private static final ThreadLocal<Context> tLContext = ThreadLocal.withInitial(Context::new);
@@ -102,7 +108,7 @@ public class CommandBus {
         // collect all command interceptors into tempInterceptorsMap group by commandClass
         milkySupport.getInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> format.test(m.getParameterTypes()))
+                .filter(m -> interceptorFormat.test(m.getParameterTypes()))
                 .filter(m -> m.isAnnotationPresent(Intercept.class)).collect(Collectors.toList())
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
@@ -269,15 +275,15 @@ public class CommandBus {
             result = route(command);
             context.getFinalRouteEvents().forEach(event -> eventBus.finalRoute(event, context));
             List<MessageRecord> messageRecords = context.getMessageRecords();
-            asyncExecutor.execute(() -> {
+            asyncExecutor.submit(() -> {
                 traceRepository.insert(invocationId, context);
                 traceRepository.batchInsert(messageRecords, context);
             });
         } catch (Throwable throwable) {
             List<MessageRecord> recordedMessages = context.getMessageRecords();
-            asyncExecutor.execute(() -> {
+            asyncExecutor.submit(() -> {
                 traceRepository.insert(invocationId, context, false);
-                traceRepository.batchInsert(recordedMessages, context);
+                traceRepository.batchInsert(recordedMessages, context, false);
             });
             throw throwable;
         } finally {

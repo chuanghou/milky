@@ -33,13 +33,21 @@ public class PageResult<T> extends Result<List<T>> {
         return success(Collections.emptyList(), 0L, pageNo, pageSize);
     }
 
-
-    public static <T> PageResult<T> errorPageResult(Error error) {
+    public static <T> PageResult<T> pageError(Error error) {
         PageResult<T> result = new PageResult<>();
         result.success = false;
         result.errorCode = error.getCode();
         result.message = error.getMessage();
         result.errors = Collections.singletonList(error);
+        return result;
+    }
+
+    public static <T> PageResult<T> pageError(List<Error> errors) {
+        PageResult<T> result = new PageResult<>();
+        result.success = false;
+        result.errorCode = errors.get(0).getCode();
+        result.message = errors.get(0).getMessage();
+        result.errors = errors;
         return result;
     }
 

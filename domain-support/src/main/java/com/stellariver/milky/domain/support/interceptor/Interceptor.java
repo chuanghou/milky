@@ -25,6 +25,6 @@ public class Interceptor {
 
     @SneakyThrows
     public void invoke(Object object, AggregateRoot aggregateRoot, Context context) {
-        Runner.invoke(bean, method, aggregateRoot, object, context);
+        Runner.invoke(bean, method, object, aggregateRoot, context);
     }
 }

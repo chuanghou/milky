@@ -12,14 +12,11 @@ import java.util.function.Supplier;
 public class BizException extends BaseException {
 
     public BizException(Error error) {
-        super(error);
-    }
-    public BizException(Error error, Throwable t) {
-        super(error, t);
+        super(Collections.singletonList(error));
     }
 
-    public BizException(List<Error> errors, Throwable t) {
-        super(errors, t);
+    public BizException(List<Error> errors) {
+        super(errors);
     }
 
     static public void anyNullThrow(Object... params) {

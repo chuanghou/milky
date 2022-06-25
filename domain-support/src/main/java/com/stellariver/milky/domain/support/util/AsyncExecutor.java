@@ -1,5 +1,7 @@
 package com.stellariver.milky.domain.support.util;
 
+import javax.annotation.Nonnull;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -27,12 +29,22 @@ public class AsyncExecutor extends ThreadPoolExecutor {
     }
 
     @Override
-    protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
-        return new ThreadLocalFutureTask<>(runnable, value, threadLocalPassers);
-    }
-    @Override
-    protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
-        return new ThreadLocalFutureTask<>(callable, threadLocalPassers);
+    public void execute(@Nonnull Runnable command) {
+        final Thread superThread = Thread.currentThread();
+        HashMap<Class<?>, Object> threadLocalMap = new HashMap<>();
+        threadLocalPassers.forEach(passer -> threadLocalMap.put(passer.getClass(), passer.prepareThreadLocal()));
+        super.execute(() -> {
+            if (superThread == Thread.currentThread()) {
+                command.run();
+                return;
+            }
+            threadLocalPassers.forEach(passer -> passer.pass(threadLocalMap.get(passer.getClass())));
+            try {
+                command.run();
+            } finally {
+                threadLocalPassers.forEach(ThreadLocalPasser::clearThreadLocal);
+            }
+        });
     }
 
 }

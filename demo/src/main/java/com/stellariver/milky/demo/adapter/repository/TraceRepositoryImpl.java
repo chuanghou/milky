@@ -28,7 +28,7 @@ public class TraceRepositoryImpl implements TraceRepository {
     }
 
     @Override
-    public void batchInsert(List<MessageRecord> messageRecords, Context context) {
+    public void batchInsert(List<MessageRecord> messageRecords, Context context, boolean success) {
 
     }
 

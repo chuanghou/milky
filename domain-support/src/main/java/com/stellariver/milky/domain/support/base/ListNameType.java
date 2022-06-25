@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.List;
 import java.util.Map;
 
-public class ListNameType< V> extends NameType<List<V>> {
+public class ListNameType<V> extends NameType<List<V>> {
 
     @Getter
     private final Class<?> vClazz;

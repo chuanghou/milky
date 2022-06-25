@@ -10,19 +10,23 @@ import java.util.function.Supplier;
 public class SysException extends BaseException {
 
     public SysException(String message) {
-        super(ErrorEnum.SYSTEM_EXCEPTION.message(message));
+        super(Collections.singletonList(ErrorEnumBase.UNDEFINED.message(message)));
     }
 
     public SysException(Object object) {
-        super(ErrorEnum.SYSTEM_EXCEPTION.message(Json.toJson(object)));
+        super(Collections.singletonList(ErrorEnumBase.UNDEFINED.message(Json.toJson(object))));
+    }
+
+    public SysException(Throwable throwable) {
+        super(throwable);
     }
 
     public SysException(Error error) {
-        super(error);
+        super(Collections.singletonList(error));
     }
 
     public SysException(Error error, Throwable t) {
-        super(error, t);
+        super(Collections.singletonList(error), t);
     }
 
     public SysException(List<Error> errors, Throwable t) {
