@@ -33,10 +33,6 @@ public class Context{
 
     private final List<MessageRecord> messageRecords = new ArrayList<>();
 
-    public Map<NameType<?>, Object> getMetaData() {
-        return StreamMap.init(metaData).getMap();
-    }
-
     public Object getDependency(NameType<?> key) {
         return dependencies.get(key);
     }
