@@ -35,13 +35,13 @@ public class EventBus {
     static final private Predicate<Method> batchEventFormat = method -> {
         Class<?>[] parameterTypes = method.getParameterTypes();
         boolean parametersMatch = parameterTypes.length == 2 &&
-                List.class.isAssignableFrom(parameterTypes[0]) && Context.class.isAssignableFrom(parameterTypes[1]));
+                List.class.isAssignableFrom(parameterTypes[0]) && Context.class.isAssignableFrom(parameterTypes[1]);
         if (!parametersMatch) {
             return false;
         }
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Type actualTypeArgument = ((ParameterizedType) genericParameterTypes[0]).getActualTypeArguments()[0];
-        return actualTypeArgument instanceof Class<?> && Event.class.isAssignableFrom((Class<?>actualTypeArgument))
+        return actualTypeArgument instanceof Class<?> && Event.class.isAssignableFrom(parameterTypes[1]);
     };
 
     private final Map<Class<? extends Event>, List<Router>> singleEventRouterMap = new HashMap<>();
