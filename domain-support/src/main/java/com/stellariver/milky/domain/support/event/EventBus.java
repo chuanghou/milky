@@ -18,6 +18,8 @@ import lombok.SneakyThrows;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Predicate;
@@ -25,18 +27,28 @@ import java.util.stream.Collectors;
 
 public class EventBus {
 
-    static final private Predicate<Class<?>[]> commonFormat =
-                    parameterTypes -> (parameterTypes.length == 2
-                    && Event.class.isAssignableFrom(parameterTypes[0])
-                    && parameterTypes[1] == Context.class);
+    static final private Predicate<Method> singleEventFormat = method -> {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return parameterTypes.length == 2
+                && Event.class.isAssignableFrom(parameterTypes[0])
+                && parameterTypes[1] == Context.class;
+    };
 
-    static final private Predicate<Class<?>[]> transactionFormat =
-            parameterTypes -> (parameterTypes.length == 3
-                    && Event.class.isAssignableFrom(parameterTypes[0])
-                    && parameterTypes[1] == CommitAction.class
-                    && parameterTypes[2] == Context.class);
+    static final private Predicate<Method> batchEventFormat = method -> {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        boolean parametersMatch = parameterTypes.length == 2 &&
+                List.class.isAssignableFrom(parameterTypes[0] && Context.class.isAssignableFrom(parameterTypes[1]));
+        if (!parametersMatch) {
+            return false;
+        }
+        Type[] genericParameterTypes = method.getGenericParameterTypes();
+        Type actualTypeArgument = ((ParameterizedType) genericParameterTypes[0]).getActualTypeArguments()[0];
+        return actualTypeArgument instanceof Class<?> && Event.class.isAssignableFrom((Class<?>actualTypeArgument))
+    };
 
-    private final Map<Class<? extends Event>, List<Router>> routerMap = new HashMap<>();
+    private final Map<Class<? extends Event>, List<Router>> singleEventRouterMap = new HashMap<>();
+
+    private List<BatchRouter<Class<? extends Event>>> batchRouters;
 
     private final Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors = new HashMap<>();
 
@@ -47,16 +59,15 @@ public class EventBus {
 
         List<Method> methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> commonFormat.test(m.getParameterTypes()) || transactionFormat.test(m.getParameterTypes()))
+                .filter(singleEventFormat)
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .collect(Collectors.toList());
         Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
         methods.forEach(method -> {
-            EventRouter annotation = method.getAnnotation(EventRouter.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
             Router router = Router.builder().bean(bean).method(method)
-                    .type(annotation.type()).executorService(milkySupport.getAsyncExecutor())
+                    .executorService(milkySupport.getAsyncExecutor())
                     .build();
             tempRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).add(router);
         });
@@ -66,15 +77,14 @@ public class EventBus {
         eventClasses.forEach(eventClass -> Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
                 .forEach(aC -> {
                     List<Router> routers = Optional.ofNullable(tempRouterMap.get(aC)).orElseGet(ArrayList::new);
-                    routerMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
+                    singleEventRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
                 }));
 
         HashMap<Class<? extends Event>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
 
-        // collect all command interceptors into tempInterceptorsMap group by commandClass
         milkySupport.getInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> commonFormat.test(m.getParameterTypes()))
+                .filter(singleEventFormat)
                 .filter(m -> m.isAnnotationPresent(Intercept.class)).collect(Collectors.toList())
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
@@ -87,13 +97,13 @@ public class EventBus {
                 });
 
         // divided into before and after
-        tempInterceptorsMap.forEach((commandClass, interceptors) -> {
+        tempInterceptorsMap.forEach((eventClass, interceptors) -> {
             List<Interceptor> beforeInterceptors = interceptors.stream()
                     .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.BEFORE)).collect(Collectors.toList());
-            beforeEventInterceptors.put(commandClass, beforeInterceptors);
+            beforeEventInterceptors.put(eventClass, beforeInterceptors);
             List<Interceptor> afterInterceptors = interceptors.stream()
                     .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER)).collect(Collectors.toList());
-            afterEventInterceptors.put(commandClass, afterInterceptors);
+            afterEventInterceptors.put(eventClass, afterInterceptors);
         });
 
         // internal order
@@ -101,15 +111,26 @@ public class EventBus {
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
         afterEventInterceptors.forEach((k, v) ->
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
+
+        methods = milkySupport.getEventRouters().stream()
+                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .filter(batchEventFormat)
+                .filter(m -> m.isAnnotationPresent(BatchEventRouter.class))
+                .collect(Collectors.toList());
+
+        this.batchRouters = methods.stream().map(method -> {
+            B
+        })
+
     }
 
     public void syncRoute(Event event, Context context) {
         Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
                 .forEach(interceptor -> interceptor.invoke(event, context)));
-        Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
+        Optional.ofNullable(singleEventRouterMap.get(event.getClass())).orElseGet(ArrayList::new)
                 .stream().filter(router -> router.type.equals(TypeEnum.SYNC))
                 .forEach(router -> router.route(event, context));
-        Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
+        Optional.ofNullable(singleEventRouterMap.get(event.getClass())).orElseGet(ArrayList::new)
                 .stream().filter(router -> router.type.equals(TypeEnum.TRANSACTION))
                 .forEach(router -> router.route(event, CommitAction.PRE_COMMIT, context));
         Optional.ofNullable(afterEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
@@ -117,10 +138,10 @@ public class EventBus {
     }
 
     public void finalRoute(Event event, Context context) {
-        Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
+        Optional.ofNullable(singleEventRouterMap.get(event.getClass())).orElseGet(ArrayList::new)
                 .stream().filter(router -> router.type.equals(TypeEnum.ASYNC))
                 .forEach(router -> router.route(event, context));
-        Optional.ofNullable(routerMap.get(event.getClass())).orElseGet(ArrayList::new)
+        Optional.ofNullable(singleEventRouterMap.get(event.getClass())).orElseGet(ArrayList::new)
                 .stream().filter(router -> router.type.equals(TypeEnum.TRANSACTION))
                 .forEach(router -> router.route(event, CommitAction.COMMIT, context));
     }
