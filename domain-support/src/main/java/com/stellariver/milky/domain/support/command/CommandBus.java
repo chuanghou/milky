@@ -41,8 +41,8 @@ public class CommandBus {
 
     private static final Predicate<Class<?>[]> format =
             parameterTypes -> (parameterTypes.length == 2
-                && Command.class.isAssignableFrom(parameterTypes[0])
-                && parameterTypes[1] == Context.class);
+                    && Command.class.isAssignableFrom(parameterTypes[0])
+                    && parameterTypes[1] == Context.class);
 
     private static final Predicate<Class<?>[]> interceptorFormat =
             parameterTypes -> (parameterTypes.length == 3
@@ -273,7 +273,7 @@ public class CommandBus {
         command.setInvokeTrace(invokeTrace);
         try {
             result = route(command);
-            context.getFinalRouteEvents().forEach(event -> eventBus.finalRoute(event, context));
+            eventBus.batchRoute(context.getFinalRouteEvents(), context);
             List<MessageRecord> messageRecords = context.getMessageRecords();
             asyncExecutor.submit(() -> {
                 traceRepository.insert(invocationId, context);
@@ -306,6 +306,7 @@ public class CommandBus {
         String encryptionKey = UUID.randomUUID().toString();
         NameSpace nameSpace = NameSpace.build(command.getClass());
         String lockKey = command.getAggregateId();
+        long now = SystemClock.now();
         try {
             if (concurrentOperate.tryLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils())) {
                 result = doRoute(command, context, commandHandler);
@@ -329,13 +330,13 @@ public class CommandBus {
         } finally {
             boolean unlock = concurrentOperate.unlock(nameSpace, lockKey, encryptionKey);
             if (!unlock) {
-                log.arg0(nameSpace).arg1(lockKey).error("UNLOCK_FAILURE");
+                log.arg0(nameSpace).arg1(lockKey).cost(SystemClock.now() - now).error("UNLOCK_FAILURE");
             }
         }
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
             context.recordEvent(EventRecord.builder().message(event).build());
-            eventBus.syncRoute(event, tLContext.get());
+            eventBus.route(event, tLContext.get());
         });
         return result;
     }
