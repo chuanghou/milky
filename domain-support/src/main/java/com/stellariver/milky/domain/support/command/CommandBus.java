@@ -48,7 +48,7 @@ public class CommandBus {
             parameterTypes -> (parameterTypes.length == 3
                     && Command.class.isAssignableFrom(parameterTypes[0])
                     && AggregateRoot.class.isAssignableFrom(parameterTypes[1])
-                    && parameterTypes[2] == Context.class;
+                    && parameterTypes[2] == Context.class);
 
     private static CommandBus instance;
 
@@ -353,11 +353,13 @@ public class CommandBus {
                 invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
         AggregateRoot aggregate;
         Object result = null;
-        CommandRecord commandRecord = CommandRecord.builder().message(command).dependencies(context.getDependencies()).build();
+        CommandRecord commandRecord = CommandRecord.builder().message(command)
+                .dependencies(new HashMap<>(context.getDependencies())).build();
         context.recordCommand(commandRecord);
-        Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
-                .forEach(interceptor -> interceptor.invoke(command, context)));
+
         if (commandHandler.constructor != null) {
+            Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
+                    .forEach(interceptor -> interceptor.invoke(command, null, context)));
             try {
                 aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -376,11 +378,13 @@ public class CommandBus {
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
             If.isTrue(present, () -> repository.update(aggregate, context));
         } else {
+            Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
+                    .forEach(interceptor -> interceptor.invoke(command, null, context)));
             aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
             repository.save(aggregate, context);
         }
         Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
-                .forEach(interceptor -> interceptor.invoke(command, context)));
+                .forEach(interceptor -> interceptor.invoke(command, aggregate, context)));
         return result;
     }
 
