@@ -10,9 +10,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 public @interface BatchEventRouter {
 
-    boolean asyncable default false;
+    boolean asyncable() default false;
 
     String executor() default "asyncExecutor";
 
     int order() default Integer.MAX_VALUE;
+
 }
