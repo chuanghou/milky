@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 public class ConcurrentTool {
 
     static public <T> List<T> batchCall(List<Supplier<T>> suppliers, Executor executor) {
-        List<CompletableFuture<T>> batchFutures = suppliers.stream()
+        List<CompletableFuture<T>> batchFuture = suppliers.stream()
                 .map(supplier -> CompletableFuture.supplyAsync(supplier, executor))
                 .collect(Collectors.toList());
-        CompletableFuture<Void> result = CompletableFuture.allOf(batchFutures.toArray(new CompletableFuture[0]));
+        CompletableFuture<Void> result = CompletableFuture.allOf(batchFuture.toArray(new CompletableFuture[0]));
         CompletableFuture<List<T>> finalResults =
-                result.thenApply(v -> batchFutures.stream().map(CompletableFuture::join).collect(Collectors.toList()));
+                result.thenApply(v -> batchFuture.stream().map(CompletableFuture::join).collect(Collectors.toList()));
         try {
             return finalResults.get();
         } catch (InterruptedException e) {
@@ -26,12 +26,12 @@ public class ConcurrentTool {
     }
 
     static public void batchRun(List<Runnable> runnables, Executor executor) {
-        List<CompletableFuture<Void>> batchFutures = runnables.stream()
+        List<CompletableFuture<Void>> batchFuture = runnables.stream()
                 .map(runnable -> CompletableFuture.runAsync(runnable, executor))
                 .collect(Collectors.toList());
-        CompletableFuture<Void> result = CompletableFuture.allOf(batchFutures.toArray(new CompletableFuture[0]));
+        CompletableFuture<Void> result = CompletableFuture.allOf(batchFuture.toArray(new CompletableFuture[0]));
         CompletableFuture<List<Void>> finalResults =
-                result.thenApply(v -> batchFutures.stream().map(CompletableFuture::join).collect(Collectors.toList()));
+                result.thenApply(v -> batchFuture.stream().map(CompletableFuture::join).collect(Collectors.toList()));
         try {
             finalResults.get();
         } catch (InterruptedException e) {
