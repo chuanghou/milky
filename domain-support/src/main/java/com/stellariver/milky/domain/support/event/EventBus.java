@@ -15,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;
-import org.checkerframework.checker.units.qual.A;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
@@ -51,7 +50,7 @@ public class EventBus {
 
     private final Map<Class<? extends Event>, List<Router>> eventRouterMap = new HashMap<>();
 
-    private final List<BatchRouter<Class<? extends Event>>> finalRouters;
+    private final List<FinalRouter<Class<? extends Event>>> finalRouters;
 
     private final Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors = new HashMap<>();
 
@@ -123,12 +122,12 @@ public class EventBus {
             FinalEventRouter annotation = method.getAnnotation(FinalEventRouter.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
-            return BatchRouter.builder().bean(bean).method(method)
+            return FinalRouter.builder().bean(bean).method(method)
                     .eventClass(eventClass)
                     .order(annotation.order())
                     .executorService(milkySupport.getAsyncExecutor())
                     .build();
-        }).sorted(Comparator.comparing(BatchRouter::getOrder)).collect(Collectors.toList());
+        }).sorted(Comparator.comparing(FinalRouter::getOrder)).collect(Collectors.toList());
 
     }
 
@@ -141,8 +140,8 @@ public class EventBus {
             .forEach(interceptor -> interceptor.invoke(event, null, context));
     }
 
-    public void batchRoute(List<? extends Event> events, Context context) {
-        finalRouters.forEach(batchRouter -> batchRouter.route(events, context));
+    public void finalRoute(List<? extends Event> events, Context context) {
+        finalRouters.forEach(finalRouter -> finalRouter.route(events, context));
     }
 
     @Data
@@ -163,7 +162,7 @@ public class EventBus {
     @Data
     @Builder
     @AllArgsConstructor
-    static public class BatchRouter<T extends Class<? extends Event>> {
+    static public class FinalRouter<T extends Class<? extends Event>> {
 
         private T eventClass;
 

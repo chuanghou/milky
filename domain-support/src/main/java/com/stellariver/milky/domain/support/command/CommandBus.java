@@ -232,7 +232,7 @@ public class CommandBus {
         methods.forEach(method -> {
             Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
             DependencyKey annotation = method.getAnnotation(DependencyKey.class);
-            String key =annotation.value();
+            String key = annotation.value();
             String[] requiredKeys = annotation.requiredKeys();
             boolean fallbackable = annotation.fallbackable();
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
@@ -271,7 +271,7 @@ public class CommandBus {
         command.setInvokeTrace(invokeTrace);
         try {
             result = route(command);
-            eventBus.batchRoute(context.getFinalRouteEvents(), context);
+            eventBus.finalRoute(context.getFinalRouteEvents(), context);
             List<MessageRecord> messageRecords = context.getMessageRecords();
             asyncExecutor.submit(() -> {
                 traceRepository.insert(invocationId, context);

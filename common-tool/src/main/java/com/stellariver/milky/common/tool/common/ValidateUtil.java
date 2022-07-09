@@ -20,16 +20,15 @@ public class ValidateUtil {
 
     static final private ExecutableValidator executableValidator = validator.forExecutables();
 
-    public static void bizValidate(Object object, Method method, Object[] params) throws BizException{
+    public static void bizValidate(Object object, Method method, Object[] params) throws BizException {
         validate(object, method, params, ExceptionType.BIZ);
         Arrays.stream(params).forEach(param -> validate(param, ExceptionType.BIZ));
     }
 
-    public static void sysValidate(Object object, Method method, Object[] params) throws SysException{
+    public static void sysValidate(Object object, Method method, Object[] params) throws SysException {
         validate(object, method, params, ExceptionType.SYS);
         Arrays.stream(params).forEach(param -> validate(param, ExceptionType.SYS));
     }
-
 
     private static void validate(Object object, Method method, Object[] params, ExceptionType type) {
         Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params);

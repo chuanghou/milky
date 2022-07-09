@@ -75,7 +75,6 @@ public class Logger implements org.slf4j.Logger {
         return this;
     }
 
-
     public Logger result(Object value) {
         with("result", value);
         return this;
