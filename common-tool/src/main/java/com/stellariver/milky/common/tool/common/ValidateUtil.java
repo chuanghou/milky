@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class ValidateUtil {
 
-    enum ExceptionType{BIZ, SYS}
+    enum ExceptionType {BIZ, SYS}
 
     static final private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
