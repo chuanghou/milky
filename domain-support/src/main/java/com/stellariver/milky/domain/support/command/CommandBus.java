@@ -1,7 +1,6 @@
 package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.*;
-import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.If;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
@@ -22,6 +21,7 @@ import com.stellariver.milky.domain.support.dependency.DomainRepository;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.reflections.Reflections;
@@ -34,10 +34,10 @@ import java.util.stream.Stream;
 
 import static com.stellariver.milky.common.tool.common.ErrorEnumBase.CONCURRENCY_VIOLATION;
 import static com.stellariver.milky.domain.support.ErrorEnum.*;
+import static com.stellariver.milky.domain.support.command.HandlerType.*;
 
+@CustomLog
 public class CommandBus {
-
-    private static final Logger log = Logger.getLogger(CommandBus.class);
 
     private static final Predicate<Class<?>[]> format =
             parameterTypes -> (parameterTypes.length == 2
@@ -193,15 +193,13 @@ public class CommandBus {
             SysException.trueThrow(!Objects.equals(name, "handle"),
                     ErrorEnum.CONFIG_ERROR.message("command handler's name should be handle, not " + name));
             boolean hasReturn = !method.getReturnType().getName().equals("void");
-            boolean isStatic = Modifier.isStatic(method.getModifiers());
+            HandlerType handlerType = Modifier.isStatic(method.getModifiers()) ? STATIC_METHOD : INSTANCE_METHOD;
             List<String> requiredKeys = Arrays.asList(annotation.dependencies());
-            Handler handler = new Handler(clazz, method, null, isStatic, hasReturn, requiredKeys);
+            Handler handler = new Handler(clazz, method, null, handlerType, hasReturn, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
-            if (commandHandlers.containsKey(commandType)) {
-                throw new SysException(ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
-            } else {
-                commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
-            }
+            SysException.trueThrow(commandHandlers.containsKey(commandType),
+                    ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
+            commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
         });
 
         List<Constructor<?>> constructors = classes.stream().map(Class::getDeclaredConstructors).flatMap(Stream::of)
@@ -213,13 +211,11 @@ public class CommandBus {
             CommandHandler annotation = constructor.getAnnotation(CommandHandler.class);
             List<String> requiredKeys = Arrays.asList(annotation.dependencies());
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) constructor.getDeclaringClass();
-            Handler handler = new Handler(clazz, null, constructor, false, true, requiredKeys);
+            Handler handler = new Handler(clazz, null, constructor, CONSTRUCTOR_METHOD, true, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
-            if (commandHandlers.containsKey(commandType)) {
-                throw new SysException(ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
-            } else {
-                commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
-            }
+            SysException.trueThrow(commandHandlers.containsKey(commandType),
+                    ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
+            commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
         });
     }
 
@@ -235,10 +231,12 @@ public class CommandBus {
 
         methods.forEach(method -> {
             Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
-            String key = method.getAnnotation(DependencyKey.class).value();
-            String[] requiredKeys = method.getAnnotation(DependencyKey.class).requiredKeys();
+            DependencyKey annotation = method.getAnnotation(DependencyKey.class);
+            String key =annotation.value();
+            String[] requiredKeys = annotation.requiredKeys();
+            boolean fallbackable = annotation.fallbackable();
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
-            DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method);
+            DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method, fallbackable);
             Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
             SysException.trueThrow(valueProviderMap.containsKey(key),
                     "对于" + commandClass.getName() + "对于" + key + "提供了两个dependencyProvider");
@@ -356,19 +354,12 @@ public class CommandBus {
         CommandRecord commandRecord = CommandRecord.builder().message(command)
                 .dependencies(new HashMap<>(context.getDependencies())).build();
         context.recordCommand(commandRecord);
-        if (commandHandler.constructor != null) {
-            Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
-                    .forEach(interceptor -> interceptor.invoke(command, null, context)));
-            try {
-                aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                if (e instanceof InvocationTargetException) {
-                    throw ((InvocationTargetException) e).getTargetException();
-                }
-                throw new SysException(e);
-            }
+        if (commandHandler.handlerType == CONSTRUCTOR_METHOD) {
+            beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
+                    .forEach(interceptor -> interceptor.invoke(command, null, context));
+            aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
             repository.save(aggregate, context);
-        } else if (!commandHandler.isStatic){
+        } else if (commandHandler.handlerType == INSTANCE_METHOD){
             Optional<? extends AggregateRoot> optional = (Optional<? extends AggregateRoot>)
                     repository.getByAggregateId(command.getAggregateId(), context);
             aggregate = optional.orElseThrow(() -> new SysException(AGGREGATE_NOT_EXISTED
@@ -378,14 +369,16 @@ public class CommandBus {
             result = commandHandler.invoke(aggregate, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
             If.isTrue(present, () -> repository.update(aggregate, context));
-        } else {
-            Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
-                    .forEach(interceptor -> interceptor.invoke(command, null, context)));
+        } else if (commandHandler.handlerType == STATIC_METHOD){
+            beforeCommandInterceptors.get(command.getClass())
+                    .forEach(interceptor -> interceptor.invoke(command, null, context));
             aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
             repository.save(aggregate, context);
+        } else {
+            throw new SysException("unreached part!");
         }
-        Optional.ofNullable(afterCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
-                .forEach(interceptor -> interceptor.invoke(command, aggregate, context)));
+        afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
+                .forEach(interceptor -> interceptor.invoke(command, aggregate, context));
         return result;
     }
 
@@ -445,9 +438,21 @@ public class CommandBus {
 
         private Method method;
 
+        private boolean fallbackable;
+
         @SneakyThrows
         public void invoke(Object object, Context context) {
-            Runner.invoke(bean, method, object, context);
+            Throwable throwable = null;
+            try {
+                Runner.invoke(bean, method, object, context);
+            } catch (Throwable t) {
+                throwable = t;
+                if (!isFallbackable()) {
+                    throw t;
+                }
+            } finally {
+                log.arg0(key).arg1(requiredKeys).arg2(object).log("DependencyProviderInvoke", throwable);
+            }
         }
 
     }
@@ -462,7 +467,7 @@ public class CommandBus {
 
         private Constructor<?> constructor;
 
-        private boolean isStatic;
+        private HandlerType handlerType;
 
         private boolean hasReturn;
 

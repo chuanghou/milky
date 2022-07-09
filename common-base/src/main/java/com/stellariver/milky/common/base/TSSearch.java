@@ -6,6 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TSSearch {
 
-    String index() default "";
+    String value() default "";
 
 }

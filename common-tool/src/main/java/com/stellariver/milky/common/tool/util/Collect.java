@@ -11,6 +11,11 @@ import java.util.stream.Stream;
 
 public class Collect {
 
+    @SafeVarargs
+    public static <T> List<T> asList(T... t) {
+        return Arrays.stream(t).collect(Collectors.toList());
+    }
+
     public static <T> Stream<T> stream(Collection<T> source) {
         return source != null ? source.stream() : Stream.empty();
     }

@@ -1,8 +1,10 @@
 package com.stellariver.milky.domain.support.event;
 
 import com.stellariver.milky.common.tool.common.Runner;
+import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
+import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
@@ -13,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;
+import org.checkerframework.checker.units.qual.A;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
@@ -25,28 +28,30 @@ import java.util.stream.Collectors;
 
 public class EventBus {
 
-    static final private Predicate<Method> singleEventFormat = method -> {
+    static final private Predicate<Method> eventRouterFormat = method -> {
         Class<?>[] parameterTypes = method.getParameterTypes();
         return parameterTypes.length == 2
                 && Event.class.isAssignableFrom(parameterTypes[0])
                 && parameterTypes[1] == Context.class;
     };
 
-    static final private Predicate<Method> batchEventFormat = method -> {
+    static final private Predicate<Method> finalEventRouterFormat = method -> {
+        if (!method.isAnnotationPresent(FinalEventRouter.class)) {
+            return false;
+        }
         Class<?>[] parameterTypes = method.getParameterTypes();
         boolean parametersMatch = parameterTypes.length == 2 &&
                 List.class.isAssignableFrom(parameterTypes[0]) && Context.class.isAssignableFrom(parameterTypes[1]);
-        if (!parametersMatch) {
-            return false;
-        }
+        SysException.falseThrow(parametersMatch, ErrorEnum.CONFIG_ERROR.message("FinalEventRouter format wrong! "
+                 + method.getDeclaringClass().getName() + "#" + method.getName()));
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Type actualTypeArgument = ((ParameterizedType) genericParameterTypes[0]).getActualTypeArguments()[0];
         return actualTypeArgument instanceof Class<?> && Event.class.isAssignableFrom((Class<?>)actualTypeArgument);
     };
 
-    private final Map<Class<? extends Event>, List<Router>> singleEventRouterMap = new HashMap<>();
+    private final Map<Class<? extends Event>, List<Router>> eventRouterMap = new HashMap<>();
 
-    private List<BatchRouter<Class<? extends Event>>> batchRouters;
+    private final List<BatchRouter<Class<? extends Event>>> finalRouters;
 
     private final Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors = new HashMap<>();
 
@@ -57,16 +62,14 @@ public class EventBus {
 
         List<Method> methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(singleEventFormat)
+                .filter(eventRouterFormat)
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .collect(Collectors.toList());
         Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
         methods.forEach(method -> {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
-            Router router = Router.builder().bean(bean).method(method)
-                    .executorService(milkySupport.getAsyncExecutor())
-                    .build();
+            Router router = Router.builder().bean(bean).method(method).build();
             tempRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).add(router);
         });
 
@@ -75,14 +78,14 @@ public class EventBus {
         eventClasses.forEach(eventClass -> Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
                 .forEach(aC -> {
                     List<Router> routers = Optional.ofNullable(tempRouterMap.get(aC)).orElseGet(ArrayList::new);
-                    singleEventRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
+                    eventRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
                 }));
 
         HashMap<Class<? extends Event>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
 
         milkySupport.getInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(singleEventFormat)
+                .filter(eventRouterFormat)
                 .filter(m -> m.isAnnotationPresent(Intercept.class)).collect(Collectors.toList())
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
@@ -112,12 +115,12 @@ public class EventBus {
 
         methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(batchEventFormat)
-                .filter(m -> m.isAnnotationPresent(BatchEventRouter.class))
+                .filter(finalEventRouterFormat)
+                .filter(m -> m.isAnnotationPresent(FinalEventRouter.class))
                 .collect(Collectors.toList());
 
-        this.batchRouters = methods.stream().map(method -> {
-            BatchEventRouter annotation = method.getAnnotation(BatchEventRouter.class);
+        this.finalRouters = methods.stream().map(method -> {
+            FinalEventRouter annotation = method.getAnnotation(FinalEventRouter.class);
             Class<? extends Event> eventClass = (Class<? extends Event>) ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
             return BatchRouter.builder().bean(bean).method(method)
@@ -130,16 +133,16 @@ public class EventBus {
     }
 
     public void route(Event event, Context context) {
-        Optional.ofNullable(beforeEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
-                .forEach(interceptor -> interceptor.invoke(event, null, context)));
-        Optional.ofNullable(singleEventRouterMap.get(event.getClass())).orElseGet(ArrayList::new)
+        beforeEventInterceptors.getOrDefault(event.getClass(), new ArrayList<>(0))
+                .forEach(interceptor -> interceptor.invoke(event, null, context));
+        eventRouterMap.getOrDefault(event.getClass(), new ArrayList<>(0))
                 .forEach(router -> router.route(event, context));
-        Optional.ofNullable(afterEventInterceptors.get(event.getClass())).ifPresent(interceptors -> interceptors
-            .forEach(interceptor -> interceptor.invoke(event, null, context)));
+        afterEventInterceptors.getOrDefault(event.getClass(), new ArrayList<>(0))
+            .forEach(interceptor -> interceptor.invoke(event, null, context));
     }
 
     public void batchRoute(List<? extends Event> events, Context context) {
-        batchRouters.forEach(batchRouter -> batchRouter.route(events, context));
+        finalRouters.forEach(batchRouter -> batchRouter.route(events, context));
     }
 
     @Data
@@ -150,8 +153,6 @@ public class EventBus {
         private final Object bean;
 
         private final Method method;
-
-        private ExecutorService executorService;
 
         @SneakyThrows
         public void route(Event event, Context context) {

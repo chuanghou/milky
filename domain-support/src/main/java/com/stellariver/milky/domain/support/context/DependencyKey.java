@@ -16,4 +16,6 @@ public @interface DependencyKey {
 
     String[] requiredKeys() default {};
 
+    boolean fallbackable() default false;
+
 }

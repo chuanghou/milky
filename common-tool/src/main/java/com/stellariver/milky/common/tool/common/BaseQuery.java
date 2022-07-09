@@ -35,7 +35,7 @@ public interface BaseQuery<T, ID> {
         Set<ID> ids = new HashSet<>(Collections.singletonList(id));
         Map<ID, T> tMap = queryMapByIdsFilterEmptyIds(ids);
         return Optional.ofNullable(tMap).map(m -> m.get(id)).orElseThrow(
-                () -> new BizException(ErrorEnumBase.ENTITY_NOT_FOUND.message("id:" + Json.toJson(id))));
+                () -> new SysException(ErrorEnumBase.ENTITY_NOT_FOUND.message("id:" + Json.toJson(id))));
     }
 
 }

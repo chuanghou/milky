@@ -1,5 +1,6 @@
 package com.stellariver.milky.common.tool.log;
 
+import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
@@ -23,6 +24,16 @@ public class Logger implements org.slf4j.Logger {
 
     static public Logger getLogger(Class<?> clazz) {
         return new Logger(clazz);
+    }
+
+    public void log(String logTag, Throwable throwable) {
+        if (throwable == null) {
+            this.success(true).info(logTag);
+        } else if (throwable instanceof BizException) {
+            this.success(false).warn(logTag, throwable);
+        } else {
+            this.success(false).error(logTag, throwable);
+        }
     }
 
     private Logger(Class<?> clazz){
@@ -58,6 +69,12 @@ public class Logger implements org.slf4j.Logger {
         with("arg4", value);
         return this;
     }
+
+    public Logger source(Object value) {
+        with("source", value);
+        return this;
+    }
+
 
     public Logger result(Object value) {
         with("result", value);

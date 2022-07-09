@@ -11,6 +11,10 @@ import java.util.function.Supplier;
  */
 public class BizException extends BaseException {
 
+    public BizException(Error error, Throwable throwable) {
+        super(Collections.singletonList(error), throwable);
+    }
+
     public BizException(Error error) {
         super(Collections.singletonList(error));
     }
