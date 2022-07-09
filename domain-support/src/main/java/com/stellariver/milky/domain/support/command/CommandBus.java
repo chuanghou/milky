@@ -364,8 +364,8 @@ public class CommandBus {
                     repository.getByAggregateId(command.getAggregateId(), context);
             aggregate = optional.orElseThrow(() -> new SysException(AGGREGATE_NOT_EXISTED
                     .message("aggregateId: " + command.getAggregateId() + " not exists!")));
-            Optional.ofNullable(beforeCommandInterceptors.get(command.getClass())).ifPresent(interceptors -> interceptors
-                    .forEach(interceptor -> interceptor.invoke(command, aggregate, context)));
+            beforeCommandInterceptors.get(command.getClass())
+                    .forEach(interceptor -> interceptor.invoke(command, aggregate, context));
             result = commandHandler.invoke(aggregate, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
             If.isTrue(present, () -> repository.update(aggregate, context));
