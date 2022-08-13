@@ -57,7 +57,7 @@ public abstract class BaseQuery<ID, T> {
     }
 
     public List<T> queryListByIds(Set<ID> ids) {
-        return new ArrayList<>(queryMapByIds(ids).values());
+        return new ArrayList<>(this.queryMapByIds(ids).values());
     }
 
     public Optional<T> queryByIdOptional(ID id) {
