@@ -1,6 +1,5 @@
 package com.stellariver.milky.common.tool.common;
 
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -18,13 +17,12 @@ public abstract class BaseQuery<ID, T> {
                     .build()
     );
 
-
     abstract public Map<ID, T> queryMapByIdsFilterEmptyIdsAfterCache(Set<ID> ids);
 
     public Map<ID, T> queryMapByIds(Set<ID> ids) {
         Map<ID, T> mapResult = new HashMap<>();
         if (Collect.isEmpty(ids)) {
-            return new HashMap<>();
+            return mapResult;
         }
         Cache<ID, T> cache = threadLocal.get();
         if (getCacheConfiguration().isEnable()) {
@@ -46,17 +44,16 @@ public abstract class BaseQuery<ID, T> {
         return mapResult;
     }
 
-    public CacheConfig getCacheConfiguration() {
-        return CacheConfig.builder().enable(false).maximumSize(1000L).expireAfterWrite(3000L).timeUnit(TimeUnit.MILLISECONDS).build();
-    }
-
-
     public void clearThreadLocal() {
         threadLocal.get().invalidateAll();
     }
 
+    public CacheConfig getCacheConfiguration() {
+        return CacheConfig.builder().enable(false).maximumSize(1000L).expireAfterWrite(3000L).timeUnit(TimeUnit.MILLISECONDS).build();
+    }
+
     public Set<T> querySetByIds(Set<ID> ids) {
-        return new HashSet<>(queryMapByIds(ids).values());
+        return new HashSet<>(this.queryMapByIds(ids).values());
     }
 
     public List<T> queryListByIds(Set<ID> ids) {
@@ -65,7 +62,7 @@ public abstract class BaseQuery<ID, T> {
 
     public Optional<T> queryByIdOptional(ID id) {
         Set<ID> ids = new HashSet<>(id == null ? Collections.emptyList() : Collections.singletonList(id));
-        Map<ID, T> tMap = queryMapByIds(ids);
+        Map<ID, T> tMap = this.queryMapByIds(ids);
         return Optional.ofNullable(tMap).map(m -> m.get(id));
     }
 
