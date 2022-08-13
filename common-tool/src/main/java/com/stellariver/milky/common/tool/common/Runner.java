@@ -4,6 +4,7 @@ import com.stellariver.milky.common.tool.util.If;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.Serializable;
@@ -17,8 +18,9 @@ public class Runner {
 
     static private Pair<String, Map<String, Object>> getSignature(Serializable lambda, int stackTraceLevel) {
         Map<String, Object> lambdaInfos = SLambda.resolve(lambda);
-        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[stackTraceLevel];
-        return Pair.of(stackTraceElement.toString(), lambdaInfos);
+        StackTraceElement sTE = Thread.currentThread().getStackTrace()[stackTraceLevel];
+        String signature = StringUtils.join(sTE.getClassName(), "#", sTE.getMethodName());
+        return Pair.of(signature, lambdaInfos);
     }
 
     static public void run(SRunnable runnable) {
@@ -31,7 +33,7 @@ public class Runner {
     static public void run(Option<Object,Object> option, SRunnable callable) {
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
-        Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
+        Pair<String, Map<String, Object>> signature;
         do {
             long now = SystemClock.now();
             try {
@@ -43,13 +45,16 @@ public class Runner {
                 }
             } finally {
                 if (throwableBackup != null) {
+                    signature = getSignature(callable, option.getStackTraceLevel());
                     if (retryTimes == 0) {
                         log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
                     } else {
                         log.with(signature.getRight()).cost(SystemClock.now() - now).warn(signature.getLeft(), throwableBackup);
                     }
                 } else {
-                    If.isTrue(option.isAlwaysLog(), () -> log.with(signature.getRight()).info(signature.getLeft()));
+                    signature = getSignature(callable, option.getStackTraceLevel());
+                    Pair<String, Map<String, Object>> finalSignature = signature;
+                    If.isTrue(option.isAlwaysLog(), () -> log.with(finalSignature.getRight()).info(finalSignature.getLeft()));
                     retryTimes = 0;
                 }
             }
@@ -68,7 +73,7 @@ public class Runner {
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
-        Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
+        Pair<String, Map<String, Object>> signature;
         do {
             long now = SystemClock.now();
             try {
@@ -89,9 +94,11 @@ public class Runner {
                 }
             } finally {
                 if (throwableBackup == null && option.isAlwaysLog()) {
+                    signature = getSignature(callable, option.getStackTraceLevel());
                     Function<R, String> printer = Optional.ofNullable(option.getLogResultSelector()).orElse(Json::toJson);
                     log.with(signature.getRight()).result(printer.apply(result)).cost(SystemClock.now() - now).info(signature.getLeft());
                 } else if (throwableBackup != null){
+                    signature = getSignature(callable, option.getStackTraceLevel());
                     if (retryTimes == 0) {
                         log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
                     } else {
@@ -114,7 +121,7 @@ public class Runner {
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
-        Pair<String, Map<String, Object>> signature = getSignature(callable, option.getStackTraceLevel());
+        Pair<String, Map<String, Object>> signature;
         do {
             long now = SystemClock.now();
             try {
@@ -131,9 +138,11 @@ public class Runner {
                 }
             } finally {
                 if (throwableBackup == null && option.isAlwaysLog()) {
+                    signature = getSignature(callable, option.getStackTraceLevel());
                     Function<R, String> printer = Optional.ofNullable(option.getLogResultSelector()).orElse(Json::toJson);
                     log.with(signature.getRight()).result(printer.apply(result)).cost(SystemClock.now() - now).info(signature.getLeft());
                 } else if (throwableBackup != null){
+                    signature = getSignature(callable, option.getStackTraceLevel());
                     if (retryTimes == 0) {
                         log.with(signature.getRight()).cost(SystemClock.now() - now).error(signature.getLeft(), throwableBackup);
                     } else {

@@ -13,7 +13,7 @@ import java.util.function.Function;
 public class Option<R, T> {
 
     @Builder.Default
-    boolean alwaysLog = true;
+    boolean alwaysLog = false;
 
     @Builder.Default
     int retryTimes = 0;
