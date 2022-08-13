@@ -1,41 +1,77 @@
 package com.stellariver.milky.common.tool.common;
 
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
-public interface BaseQuery<T, ID> {
+public abstract class BaseQuery<ID, T> {
 
-    default Map<ID, T> queryMapByIds(Set<ID> ids) {
+    private final ThreadLocal<Cache<ID, T>> threadLocal = ThreadLocal.withInitial(
+            () -> CacheBuilder.newBuilder()
+                    .maximumSize(getCacheConfiguration().getMaximumSize())
+                    .expireAfterWrite(getCacheConfiguration().getExpireAfterWrite(), getCacheConfiguration().getTimeUnit())
+                    .build()
+    );
+
+
+    abstract public Map<ID, T> queryMapByIdsFilterEmptyIdsAfterCache(Set<ID> ids);
+
+    public Map<ID, T> queryMapByIds(Set<ID> ids) {
+        Map<ID, T> mapResult = new HashMap<>();
         if (Collect.isEmpty(ids)) {
             return new HashMap<>();
         }
-        return queryMapByIdsFilterEmptyIds(ids);
+        Cache<ID, T> cache = threadLocal.get();
+        if (getCacheConfiguration().isEnable()) {
+            Set<ID> cacheKeys = Collect.inter(ids, cache.asMap().keySet());
+            for (ID cacheKey : cacheKeys) {
+                mapResult.put(cacheKey, cache.getIfPresent(cacheKey));
+            }
+            ids = Collect.diff(ids, cacheKeys);
+            if (Collect.isEmpty(ids)) {
+                return mapResult;
+            }
+        }
+
+        Map<ID, T> rpcResultMap = queryMapByIdsFilterEmptyIdsAfterCache(ids);
+        if (getCacheConfiguration().isEnable()) {
+            cache.putAll(rpcResultMap);
+        }
+        mapResult.putAll(rpcResultMap);
+        return mapResult;
     }
 
-    Map<ID, T> queryMapByIdsFilterEmptyIds(Set<ID> ids);
-
-    default Set<T> querySetByIds(Set<ID> ids) {
-        return new HashSet<>(queryMapByIdsFilterEmptyIds(ids).values());
+    public CacheConfig getCacheConfiguration() {
+        return CacheConfig.builder().enable(false).maximumSize(1000L).expireAfterWrite(3000L).timeUnit(TimeUnit.MILLISECONDS).build();
     }
 
-    default List<T> queryListByIds(Set<ID> ids) {
-        return new ArrayList<>(queryMapByIdsFilterEmptyIds(ids).values());
+
+    public void clearThreadLocal() {
+        threadLocal.get().invalidateAll();
     }
 
-    default Optional<T> queryByIdOptional(ID id) {
-        Set<ID> ids = new HashSet<>(Collections.singletonList(id));
-        Map<ID, T> tMap = queryMapByIdsFilterEmptyIds(ids);
+    public Set<T> querySetByIds(Set<ID> ids) {
+        return new HashSet<>(queryMapByIds(ids).values());
+    }
+
+    public List<T> queryListByIds(Set<ID> ids) {
+        return new ArrayList<>(queryMapByIds(ids).values());
+    }
+
+    public Optional<T> queryByIdOptional(ID id) {
+        Set<ID> ids = new HashSet<>(id == null ? Collections.emptyList() : Collections.singletonList(id));
+        Map<ID, T> tMap = queryMapByIds(ids);
         return Optional.ofNullable(tMap).map(m -> m.get(id));
     }
 
-    default T queryById(ID id) {
-        Set<ID> ids = new HashSet<>(Collections.singletonList(id));
-        Map<ID, T> tMap = queryMapByIdsFilterEmptyIds(ids);
-        return Optional.ofNullable(tMap).map(m -> m.get(id)).orElseThrow(
-                () -> new SysException(ErrorEnumBase.ENTITY_NOT_FOUND.message("id:" + Json.toJson(id))));
+    public T queryById(ID id) {
+        Optional<T> optional = queryByIdOptional(id);
+        return optional.orElseThrow(() -> new SysException(ErrorEnumBase.ENTITY_NOT_FOUND.message("id:" + Json.toJson(id))));
     }
 
 }
