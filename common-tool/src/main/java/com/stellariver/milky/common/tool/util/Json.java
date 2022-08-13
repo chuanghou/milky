@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 public class Json {
@@ -36,6 +37,12 @@ public class Json {
     @SneakyThrows
     public static <T> List<T> parseList(String json, Class<T> clazz) {
         JavaType type = MAPPER.getTypeFactory().constructParametricType(List.class, clazz);
+        return MAPPER.readValue(json,type);
+    }
+
+    @SneakyThrows
+    public static <T> Set<T> parseSet(String json, Class<T> clazz) {
+        JavaType type = MAPPER.getTypeFactory().constructParametricType(Set.class, clazz);
         return MAPPER.readValue(json,type);
     }
 

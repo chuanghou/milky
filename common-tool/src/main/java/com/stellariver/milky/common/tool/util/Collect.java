@@ -16,6 +16,23 @@ public class Collect {
         return Arrays.stream(t).collect(Collectors.toList());
     }
 
+    public static <K, V> Map<K, V> asMap(K k, V v) {
+        return StreamMap.init(k, v).getMap();
+    }
+
+    public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1) {
+        return StreamMap.<K, V>init().put(k0, v0).put(k1, v1).getMap();
+    }
+
+    public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2) {
+        return StreamMap.<K, V>init().put(k0, v0).put(k1, v1).put(k2, v2).getMap();
+    }
+
+    public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3) {
+        return StreamMap.<K, V>init().put(k0, v0).put(k1, v1).put(k2, v2).put(k3, v3).getMap();
+    }
+
+
     public static <T> Stream<T> stream(Collection<T> source) {
         return source != null ? source.stream() : Stream.empty();
     }

@@ -34,7 +34,7 @@ public class ValidateUtil {
     private static void validate(Object object, Method method, Object[] params, ExceptionType type) {
         Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params);
         check(validateResult, type);
-        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.SYS));
+        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type));
     }
 
     private static void validate(Object param, ExceptionType type) {
