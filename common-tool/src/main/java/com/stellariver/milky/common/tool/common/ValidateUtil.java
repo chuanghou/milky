@@ -10,6 +10,7 @@ import javax.validation.executable.ExecutableValidator;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 public class ValidateUtil {
@@ -22,18 +23,18 @@ public class ValidateUtil {
 
     public static void bizValidate(Object object, Method method, Object[] params) throws BizException {
         validate(object, method, params, ExceptionType.BIZ);
-        Arrays.stream(params).forEach(param -> validate(param, ExceptionType.BIZ));
+        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.BIZ));
     }
 
     public static void sysValidate(Object object, Method method, Object[] params) throws SysException {
         validate(object, method, params, ExceptionType.SYS);
-        Arrays.stream(params).forEach(param -> validate(param, ExceptionType.SYS));
+        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.SYS));
     }
 
     private static void validate(Object object, Method method, Object[] params, ExceptionType type) {
         Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params);
         check(validateResult, type);
-        Arrays.stream(params).forEach(param -> validate(param, ExceptionType.SYS));
+        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.SYS));
     }
 
     private static void validate(Object param, ExceptionType type) {

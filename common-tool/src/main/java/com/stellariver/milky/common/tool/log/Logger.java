@@ -18,18 +18,48 @@ public class Logger implements org.slf4j.Logger {
 
     private final org.slf4j.Logger log;
 
-    private final ThreadLocal<MortalMap<String, String>> threadLocalContents = new ThreadLocal<>();
+    private final ThreadLocal<MortalMap<String, String>> threadLocalContents = ThreadLocal.withInitial(MortalMap::new);
 
-    private final ThreadLocal<MortalMap<String, String>> originalThreadLocalContents = new ThreadLocal<>();
-
+    private final ThreadLocal<MortalMap<String, String>> originalThreadLocalContents = ThreadLocal.withInitial(MortalMap::new);
     static public Logger getLogger(Class<?> clazz) {
         return new Logger(clazz);
     }
 
+    public void clear() {
+        threadLocalContents.get().clear();
+    }
     public void log(String logTag, Throwable throwable) {
         if (throwable == null) {
             this.success(true).info(logTag);
         } else if (throwable instanceof BizException) {
+            this.success(false).warn(logTag, throwable);
+        } else {
+            this.success(false).error(logTag, throwable);
+        }
+    }
+
+    public void withSwitch(boolean sw, String logTag) {
+        withSwitch(sw, logTag, null);
+    }
+
+    public void withSwitch(boolean sw, String logTag, Throwable throwable) {
+        if (sw || throwable != null) {
+            if (throwable == null) {
+                info(logTag);
+            } else {
+                error(logTag, throwable);
+            }
+        } else {
+            clear();
+        }
+    }
+
+    public void logWhenException(String logTag, Throwable throwable) {
+        if (throwable == null) {
+            threadLocalContents.get().clear();
+            return;
+        }
+        if (throwable instanceof BizException) {
             this.success(false).warn(logTag, throwable);
         } else {
             this.success(false).error(logTag, throwable);
@@ -95,9 +125,6 @@ public class Logger implements org.slf4j.Logger {
             log.error("log key shouldn't be null");
             return this;
         }
-        if (threadLocalContents.get() == null) {
-            threadLocalContents.set(new MortalMap<>());
-        }
         MortalMap<String, String> contents = threadLocalContents.get();
         if (contents.containsKey(key)) {
             log.error("log key:{} already exists, it may from duplicate keys in one log expression, or memory leak. " +
@@ -114,14 +141,6 @@ public class Logger implements org.slf4j.Logger {
     }
 
     private void beforeLog() {
-        if (threadLocalContents.get() == null) {
-            threadLocalContents.set(new MortalMap<>());
-        }
-
-        if (originalThreadLocalContents.get() == null) {
-            originalThreadLocalContents.set(new MortalMap<>());
-        }
-
         Map<String, String> logContents = threadLocalContents.get();
         logContents.forEach((k, v) -> {
             originalThreadLocalContents.get().put(k, MDC.get(k));
