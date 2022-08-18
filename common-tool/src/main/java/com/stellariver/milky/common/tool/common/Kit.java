@@ -5,7 +5,6 @@ import java.util.Optional;
 
 public class Kit {
 
-
     public static boolean eq(Object a, Object b) {
         return Objects.equals(a, b);
     }

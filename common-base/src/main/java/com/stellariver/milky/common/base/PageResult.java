@@ -16,7 +16,7 @@ public class PageResult<T> extends Result<List<T>> {
         this.success = true;
         this.data = data;
         paginator.setPage(pageNo);
-        paginator.setItemsPerPage(pageSize);
+        paginator.setSize(pageSize);
         paginator.setPages(20);
         paginator.setItems(total);
     }

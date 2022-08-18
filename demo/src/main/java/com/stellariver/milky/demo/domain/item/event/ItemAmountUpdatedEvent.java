@@ -12,11 +12,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemCreatedEvent extends Event {
+public class ItemAmountUpdatedEvent extends Event {
 
     Long itemId;
 
-    String title;
+    Long originalAmount;
+
+    Long updatedAmount;
 
     @Override
     public String getAggregateId() {

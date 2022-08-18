@@ -21,6 +21,7 @@ public class Logger implements org.slf4j.Logger {
     private final ThreadLocal<MortalMap<String, String>> threadLocalContents = ThreadLocal.withInitial(MortalMap::new);
 
     private final ThreadLocal<MortalMap<String, String>> originalThreadLocalContents = ThreadLocal.withInitial(MortalMap::new);
+
     static public Logger getLogger(Class<?> clazz) {
         return new Logger(clazz);
     }
@@ -28,6 +29,7 @@ public class Logger implements org.slf4j.Logger {
     public void clear() {
         threadLocalContents.get().clear();
     }
+
     public void log(String logTag, Throwable throwable) {
         if (throwable == null) {
             this.success(true).info(logTag);

@@ -2,9 +2,11 @@ package com.stellariver.milky.common.tool.util;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,32 +22,40 @@ public class Json {
         MAPPER.configure(MapperFeature.AUTO_DETECT_FIELDS,true);
     }
 
+
+    @Nullable
     @SneakyThrows
     public static String toJson(Object target) {
         return MAPPER.writeValueAsString(target);
     }
 
+    @NonNull
     @SneakyThrows
     public static String toJson(Object... objects) {
         return MAPPER.writeValueAsString(objects);
     }
 
+    @Nullable
     @SneakyThrows
     public static <T> T parse(String json, Class<T> clazz) {
         return MAPPER.readValue(json, clazz);
     }
+
+    @Nullable
     @SneakyThrows
     public static <T> List<T> parseList(String json, Class<T> clazz) {
         JavaType type = MAPPER.getTypeFactory().constructParametricType(List.class, clazz);
         return MAPPER.readValue(json,type);
     }
 
+    @Nullable
     @SneakyThrows
     public static <T> Set<T> parseSet(String json, Class<T> clazz) {
         JavaType type = MAPPER.getTypeFactory().constructParametricType(Set.class, clazz);
         return MAPPER.readValue(json,type);
     }
 
+    @Nullable
     @SneakyThrows
     public static <K, V> Map<K, V> parseMap(String json, Class<K> keyClazz, Class<V> valueClazz) {
         return MAPPER.readValue(json, TypeFactory.defaultInstance().constructMapType(Map.class, keyClazz, valueClazz));

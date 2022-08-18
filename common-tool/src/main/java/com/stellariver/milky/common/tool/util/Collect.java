@@ -16,6 +16,11 @@ public class Collect {
         return Arrays.stream(t).collect(Collectors.toList());
     }
 
+    @SafeVarargs
+    public static <T> Set<T> asSet(T... t) {
+        return Arrays.stream(t).collect(Collectors.toSet());
+    }
+
     public static <K, V> Map<K, V> asMap(K k, V v) {
         return StreamMap.init(k, v).getMap();
     }

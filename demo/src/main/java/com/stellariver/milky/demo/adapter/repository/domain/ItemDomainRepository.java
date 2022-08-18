@@ -20,7 +20,7 @@ public class ItemDomainRepository implements DomainRepository<Item> {
     public void save(Item item, Context context) {
         ItemDO itemDO = ItemDO.builder().itemId(item.getItemId())
                 .title(item.getTitle())
-                .sellerId(item.getSellerId())
+                .sellerId(item.getUserId())
                 .userName(item.getUserName())
                 .build();
         itemDOMapper.insert(itemDO);

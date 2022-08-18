@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.base;
+package com.stellariver.milky.demo.domain.item.dependency;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,14 +8,12 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Paginator {
+public class UserInfo {
 
-    long total;
+    Long userId;
 
-    long index;
+    String userName;
 
-    long size;
-
-    long pageCount;
+    boolean permission;
 
 }
