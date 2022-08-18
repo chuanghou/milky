@@ -2,10 +2,10 @@ package com.stellariver.milky.common.tool.util;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +29,13 @@ public class Json {
         return MAPPER.writeValueAsString(target);
     }
 
-    @NonNull
+    @Nonnull
     @SneakyThrows
     public static String toJson(Object... objects) {
         return MAPPER.writeValueAsString(objects);
     }
 
-    @Nullable
+    @Nonnull
     @SneakyThrows
     public static <T> T parse(String json, Class<T> clazz) {
         return MAPPER.readValue(json, clazz);

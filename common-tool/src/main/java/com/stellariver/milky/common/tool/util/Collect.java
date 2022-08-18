@@ -37,7 +37,6 @@ public class Collect {
         return StreamMap.<K, V>init().put(k0, v0).put(k1, v1).put(k2, v2).put(k3, v3).getMap();
     }
 
-
     public static <T> Stream<T> stream(Collection<T> source) {
         return source != null ? source.stream() : Stream.empty();
     }

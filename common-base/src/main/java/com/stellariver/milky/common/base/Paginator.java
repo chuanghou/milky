@@ -12,9 +12,9 @@ public class Paginator {
 
     long total;
 
-    long index;
+    long pageNo;
 
-    long size;
+    long pageSize;
 
     long pageCount;
 

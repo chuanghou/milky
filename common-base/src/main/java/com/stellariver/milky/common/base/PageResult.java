@@ -15,10 +15,10 @@ public class PageResult<T> extends Result<List<T>> {
         super();
         this.success = true;
         this.data = data;
-        paginator.setPage(pageNo);
-        paginator.setSize(pageSize);
-        paginator.setPages(20);
-        paginator.setItems(total);
+        paginator.setPageNo(pageNo);
+        paginator.setPageSize(pageSize);
+        paginator.setPageCount((total/pageSize + (total%pageSize == 0 ? 0 : 1)));
+        paginator.setTotal(total);
     }
 
     public Paginator getPaginator() {
