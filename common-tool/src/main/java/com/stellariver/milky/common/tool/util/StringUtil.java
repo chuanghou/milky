@@ -6,11 +6,10 @@ import java.util.regex.Pattern;
 public class StringUtil {
 
     private static final Pattern linePattern = Pattern.compile("_(\\w)");
-    private static final Pattern humpPattern = Pattern.compile("[A-Z]]");
-
+    private static final Pattern humpPattern = Pattern.compile("[A-Z]");
 
     /**
-     * 驼峰转下划线，最后转为大写
+     * 驼峰转下划线,最后转为大写
      */
     public static String humpToLine(String str) {
         Matcher matcher = humpPattern.matcher(str);
@@ -31,6 +30,5 @@ public class StringUtil {
         matcher.appendTail(sb);
         return sb.toString();
     }
-
 
 }

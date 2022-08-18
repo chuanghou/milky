@@ -22,8 +22,7 @@ public class Json {
         MAPPER.configure(MapperFeature.AUTO_DETECT_FIELDS,true);
     }
 
-
-    @Nullable
+    @Nonnull
     @SneakyThrows
     public static String toJson(Object target) {
         return MAPPER.writeValueAsString(target);
@@ -35,7 +34,7 @@ public class Json {
         return MAPPER.writeValueAsString(objects);
     }
 
-    @Nonnull
+    @Nullable
     @SneakyThrows
     public static <T> T parse(String json, Class<T> clazz) {
         return MAPPER.readValue(json, clazz);
