@@ -8,5 +8,4 @@ public class ErrorEnum {
 
     public static final Error NOT_ALLOW_LOST = Error.code("NOT_ALLOW_LOST");
 
-
 }
