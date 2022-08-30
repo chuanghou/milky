@@ -20,7 +20,7 @@ public class InventoryDAOAdapter implements AggregateDaoAdapter<Inventory> {
     }
 
     @Override
-    public Object toDataObject(Inventory inventory, DataObjectInfo dataObjectInfo) {
+    public InventoryDO toDataObject(Inventory inventory, DataObjectInfo dataObjectInfo) {
         return InventoryDO.builder().itemId(inventory.getItemId())
                 .amount(inventory.getAmount())
                 .storeCode(inventory.getStoreCode())
