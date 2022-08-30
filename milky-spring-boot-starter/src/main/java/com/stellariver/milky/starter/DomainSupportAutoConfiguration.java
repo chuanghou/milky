@@ -2,15 +2,14 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.tool.log.Logger;
+import com.stellariver.milky.domain.support.base.MessageRecord;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
+import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
-import com.stellariver.milky.domain.support.dependency.BeanLoader;
-import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
-import com.stellariver.milky.domain.support.dependency.DomainRepository;
-import com.stellariver.milky.domain.support.dependency.TraceRepository;
+import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
@@ -21,11 +20,13 @@ import com.stellariver.milky.domain.support.util.BeanUtil;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -42,27 +43,35 @@ public class DomainSupportAutoConfiguration {
     @Bean
     public MilkySupport milkySupport(ConcurrentOperate concurrentOperate,
                                         TraceRepository traceRepository,
+                                        TransactionSupport transactionSupport,
                                         AsyncExecutor asyncExecutor,
+                                        @Autowired(required = false)
                                         List<DependencyPrepares> dependencyPrepares,
+                                        @Autowired(required = false)
                                         List<Interceptors> interceptors,
+                                        @Autowired(required = false)
                                         List<EventRouters> eventRouters,
-                                        List<DomainRepository<?>> domainRepositories,
+                                        @Autowired(required = false)
+                                        List<AggregateDaoAdapter<?>> daoAdapters,
+                                        @Autowired(required = false)
+                                        List<DAOWrapper<?, ?>> daoWrappers,
                                         BeanLoader beanLoader,
                                         MilkyConfiguration milkyConfiguration) {
         ConfigurationBuilder configuration = new ConfigurationBuilder()
                 .forPackages(milkyConfiguration.getScanPackages())
                 .addScanners(new SubTypesScanner());
         Reflections reflections = new Reflections(configuration);
-        return MilkySupport.builder().concurrentOperate(concurrentOperate)
-                .traceRepository(traceRepository)
-                .asyncExecutor(asyncExecutor)
-                .dependencyPrepares(dependencyPrepares)
-                .interceptors(interceptors)
-                .eventRouters(eventRouters)
-                .domainRepositories(domainRepositories)
-                .beanLoader(beanLoader)
-                .reflections(reflections)
-                .build();
+        return new MilkySupport(concurrentOperate,
+                traceRepository,
+                asyncExecutor,
+                dependencyPrepares,
+                interceptors,
+                eventRouters,
+                daoAdapters,
+                daoWrappers,
+                reflections,
+                beanLoader,
+                transactionSupport);
     }
 
 
@@ -85,7 +94,7 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AsyncExecutor asyncExecutor(List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
+    public AsyncExecutor asyncExecutor(@Autowired(required = false) List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
 
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error(e.getMessage(), e))
@@ -100,6 +109,44 @@ public class DomainSupportAutoConfiguration {
                 .build();
 
         return new AsyncExecutor(configuration, threadFactory, threadLocalPassers);
+    }
+
+
+    @Bean
+    @ConditionalOnMissingBean
+    public TraceRepository traceRepository() {
+        return new TraceRepository() {
+            @Override
+            public void batchInsert(List<MessageRecord> messages, Context context, boolean success) {
+
+            }
+
+            @Override
+            public void insert(Long invocationId, Context context, boolean success) {
+
+            }
+        };
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public TransactionSupport transactionSupport() {
+        return new TransactionSupport() {
+            @Override
+            public void begin() {
+
+            }
+
+            @Override
+            public void commit() {
+
+            }
+
+            @Override
+            public void rollback() {
+
+            }
+        };
     }
 
 }
