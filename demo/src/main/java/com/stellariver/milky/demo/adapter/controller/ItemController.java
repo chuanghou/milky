@@ -20,7 +20,7 @@ public class ItemController {
 
     @GetMapping("publish")
     public Result<Boolean> publish(String title) {
-        Item item  = itemAbility.publishItem(10086L, title);
+        Item item = itemAbility.publishItem(10086L, title);
         return Result.success();
     }
 
