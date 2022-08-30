@@ -60,11 +60,9 @@ public abstract class BaseQuery<ID, T> {
         return CacheConfig.builder().enable(false).maximumSize(1000L).expireAfterWrite(3000L).timeUnit(TimeUnit.MILLISECONDS).build();
     }
 
-
     public Set<T> querySetByIdsNotAllowLost(Set<ID> ids) {
         return new HashSet<>(this.queryMapByIdsNotAllowLost(ids).values());
     }
-
 
     public Set<T> querySetByIds(Set<ID> ids) {
         return new HashSet<>(this.queryMapByIds(ids).values());
