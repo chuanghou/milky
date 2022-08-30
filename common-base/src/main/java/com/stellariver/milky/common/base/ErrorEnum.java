@@ -6,4 +6,7 @@ public class ErrorEnum {
 
     public static final Error PARAM_FORMAT_WRONG = Error.code("PARAM_FORMAT_WRONG");
 
+    public static final Error NOT_ALLOW_LOST = Error.code("NOT_ALLOW_LOST");
+
+
 }

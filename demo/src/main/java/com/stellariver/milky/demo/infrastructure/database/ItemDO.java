@@ -3,6 +3,7 @@ package com.stellariver.milky.demo.infrastructure.database;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @TableName("item")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemDO {
+public class ItemDO implements BaseDataObject<Long> {
 
     @TableId(type = IdType.INPUT)
     Long itemId;
@@ -23,4 +24,13 @@ public class ItemDO {
 
     String userName;
 
+    Long amount;
+
+    String storeCode;
+
+
+    @Override
+    public Long getPrimaryId() {
+        return itemId;
+    }
 }

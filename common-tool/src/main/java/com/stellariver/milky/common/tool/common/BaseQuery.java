@@ -2,6 +2,7 @@ package com.stellariver.milky.common.tool.common;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 
@@ -18,6 +19,13 @@ public abstract class BaseQuery<ID, T> {
     );
 
     abstract public Map<ID, T> queryMapByIdsFilterEmptyIdsAfterCache(Set<ID> ids);
+
+    public Map<ID, T> queryMapByIdsNotAllowLost(Set<ID> ids) {
+        Map<ID, T> idtMap = queryMapByIds(ids);
+        SysException.trueThrowGet(!Kit.eq(idtMap.size(), ids.size()),
+                () -> ErrorEnum.NOT_ALLOW_LOST.message(Collect.diff(ids, idtMap.keySet())));
+        return idtMap;
+    }
 
     public Map<ID, T> queryMapByIds(Set<ID> ids) {
         Map<ID, T> mapResult = new HashMap<>();
@@ -52,8 +60,18 @@ public abstract class BaseQuery<ID, T> {
         return CacheConfig.builder().enable(false).maximumSize(1000L).expireAfterWrite(3000L).timeUnit(TimeUnit.MILLISECONDS).build();
     }
 
+
+    public Set<T> querySetByIdsNotAllowLost(Set<ID> ids) {
+        return new HashSet<>(this.queryMapByIdsNotAllowLost(ids).values());
+    }
+
+
     public Set<T> querySetByIds(Set<ID> ids) {
         return new HashSet<>(this.queryMapByIds(ids).values());
+    }
+
+    public List<T> queryListByIdsNotAllowLost(Set<ID> ids) {
+        return new ArrayList<>(this.queryMapByIdsNotAllowLost(ids).values());
     }
 
     public List<T> queryListByIds(Set<ID> ids) {
@@ -69,6 +87,10 @@ public abstract class BaseQuery<ID, T> {
     public T queryById(ID id) {
         Optional<T> optional = queryByIdOptional(id);
         return optional.orElseThrow(() -> new SysException(ErrorEnumBase.ENTITY_NOT_FOUND.message("id:" + Json.toJson(id))));
+    }
+
+    public Iterator<List<T>> buildIterator(Integer pageSize) {
+        throw new SysException(ErrorEnumBase.CONFIG_ERROR.message("need to instantiate by sub class!"));
     }
 
 }

@@ -10,14 +10,20 @@ import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Context{
 
     private Long invocationId;
+
+    @Getter
+    private final Map<Class<?>, Set<Object>> changedAggregateIds = new HashMap<>();
+
+    @Getter
+    private final Map<Class<?>, Set<Object>> createdAggregateIds = new HashMap<>();
+
+    @Getter
+    private final Map<Class<?>, Map<Object, Object>> doMap = new HashMap<>();
 
     @Getter
     private final Map<NameType<?>, Object> parameters = new HashMap<>();

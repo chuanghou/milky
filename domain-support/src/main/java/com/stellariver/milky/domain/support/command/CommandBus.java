@@ -58,7 +58,9 @@ public class CommandBus {
 
     private final Map<Class<? extends Command>, Map<String, DependencyProvider>> contextValueProviders = new HashMap<>();
 
-    private final Map<Class<? extends AggregateRoot>, Repository> domainRepositoryMap = new HashMap<>();
+    private final Map<Class<? extends AggregateRoot>, AggregateDaoAdapter<?>> daoAdapterMap = new HashMap<>();
+
+    private final Map<Class<? extends BaseDataObject<?>>, DAOWrapper<?, ?>> daoWrappersMap = new HashMap<>();
 
     private final Map<Class<? extends Command>, List<Interceptor>> beforeCommandInterceptors = new HashMap<>();
 
@@ -97,6 +99,7 @@ public class CommandBus {
         instance = this;
 
     }
+
 
     @SuppressWarnings("unchecked")
     private void prepareCommandInterceptors(MilkySupport milkySupport) {
@@ -254,6 +257,10 @@ public class CommandBus {
 
     static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters) {
         return instance.doSend(command, parameters);
+    }
+
+    static public AggregateDaoAdapter<? extends AggregateRoot> getDaoAdapter(Class<? extends AggregateRoot> clazz) {
+        return instance.
     }
 
     /**

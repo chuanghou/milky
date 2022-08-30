@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo.adapter.repository;
 
+import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.infrastructure.database.ItemDO;
@@ -9,22 +10,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ItemRepositoryImpl implements ItemRepository {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class ItemRepositoryImpl extends ItemRepository {
 
     ItemDOMapper itemDOMapper;
 
     @Override
-    public Optional<Item> getByItemId(Long itemId) {
-        ItemDO itemDO = itemDOMapper.selectById(itemId);
-        if (itemDO != null) {
-            Item item = Item.builder().itemId(itemDO.getItemId()).title(itemDO.getTitle()).build();
-            return Optional.of(item);
-        }
-        return Optional.empty();
+    public Map<Long, Item> queryMapByIdsFilterEmptyIdsAfterCache(Set<Long> itemIds) {
+        List<ItemDO> itemDOs = itemDOMapper.selectBatchIds(itemIds);
+        return Collect.toMap(itemDOs, ItemDO::getItemId,
+                itemDO -> Item.builder().itemId(itemDO.getItemId()).title(itemDO.getTitle()).amount(itemDO.getAmount()).build());
     }
 }
