@@ -123,7 +123,7 @@
                 <version>3.2.1</version>
                 <executions>
                     <execution>
-                        <id>attach-source</id>
+                        <id>attach-sources</id>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -154,6 +154,4 @@
             </testResource>
         </testResources>
     </build>
-
-
 </project>

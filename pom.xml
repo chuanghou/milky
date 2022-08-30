@@ -65,7 +65,7 @@
             <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
-                <version>7.0.1</version>
+                <version>5.0</version>
             </dependency>
             <dependency>
                 <groupId>org.reflections</groupId>
@@ -106,8 +106,13 @@
                 <version>${org.mapstruct.version}</version>
             </dependency>
 
-
             <!--infrastructure-base-->
+            <dependency>
+                <groupId>com.aliyun.openservices</groupId>
+                <artifactId>tablestore</artifactId>
+                <version>5.13.9</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.aliyun.schedulerx</groupId>
                 <artifactId>schedulerx2-worker</artifactId>
@@ -119,11 +124,6 @@
                 <version>4.9.4</version>
             </dependency>
             <dependency>
-                <groupId>com.aliyun.openservices</groupId>
-                <artifactId>tablestore</artifactId>
-                <version>5.13.9</version>
-            </dependency>
-            <dependency>
                 <groupId>com.alibaba.csp</groupId>
                 <artifactId>sentinel-core</artifactId>
                 <version>1.8.4</version>
@@ -131,6 +131,7 @@
         </dependencies>
     </dependencyManagement>
 
+    <!--    不加这个依赖，mvn test 会失败，但是直接用idea可以过，简直是神奇，肯定是idea干了啥事   -->
     <dependencies>
         <dependency>
             <groupId>org.mapstruct</groupId>
