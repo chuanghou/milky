@@ -26,7 +26,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import javax.swing.*;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -62,16 +61,16 @@ public class DomainSupportAutoConfiguration {
                 .addScanners(new SubTypesScanner());
         Reflections reflections = new Reflections(configuration);
         return new MilkySupport(concurrentOperate,
-                traceRepository,
-                asyncExecutor,
-                dependencyPrepares,
-                interceptors,
-                eventRouters,
-                daoAdapters,
-                daoWrappers,
-                reflections,
-                beanLoader,
-                transactionSupport);
+                                traceRepository,
+                                asyncExecutor,
+                                dependencyPrepares,
+                                interceptors,
+                                eventRouters,
+                                daoAdapters,
+                                daoWrappers,
+                                reflections,
+                                beanLoader,
+                                transactionSupport);
     }
 
 
@@ -110,7 +109,6 @@ public class DomainSupportAutoConfiguration {
 
         return new AsyncExecutor(configuration, threadFactory, threadLocalPassers);
     }
-
 
     @Bean
     @ConditionalOnMissingBean
