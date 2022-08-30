@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -20,7 +19,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemRepositoryImpl extends ItemRepository {
 
-    ItemDOMapper itemDOMapper;
+    final ItemDOMapper itemDOMapper;
 
     @Override
     public Map<Long, Item> queryMapByIdsFilterEmptyIdsAfterCache(Set<Long> itemIds) {

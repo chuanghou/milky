@@ -49,6 +49,11 @@
                 <artifactId>milky-spring-boot-starter</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
+                <artifactId>infrastructure-base</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
