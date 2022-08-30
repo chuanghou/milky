@@ -8,10 +8,7 @@ import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
 import com.stellariver.milky.domain.support.base.NameType;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class NameTypes {
 
@@ -51,4 +48,5 @@ public class NameTypes {
         });
         return map;
     }
+
 }
