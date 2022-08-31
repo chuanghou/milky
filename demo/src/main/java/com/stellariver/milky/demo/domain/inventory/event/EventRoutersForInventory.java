@@ -1,11 +1,11 @@
 package com.stellariver.milky.demo.domain.inventory.event;
 
-import com.stellariver.milky.demo.domain.inventory.event.InventoryCreatedEvent;
-import com.stellariver.milky.demo.domain.inventory.event.InventoryUpdateEvent;
-import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
+import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
 import com.stellariver.milky.demo.domain.item.event.ItemAmountUpdatedEvent;
+import com.stellariver.milky.demo.domain.item.event.ItemTitleUpdatedEvent;
 import com.stellariver.milky.demo.domain.service.ItemAmountUpdatedMessage;
+import com.stellariver.milky.demo.domain.service.ItemTitleUpdatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
@@ -38,12 +38,12 @@ public class EventRoutersForInventory implements EventRouters {
     }
 
     @FinalEventRouter
-    public void mqTitleUpdated(List<ItemAmountUpdatedEvent> events, Context context) {
+    public void mqTitleUpdated(List<ItemTitleUpdatedEvent> events, Context context) {
         events.forEach( event -> {
-            ItemAmountUpdatedMessage message = ItemAmountUpdatedMessage.builder()
+            ItemTitleUpdatedMessage message = ItemTitleUpdatedMessage.builder()
                     .itemId(event.getItemId())
-                    .oldAmount(event.getOriginalAmount())
-                    .newAmount(event.getUpdatedAmount()).build();
+                    .oldTitle(event.getOriginalTitle())
+                    .newTitle(event.getUpdatedTitle()).build();
             mqService.sendMessage(message);
         });
     }

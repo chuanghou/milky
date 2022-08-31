@@ -1,9 +1,9 @@
 package com.stellariver.milky.demo.domain.item;
 
 import com.stellariver.milky.demo.basic.NameTypes;
+import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
-import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
 import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
 import com.stellariver.milky.demo.domain.item.event.ItemAmountUpdatedEvent;
@@ -69,13 +69,10 @@ public class Item extends AggregateRoot {
     public void handle(ItemInventoryInitCommand command, Context context) {
         ItemInventoryInitEvent event = ItemInventoryInitEvent.builder()
                 .itemId(itemId).initStoreCode(this.storeCode).initAmount(command.getInitAmount()).build();
-        Long originalAmount = this.amount;
         this.amount = command.getInitAmount();
         this.storeCode = command.getStoreCode();
         context.publish(event);
     }
-
-
 
     @Override
     public String getAggregateId() {

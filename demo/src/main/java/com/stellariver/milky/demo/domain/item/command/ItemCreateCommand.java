@@ -19,6 +19,8 @@ public class ItemCreateCommand extends Command {
 
     Long userId;
 
+    Long amount;
+
     @Override
     public String getAggregateId() {
         return itemId.toString();
