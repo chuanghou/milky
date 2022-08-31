@@ -9,6 +9,7 @@ import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
+import lombok.NonNull;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ResourceLoaderAware;
@@ -20,7 +21,6 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware{
@@ -28,12 +28,12 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
     private ResourceLoader resourceLoader;
 
     @Override
-    public void setResourceLoader(@Nonnull ResourceLoader resourceLoader) {
+    public void setResourceLoader(@NonNull ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, @Nonnull BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, @NonNull BeanDefinitionRegistry registry) {
         AnnotationAttributes enableMilky = AnnotationAttributes
                 .fromMap(importingClassMetadata.getAnnotationAttributes(EnableMilky.class.getName()));
         if (enableMilky == null) {
