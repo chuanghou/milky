@@ -5,14 +5,13 @@ import lombok.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-@Data
-@AllArgsConstructor
+
 @EqualsAndHashCode(callSuper = true)
 public class ListNameType<V> extends NameType<List<V>> {
 
-    private Class<?> vClazz;
+    @Getter
+    private final Class<?> vClazz;
 
     public ListNameType(String name, Class<?> vClazz) {
         super(name, List.class);
