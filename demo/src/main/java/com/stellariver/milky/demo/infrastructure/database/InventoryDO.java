@@ -15,7 +15,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InventoryDO implements BaseDataObject<Long> {
 
-
     @TableId(type = IdType.INPUT)
     Long itemId;
 
