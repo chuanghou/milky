@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
@@ -22,13 +21,11 @@ public class Json {
         MAPPER.configure(MapperFeature.AUTO_DETECT_FIELDS,true);
     }
 
-    @Nonnull
     @SneakyThrows
     public static String toJson(Object target) {
         return MAPPER.writeValueAsString(target);
     }
 
-    @Nonnull
     @SneakyThrows
     public static String toJson(Object... objects) {
         return MAPPER.writeValueAsString(objects);

@@ -1,7 +1,6 @@
 package com.stellariver.milky.demo.basic;
 
 import com.stellariver.milky.common.base.Employee;
-import com.stellariver.milky.common.tool.common.Option;
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.StreamMap;
@@ -39,7 +38,7 @@ public class NameTypes {
         return Json.toJson(init.getMap());
     }
 
-    static public Map<NameType<?>, Object> deserialize(String nameTypeStringMap) {
+    static public Map<NameType<?>, Object> deSerialize(String nameTypeStringMap) {
         Map<String, String> stringMap = Json.parseMap(nameTypeStringMap, String.class, String.class);
         Map<NameType<?>, Object> map = new HashMap<>();
         stringMap.forEach((k, v) -> {

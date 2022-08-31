@@ -3,6 +3,8 @@ package com.stellariver.milky.demo.adapter.repository.domain;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.demo.infrastructure.database.InventoryDO;
 import com.stellariver.milky.demo.infrastructure.database.InventoryDOMapper;
+import com.stellariver.milky.demo.infrastructure.database.ItemDO;
+import com.stellariver.milky.demo.infrastructure.database.ItemDOMapper;
 import com.stellariver.milky.domain.support.dependency.DAOWrapper;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -17,28 +19,28 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
+public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
 
-    final InventoryDOMapper inventoryDOMapper;
+    final ItemDOMapper itemDOMapper;
 
     @Override
-    public void save(@NonNull InventoryDO inventoryDO) {
-        inventoryDOMapper.insert(inventoryDO);
+    public void save(@NonNull ItemDO itemDO) {
+        itemDOMapper.insert(itemDO);
     }
 
     @Override
-    public void update(@NonNull InventoryDO inventoryDO) {
-        inventoryDOMapper.updateById(inventoryDO);
+    public void update(@NonNull ItemDO itemDO) {
+        itemDOMapper.updateById(itemDO);
     }
 
     @Override
-    public Optional<InventoryDO> getByPrimaryId(@NonNull Long primaryId) {
-        InventoryDO inventoryDO = inventoryDOMapper.selectById(primaryId);
-        return Kit.op(inventoryDO);
+    public Optional<ItemDO> getByPrimaryId(@NonNull Long primaryId) {
+        ItemDO itemDO = itemDOMapper.selectById(primaryId);
+        return Kit.op(itemDO);
     }
 
     @Override
-    public InventoryDO merge(@NonNull InventoryDO priority, @NonNull InventoryDO general) {
+    public ItemDO merge(@NonNull ItemDO priority, @NonNull ItemDO general) {
         return Merger.inst.merge(priority, general);
     }
 
@@ -48,7 +50,7 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
         Merger inst = Mappers.getMapper(Merger.class);
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
-        InventoryDO merge(InventoryDO priority, @MappingTarget InventoryDO general);
+        ItemDO merge(ItemDO priority, @MappingTarget ItemDO general);
 
     }
 }
