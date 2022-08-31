@@ -20,14 +20,13 @@ public class ItemDO implements BaseDataObject<Long> {
 
     String title;
 
-    Long sellerId;
+    Long userId;
 
     String userName;
 
     Long amount;
 
     String storeCode;
-
 
     @Override
     public Long getPrimaryId() {

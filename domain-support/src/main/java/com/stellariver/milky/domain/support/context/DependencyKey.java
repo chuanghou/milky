@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.context;
 
-
+import com.stellariver.milky.common.tool.common.LogChoice;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -14,7 +14,7 @@ public @interface DependencyKey {
 
     String value();
 
-    boolean fallbackable() default false;
+    LogChoice logChoice() default LogChoice.EXCEPTION;
 
     String[] requiredKeys() default {};
 

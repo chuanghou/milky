@@ -1,14 +1,18 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.common.tool.util.Json;
+import lombok.*;
 
 import java.util.Map;
 
+@Data
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class MapNameType<K, V> extends NameType<Map<K, V>> {
 
-    private final Class<?> kClazz;
+    private Class<?> kClazz;
 
-    private final Class<?> vClazz;
+    private Class<?> vClazz;
 
     public MapNameType(String name, Class<?> kClazz, Class<?> vClazz) {
         super(name, Map.class);

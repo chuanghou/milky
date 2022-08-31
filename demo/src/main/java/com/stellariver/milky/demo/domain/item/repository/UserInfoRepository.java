@@ -4,6 +4,6 @@ import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
 
 public interface UserInfoRepository {
 
-    public UserInfo getUserInfo(Long userId);
+    UserInfo getUserInfo(Long userId);
 
 }

@@ -13,7 +13,7 @@ public class ItemDependencyPrepare implements DependencyPrepares {
 
     final UserInfoRepository userInfoRepository;
 
-    @DependencyKey("userName")
+    @DependencyKey("userInfo")
     public void prepare(ItemCreateCommand command, Context context) {
         UserInfo userInfo = userInfoRepository.getUserInfo(command.getUserId());
         context.putDependency(NameTypes.userInfo, userInfo);

@@ -1,10 +1,6 @@
 package com.stellariver.milky.demo.domain.item.event;
 
 import com.stellariver.milky.demo.domain.inventory.command.InventoryCreateCommand;
-import com.stellariver.milky.demo.domain.inventory.event.InventoryCreatedEvent;
-import com.stellariver.milky.demo.domain.inventory.event.InventoryUpdateEvent;
-import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
-import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.service.ItemAmountUpdatedMessage;
 import com.stellariver.milky.demo.domain.service.ItemCreatedMessage;
 import com.stellariver.milky.demo.domain.service.ItemTitleUpdatedMessage;
@@ -23,7 +19,6 @@ public class EventRoutersForItem implements EventRouters {
 
     final MqService mqService;
 
-
     @EventRouter
     public void inventory(ItemCreatedEvent event, Context context) {
         InventoryCreateCommand command = InventoryCreateCommand.builder()
@@ -33,16 +28,15 @@ public class EventRoutersForItem implements EventRouters {
 
     @FinalEventRouter
     public void mqCreated(List<ItemCreatedEvent> events, Context context) {
-        events.forEach( event -> {
+        events.forEach(event -> {
             ItemCreatedMessage message = ItemCreatedMessage.builder().itemId(event.getItemId()).title(event.getTitle()).build();
             mqService.sendMessage(message);
         });
     }
 
-
     @FinalEventRouter
     public void mqForTitle(List<ItemTitleUpdatedEvent> events, Context context) {
-        events.forEach( event -> {
+        events.forEach(event -> {
             ItemTitleUpdatedMessage message = ItemTitleUpdatedMessage.builder()
                     .itemId(event.getItemId())
                     .oldTitle(event.getOriginalTitle())
@@ -53,7 +47,7 @@ public class EventRoutersForItem implements EventRouters {
 
     @FinalEventRouter
     public void mqForAmount(List<ItemAmountUpdatedEvent> events, Context context) {
-        events.forEach( event -> {
+        events.forEach(event -> {
             ItemAmountUpdatedMessage message = ItemAmountUpdatedMessage.builder()
                     .itemId(event.getItemId())
                     .oldAmount(event.getOriginalAmount())

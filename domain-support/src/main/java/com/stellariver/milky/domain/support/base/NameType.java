@@ -1,25 +1,31 @@
 package com.stellariver.milky.domain.support.base;
 
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.util.Json;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class NameType<T> {
 
-    @Getter
-    private final String name;
+    private String name;
 
-    private final Class<?> clazz;
-
-    public NameType(String name, Class<?> clazz) {
-        this.name = name;
-        this.clazz = clazz;
-    }
+    private Class<?> clazz;
 
     @SuppressWarnings("unchecked")
     public T extractFrom(Map<NameType<?>, Object> map) {
         return (T) map.get(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public T extractFrom(Map<NameType<?>, Object> map, T defaultValue) {
+        return Kit.op((T) map.get(this)).orElse(defaultValue);
     }
 
     @SuppressWarnings("unchecked")
