@@ -8,9 +8,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Builder;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Optional;
@@ -43,6 +41,8 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
     }
 
 
+    @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public interface Merger {
 
         Merger inst = Mappers.getMapper(Merger.class);
