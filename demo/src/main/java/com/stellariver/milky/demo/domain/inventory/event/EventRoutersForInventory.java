@@ -2,9 +2,7 @@ package com.stellariver.milky.demo.domain.inventory.event;
 
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
-import com.stellariver.milky.demo.domain.item.event.ItemAmountUpdatedEvent;
 import com.stellariver.milky.demo.domain.item.event.ItemTitleUpdatedEvent;
-import com.stellariver.milky.demo.domain.service.ItemAmountUpdatedMessage;
 import com.stellariver.milky.demo.domain.service.ItemTitleUpdatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -39,7 +37,7 @@ public class EventRoutersForInventory implements EventRouters {
 
     @FinalEventRouter
     public void mqTitleUpdated(List<ItemTitleUpdatedEvent> events, Context context) {
-        events.forEach( event -> {
+        events.forEach(event -> {
             ItemTitleUpdatedMessage message = ItemTitleUpdatedMessage.builder()
                     .itemId(event.getItemId())
                     .oldTitle(event.getOriginalTitle())
