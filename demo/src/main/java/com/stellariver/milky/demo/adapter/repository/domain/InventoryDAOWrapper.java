@@ -40,7 +40,6 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
         return Merger.inst.merge(priority, general);
     }
 
-
     @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
             nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public interface Merger {
