@@ -6,7 +6,6 @@ import lombok.*;
 import java.util.List;
 import java.util.Map;
 
-
 @EqualsAndHashCode(callSuper = true)
 public class ListNameType<V> extends NameType<List<V>> {
 

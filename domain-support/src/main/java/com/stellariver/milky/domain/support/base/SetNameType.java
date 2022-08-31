@@ -17,7 +17,6 @@ public class SetNameType<V> extends NameType<Set<V>> {
         this.vClazz = vClazz;
     }
 
-
     @SuppressWarnings("unchecked")
     public Set<V> extractFrom(Map<NameType<?>, Object> map) {
         return (Set<V>) map.get(this);

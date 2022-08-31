@@ -5,12 +5,13 @@ import lombok.*;
 
 import java.util.Map;
 
-
 @EqualsAndHashCode(callSuper = true)
 public class MapNameType<K, V> extends NameType<Map<K, V>> {
 
+    @Getter
     private final Class<?> kClazz;
 
+    @Getter
     private final Class<?> vClazz;
 
     public MapNameType(String name, Class<?> kClazz, Class<?> vClazz) {
