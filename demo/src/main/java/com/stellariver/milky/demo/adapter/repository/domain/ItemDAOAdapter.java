@@ -1,18 +1,15 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
-import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.item.Item;
-import com.stellariver.milky.demo.infrastructure.database.InventoryDO;
 import com.stellariver.milky.demo.infrastructure.database.ItemDO;
-import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
 import com.stellariver.milky.domain.support.dependency.DataObjectInfo;
+import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-import org.springframework.context.annotation.Bean;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

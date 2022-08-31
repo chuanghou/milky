@@ -1,8 +1,6 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.demo.infrastructure.database.InventoryDO;
-import com.stellariver.milky.demo.infrastructure.database.InventoryDOMapper;
 import com.stellariver.milky.demo.infrastructure.database.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.ItemDOMapper;
 import com.stellariver.milky.domain.support.dependency.DAOWrapper;
@@ -10,9 +8,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Builder;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Optional;
@@ -45,6 +41,8 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
     }
 
 
+    @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public interface Merger {
 
         Merger inst = Mappers.getMapper(Merger.class);
