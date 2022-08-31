@@ -1,9 +1,10 @@
-package com.stellariver.milky.demo.domain.item.event;
+package com.stellariver.milky.demo.domain.inventory.event;
 
 import com.stellariver.milky.demo.domain.inventory.event.InventoryCreatedEvent;
 import com.stellariver.milky.demo.domain.inventory.event.InventoryUpdateEvent;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
+import com.stellariver.milky.demo.domain.item.event.ItemAmountUpdatedEvent;
 import com.stellariver.milky.demo.domain.service.ItemAmountUpdatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.domain.support.command.CommandBus;
