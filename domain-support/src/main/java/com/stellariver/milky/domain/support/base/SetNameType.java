@@ -1,9 +1,7 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.common.tool.util.Json;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +12,11 @@ import java.util.Set;
 public class SetNameType<V> extends NameType<Set<V>> {
 
     private Class<?> vClazz;
+
+    public SetNameType(String name, Class<?> vClazz) {
+        super(name, Set.class);
+        this.vClazz = vClazz;
+    }
 
 
     @SuppressWarnings("unchecked")

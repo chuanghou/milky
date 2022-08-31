@@ -1,13 +1,11 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.common.tool.util.Json;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -16,6 +14,10 @@ public class ListNameType<V> extends NameType<List<V>> {
 
     private Class<?> vClazz;
 
+    public ListNameType(String name, Class<?> vClazz) {
+        super(name, List.class);
+        this.vClazz = vClazz;
+    }
 
     @SuppressWarnings("unchecked")
     public List<V> extractFrom(Map<NameType<?>, Object> map) {
