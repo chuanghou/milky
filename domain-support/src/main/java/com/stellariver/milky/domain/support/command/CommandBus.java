@@ -423,7 +423,7 @@ public class CommandBus {
             Optional<?> optional = daoAdapter.getByAggregateIdOptional(aggregateId, context, daoWrapper);
             aggregate = (AggregateRoot) optional.orElseThrow(() -> new SysException(AGGREGATE_NOT_EXISTED.message("aggregateId: " + aggregateId + " not exists!")));
             List<Interceptor> interceptors = beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
-            for (Interceptor interceptor : interceptors) { interceptor.invoke(command, aggregate, context);}
+            for (Interceptor interceptor : interceptors) { interceptor.invoke(command, aggregate, context); }
             result = commandHandler.invoke(aggregate, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
             if (present) { aggregateStatus = AggregateStatus.UPDATE; }
