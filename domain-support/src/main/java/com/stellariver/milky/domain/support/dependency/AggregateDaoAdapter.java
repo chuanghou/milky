@@ -66,7 +66,7 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
         CommandBus.getDaoWrapper(dataObjectInfo.getClazz());
     }
 
-    default Aggregate getByAggregateId(String aggregateId, Context context) {
+    default Aggregate getByAggregateId(String aggregateId, Context context, DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper) {
         return getByAggregateIdOptional(aggregateId, context)
     }
 }

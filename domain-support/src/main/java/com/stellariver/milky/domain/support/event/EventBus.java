@@ -144,6 +144,12 @@ public class EventBus {
         finalRouters.forEach(finalRouter -> finalRouter.route(events, context));
     }
 
+    public void postFinalRoute(List<Event> finalRouteEvents, Context context) {
+    }
+
+    public void preFinalRoute(List<Event> finalRouteEvents, Context context) {
+    }
+
     @Data
     @Builder
     @AllArgsConstructor

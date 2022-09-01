@@ -17,7 +17,6 @@ import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
-import com.stellariver.milky.domain.support.dependency.DomainRepository;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AllArgsConstructor;
@@ -44,7 +43,7 @@ public class CommandBus {
                     && Command.class.isAssignableFrom(parameterTypes[0])
                     && parameterTypes[1] == Context.class);
 
-    private static final Predicate<Class<?>[]> interceptorFormat =
+    private static final Predicate<Class<?>[]> commandInterceptorFormat =
             parameterTypes -> (parameterTypes.length == 3
                     && Command.class.isAssignableFrom(parameterTypes[0])
                     && AggregateRoot.class.isAssignableFrom(parameterTypes[1])
@@ -60,7 +59,7 @@ public class CommandBus {
 
     private final Map<Class<? extends AggregateRoot>, AggregateDaoAdapter<?>> daoAdapterMap = new HashMap<>();
 
-    private final Map<Class<? extends BaseDataObject<?>>, DAOWrapper<?, ?>> daoWrappersMap = new HashMap<>();
+    private final Map<Class<? extends BaseDataObject<?>>, DAOWrapper<? extends BaseDataObject<?>, ?>> daoWrappersMap = new HashMap<>();
 
     private final Map<Class<? extends Command>, List<Interceptor>> beforeCommandInterceptors = new HashMap<>();
 
@@ -78,11 +77,13 @@ public class CommandBus {
 
     private final Reflections reflections;
 
+    private final TransactionSupport transactionSupport;
 
     public CommandBus(MilkySupport milkySupport, EventBus eventBus, MilkyConfiguration milkyConfiguration) {
 
         this.concurrentOperate = milkySupport.getConcurrentOperate();
         this.traceRepository = milkySupport.getTraceRepository();
+        this.transactionSupport = milkySupport.getTransactionSupport();
         this.asyncExecutor = milkySupport.getAsyncExecutor();
         this.eventBus = eventBus;
         this.enableMq = milkyConfiguration.isEnableMq();
@@ -94,12 +95,13 @@ public class CommandBus {
 
         prepareRepositories(milkySupport);
 
+        prepareDAOWrappers(milkySupport);
+
         prepareCommandInterceptors(milkySupport);
 
         instance = this;
 
     }
-
 
     @SuppressWarnings("unchecked")
     private void prepareCommandInterceptors(MilkySupport milkySupport) {
@@ -111,8 +113,14 @@ public class CommandBus {
         // collect all command interceptors into tempInterceptorsMap group by commandClass
         milkySupport.getInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(m -> interceptorFormat.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(Intercept.class)).collect(Collectors.toList())
+                .filter(m -> m.isAnnotationPresent(Intercept.class))
+                .filter(m -> m.getParameterTypes()[0].isAssignableFrom(Command.class))
+                .filter(m -> {
+                    boolean test = commandInterceptorFormat.test(m.getParameterTypes());
+                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    return test;
+                })
+                .collect(Collectors.toList())
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
@@ -152,31 +160,26 @@ public class CommandBus {
 
     @SuppressWarnings("unchecked")
     private void prepareRepositories(MilkySupport milkySupport) {
-        milkySupport.getDomainRepositories().forEach(bean -> {
-            Optional<Type> optional = Arrays.stream(bean.getClass().getGenericInterfaces())
+        milkySupport.getDaoAdapters().forEach(bean -> {
+            Type[] types = Arrays.stream(bean.getClass().getGenericInterfaces())
                     .map(i -> (ParameterizedType) i)
-                    .filter(t -> Objects.equals(t.getRawType(), DomainRepository.class))
-                    .map(t -> t.getActualTypeArguments()[0]).findFirst();
-            SysException.falseThrow(optional.isPresent(), ErrorEnum.CONFIG_ERROR);
-            Class<?> aggregateClazz = (Class<?>) optional.get();
-            Class<?> repositoryClazz = bean.getClass();
-            Method saveMethod = getMethod(repositoryClazz,"save", aggregateClazz, Context.class);
-            Method getMethod = getMethod(repositoryClazz,"getByAggregateId", String.class, Context.class);
-            Method updateMethod = getMethod(repositoryClazz,"updateByAggregateId", aggregateClazz, Context.class);
-            SysException.anyNullThrow(saveMethod, getMethod, updateMethod);
-            Repository repository = new Repository(bean, getMethod, saveMethod, updateMethod);
-            domainRepositoryMap.put((Class<? extends AggregateRoot>) aggregateClazz, repository);
+                    .filter(t -> Objects.equals(t.getRawType(), AggregateDaoAdapter.class))
+                    .map(ParameterizedType::getActualTypeArguments).findFirst()
+                    .orElseThrow(() -> new SysException(ErrorEnum.CONFIG_ERROR));
+            daoAdapterMap.put((Class<? extends AggregateRoot>) types[0], bean);
         });
     }
 
-    public Method getMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
-        Method method;
-        try {
-            method = clazz.getMethod(methodName, parameterTypes);
-        } catch (NoSuchMethodException e) {
-            throw new SysException(ErrorEnum.CONFIG_ERROR);
-        }
-        return method;
+    @SuppressWarnings("unchecked")
+    private void prepareDAOWrappers(MilkySupport milkySupport) {
+        milkySupport.getDaoWrappers().forEach(bean -> {
+            Type[] types = Arrays.stream(bean.getClass().getGenericInterfaces())
+                    .map(i -> (ParameterizedType) i)
+                    .filter(t -> Objects.equals(t.getRawType(), DAOWrapper.class))
+                    .map(ParameterizedType::getActualTypeArguments).findFirst()
+                    .orElseThrow(() -> new SysException(ErrorEnum.CONFIG_ERROR));
+            daoWrappersMap.put((Class<? extends BaseDataObject<?>>) types[0], bean);
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -185,16 +188,17 @@ public class CommandBus {
         boolean secondInherited = classes.stream().map(Reflect::ancestorClasses).anyMatch(list -> list.size() > 3);
         SysException.trueThrow(secondInherited, AGGREGATE_INHERITED);
         List<Method> methods = classes.stream().map(Class::getMethods).flatMap(Stream::of)
-                .filter(m -> format.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
+                .filter(m -> m.isAnnotationPresent(CommandHandler.class))
+                .filter(m -> {
+                    boolean test = format.test(m.getParameterTypes());
+                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    return test;
+                }).collect(Collectors.toList());
 
         methods.forEach(method -> {
             Class<?>[] parameterTypes = method.getParameterTypes();
             CommandHandler annotation = method.getAnnotation(CommandHandler.class);
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
-            String name = method.getName();
-            SysException.trueThrow(!Objects.equals(name, "handle"),
-                    ErrorEnum.CONFIG_ERROR.message("command handler's name should be handle, not " + name));
             boolean hasReturn = !method.getReturnType().getName().equals("void");
             HandlerType handlerType = Modifier.isStatic(method.getModifiers()) ? STATIC_METHOD : INSTANCE_METHOD;
             List<String> requiredKeys = Arrays.asList(annotation.dependencies());
@@ -207,7 +211,11 @@ public class CommandBus {
 
         List<Constructor<?>> constructors = classes.stream().map(Class::getDeclaredConstructors).flatMap(Stream::of)
                 .filter(m -> format.test(m.getParameterTypes()))
-                .filter(m -> m.isAnnotationPresent(CommandHandler.class)).collect(Collectors.toList());
+                .filter(m -> {
+                    boolean test = format.test(m.getParameterTypes());
+                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    return test;
+                }).collect(Collectors.toList());
 
         constructors.forEach(constructor -> {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
@@ -230,16 +238,20 @@ public class CommandBus {
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
                 .filter(method -> method.isAnnotationPresent(DependencyKey.class))
-                .filter(method -> format.test(method.getParameterTypes())).collect(Collectors.toList());
+                .filter(m -> {
+                    boolean test = format.test(m.getParameterTypes());
+                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    return test;
+                }).collect(Collectors.toList());
 
         methods.forEach(method -> {
             Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
             DependencyKey annotation = method.getAnnotation(DependencyKey.class);
             String key = annotation.value();
             String[] requiredKeys = annotation.requiredKeys();
-            boolean fallbackable = annotation.fallbackable();
+            LogChoice logChoice = annotation.logChoice();
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
-            DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method, fallbackable);
+            DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method, logChoice);
             Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
             SysException.trueThrow(valueProviderMap.containsKey(key),
                     "对于" + commandClass.getName() + "对于" + key + "提供了两个dependencyProvider");
@@ -260,7 +272,11 @@ public class CommandBus {
     }
 
     static public AggregateDaoAdapter<? extends AggregateRoot> getDaoAdapter(Class<? extends AggregateRoot> clazz) {
-        return instance.
+        return instance.daoAdapterMap.get(clazz);
+    }
+
+    static public DAOWrapper<? extends BaseDataObject<?>, ?> getDaoWrapper(Class<? extends BaseDataObject<?>> clazz) {
+        return instance.daoWrappersMap.get(clazz);
     }
 
     /**
@@ -272,19 +288,42 @@ public class CommandBus {
     private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters) {
         Object result;
         Context context = Context.build(parameters);
+        Map<Class<?>, Map<Object, Object>> doMap = context.getDoMap();
         tLContext.set(context);
         Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
         command.setInvokeTrace(invokeTrace);
         try {
             result = route(command);
-            eventBus.finalRoute(context.getFinalRouteEvents(), context);
+            eventBus.preFinalRoute(context.getFinalRouteEvents(), context);
+            if (command.openTransaction()) {
+                transactionSupport.begin();
+            }
+            Map<Class<?>, Set<Object>> createdAggregateIds = context.getCreatedAggregateIds();
+            Map<Class<?>, Set<Object>> changedAggregateIds = context.getChangedAggregateIds();
+            doMap.forEach((dataObjectClazz, map) -> {
+                DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
+                map.forEach((id, dataObject) -> {
+                    Object primaryId = ((BaseDataObject<?>) dataObject).getPrimaryId();
+                    Set<Object> created = createdAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
+                    Set<Object> changed = changedAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
+                    if (created.contains(primaryId)) {
+                        daoWrapper.saveWrapper(dataObject);
+                    } else if (changed.contains(primaryId)) {
+                        daoWrapper.updateWrapper(dataObject);
+                    }
+                });
+            });
+            eventBus.postFinalRoute(context.getFinalRouteEvents(), context);
             List<MessageRecord> messageRecords = context.getMessageRecords();
             asyncExecutor.submit(() -> {
                 traceRepository.insert(invocationId, context);
                 traceRepository.batchInsert(messageRecords, context);
             });
         } catch (Throwable throwable) {
+            if (command.openTransaction()) {
+                transactionSupport.rollback();
+            }
             List<MessageRecord> recordedMessages = context.getMessageRecords();
             asyncExecutor.submit(() -> {
                 traceRepository.insert(invocationId, context, false);
@@ -293,6 +332,9 @@ public class CommandBus {
             throw throwable;
         } finally {
             tLContext.remove();
+        }
+        if (command.openTransaction()) {
+            transactionSupport.commit();
         }
         return result;
     }
@@ -312,8 +354,10 @@ public class CommandBus {
         NameSpace nameSpace = NameSpace.build(command.getClass());
         String lockKey = command.getAggregateId();
         long now = SystemClock.now();
+        boolean locked = false;
         try {
-            if (concurrentOperate.tryLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils())) {
+            locked = concurrentOperate.tryLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils());
+            if (locked) {
                 result = doRoute(command, context, commandHandler);
             } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
                 concurrentOperate.sendOrderly(command);
@@ -327,15 +371,17 @@ public class CommandBus {
                         .times(command.retryTimes())
                         .sleepTimeMils(sleepTimeMs)
                         .build();
-                boolean retryResult = concurrentOperate.tryRetryLock(retryParameter);
-                BizException.falseThrow(retryResult, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
+                locked = concurrentOperate.tryRetryLock(retryParameter);
+                BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doRoute(command, context, commandHandler);
             }
             tLContext.get().clearDependencies();
         } finally {
-            boolean unlock = concurrentOperate.unlock(nameSpace, lockKey, encryptionKey);
-            if (!unlock) {
-                log.arg0(nameSpace).arg1(lockKey).cost(SystemClock.now() - now).error("UNLOCK_FAILURE");
+            if (locked) {
+                boolean unlock = concurrentOperate.unlock(nameSpace, lockKey, encryptionKey);
+                if (!unlock) {
+                    log.arg0(nameSpace).arg1(lockKey).cost(SystemClock.now() - now).error("UNLOCK_FAILURE");
+                }
             }
         }
         context.popEvents().forEach(event -> {
@@ -348,44 +394,57 @@ public class CommandBus {
 
 
     @SneakyThrows
-    @SuppressWarnings("unchecked")
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
-        Repository repository = domainRepositoryMap.get(commandHandler.clazz);
-        SysException.anyNullThrow(repository, commandHandler.getClazz() + "hasn't corresponding command handler");
+        AggregateDaoAdapter daoAdapter = daoAdapterMap.get(commandHandler.aggregateClazz);
+        SysException.anyNullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
         Map<String, DependencyProvider> providerMap =
-                Optional.ofNullable(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
-        commandHandler.getRequiredKeys().forEach(key ->
-                invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
+                Kit.op(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
+        commandHandler.getRequiredKeys().forEach(key -> invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
         AggregateRoot aggregate;
         Object result = null;
-        CommandRecord commandRecord = CommandRecord.builder().message(command)
-                .dependencies(new HashMap<>(context.getDependencies())).build();
+        CommandRecord commandRecord = CommandRecord.builder().message(command).dependencies(new HashMap<>(context.getDependencies())).build();
         context.recordCommand(commandRecord);
+        String aggregateId = command.getAggregateId();
+        Map<Class<?>, Set<Object>> changedAggregateIds = context.getChangedAggregateIds();
+        Map<Class<?>, Set<Object>> createdAggregateIds = context.getCreatedAggregateIds();
+        DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
+        Class<? extends BaseDataObject<?>> dataObjectInfoClazz = dataObjectInfo.getClazz();
+        Object primaryId = dataObjectInfo.getPrimaryId();
+        AggregateStatus aggregateStatus = AggregateStatus.KEEP;
         if (commandHandler.handlerType == CONSTRUCTOR_METHOD) {
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
                     .forEach(interceptor -> interceptor.invoke(command, null, context));
             aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
-            repository.save(aggregate, context);
+            aggregateStatus = AggregateStatus.CREATE;
+        } else if (commandHandler.handlerType == STATIC_METHOD){
+            beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> interceptor.invoke(command, null, context));
+            aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
+            aggregateStatus = AggregateStatus.CREATE;
         } else if (commandHandler.handlerType == INSTANCE_METHOD){
-            Optional<? extends AggregateRoot> optional = (Optional<? extends AggregateRoot>)
-                    repository.getByAggregateId(command.getAggregateId(), context);
-            aggregate = optional.orElseThrow(() -> new SysException(AGGREGATE_NOT_EXISTED
-                    .message("aggregateId: " + command.getAggregateId() + " not exists!")));
-            beforeCommandInterceptors.get(command.getClass())
-                    .forEach(interceptor -> interceptor.invoke(command, aggregate, context));
+            DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectInfoClazz);
+            Optional<?> optional = daoAdapter.getByAggregateIdOptional(aggregateId, context, daoWrapper);
+            optional.orElseThrow(() -> new SysException(AGGREGATE_NOT_EXISTED.message("aggregateId: " + aggregateId + " not exists!")));
+            List<Interceptor> interceptors = beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
+            for (Interceptor interceptor : interceptors) { interceptor.invoke(command, aggregate, context);}
             result = commandHandler.invoke(aggregate, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
-            If.isTrue(present, () -> repository.update(aggregate, context));
-        } else if (commandHandler.handlerType == STATIC_METHOD){
-            beforeCommandInterceptors.get(command.getClass())
-                    .forEach(interceptor -> interceptor.invoke(command, null, context));
-            aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
-            repository.save(aggregate, context);
+            if(present) { aggregateStatus = AggregateStatus.UPDATE; }
         } else {
             throw new SysException("unreached part!");
         }
-        afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
-                .forEach(interceptor -> interceptor.invoke(command, aggregate, context));
+        Map<Class<?>, Map<Object, Object>> doMap = context.getDoMap();
+        Object temp = Kit.op(doMap.get(dataObjectInfoClazz)).map(map -> map.get(primaryId)).orElse(null);
+        BaseDataObject<?> baseDataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
+        if (aggregateStatus == AggregateStatus.CREATE) {
+            createdAggregateIds.computeIfAbsent(dataObjectInfoClazz, k -> new HashSet<>()).add(primaryId);
+        } else if (aggregateStatus == AggregateStatus.UPDATE) {
+            changedAggregateIds.computeIfAbsent(dataObjectInfoClazz, k -> new HashSet<>()).add(primaryId);
+        }
+        DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectInfoClazz);
+        BaseDataObject<?> merge = daoWrapper.mergeWrapper(baseDataObject, temp);
+        doMap.computeIfAbsent(dataObjectInfoClazz, k -> new HashMap<>()).put(primaryId, merge);
+        List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
+        for (Interceptor interceptor : interceptors) {interceptor.invoke(command, aggregate, context);}
         return result;
     }
 
@@ -406,35 +465,6 @@ public class CommandBus {
 
     @Data
     @AllArgsConstructor
-    static private class Repository {
-
-        private Object bean;
-
-        private Method getMethod;
-
-        private Method saveMethod;
-
-        private Method updateMethod;
-
-        @SneakyThrows
-        public void save(Object aggregate, Context context) {
-            Runner.invoke(bean, saveMethod, aggregate, context);
-        }
-
-        @SneakyThrows
-        public Object getByAggregateId(String aggregateId, Context context) {
-            return Runner.invoke(bean, getMethod, aggregateId, context);
-        }
-
-        @SneakyThrows
-        public void update(Object aggregate, Context context) {
-            Runner.invoke(bean, updateMethod, aggregate, context);
-        }
-
-    }
-
-    @Data
-    @AllArgsConstructor
     static private class DependencyProvider {
 
         private String key;
@@ -445,21 +475,22 @@ public class CommandBus {
 
         private Method method;
 
-        private boolean fallbackable;
+        private LogChoice logChoice;
 
         @SneakyThrows
         public void invoke(Object object, Context context) {
-            Throwable throwable = null;
+            Throwable throwable;
             try {
                 Runner.invoke(bean, method, object, context);
             } catch (Throwable t) {
                 throwable = t;
-                if (!isFallbackable()) {
-                    throw t;
+                if (Objects.equals(logChoice, LogChoice.ALWAYS)) {
+                    log.arg0(object).log(this.getClass().getSimpleName(), throwable);
+                } else if (Objects.equals(logChoice, LogChoice.EXCEPTION)) {
+                    log.arg0(object).logWhenException(this.getClass().getSimpleName(), throwable);
                 }
-            } finally {
-                log.arg0(key).arg1(requiredKeys).arg2(object).log("DependencyProviderInvoke", throwable);
             }
+            throw throwable;
         }
 
     }
@@ -468,7 +499,7 @@ public class CommandBus {
     @AllArgsConstructor
     static private class Handler {
 
-        private Class<? extends AggregateRoot> clazz;
+        private Class<? extends AggregateRoot> aggregateClazz;
 
         private Method method;
 
@@ -486,4 +517,5 @@ public class CommandBus {
         }
 
     }
+
 }
