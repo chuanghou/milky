@@ -1,6 +1,8 @@
 package com.stellariver.milky.domain.support.dependency;
 
 import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.common.SysException;
+import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -29,7 +31,7 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
     @SuppressWarnings("unchecked")
     default Object toDataObjectWrapper(Object aggregate) {
         Aggregate aggregateRoot = (Aggregate) aggregate;
-        return toDataObject(aggregateRoot, dataObject(aggregateRoot.getAggregateId()));
+        return toDataObject(aggregateRoot, dataObjectInfo(aggregateRoot.getAggregateId()));
     }
 
     Object toDataObject(Aggregate aggregate, DataObjectInfo dataObjectInfo);
@@ -44,7 +46,7 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
 
 
     default Optional<Aggregate> getByAggregateIdOptional(String aggregateId, Context context, DAOWrapper<?, ?> daoWrapper) {
-        Map<Class<?>, Map<Object, Object>> doMap = context.getDoMap();
+        Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
         DataObjectInfo dataObjectInfo = dataObjectInfo(aggregateId);
         Class<? extends BaseDataObject<?>> clazz = dataObjectInfo.getClazz();
         Object primaryId = dataObjectInfo.getPrimaryId();
@@ -63,10 +65,12 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
 
     default Optional<Aggregate> getByAggregateIdOptional(String aggregateId, Context context) {
         DataObjectInfo dataObjectInfo = dataObjectInfo(aggregateId);
-        CommandBus.getDaoWrapper(dataObjectInfo.getClazz());
+        DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = CommandBus.getDaoWrapper(dataObjectInfo.getClazz());
+        return getByAggregateIdOptional(aggregateId, context, daoWrapper);
     }
 
-    default Aggregate getByAggregateId(String aggregateId, Context context, DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper) {
-        return getByAggregateIdOptional(aggregateId, context)
+    default Aggregate getByAggregateId(String aggregateId, Context context) {
+        return getByAggregateIdOptional(aggregateId, context).orElseThrow(() -> new SysException(ErrorEnum.AGGREGATE_NOT_EXISTED.message(aggregateId)));
     }
+
 }

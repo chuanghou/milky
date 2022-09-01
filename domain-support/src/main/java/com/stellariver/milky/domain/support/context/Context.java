@@ -2,14 +2,16 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.SysException;
-import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.domain.support.base.*;
+import com.stellariver.milky.domain.support.command.CommandBus;
+import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.Getter;
+import lombok.NonNull;
+import org.checkerframework.checker.nullness.Opt;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 public class Context{
@@ -55,17 +57,17 @@ public class Context{
         dependencies.clear();
     }
 
-    public void publish(@Nonnull Event event) {
+    public void publish(@NonNull Event event) {
         SysException.anyNullThrow(event);
         events.add(0, event);
     }
 
-    public void recordCommand(@Nonnull CommandRecord commandRecord) {
+    public void recordCommand(@NonNull CommandRecord commandRecord) {
         SysException.anyNullThrow(commandRecord);
         messageRecords.add(commandRecord);
     }
 
-    public void recordEvent(@Nonnull EventRecord eventRecord) {
+    public void recordEvent(@NonNull EventRecord eventRecord) {
         SysException.anyNullThrow(eventRecord);
         messageRecords.add(eventRecord);
     }
@@ -101,6 +103,16 @@ public class Context{
         return invocationId;
     }
 
+
+    public Optional<? extends AggregateRoot> getByAggregateIdOptional(Class<? extends AggregateRoot> clazz, String aggregateId) {
+        AggregateDaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(clazz);
+        return daoAdapter.getByAggregateIdOptional(aggregateId, this);
+    }
+
+    public AggregateRoot getByAggregateId(Class<? extends AggregateRoot> clazz, String aggregateId) {
+        AggregateDaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(clazz);
+        return daoAdapter.getByAggregateId(aggregateId, this);
+    }
 }
 
 
