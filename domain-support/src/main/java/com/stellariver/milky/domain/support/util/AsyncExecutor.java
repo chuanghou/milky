@@ -1,6 +1,9 @@
 package com.stellariver.milky.domain.support.util;
 
-import javax.annotation.Nonnull;
+import com.stellariver.milky.common.tool.common.Kit;
+import lombok.NonNull;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
@@ -19,7 +22,7 @@ public class AsyncExecutor extends ThreadPoolExecutor {
                 TimeUnit.MINUTES,
                 new ArrayBlockingQueue<>(configuration.getBlockingQueueCapacity()),
                 threadFactory, callerRunsPolicy);
-        this.threadLocalPassers = threadLocalPassers;
+        this.threadLocalPassers = Kit.op(threadLocalPassers).orElseGet(ArrayList::new);
     }
 
     public AsyncExecutor(AsyncExecutorConfiguration configuration,
@@ -29,7 +32,7 @@ public class AsyncExecutor extends ThreadPoolExecutor {
     }
 
     @Override
-    public void execute(@Nonnull Runnable command) {
+    public void execute(@NonNull Runnable command) {
         final Thread superThread = Thread.currentThread();
         HashMap<Class<?>, Object> threadLocalMap = new HashMap<>();
         threadLocalPassers.forEach(passer -> threadLocalMap.put(passer.getClass(), passer.prepareThreadLocal()));
