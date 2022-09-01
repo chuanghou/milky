@@ -1,4 +1,4 @@
-package com.demo;
+package com.stellariver.milky.demo;
 
 
 import com.stellariver.milky.common.base.Employee;
