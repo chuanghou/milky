@@ -4,7 +4,6 @@ import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.NonNull;
 
-import java.util.Objects;
 import java.util.Optional;
 
 public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
@@ -12,7 +11,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     @SuppressWarnings("unchecked")
     default void saveWrapper(Object dataObject) {
         SysException.nullThrow(dataObject);
-        save(((DataObject) dataObject));
+        save((DataObject) dataObject);
     }
 
     void save(@NonNull DataObject dataObject);
@@ -33,8 +32,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     Optional<DataObject> getByPrimaryId(@NonNull PrimaryId primaryId);
 
     @SuppressWarnings("unchecked")
-    default BaseDataObject<?> mergeWrapper(Object priority, Object general) {
-        SysException.nullThrow(priority);
+    default BaseDataObject<?> mergeWrapper(@NonNull Object priority, Object general) {
         if (general == null) {
             return (BaseDataObject<?>) priority;
         } else {
