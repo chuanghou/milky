@@ -10,7 +10,6 @@ import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.Getter;
 import lombok.NonNull;
-import org.checkerframework.checker.nullness.Opt;
 
 import java.util.*;
 
@@ -58,7 +57,6 @@ public class Context{
     }
 
     public void publish(@NonNull Event event) {
-        SysException.anyNullThrow(event);
         events.add(0, event);
     }
 
@@ -102,7 +100,6 @@ public class Context{
     public Long getInvocationId() {
         return invocationId;
     }
-
 
     public Optional<? extends AggregateRoot> getByAggregateIdOptional(Class<? extends AggregateRoot> clazz, String aggregateId) {
         AggregateDaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(clazz);
