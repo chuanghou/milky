@@ -1,7 +1,6 @@
 package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.*;
-import com.stellariver.milky.common.tool.util.If;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -17,6 +16,7 @@ import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
+import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.AllArgsConstructor;
@@ -119,8 +119,7 @@ public class CommandBus {
                     boolean test = commandInterceptorFormat.test(m.getParameterTypes());
                     SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
                     return test;
-                })
-                .collect(Collectors.toList())
+                }).collect(Collectors.toList())
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
@@ -210,7 +209,7 @@ public class CommandBus {
         });
 
         List<Constructor<?>> constructors = classes.stream().map(Class::getDeclaredConstructors).flatMap(Stream::of)
-                .filter(m -> format.test(m.getParameterTypes()))
+                .filter(m -> m.isAnnotationPresent(CommandHandler.class))
                 .filter(m -> {
                     boolean test = format.test(m.getParameterTypes());
                     SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
@@ -238,9 +237,9 @@ public class CommandBus {
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
                 .filter(method -> method.isAnnotationPresent(DependencyKey.class))
-                .filter(m -> {
-                    boolean test = format.test(m.getParameterTypes());
-                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                .filter(method -> {
+                    boolean test = format.test(method.getParameterTypes());
+                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(method.toGenericString()));
                     return test;
                 }).collect(Collectors.toList());
 
@@ -288,7 +287,7 @@ public class CommandBus {
     private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters) {
         Object result;
         Context context = Context.build(parameters);
-        Map<Class<?>, Map<Object, Object>> doMap = context.getDoMap();
+        Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
         tLContext.set(context);
         Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
@@ -395,10 +394,9 @@ public class CommandBus {
 
     @SneakyThrows
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
-        AggregateDaoAdapter daoAdapter = daoAdapterMap.get(commandHandler.aggregateClazz);
+        AggregateDaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
         SysException.anyNullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
-        Map<String, DependencyProvider> providerMap =
-                Kit.op(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
+        Map<String, DependencyProvider> providerMap = Kit.op(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
         commandHandler.getRequiredKeys().forEach(key -> invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
         AggregateRoot aggregate;
         Object result = null;
@@ -408,7 +406,7 @@ public class CommandBus {
         Map<Class<?>, Set<Object>> changedAggregateIds = context.getChangedAggregateIds();
         Map<Class<?>, Set<Object>> createdAggregateIds = context.getCreatedAggregateIds();
         DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
-        Class<? extends BaseDataObject<?>> dataObjectInfoClazz = dataObjectInfo.getClazz();
+        Class<? extends BaseDataObject<?>> dataObjectClazz = dataObjectInfo.getClazz();
         Object primaryId = dataObjectInfo.getPrimaryId();
         AggregateStatus aggregateStatus = AggregateStatus.KEEP;
         if (commandHandler.handlerType == CONSTRUCTOR_METHOD) {
@@ -421,28 +419,28 @@ public class CommandBus {
             aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
             aggregateStatus = AggregateStatus.CREATE;
         } else if (commandHandler.handlerType == INSTANCE_METHOD){
-            DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectInfoClazz);
+            DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
             Optional<?> optional = daoAdapter.getByAggregateIdOptional(aggregateId, context, daoWrapper);
-            optional.orElseThrow(() -> new SysException(AGGREGATE_NOT_EXISTED.message("aggregateId: " + aggregateId + " not exists!")));
+            aggregate = (AggregateRoot) optional.orElseThrow(() -> new SysException(AGGREGATE_NOT_EXISTED.message("aggregateId: " + aggregateId + " not exists!")));
             List<Interceptor> interceptors = beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
             for (Interceptor interceptor : interceptors) { interceptor.invoke(command, aggregate, context);}
             result = commandHandler.invoke(aggregate, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
-            if(present) { aggregateStatus = AggregateStatus.UPDATE; }
+            if (present) { aggregateStatus = AggregateStatus.UPDATE; }
         } else {
             throw new SysException("unreached part!");
         }
-        Map<Class<?>, Map<Object, Object>> doMap = context.getDoMap();
-        Object temp = Kit.op(doMap.get(dataObjectInfoClazz)).map(map -> map.get(primaryId)).orElse(null);
+        Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
+        Object temp = Kit.op(doMap.get(dataObjectClazz)).map(map -> map.get(primaryId)).orElse(null);
         BaseDataObject<?> baseDataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
         if (aggregateStatus == AggregateStatus.CREATE) {
-            createdAggregateIds.computeIfAbsent(dataObjectInfoClazz, k -> new HashSet<>()).add(primaryId);
+            createdAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
         } else if (aggregateStatus == AggregateStatus.UPDATE) {
-            changedAggregateIds.computeIfAbsent(dataObjectInfoClazz, k -> new HashSet<>()).add(primaryId);
+            changedAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
         }
-        DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectInfoClazz);
+        DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
         BaseDataObject<?> merge = daoWrapper.mergeWrapper(baseDataObject, temp);
-        doMap.computeIfAbsent(dataObjectInfoClazz, k -> new HashMap<>()).put(primaryId, merge);
+        doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>()).put(primaryId, merge);
         List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
         for (Interceptor interceptor : interceptors) {interceptor.invoke(command, aggregate, context);}
         return result;
@@ -489,10 +487,9 @@ public class CommandBus {
                 } else if (Objects.equals(logChoice, LogChoice.EXCEPTION)) {
                     log.arg0(object).logWhenException(this.getClass().getSimpleName(), throwable);
                 }
+                throw throwable;
             }
-            throw throwable;
         }
-
     }
 
     @Data

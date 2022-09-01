@@ -23,7 +23,7 @@ public class Context{
     private final Map<Class<?>, Set<Object>> createdAggregateIds = new HashMap<>();
 
     @Getter
-    private final Map<Class<?>, Map<Object, Object>> doMap = new HashMap<>();
+    private final Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = new HashMap<>();
 
     @Getter
     private final Map<NameType<?>, Object> parameters = new HashMap<>();
