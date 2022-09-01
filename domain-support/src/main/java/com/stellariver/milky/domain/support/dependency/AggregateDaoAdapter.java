@@ -15,7 +15,6 @@ import java.util.Optional;
 
 public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
 
-
     /**
      * 实现数据库对象到聚合根转化
      * @param dataObject 数据库对象
@@ -36,14 +35,12 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
 
     Object toDataObject(Aggregate aggregate, DataObjectInfo dataObjectInfo);
 
-
     /**
      * 根据聚合根主键获取DO对象信息
      * @param aggregateId 聚合根主键id
-     * @return 聚合根对象DO对象信息
+     * @return 聚合根对应DO对象信息
      */
     DataObjectInfo dataObjectInfo(String aggregateId);
-
 
     default Optional<Aggregate> getByAggregateIdOptional(String aggregateId, Context context, DAOWrapper<?, ?> daoWrapper) {
         Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
