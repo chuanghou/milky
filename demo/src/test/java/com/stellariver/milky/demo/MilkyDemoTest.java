@@ -2,7 +2,6 @@ package com.stellariver.milky.demo;
 
 
 import com.stellariver.milky.common.base.Employee;
-import com.stellariver.milky.demo.MilkyDemoApplication;
 import com.stellariver.milky.demo.basic.NameTypes;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
@@ -12,13 +11,12 @@ import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.domain.support.base.NameType;
 import com.stellariver.milky.domain.support.command.CommandBus;
-import org.apache.catalina.core.ApplicationContext;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashMap;
