@@ -1,5 +1,8 @@
 package com.stellariver.milky.common.tool.common;
 
+import com.stellariver.milky.common.tool.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -7,6 +10,9 @@ public class Kit {
 
     public static boolean eq(Object a, Object b) {
         return Objects.equals(a, b);
+    }
+    public static boolean notEq(Object a, Object b) {
+        return !Objects.equals(a, b);
     }
 
     public static <T> Optional<T> op(T value) {
@@ -19,6 +25,14 @@ public class Kit {
 
     public static boolean notNull(Object value) {
         return value != null;
+    }
+
+    public static boolean isBlank(String value) {
+        return StringUtils.isBlank(value);
+    }
+
+    public static boolean notBlank(String value) {
+        return !StringUtils.isBlank(value);
     }
 
 }

@@ -109,6 +109,26 @@ public class Collect {
         return stream(source).filter(Objects::nonNull).collect(Collectors.groupingBy(keyMapper));
     }
 
+    /**
+     * group
+     */
+    public static <T, K, V> Map<K, List<V>> groupList(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper){
+        HashMap<K, List<V>> resultMap = new HashMap<>();
+        stream(source).filter(Objects::nonNull)
+                .forEach(t -> resultMap.computeIfAbsent(keyMapper.apply(t), i -> new ArrayList<>()).add(valueMapper.apply(t)));
+        return resultMap;
+    }
+
+    /**
+     * group
+     */
+    public static <T, K, V> Map<K, Set<V>> groupSet(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper){
+        HashMap<K, Set<V>> resultMap = new HashMap<>();
+        stream(source).filter(Objects::nonNull)
+                .forEach(t -> resultMap.computeIfAbsent(keyMapper.apply(t), i -> new HashSet<>()).add(valueMapper.apply(t)));
+        return resultMap;
+    }
+
     public static <S, R, T extends Collection<R>> T transfer(Collection<S> sourceCollection, Function<S, R> converter, Supplier<T> factory) {
         return stream(sourceCollection).filter(Objects::nonNull)
                 .map(converter).filter(Objects::nonNull).collect(Collectors.toCollection(factory));

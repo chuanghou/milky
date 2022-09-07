@@ -34,12 +34,18 @@ public class Json {
     @Nullable
     @SneakyThrows
     public static <T> T parse(String json, Class<T> clazz) {
+        if (json == null) {
+            return null;
+        }
         return MAPPER.readValue(json, clazz);
     }
 
     @Nullable
     @SneakyThrows
     public static <T> List<T> parseList(String json, Class<T> clazz) {
+        if (json == null) {
+            return null;
+        }
         JavaType type = MAPPER.getTypeFactory().constructParametricType(List.class, clazz);
         return MAPPER.readValue(json,type);
     }
@@ -47,6 +53,9 @@ public class Json {
     @Nullable
     @SneakyThrows
     public static <T> Set<T> parseSet(String json, Class<T> clazz) {
+        if (json == null) {
+            return null;
+        }
         JavaType type = MAPPER.getTypeFactory().constructParametricType(Set.class, clazz);
         return MAPPER.readValue(json,type);
     }
@@ -54,6 +63,9 @@ public class Json {
     @Nullable
     @SneakyThrows
     public static <K, V> Map<K, V> parseMap(String json, Class<K> keyClazz, Class<V> valueClazz) {
+        if (json == null) {
+            return null;
+        }
         return MAPPER.readValue(json, TypeFactory.defaultInstance().constructMapType(Map.class, keyClazz, valueClazz));
     }
 
