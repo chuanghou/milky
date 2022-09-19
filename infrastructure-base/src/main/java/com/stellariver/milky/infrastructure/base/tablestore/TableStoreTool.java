@@ -1,6 +1,5 @@
 package com.stellariver.milky.infrastructure.base.tablestore;
 
-import com.alicloud.openservices.tablestore.core.protocol.Search;
 import com.alicloud.openservices.tablestore.model.ColumnValue;
 import com.alicloud.openservices.tablestore.model.search.query.*;
 import com.alicloud.openservices.tablestore.model.search.sort.FieldSort;
@@ -58,7 +57,7 @@ public class TableStoreTool {
         }
 
         if (annotation.like()) {
-            SysException.falseThrow(value instanceof String, ErrorEnumBase.PARAM_FORMAT_WRONG.message("like only support String field"));
+            SysException.falseThrow(value instanceof String, ErrorEnumBase.PARAM_FORMAT_WRONG.message("like only support String field!"));
             Query query = QueryBuilders.matchPhrase(index, (String) value).build();
             return doBuildQuery(index, query);
         } else {
@@ -81,10 +80,10 @@ public class TableStoreTool {
     private static Query doBuildQuery(String index, Query query) {
         if (index.contains(".")) {
             String[] paths = index.split("\\.");
-            BizException.trueThrow(paths.length != 2, ErrorEnumBase.SYSTEM_EXCEPTION.message("search param is not 2!"));
+            BizException.trueThrow(paths.length != 2, ErrorEnumBase.SYSTEM_EXCEPTION.message("search param size is not 2!"));
             String path = paths[0];
-            NestedQuery nestedQuery = new NestedQuery();
-            nestedQuery.setPath(path);
+            NestedQuery nestedQuery = new NestedQuery(); // 设置查询类型为NestedQuery
+            nestedQuery.setPath(path); // 设置嵌套类型列的路径
             nestedQuery.setQuery(query);
             nestedQuery.setScoreMode(ScoreMode.None);
             return nestedQuery;
@@ -98,15 +97,14 @@ public class TableStoreTool {
             columnValue = ColumnValue.fromDouble((Double) fieldValue);
         } else if (fieldValue instanceof Boolean) {
             columnValue = ColumnValue.fromBoolean((Boolean) fieldValue);
-        } else if (fieldValue instanceof Integer || fieldValue instanceof Long) {
+        } else if ((fieldValue instanceof Integer) || (fieldValue instanceof Long)) {
             columnValue = ColumnValue.fromLong(((Number) fieldValue).longValue());
-        } else if (fieldValue instanceof String ) {
+        } else if (fieldValue instanceof String) {
             columnValue = ColumnValue.fromString((String) fieldValue);
         } else {
             throw new SysException(fieldValue);
         }
         return columnValue;
     }
-
 
 }

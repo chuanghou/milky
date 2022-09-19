@@ -62,8 +62,8 @@ public class DomainSupportAutoConfiguration {
         ConfigurationBuilder configuration = new ConfigurationBuilder()
                 .forPackages(milkyConfiguration.getScanPackages())
                 .addScanners(new SubTypesScanner());
-        boolean match = milkyConfiguration.isMemoryTransaction() && transactionSupport != null;
-        BizException.trueThrow(match, ErrorEnumBase.CONFIG_ERROR.message("使能内存事务必须由应用层手动实现事务接口TranansactionSupport接口"));
+        boolean match = milkyConfiguration.isMemoryTransaction() && transactionSupport == null;
+        BizException.trueThrow(match, ErrorEnumBase.CONFIG_ERROR.message("使能内存事务必须由应用层手动实现事务接口TransactionSupport接口"));
         Reflections reflections = new Reflections(configuration);
         return new MilkySupport(concurrentOperate,
                                 traceRepository,

@@ -9,13 +9,12 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AbstractQuery {
+public abstract class AbstractQuery {
 
     List<OrderCondition> orderConditions;
 
