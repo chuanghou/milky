@@ -1,8 +1,10 @@
 package com.stellariver.milky.infrastructure.base.mq;
 
+import lombok.CustomLog;
 import org.apache.rocketmq.common.message.MessageExt;
 
-public abstract class BaseRocketMqListener extends BaseLimitMqListener {
+@CustomLog
+public abstract class BaseRocketMQLimitMessageListener extends BaseLimitMessageListener {
 
     protected void doBusinessWithFlowControl(MessageExt msg) {
         flowControl();
@@ -12,7 +14,7 @@ public abstract class BaseRocketMqListener extends BaseLimitMqListener {
     protected abstract void doBusiness(MessageExt msg);
 
     protected String mqBodyLogger(MessageExt msg) {
-        return new String(msg.getBody());
+        return "";
     }
 
 }

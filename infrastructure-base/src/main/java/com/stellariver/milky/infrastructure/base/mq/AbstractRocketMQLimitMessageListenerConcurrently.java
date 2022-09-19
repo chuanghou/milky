@@ -1,6 +1,8 @@
 package com.stellariver.milky.infrastructure.base.mq;
 
+
 import com.stellariver.milky.common.tool.common.BizException;
+import com.stellariver.milky.common.tool.common.LogChoice;
 import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.infrastructure.base.ErrorEnum;
@@ -11,18 +13,16 @@ import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
 
 import java.util.List;
+import java.util.Objects;
 
 @CustomLog
-public abstract class AbstractRocketMqLimitListenerConcurrently
-        extends BaseRocketMqListener implements MessageListenerConcurrently {
+public abstract class AbstractRocketMQLimitMessageListenerConcurrently extends BaseRocketMQLimitMessageListener implements MessageListenerConcurrently {
 
     @Override
-    public ConsumeConcurrentlyStatus consumeMessage(
-            List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
+    public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
         if (Collect.isEmpty(msgs)) {
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
-        BizException.trueThrow(msgs.size() > 1, ErrorEnum.CONFIG_ERROR.message("batch size not 1"));
         MessageExt messageExt = msgs.get(0);
         Throwable throwable = null;
         long now = SystemClock.now();
@@ -39,8 +39,16 @@ public abstract class AbstractRocketMqLimitListenerConcurrently
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         } finally {
-            log.arg0(mqBodyLogger(messageExt)).arg1(messageExt.getKeys())
-                    .arg2(messageExt.getTags()).log(messageExt.getTopic(), throwable);
+            finalWork();
+            log.arg0(mqBodyLogger(messageExt)).arg1(messageExt.getKeys()).arg2(messageExt.getTags())
+                    .cost(SystemClock.now() - now);
+            if (Objects.equals(logChoice(), LogChoice.ALWAYS)) {
+                log.log(this.getClass().getSimpleName(), throwable);
+            } else if(Objects.equals(logChoice(), LogChoice.EXCEPTION)) {
+                log.logWhenException(this.getClass().getSimpleName(), throwable);
+            } else {
+                log.error("UNREACHED_PART", throwable);
+            }
         }
     }
 
