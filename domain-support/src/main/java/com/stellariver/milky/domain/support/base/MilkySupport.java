@@ -42,6 +42,8 @@ public class MilkySupport {
 
     TransactionSupport transactionSupport;
 
+    boolean memoryTransaction;
+
     public MilkySupport(ConcurrentOperate concurrentOperate,
                         TraceRepository traceRepository,
                         AsyncExecutor asyncExecutor,
@@ -52,7 +54,8 @@ public class MilkySupport {
                         List<DAOWrapper<? extends BaseDataObject<?>, ?>> daoWrappers,
                         Reflections reflections,
                         BeanLoader beanLoader,
-                        TransactionSupport transactionSupport) {
+                        TransactionSupport transactionSupport,
+                        boolean memoryTransaction) {
         this.concurrentOperate = concurrentOperate;
         this.traceRepository = traceRepository;
         this.asyncExecutor = asyncExecutor;
@@ -64,5 +67,6 @@ public class MilkySupport {
         this.reflections = reflections;
         this.beanLoader = beanLoader;
         this.transactionSupport = transactionSupport;
+        this.memoryTransaction = memoryTransaction;
     }
 }

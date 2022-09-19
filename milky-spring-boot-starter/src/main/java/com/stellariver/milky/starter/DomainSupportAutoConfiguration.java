@@ -1,6 +1,8 @@
 package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.stellariver.milky.common.tool.common.BizException;
+import com.stellariver.milky.common.tool.common.ErrorEnumBase;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.domain.support.base.MessageRecord;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
@@ -36,12 +38,13 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     public MilkyConfiguration milkyConfiguration(MilkyScanPackages milkyScanPackages, MilkProperties milkProperties) {
-        return new MilkyConfiguration(milkProperties.enableMq, milkyScanPackages.getScanPackages());
+        return new MilkyConfiguration(milkProperties.enableMq, milkProperties.memoryTransaction, milkyScanPackages.getScanPackages());
     }
 
     @Bean
     public MilkySupport milkySupport(ConcurrentOperate concurrentOperate,
                                         TraceRepository traceRepository,
+                                        @Autowired(required = false)
                                         TransactionSupport transactionSupport,
                                         AsyncExecutor asyncExecutor,
                                         @Autowired(required = false)
@@ -59,6 +62,8 @@ public class DomainSupportAutoConfiguration {
         ConfigurationBuilder configuration = new ConfigurationBuilder()
                 .forPackages(milkyConfiguration.getScanPackages())
                 .addScanners(new SubTypesScanner());
+        boolean match = milkyConfiguration.isMemoryTransaction() && transactionSupport != null;
+        BizException.trueThrow(match, ErrorEnumBase.CONFIG_ERROR.message("使能内存事务必须由应用层手动实现事务接口TranansactionSupport接口"));
         Reflections reflections = new Reflections(configuration);
         return new MilkySupport(concurrentOperate,
                                 traceRepository,
@@ -70,7 +75,8 @@ public class DomainSupportAutoConfiguration {
                                 daoWrappers,
                                 reflections,
                                 beanLoader,
-                                transactionSupport);
+                                transactionSupport,
+                                milkyConfiguration.isMemoryTransaction());
     }
 
 
@@ -120,27 +126,6 @@ public class DomainSupportAutoConfiguration {
 
             @Override
             public void insert(Long invocationId, Context context, boolean success) {
-
-            }
-        };
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public TransactionSupport transactionSupport() {
-        return new TransactionSupport() {
-            @Override
-            public void begin() {
-
-            }
-
-            @Override
-            public void commit() {
-
-            }
-
-            @Override
-            public void rollback() {
 
             }
         };
