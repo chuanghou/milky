@@ -15,21 +15,21 @@ import java.util.Collections;
 import java.util.List;
 
 @CustomLog
-public abstract class AbstractMapJobProcessor<T> extends MapJobProcessor {
-
+abstract public class AbstractMapJobProcessor<T> extends MapJobProcessor {
 
     @Override
     public ProcessResult process(JobContext jobContext) throws InterruptedException {
         ScheduleConfig scheduleConfig;
         String jobParameters = jobContext.getJobParameters();
-        if(StringUtils.isNotBlank(jobParameters)) {
+        if (StringUtils.isNotBlank(jobParameters)) {
             scheduleConfig = Json.parse(jobParameters, ScheduleConfig.class);
         } else {
-            scheduleConfig = null;
+            scheduleConfig = getScheduleConfig();
         }
         if (scheduleConfig == null || Boolean.FALSE.equals(scheduleConfig.getEnable())) {
             return new ProcessResult(true);
         }
+
         if (isRootTask(jobContext)) {
             Long start = scheduleConfig.getStartIndex();
             while (start < scheduleConfig.getStartIndex() + scheduleConfig.getTotal()) {
@@ -37,16 +37,16 @@ public abstract class AbstractMapJobProcessor<T> extends MapJobProcessor {
                 ScheduleParam scheduleParam = ScheduleParam.builder().start(start).end(end)
                         .ds(scheduleConfig.getDs()).metadata(scheduleConfig.getMetadata()).build();
                 map(Collections.singletonList(scheduleParam), this.getClass().getName());
+                start = start + scheduleConfig.getPageSize();
             }
         } else {
             ScheduleParam param = (ScheduleParam) jobContext.getTask();
-
             List<T> ts = selectByParam(param);
             for (T t: ts) {
                 Throwable throwable = null;
                 long now = SystemClock.now();
                 try {
-                    interceptAfterTask(t, param);
+                    interceptBeforeTask(t, param);
                     processTask(t, param);
                     interceptAfterTask(t, param);
                 } catch (InterruptedException interruptedException) {
@@ -66,12 +66,11 @@ public abstract class AbstractMapJobProcessor<T> extends MapJobProcessor {
                     }
                 }
             }
-
         }
         return new ProcessResult(true);
     }
 
-    abstract public List<T> selectByParam(ScheduleParam param);
+    abstract public List<T> selectByParam (ScheduleParam param);
 
     abstract public void processTask(T t, ScheduleParam param) throws InterruptedException;
 
@@ -92,7 +91,6 @@ public abstract class AbstractMapJobProcessor<T> extends MapJobProcessor {
     public void interceptAfterTask(T t, ScheduleParam param) {
 
     }
-
 
     public void interceptAfterTaskFinally(T t, ScheduleParam param) {
 

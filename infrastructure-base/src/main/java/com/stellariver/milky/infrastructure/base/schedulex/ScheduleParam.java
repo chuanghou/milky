@@ -1,9 +1,7 @@
 package com.stellariver.milky.infrastructure.base.schedulex;
 
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
 
@@ -23,4 +21,3 @@ public class ScheduleParam {
     Map<String, String> metadata;
 
 }
-
