@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
 import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.demo.infrastructure.database.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.ItemDOMapper;
 import com.stellariver.milky.domain.support.dependency.DAOWrapper;
@@ -11,7 +12,10 @@ import lombok.experimental.FieldDefaults;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -20,19 +24,19 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
     final ItemDOMapper itemDOMapper;
 
     @Override
-    public void save(@NonNull ItemDO itemDO) {
-        itemDOMapper.insert(itemDO);
+    public void batchSave(@NonNull List<ItemDO> itemDOs) {
+        itemDOs.forEach(itemDOMapper::insert);
     }
 
     @Override
-    public void update(@NonNull ItemDO itemDO) {
-        itemDOMapper.updateById(itemDO);
+    public void batchUpdate(@NonNull List<ItemDO> itemDOs) {
+        itemDOs.forEach(itemDOMapper::updateById);
     }
 
     @Override
-    public Optional<ItemDO> getByPrimaryId(@NonNull Long primaryId) {
-        ItemDO itemDO = itemDOMapper.selectById(primaryId);
-        return Kit.op(itemDO);
+    public Map<Long, ItemDO> batchGetByPrimaryIds(@NonNull Set<Long> itemIds) {
+        List<ItemDO> itemDOs = itemDOMapper.selectBatchIds(itemIds);
+        return Collect.toMap(itemDOs, ItemDO::getItemId);
     }
 
     @Override
