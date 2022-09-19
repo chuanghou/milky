@@ -93,7 +93,7 @@ public class EventBus {
                     boolean test = format.test(m);
                     SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
                     return test;
-                })
+                }).filter(method -> method.getParameterTypes()[0].isAssignableFrom(Event.class))
                 .collect(Collectors.toList())
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
@@ -123,14 +123,12 @@ public class EventBus {
 
         methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
-                .filter(finalEventRouterFormat)
                 .filter(m -> m.isAnnotationPresent(FinalEventRouter.class))
                 .filter(m -> {
                     boolean test = finalEventRouterFormat.test(m);
                     SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
                     return test;
-                })
-                .collect(Collectors.toList());
+                }).collect(Collectors.toList());
 
         List<FinalRouter<Class<? extends Event>>> tempFinalRouters = methods.stream().map(method -> {
             FinalEventRouter annotation = method.getAnnotation(FinalEventRouter.class);
@@ -162,13 +160,13 @@ public class EventBus {
                 .forEach(interceptor -> interceptor.invoke(event, null, context));
     }
 
-    public void preFinalRoute(List<Event> events, Context context) {
+    public void preFinalRoute(List<? extends Event> events, Context context) {
         finalRouters.stream().filter(finalRouter -> finalRouter.order < 0).sorted(Comparator.comparing(FinalRouter::getOrder))
                 .forEach(finalRouter -> finalRouter.route(events, context));
     }
 
-    public void postFinalRoute(List<Event> events, Context context) {
-        finalRouters.stream().filter(finalRouter -> finalRouter.order < 0).sorted(Comparator.comparing(FinalRouter::getOrder))
+    public void postFinalRoute(List<? extends Event> events, Context context) {
+        finalRouters.stream().filter(finalRouter -> finalRouter.order > 0).sorted(Comparator.comparing(FinalRouter::getOrder))
                 .forEach(finalRouter -> finalRouter.route(events, context));
     }
 
