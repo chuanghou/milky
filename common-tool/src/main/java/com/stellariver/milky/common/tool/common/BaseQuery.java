@@ -2,7 +2,6 @@ package com.stellariver.milky.common.tool.common;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 
@@ -10,6 +9,11 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public abstract class BaseQuery<ID, T> {
+
+    /**
+     * 全局开关，在每一个线程入口处，需要主动打开cache的开关，否则不会运行，当然如果主动打开了开关，那么自然也需要主动清理并关闭
+     */
+    static public ThreadLocal<Boolean> cacheSwitch = ThreadLocal.withInitial(() -> false);
 
     private final ThreadLocal<Cache<ID, T>> threadLocal = ThreadLocal.withInitial(
             () -> CacheBuilder.newBuilder()
@@ -23,7 +27,7 @@ public abstract class BaseQuery<ID, T> {
     public Map<ID, T> queryMapByIdsNotAllowLost(Set<ID> ids) {
         Map<ID, T> idtMap = queryMapByIds(ids);
         SysException.trueThrowGet(!Kit.eq(idtMap.size(), ids.size()),
-                () -> ErrorEnum.NOT_ALLOW_LOST.message(Collect.diff(ids, idtMap.keySet())));
+                () -> ErrorEnumBase.NOT_ALLOW_LOST.message(Collect.diff(ids, idtMap.keySet())));
         return idtMap;
     }
 
@@ -33,7 +37,7 @@ public abstract class BaseQuery<ID, T> {
             return mapResult;
         }
         Cache<ID, T> cache = threadLocal.get();
-        if (getCacheConfiguration().isEnable()) {
+        if (getCacheConfiguration().isEnable() && Boolean.TRUE.equals(cacheSwitch.get())) {
             Set<ID> cacheKeys = Collect.inter(ids, cache.asMap().keySet());
             for (ID cacheKey : cacheKeys) {
                 mapResult.put(cacheKey, cache.getIfPresent(cacheKey));
@@ -45,7 +49,7 @@ public abstract class BaseQuery<ID, T> {
         }
 
         Map<ID, T> rpcResultMap = queryMapByIdsFilterEmptyIdsAfterCache(ids);
-        if (getCacheConfiguration().isEnable()) {
+        if (getCacheConfiguration().isEnable() && Boolean.TRUE.equals(cacheSwitch.get())) {
             cache.putAll(rpcResultMap);
         }
         mapResult.putAll(rpcResultMap);
