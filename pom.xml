@@ -25,7 +25,7 @@
     <properties>
         <!--if you need change this project version, you need change this number and the -->
         <!--same properties in milky-dependencies/pom.xml-->
-        <revision>0.0.5-SNAPSHOT</revision>
+        <revision>0.0.5</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <maven.deploy.skip>true</maven.deploy.skip>
