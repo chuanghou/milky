@@ -1,6 +1,7 @@
 package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.*;
+import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -71,6 +72,8 @@ public class CommandBus {
 
     private final boolean enableMq;
 
+    private final boolean memoryTransaction;
+
     private final TraceRepository traceRepository;
 
     private final AsyncExecutor asyncExecutor;
@@ -88,6 +91,7 @@ public class CommandBus {
         this.eventBus = eventBus;
         this.enableMq = milkyConfiguration.isEnableMq();
         this.reflections = milkySupport.getReflections();
+        this.memoryTransaction = milkyConfiguration.isMemoryTransaction();
 
         prepareCommandHandlers();
 
@@ -265,6 +269,10 @@ public class CommandBus {
         });
     }
 
+    static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters,
+                                                    Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+        return instance.doSend(command, parameters, aggregateIdMap);
+    }
 
     static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters) {
         return instance.doSend(command, parameters);
@@ -278,16 +286,18 @@ public class CommandBus {
         return instance.daoWrappersMap.get(clazz);
     }
 
+    private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters) {
+        return doSend(command, parameters, null);
+    }
     /**
      * 针对应用层调用的命令总线接口
      * @param command 外部命令
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters) {
+    private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
-        Context context = Context.build(parameters);
-        Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
+        Context context = Context.build(parameters, aggregateIdMap);
         tLContext.set(context);
         Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
@@ -295,24 +305,26 @@ public class CommandBus {
         try {
             result = route(command);
             eventBus.preFinalRoute(context.getFinalRouteEvents(), context);
-            if (command.openTransaction()) {
+            if (memoryTransaction && command.openTransaction()) {
                 transactionSupport.begin();
             }
             Map<Class<?>, Set<Object>> createdAggregateIds = context.getCreatedAggregateIds();
             Map<Class<?>, Set<Object>> changedAggregateIds = context.getChangedAggregateIds();
-            doMap.forEach((dataObjectClazz, map) -> {
-                DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
-                map.forEach((id, dataObject) -> {
-                    Object primaryId = ((BaseDataObject<?>) dataObject).getPrimaryId();
+            Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
+            if (memoryTransaction) {
+                doMap.forEach((dataObjectClazz, map) -> {
+                    DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
+                    Set<Object> doPrimaryIds = map.keySet();
                     Set<Object> created = createdAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
                     Set<Object> changed = changedAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
-                    if (created.contains(primaryId)) {
-                        daoWrapper.saveWrapper(dataObject);
-                    } else if (changed.contains(primaryId)) {
-                        daoWrapper.updateWrapper(dataObject);
-                    }
+                    Set<Object> createdPrimaryIds = Collect.inter(doPrimaryIds, created);
+                    Set<Object> changedPrimaryIds = Collect.diff(Collect.inter(doPrimaryIds, changed), createdPrimaryIds);
+                    List<Object> createdDataObjects = createdPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
+                    List<Object> changedDataObjects = changedPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
+                    daoWrapper.batchSaveWrapper(createdDataObjects);
+                    daoWrapper.batchUpdateWrapper(changedDataObjects);
                 });
-            });
+            }
             eventBus.postFinalRoute(context.getFinalRouteEvents(), context);
             List<MessageRecord> messageRecords = context.getMessageRecords();
             asyncExecutor.submit(() -> {
@@ -320,7 +332,7 @@ public class CommandBus {
                 traceRepository.batchInsert(messageRecords, context);
             });
         } catch (Throwable throwable) {
-            if (command.openTransaction()) {
+            if (memoryTransaction && command.openTransaction()) {
                 transactionSupport.rollback();
             }
             List<MessageRecord> recordedMessages = context.getMessageRecords();
@@ -332,7 +344,7 @@ public class CommandBus {
         } finally {
             tLContext.remove();
         }
-        if (command.openTransaction()) {
+        if (command.openTransaction() && memoryTransaction) {
             transactionSupport.commit();
         }
         return result;
@@ -346,7 +358,7 @@ public class CommandBus {
     private <T extends Command> Object route(T command) {
         SysException.anyNullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());
-        SysException.nullThrow(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
+        SysException.nullThrowGet(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result = null;
         Context context = tLContext.get();
         String encryptionKey = UUID.randomUUID().toString();
@@ -419,9 +431,7 @@ public class CommandBus {
             aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
             aggregateStatus = AggregateStatus.CREATE;
         } else if (commandHandler.handlerType == INSTANCE_METHOD){
-            DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
-            Optional<?> optional = daoAdapter.getByAggregateIdOptional(aggregateId, context, daoWrapper);
-            aggregate = (AggregateRoot) optional.orElseThrow(() -> new SysException(AGGREGATE_NOT_EXISTED.message("aggregateId: " + aggregateId + " not exists!")));
+            aggregate = daoAdapter.getByAggregateId(aggregateId, context);
             List<Interceptor> interceptors = beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
             for (Interceptor interceptor : interceptors) { interceptor.invoke(command, aggregate, context); }
             result = commandHandler.invoke(aggregate, command, context);
@@ -433,14 +443,26 @@ public class CommandBus {
         Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
         Object temp = Kit.op(doMap.get(dataObjectClazz)).map(map -> map.get(primaryId)).orElse(null);
         BaseDataObject<?> baseDataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
-        if (aggregateStatus == AggregateStatus.CREATE) {
-            createdAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
-        } else if (aggregateStatus == AggregateStatus.UPDATE) {
-            changedAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
-        }
         DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
         BaseDataObject<?> merge = daoWrapper.mergeWrapper(baseDataObject, temp);
-        doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>()).put(primaryId, merge);
+        if (memoryTransaction) {
+            doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>()).put(primaryId, merge);
+        } else {
+            Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
+        }
+        if (aggregateStatus == AggregateStatus.CREATE) {
+            if (memoryTransaction) {
+                createdAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+            } else {
+                daoWrapper.batchSaveWrapper(Collect.asList(merge));
+            }
+        } else if (aggregateStatus == AggregateStatus.UPDATE) {
+            if (memoryTransaction) {
+                changedAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+            } else {
+                daoWrapper.batchUpdateWrapper(Collect.asList(merge));
+            }
+        }
         List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
         for (Interceptor interceptor : interceptors) {interceptor.invoke(command, aggregate, context);}
         return result;

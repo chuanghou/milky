@@ -43,6 +43,7 @@ public class TableStoreTool {
 
     @Nullable
     @SneakyThrows
+    @SuppressWarnings("all")
     private static Query build(Field field, Object queryVO) {
         TSSearch annotation = field.getAnnotation(TSSearch.class);
         if (annotation == null || annotation.index() == null) {

@@ -60,20 +60,20 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
         List<DataObjectInfo> dataObjectInfos = Collect.transfer(aggregateIds, this::dataObjectInfo);
         Map<? extends Class<? extends BaseDataObject<?>>, Set<Object>> clazzPrimaryIdMap =
                 Collect.groupSet(dataObjectInfos, DataObjectInfo::getClazz, DataObjectInfo::getPrimaryId);
+
         Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
-        Set<? extends Pair<? extends Class<? extends BaseDataObject<?>>, Set<Object>>> params = clazzPrimaryIdMap
+        Set<Pair<? extends Class<? extends BaseDataObject<?>>, Set<Object>>> params = clazzPrimaryIdMap
                 .entrySet().stream().map(entry -> {
                     Map<Object, Object> clazzDoMap = doMap.getOrDefault(entry.getKey(), new HashMap<>());
                     Set<Object> lostPrimaryIds = Collect.diff(entry.getValue(), clazzDoMap.keySet());
                     return Pair.of(entry.getKey(), lostPrimaryIds);
                 }).filter(pair -> Collect.isNotEmpty(pair.getRight())).collect(Collectors.toSet());
-        AsyncExecutor asyncExecutor = BeanUtil.getBean(AsyncExecutor.class);
-        Map<? extends Pair<? extends Class<? extends BaseDataObject<?>>, Set<Object>>, HashMap<Object, Object>> doResultMap
-                = ConcurrentTool.batchCall(params, param -> {
-                        DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = CommandBus.getDaoWrapper(param.getKey());
-                        return daoWrapper.batchGetByPrimaryIdWrapper(param.getRight());
-                    }, asyncExecutor);
-        doResultMap.forEach((k, v) -> doMap.computeIfAbsent(k.getLeft(), c -> new HashMap<>()).putAll(v));
+
+        params.forEach(param -> {
+            DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = CommandBus.getDaoWrapper(param.getKey());
+            Map<Object, Object> clazzResultMap = daoWrapper.batchGetByPrimaryIdsWrapper(param.getRight());
+            doMap.computeIfAbsent(param.getKey(), c -> new HashMap<>()).putAll(clazzResultMap);
+        });
         Map<String, Aggregate> resultMap = new HashMap<>();
         aggregateIds.forEach(aggregateId -> {
             DataObjectInfo dataObjectInfo = dataObjectInfo(aggregateId);
@@ -84,5 +84,4 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
         });
         return resultMap;
     }
-
 }

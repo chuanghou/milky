@@ -1,7 +1,10 @@
 package com.stellariver.milky.domain.support.context;
 
 
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.SysException;
+import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.domain.support.ErrorEnum;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
@@ -90,10 +93,18 @@ public class Context{
     }
 
     public static Context build(Map<NameType<?>, Object> parameters) {
+        return build(parameters, null);
+    }
+
+    public static Context build(Map<NameType<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Context context = new Context();
         context.invocationId = BeanUtil.getBean(IdBuilder.class).build();
         context.parameters.putAll(parameters);
         context.metaData.putAll(parameters);
+        Kit.op(aggregateIdMap).orElseGet(HashMap::new).forEach((aggregateClazz, aggregateIdSet) -> {
+            AggregateDaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(aggregateClazz);
+            daoAdapter.batchGetByAggregateIds(aggregateIdSet, context);
+        });
         return context;
     }
 
@@ -101,15 +112,22 @@ public class Context{
         return invocationId;
     }
 
-    public Optional<? extends AggregateRoot> getByAggregateIdOptional(Class<? extends AggregateRoot> clazz, String aggregateId) {
-        AggregateDaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(clazz);
-        return daoAdapter.getByAggregateIdOptional(aggregateId, this);
+    public <Aggregate extends AggregateRoot> Optional<Aggregate> getByAggregateIdOptional(Class<Aggregate> clazz, String aggregateId) {
+        Aggregate aggregate = batchGetByAggregateIds(clazz, Collect.asSet(aggregateId)).get(aggregateId);
+        return Kit.op(aggregate);
     }
 
-    public AggregateRoot getByAggregateId(Class<? extends AggregateRoot> clazz, String aggregateId) {
-        AggregateDaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(clazz);
-        return daoAdapter.getByAggregateId(aggregateId, this);
+    public <Aggregate extends AggregateRoot> Aggregate getByAggregateId(Class<Aggregate> clazz, String aggregateId) {
+        Aggregate aggregate = batchGetByAggregateIds(clazz, Collect.asSet(aggregateId)).get(aggregateId);
+        return Kit.op(aggregate).orElseThrow(() -> new SysException(ErrorEnum.AGGREGATE_NOT_EXISTED));
     }
+
+    @SuppressWarnings("unchecked")
+    public <Aggregate extends AggregateRoot> Map<String, Aggregate> batchGetByAggregateIds(Class<Aggregate> clazz, Set<String> aggregateIds) {
+        AggregateDaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(clazz);
+        return (Map<String, Aggregate>) daoAdapter.batchGetByAggregateIds(aggregateIds, this);
+    }
+
 }
 
 
