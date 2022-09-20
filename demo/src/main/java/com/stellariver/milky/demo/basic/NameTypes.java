@@ -38,8 +38,10 @@ public class NameTypes {
         return Json.toJson(init.getMap());
     }
 
-    static public Map<NameType<?>, Object> deSerialize(String nameTypeStringMap) {
-        Map<String, String> stringMap = Json.parseMap(nameTypeStringMap, String.class, String.class);
+    @SuppressWarnings("all")
+    static public Map<NameType<?>, Object> deSerialize(String value) {
+        Map<String, String> stringMap = Json.parseMap(value, String.class, String.class);
+        SysException.nullThrow(stringMap);
         Map<NameType<?>, Object> map = new HashMap<>();
         stringMap.forEach((k, v) -> {
             NameType<?> nameType = nameTypeMap.get(k);

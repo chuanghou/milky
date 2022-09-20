@@ -29,5 +29,4 @@ public class ErrorEnumBase {
 
     public static final Error SYSTEM_EXCEPTION = Error.code("SYSTEM_EXCEPTION");
 
-
 }

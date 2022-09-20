@@ -1,6 +1,9 @@
 package com.stellariver.milky.common.tool.util;
 
 import com.google.common.collect.Sets;
+import com.stellariver.milky.common.tool.common.ErrorEnumBase;
+import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.common.SysException;
 
 import java.util.*;
 import java.util.function.Function;
@@ -58,20 +61,25 @@ public class Collect {
     }
 
     public static <K, V> Map<K, List<V>> merge(Map<K, List<V>> map1, Map<K, V> map2) {
-        map1 = Optional.ofNullable(map1).orElse(new HashMap<>());
-        map2 = Optional.ofNullable(map2).orElse(new HashMap<>());
+        map1 = Kit.op(map1).orElse(new HashMap<>());
+        map2 = Kit.op(map2).orElse(new HashMap<>());
         HashMap<K, List<V>> map = new HashMap<>(map1);
         map2.forEach((key, value) -> map.computeIfAbsent(key, k -> new ArrayList<>()).add(value));
         return map;
     }
+    public static <K, V> Map<K, V> mergeMightException(Map<K, V> map0, Map<K, V> map1) {
+        map0 = Kit.op(map0).orElseGet(HashMap::new);
+        map1 = Kit.op(map1).orElseGet(HashMap::new);
+        Set<K> inter = Collect.inter(map0.keySet(), map1.keySet());
+        SysException.trueThrowGet(Collect.isNotEmpty(inter), () -> ErrorEnumBase.MERGE_EXCEPTION);
+        HashMap<K, V> resultMap = new HashMap<>(map0);
+        resultMap.putAll(map1);
+        return resultMap;
+    }
 
-    /**
-     * 相比于map接口提供的那个merge函数，只能说有点意思吧，那么其实是利用旧值和和新值合并生成一个值，
-     * 但是相比我这里的不是特别直观，用来统计数据，确实比较合适
-     */
     public static <K, V> Map<K, V> subPriorMerge(Map<K, V> supMap, Map<K, V> subMap) {
-        supMap = Optional.ofNullable(supMap).orElse(new HashMap<>());
-        subMap = Optional.ofNullable(subMap).orElse(new HashMap<>());
+        supMap = Kit.op(supMap).orElseGet(HashMap::new);
+        subMap = Kit.op(subMap).orElseGet(HashMap::new);
         HashMap<K, V> map = new HashMap<>(supMap);
         map.putAll(subMap);
         return map;
@@ -147,20 +155,20 @@ public class Collect {
     }
 
     public static <T> Set<T> diff(Collection<T> collection1, Collection<T> collection2) {
-        Set<T> set1 = Optional.ofNullable(collection1).map(HashSet::new).orElseGet(HashSet::new);
-        Set<T> set2 = Optional.ofNullable(collection2).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
         return Sets.difference(set1, set2);
     }
 
     public static <T> Set<T> inter(Collection<T> collection1, Collection<T> collection2) {
-        Set<T> set1 = Optional.ofNullable(collection1).map(HashSet::new).orElseGet(HashSet::new);
-        Set<T> set2 = Optional.ofNullable(collection2).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set2 =Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
         return Sets.intersection(set1, set2);
     }
 
     public static <T> Set<T> symmetric(Collection<T> collection1, Collection<T> collection2) {
-        Set<T> set1 = Optional.ofNullable(collection1).map(HashSet::new).orElseGet(HashSet::new);
-        Set<T> set2 = Optional.ofNullable(collection2).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
         return Sets.symmetricDifference(set1, set2);
     }
 

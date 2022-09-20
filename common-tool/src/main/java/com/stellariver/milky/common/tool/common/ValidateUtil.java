@@ -1,6 +1,5 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.tool.util.Collect;
 
 import javax.validation.ConstraintViolation;
@@ -50,9 +49,9 @@ public class ValidateUtil {
             StringBuilder errorMsg = new StringBuilder();
             validateResult.forEach(validate -> errorMsg.append(validate.getPropertyPath()).append(validate.getMessage()).append(";"));
             if (type == ExceptionType.BIZ) {
-                throw new BizException(ErrorEnum.PARAM_FORMAT_WRONG.message(errorMsg.toString()));
+                throw new BizException(ErrorEnumBase.PARAM_FORMAT_WRONG.message(errorMsg.toString()));
             } else {
-                throw new SysException(ErrorEnum.PARAM_FORMAT_WRONG.message(errorMsg.toString()));
+                throw new SysException(ErrorEnumBase.PARAM_FORMAT_WRONG.message(errorMsg.toString()));
             }
         }
     }

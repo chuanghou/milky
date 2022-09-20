@@ -74,7 +74,7 @@ abstract public class AbstractMapJobProcessor<T> extends MapJobProcessor {
 
     abstract public void processTask (T t, ScheduleParam param) throws InterruptedException;
 
-    public void whenFail (T t, ScheduleParam param, Throwable throwable){}
+    public void whenFail (T t, ScheduleParam param, Throwable throwable) {}
 
     public ScheduleConfig getScheduleConfig() {
         throw new SysException("It should be implemented by its sub class!");

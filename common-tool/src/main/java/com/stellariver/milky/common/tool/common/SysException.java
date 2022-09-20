@@ -1,7 +1,6 @@
 package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.base.Error;
-import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.tool.util.Json;
 
 import java.util.*;
@@ -46,7 +45,7 @@ public class SysException extends BaseException {
         }
     }
 
-    static public void nullThrow(Object param, Supplier<Error> supplier) {
+    static public void nullThrowGet(Object param, Supplier<Error> supplier) {
         if (param == null) {
             throw new SysException(supplier.get());
         }
