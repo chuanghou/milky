@@ -1,7 +1,7 @@
 -- auto-generated definition
 create table id_builder
 (
-    id         bigint auto_increment,
+    id bigint auto_increment,
     name_space varchar(50) not null,
     constraint id_builder_id_uindex
         unique (id)
@@ -30,15 +30,31 @@ alter table invocation_store
 -- auto-generated definition
 create table item
 (
-    item_id bigint auto_increment,
+    item_id bigint not null,
     title   varchar(100) not null,
-    seller_id   bigint not null,
+    user_id   bigint not null,
     user_name   varchar(100) not null,
+    amount bigint not null,
+    store_code varchar(100),
     constraint item_item_id_uindex
         unique (item_id)
 );
 
 alter table item
+    add primary key (item_id);
+
+
+-- auto-generated definition
+create table inventory
+(
+    item_id bigint not null,
+    amount bigint not null,
+    store_code varchar(100),
+    constraint inventory_item_id_uindex
+        unique (item_id)
+);
+
+alter table inventory
     add primary key (item_id);
 
 

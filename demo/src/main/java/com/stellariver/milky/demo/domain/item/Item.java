@@ -43,6 +43,7 @@ public class Item extends AggregateRoot {
         this.title = command.getTitle();
         this.userId = command.getUserId();
         this.amount = command.getAmount();
+        this.storeCode = command.getStoreCode();
         UserInfo userInfo = NameTypes.userInfo.extractFrom(context.getDependencies());
         this.userName = userInfo.getUserName();
         context.publish(ItemCreatedEvent.builder().itemId(itemId).title(title).build());

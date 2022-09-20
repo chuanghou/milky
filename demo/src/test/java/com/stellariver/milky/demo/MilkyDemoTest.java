@@ -36,7 +36,9 @@ public class MilkyDemoTest {
 
     @Test
     public void publishItemDOTest() {
-        ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品").userId(10086L).amount(0L).build();
+        ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
+                .userId(10086L).amount(0L).storeCode("")
+                .build();
         HashMap<NameType<?>, Object> parameters = new HashMap<>();
         parameters.put(NameTypes.employee, new Employee("110", "小明"));
         CommandBus.accept(itemCreateCommand, parameters);

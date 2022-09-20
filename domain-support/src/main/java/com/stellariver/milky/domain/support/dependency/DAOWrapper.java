@@ -19,7 +19,10 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
         for (Field field : obj.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             Object o = field.get(obj);
-            SysException.nullThrowGet(o, () -> ErrorEnumBase.FIELD_IS_NULL);
+            SysException.nullThrowGet(o, () -> {
+                String message = String.format("class %s, field %s", obj.getClass().getSimpleName(), field.getName());
+                return ErrorEnumBase.FIELD_IS_NULL.message(message);
+            });
         }
     }
 
