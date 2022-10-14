@@ -1,9 +1,9 @@
 package com.stellariver.milky.demo.infrastructure.database;
 
 import org.h2.tools.Server;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
@@ -11,8 +11,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 
 @Configuration
-@MapperScan("com.stellariver.milky.demo.infrastructure.database")
-public class MybatisPlusConfiguration {
+public class H2Configuration {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public Server h2WebServer() throws SQLException {
@@ -31,4 +30,5 @@ public class MybatisPlusConfiguration {
                 .addScripts("h2/schema.sql")
                 .build();
     }
+
 }
