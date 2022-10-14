@@ -11,18 +11,19 @@ import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.domain.support.base.NameType;
 import com.stellariver.milky.domain.support.command.CommandBus;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import lombok.CustomLog;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = MilkyDemoApplication.class)
+@CustomLog
+@Transactional
+@SpringBootTest
 public class MilkyDemoTest {
 
     @Autowired
@@ -31,11 +32,9 @@ public class MilkyDemoTest {
     @Autowired
     ItemRepository itemRepository;
 
-    @Autowired
-    ApplicationContext applicationContext;
-
     @Test
     public void publishItemDOTest() {
+        log.arg0("test0").info("Tag", new RuntimeException("sdfsdfsdfdsfdsadsad"));
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
                 .build();
@@ -43,19 +42,19 @@ public class MilkyDemoTest {
         parameters.put(NameTypes.employee, new Employee("110", "小明"));
         CommandBus.accept(itemCreateCommand, parameters);
         Item item = itemRepository.queryById(1L);
-        Assert.assertNotNull(item);
+        Assertions.assertNotNull(item);
         Inventory inventory = inventoryRepository.queryById(1L);
-        Assert.assertNotNull(inventory);
-        Assert.assertEquals(item.getStoreCode(), inventory.getStoreCode());
-        Assert.assertEquals(item.getAmount(), inventory.getAmount());
+        Assertions.assertNotNull(inventory);
+        Assertions.assertEquals(item.getStoreCode(), inventory.getStoreCode());
+        Assertions.assertEquals(item.getAmount(), inventory.getAmount());
         InventoryUpdateCommand command = InventoryUpdateCommand.builder().itemId(1L).updateAmount(100L).build();
         CommandBus.accept(command, parameters);
         item = itemRepository.queryById(1L);
-        Assert.assertNotNull(item);
-        Assert.assertEquals(100L, (long) item.getAmount());
+        Assertions.assertNotNull(item);
+        Assertions.assertEquals(100L, (long) item.getAmount());
         inventory = inventoryRepository.queryById(1L);
-        Assert.assertNotNull(inventory);
-        Assert.assertEquals(100L, (long) inventory.getAmount());
+        Assertions.assertNotNull(inventory);
+        Assertions.assertEquals(100L, (long) inventory.getAmount());
     }
 
 }
