@@ -3,7 +3,7 @@ package com.stellariver.milky.demo.adapter.repository;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
-import com.stellariver.milky.demo.infrastructure.database.enitity.ItemDO;
+import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

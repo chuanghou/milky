@@ -12,18 +12,6 @@ import org.springframework.core.io.ClassPathResource;
 public class MilkyDemoApplication {
 
     public static void main(String[] args) {
-
         SpringApplication.run(MilkyDemoApplication.class, args);
-
-        ClassPathResource classPathResource = new ClassPathResource("");
-
-        DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory();
-
-        XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
-
-        int i = xmlBeanDefinitionReader.loadBeanDefinitions(classPathResource);
-
-
-
     }
 }

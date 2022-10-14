@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.infrastructure.database.enitity;
+package com.stellariver.milky.demo.infrastructure.database.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
