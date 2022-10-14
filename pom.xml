@@ -273,7 +273,7 @@
                 <configuration>
                     <!-- 这个argLine会报红，但不能删除jacoco生成报告用的占位符，见jacoco里的propertyName，默认是argLine -->
                     <!--suppress UnresolvedMavenProperty -->
-                    <argLine>${argLine} -Dfile.encoding=UTF8</argLine>
+                    <argLine>${argLine} -Dfile.encoding=UTF-8</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -295,7 +295,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.1.0</version>
+                <version>1.2.7</version>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <flattenMode>resolveCiFriendliesOnly</flattenMode>
@@ -320,10 +320,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>verify</phase>
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
