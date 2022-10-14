@@ -3,7 +3,11 @@ create table id_builder
 (
     id bigint auto_increment,
     name_space varchar(50) not null,
-    constraint id_builder_id_uindex
+    version bigint not null,
+    deleted bigint not null,
+    gmt_create datetime not null,
+    gmt_modified datetime not null,
+    constraint id_builder_id_uk_index
         unique (id)
 );
 
@@ -19,7 +23,11 @@ create table invocation_store
     operator_name varchar(20) not null,
     operator_source varchar(50) not null,
     success tinyint not null,
-    constraint invocation_store_id_uindex
+    version bigint not null,
+    deleted bigint not null,
+    gmt_create datetime not null,
+    gmt_modified datetime not null,
+    constraint invocation_store_id_uk_index
         unique (id)
 );
 
@@ -36,7 +44,11 @@ create table item
     user_name   varchar(100) not null,
     amount bigint not null,
     store_code varchar(100),
-    constraint item_item_id_uindex
+    version bigint not null,
+    deleted bigint not null,
+    gmt_create datetime not null,
+    gmt_modified datetime not null,
+    constraint item_item_id_uk_index
         unique (item_id)
 );
 
@@ -50,7 +62,11 @@ create table inventory
     item_id bigint not null,
     amount bigint not null,
     store_code varchar(100),
-    constraint inventory_item_id_uindex
+    version bigint not null,
+    deleted bigint not null,
+    gmt_create datetime not null,
+    gmt_modified datetime not null,
+    constraint inventory_item_id_uk_index
         unique (item_id)
 );
 
@@ -66,7 +82,11 @@ create table message_store
     trigger_id    bigint       not null,
     class_name    varchar(200) null,
     invocation_id bigint       not null,
-    constraint message_store_id_uindex
+    version bigint not null,
+    deleted bigint not null,
+    gmt_create datetime not null,
+    gmt_modified datetime not null,
+    constraint message_store_id_uk_index
         unique (id)
 );
 
