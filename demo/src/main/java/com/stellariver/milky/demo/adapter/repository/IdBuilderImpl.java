@@ -1,8 +1,8 @@
 package com.stellariver.milky.demo.adapter.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.stellariver.milky.demo.infrastructure.database.IdBuilderDO;
-import com.stellariver.milky.demo.infrastructure.database.IdBuilderMapper;
+import com.stellariver.milky.demo.infrastructure.database.enitity.IdBuilderDO;
+import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

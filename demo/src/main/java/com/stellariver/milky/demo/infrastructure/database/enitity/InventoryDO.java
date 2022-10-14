@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.infrastructure.database;
+package com.stellariver.milky.demo.infrastructure.database.enitity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -11,18 +11,12 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("item")
+@TableName("inventory")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemDO implements BaseDataObject<Long> {
+public class InventoryDO implements BaseDataObject<Long> {
 
     @TableId(type = IdType.INPUT)
     Long itemId;
-
-    String title;
-
-    Long userId;
-
-    String userName;
 
     Long amount;
 

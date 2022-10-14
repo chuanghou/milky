@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.infrastructure.database;
+package com.stellariver.milky.demo.infrastructure.database.enitity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -6,23 +6,19 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.awt.*;
+
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("message_store")
-public class MessageStoreDO {
+@TableName("id_builder")
+public class IdBuilderDO {
 
-    @TableId(type = IdType.INPUT)
+    @TableId(type = IdType.AUTO)
     Long id;
 
-    String aggregateId;
-
-    Long invocationId;
-
-    Long triggerId;
-
-    String className;
+    String nameSpace;
 
 }

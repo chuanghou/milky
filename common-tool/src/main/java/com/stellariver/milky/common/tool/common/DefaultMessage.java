@@ -6,6 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DefaultMessage {
 
-    String value() default "";
+    String value();
 
 }

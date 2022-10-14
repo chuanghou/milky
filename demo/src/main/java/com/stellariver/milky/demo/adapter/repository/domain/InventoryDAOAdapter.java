@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
 import com.stellariver.milky.demo.domain.inventory.Inventory;
-import com.stellariver.milky.demo.infrastructure.database.InventoryDO;
+import com.stellariver.milky.demo.infrastructure.database.enitity.InventoryDO;
 import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
 import com.stellariver.milky.domain.support.dependency.DataObjectInfo;
 import lombok.AccessLevel;

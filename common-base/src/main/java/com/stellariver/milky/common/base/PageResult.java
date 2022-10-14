@@ -34,12 +34,7 @@ public class PageResult<T> extends Result<List<T>> {
     }
 
     public static <T> PageResult<T> pageError(Error error) {
-        PageResult<T> result = new PageResult<>();
-        result.success = false;
-        result.code = error.getCode();
-        result.message = error.getMessage();
-        result.errors = Collections.singletonList(error);
-        return result;
+        return pageError(Collections.singletonList(error));
     }
 
     public static <T> PageResult<T> pageError(List<Error> errors) {

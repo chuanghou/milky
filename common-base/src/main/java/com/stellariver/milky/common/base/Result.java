@@ -46,7 +46,7 @@ public class Result<T> implements Serializable {
         return "Result{" +
                 "success=" + success +
                 ", data=" + data +
-                ", errorCode='" + code + '\'' +
+                ", code='" + code + '\'' +
                 ", message='" + message + '\'' +
                 ", errors=" + errors +
                 '}';
