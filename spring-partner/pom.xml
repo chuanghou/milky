@@ -24,12 +24,12 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>domain-support</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.stellariver.milky</groupId>
-            <artifactId>common-tool</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 

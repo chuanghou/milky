@@ -6,16 +6,11 @@ import lombok.*;
 import java.util.List;
 import java.util.Map;
 
+@Data
 @EqualsAndHashCode(callSuper = true)
 public class ListNameType<V> extends NameType<List<V>> {
 
-    @Getter
-    private final Class<?> vClazz;
-
-    public ListNameType(String name, Class<?> vClazz) {
-        super(name, List.class);
-        this.vClazz = vClazz;
-    }
+    private Class<?> vClazz;
 
     @SuppressWarnings("unchecked")
     public List<V> extractFrom(Map<NameType<?>, Object> map) {

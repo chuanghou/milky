@@ -9,8 +9,6 @@ public class MilkyConfiguration {
 
     boolean enableMq;
 
-    boolean memoryTransaction;
-
     String[] scanPackages;
 
 }

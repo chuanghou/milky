@@ -7,7 +7,6 @@ import lombok.*;
 import java.util.Map;
 
 @Data
-@AllArgsConstructor
 public class NameType<T> {
 
     private String name;

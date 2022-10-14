@@ -28,8 +28,4 @@ abstract public class Command extends Message {
         return new long[]{100L, 300L};
     }
 
-    public boolean openTransaction() {
-        return false;
-    }
-
 }

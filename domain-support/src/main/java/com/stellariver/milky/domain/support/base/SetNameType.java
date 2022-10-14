@@ -6,16 +6,11 @@ import lombok.*;
 import java.util.Map;
 import java.util.Set;
 
+@Data
 @EqualsAndHashCode(callSuper = true)
 public class SetNameType<V> extends NameType<Set<V>> {
 
-    @Getter
-    private final Class<?> vClazz;
-
-    public SetNameType(String name, Class<?> vClazz) {
-        super(name, Set.class);
-        this.vClazz = vClazz;
-    }
+    private Class<?> vClazz;
 
     @SuppressWarnings("unchecked")
     public Set<V> extractFrom(Map<NameType<?>, Object> map) {

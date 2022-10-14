@@ -30,6 +30,9 @@ public class Context{
     private final Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = new HashMap<>();
 
     @Getter
+    private final Map<Long, Object> mvDataObjects = new HashMap<>();
+
+    @Getter
     private final Map<NameType<?>, Object> parameters = new HashMap<>();
 
     @Getter

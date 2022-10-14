@@ -9,8 +9,6 @@ public class MilkProperties {
 
     boolean enableMq = false;
 
-    boolean memoryTransaction = false;
-
     int corePoolSize = 20;
 
     int maximumPoolSize = 50;

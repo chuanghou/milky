@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo.adapter.repository;
 
+import com.stellariver.milky.common.tool.common.ThreadLocalCacheConfiguration;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
+@ThreadLocalCacheConfiguration
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemRepositoryImpl extends ItemRepository {
 

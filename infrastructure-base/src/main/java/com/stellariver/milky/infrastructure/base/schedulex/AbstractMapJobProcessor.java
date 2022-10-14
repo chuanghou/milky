@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 @CustomLog
-abstract public class AbstractMapJobProcessor<T> extends MapJobProcessor {
+abstract public class AbstractMapJobProcessor<T extends BaseScheduleData> extends MapJobProcessor {
 
     @Override
     public ProcessResult process(JobContext jobContext) throws InterruptedException {

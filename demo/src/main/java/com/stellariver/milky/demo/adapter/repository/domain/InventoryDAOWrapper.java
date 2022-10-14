@@ -1,6 +1,9 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
+import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.demo.basic.ErrorEnum;
 import com.stellariver.milky.demo.infrastructure.database.entity.InventoryDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.domain.support.dependency.DAOWrapper;
@@ -23,12 +26,18 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
 
     @Override
     public void batchSave(@NonNull List<InventoryDO> inventoryDOs) {
-        inventoryDOs.forEach(inventoryDOMapper::insert);
+        inventoryDOs.forEach(inventoryDO -> {
+            int count = inventoryDOMapper.insert(inventoryDO);
+            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnum.SYSTEM_EXCEPTION.message(inventoryDO));
+        });
     }
 
     @Override
     public void batchUpdate(@NonNull List<InventoryDO> inventoryDOs) {
-        inventoryDOs.forEach(inventoryDOMapper::updateById);
+        inventoryDOs.forEach(inventoryDO -> {
+            int count = inventoryDOMapper.updateById(inventoryDO);
+            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnum.SYSTEM_EXCEPTION.message(inventoryDO));
+        });
     }
 
     @Override

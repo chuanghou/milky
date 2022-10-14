@@ -7,16 +7,10 @@ import java.util.List;
 
 public interface TraceRepository {
 
-    default void batchInsert(List<MessageRecord> messages, Context context) {
-        batchInsert(messages, context, true);
+    default void record(Context context) {
+        record(context, true);
     }
 
-    void batchInsert(List<MessageRecord> messages, Context context, boolean success);
-
-    default void insert(Long invocationId, Context context) {
-        insert(invocationId, context, true);
-    }
-
-    void insert(Long invocationId, Context context, boolean success);
+    void record(Context context, boolean success);
 
 }

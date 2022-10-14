@@ -50,7 +50,7 @@ public class CommandBus {
                     && AggregateRoot.class.isAssignableFrom(parameterTypes[1])
                     && parameterTypes[2] == Context.class);
 
-    private static CommandBus instance;
+    volatile private static CommandBus instance;
 
     private static final ThreadLocal<Context> tLContext = ThreadLocal.withInitial(Context::new);
 
@@ -72,8 +72,6 @@ public class CommandBus {
 
     private final boolean enableMq;
 
-    private final boolean memoryTransaction;
-
     private final TraceRepository traceRepository;
 
     private final AsyncExecutor asyncExecutor;
@@ -81,6 +79,8 @@ public class CommandBus {
     private final Reflections reflections;
 
     private final TransactionSupport transactionSupport;
+
+    private final ThreadLocal<Boolean> memoryTxTL = ThreadLocal.withInitial(() -> false);
 
     public CommandBus(MilkySupport milkySupport, EventBus eventBus, MilkyConfiguration milkyConfiguration) {
 
@@ -91,7 +91,6 @@ public class CommandBus {
         this.eventBus = eventBus;
         this.enableMq = milkyConfiguration.isEnableMq();
         this.reflections = milkySupport.getReflections();
-        this.memoryTransaction = milkyConfiguration.isMemoryTransaction();
 
         prepareCommandHandlers();
 
@@ -103,8 +102,13 @@ public class CommandBus {
 
         prepareCommandInterceptors(milkySupport);
 
-        instance = this;
-
+        if (null == instance) {
+            synchronized (CommandBus.class) {
+                if (null == instance) {
+                    instance = this;
+                }
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -269,13 +273,29 @@ public class CommandBus {
         });
     }
 
+    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<NameType<?>, Object> parameters,
+                                                                       Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+        Object result;
+        instance.memoryTxTL.set(true);
+        try {
+            result = instance.doSend(command, parameters, aggregateIdMap);
+        } finally {
+            instance.memoryTxTL.set(false);
+        }
+        return result;
+    }
+
+    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<NameType<?>, Object> parameters) {
+        return acceptMemoryTransactional(command, parameters, null);
+    }
+
     static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters,
                                                     Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         return instance.doSend(command, parameters, aggregateIdMap);
     }
 
     static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters) {
-        return instance.doSend(command, parameters);
+        return accept(command, parameters, null);
     }
 
     static public AggregateDaoAdapter<? extends AggregateRoot> getDaoAdapter(Class<? extends AggregateRoot> clazz) {
@@ -302,16 +322,17 @@ public class CommandBus {
         Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
         command.setInvokeTrace(invokeTrace);
+        Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
         try {
             result = route(command);
             eventBus.preFinalRoute(context.getFinalRouteEvents(), context);
-            if (memoryTransaction && command.openTransaction()) {
+            if (memoryTx) {
                 transactionSupport.begin();
             }
             Map<Class<?>, Set<Object>> createdAggregateIds = context.getCreatedAggregateIds();
             Map<Class<?>, Set<Object>> changedAggregateIds = context.getChangedAggregateIds();
             Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
-            if (memoryTransaction) {
+            if (memoryTx) {
                 doMap.forEach((dataObjectClazz, map) -> {
                     DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
                     Set<Object> doPrimaryIds = map.keySet();
@@ -326,25 +347,17 @@ public class CommandBus {
                 });
             }
             eventBus.postFinalRoute(context.getFinalRouteEvents(), context);
-            List<MessageRecord> messageRecords = context.getMessageRecords();
-            asyncExecutor.submit(() -> {
-                traceRepository.insert(invocationId, context);
-                traceRepository.batchInsert(messageRecords, context);
-            });
+            asyncExecutor.submit(() -> traceRepository.record(context));
         } catch (Throwable throwable) {
-            if (memoryTransaction && command.openTransaction()) {
+            asyncExecutor.submit(() -> traceRepository.record(context, false));
+            if (memoryTx) {
                 transactionSupport.rollback();
             }
-            List<MessageRecord> recordedMessages = context.getMessageRecords();
-            asyncExecutor.submit(() -> {
-                traceRepository.insert(invocationId, context, false);
-                traceRepository.batchInsert(recordedMessages, context, false);
-            });
             throw throwable;
         } finally {
             tLContext.remove();
         }
-        if (command.openTransaction() && memoryTransaction) {
+        if (memoryTx) {
             transactionSupport.commit();
         }
         return result;
@@ -440,31 +453,37 @@ public class CommandBus {
         } else {
             throw new SysException("unreached part!");
         }
-        Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
-        Object temp = Kit.op(doMap.get(dataObjectClazz)).map(map -> map.get(primaryId)).orElse(null);
-        BaseDataObject<?> baseDataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
-        DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
-        BaseDataObject<?> merge = daoWrapper.mergeWrapper(baseDataObject, temp);
-        if (memoryTransaction) {
-            doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>()).put(primaryId, merge);
-        } else {
-            Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
-        }
-        if (aggregateStatus == AggregateStatus.CREATE) {
-            if (memoryTransaction) {
-                createdAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+        if (aggregateStatus != AggregateStatus.KEEP) {
+            Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
+            Object temp = Kit.op(doMap.get(dataObjectClazz)).map(map -> map.get(primaryId)).orElse(null);
+            context.getMvDataObjects().put(command.getId(), temp);
+            BaseDataObject<?> baseDataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
+            DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
+            BaseDataObject<?> merge = daoWrapper.mergeWrapper(baseDataObject, temp);
+            Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
+            if (memoryTx) {
+                doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>()).put(primaryId, merge);
             } else {
-                daoWrapper.batchSaveWrapper(Collect.asList(merge));
+                Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
             }
-        } else if (aggregateStatus == AggregateStatus.UPDATE) {
-            if (memoryTransaction) {
-                changedAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+            if (aggregateStatus == AggregateStatus.CREATE) {
+                if (memoryTx) {
+                    createdAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+                } else {
+                    daoWrapper.batchSaveWrapper(Collect.asList(merge));
+                }
             } else {
-                daoWrapper.batchUpdateWrapper(Collect.asList(merge));
+                if (memoryTx) {
+                    changedAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+                } else {
+                    daoWrapper.batchUpdateWrapper(Collect.asList(merge));
+                }
             }
         }
         List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
-        for (Interceptor interceptor : interceptors) {interceptor.invoke(command, aggregate, context);}
+        for (Interceptor interceptor : interceptors) {
+            interceptor.invoke(command, aggregate, context);
+        }
         return result;
     }
 

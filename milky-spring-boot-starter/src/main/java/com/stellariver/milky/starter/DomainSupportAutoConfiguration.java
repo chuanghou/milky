@@ -1,10 +1,7 @@
 package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.ErrorEnumBase;
 import com.stellariver.milky.common.tool.log.Logger;
-import com.stellariver.milky.domain.support.base.MessageRecord;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
@@ -19,6 +16,7 @@ import com.stellariver.milky.domain.support.util.AsyncExecutor;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.BeanUtil;
+import com.stellariver.milky.spring.partner.BeanLoaderImpl;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
@@ -38,45 +36,42 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     public MilkyConfiguration milkyConfiguration(MilkyScanPackages milkyScanPackages, MilkProperties milkProperties) {
-        return new MilkyConfiguration(milkProperties.enableMq, milkProperties.memoryTransaction, milkyScanPackages.getScanPackages());
+        return new MilkyConfiguration(milkProperties.enableMq, milkyScanPackages.getScanPackages());
     }
 
     @Bean
     public MilkySupport milkySupport(ConcurrentOperate concurrentOperate,
-                                        TraceRepository traceRepository,
-                                        @Autowired(required = false)
-                                        TransactionSupport transactionSupport,
-                                        AsyncExecutor asyncExecutor,
-                                        @Autowired(required = false)
-                                        List<DependencyPrepares> dependencyPrepares,
-                                        @Autowired(required = false)
-                                        List<Interceptors> interceptors,
-                                        @Autowired(required = false)
-                                        List<EventRouters> eventRouters,
-                                        @Autowired(required = false)
-                                        List<AggregateDaoAdapter<?>> daoAdapters,
-                                        @Autowired(required = false)
-                                        List<DAOWrapper<?, ?>> daoWrappers,
-                                        BeanLoader beanLoader,
-                                        MilkyConfiguration milkyConfiguration) {
+                                     TraceRepository traceRepository,
+                                     @Autowired(required = false)
+                                     TransactionSupport transactionSupport,
+                                     AsyncExecutor asyncExecutor,
+                                     @Autowired(required = false)
+                                     List<DependencyPrepares> dependencyPrepares,
+                                     @Autowired(required = false)
+                                     List<Interceptors> interceptors,
+                                     @Autowired(required = false)
+                                     List<EventRouters> eventRouters,
+                                     @Autowired(required = false)
+                                     List<AggregateDaoAdapter<?>> daoAdapters,
+                                     @Autowired(required = false)
+                                     List<DAOWrapper<?, ?>> daoWrappers,
+                                     BeanLoader beanLoader,
+                                     MilkyConfiguration milkyConfiguration) {
         ConfigurationBuilder configuration = new ConfigurationBuilder()
                 .forPackages(milkyConfiguration.getScanPackages())
                 .addScanners(new SubTypesScanner());
-        boolean match = milkyConfiguration.isMemoryTransaction() && transactionSupport == null;
-        BizException.trueThrow(match, ErrorEnumBase.CONFIG_ERROR.message("使能内存事务必须由应用层手动实现事务接口TransactionSupport接口"));
         Reflections reflections = new Reflections(configuration);
         return new MilkySupport(concurrentOperate,
-                                traceRepository,
-                                asyncExecutor,
-                                dependencyPrepares,
-                                interceptors,
-                                eventRouters,
-                                daoAdapters,
-                                daoWrappers,
-                                reflections,
-                                beanLoader,
-                                transactionSupport,
-                                milkyConfiguration.isMemoryTransaction());
+                traceRepository,
+                asyncExecutor,
+                dependencyPrepares,
+                interceptors,
+                eventRouters,
+                daoAdapters,
+                daoWrappers,
+                reflections,
+                beanLoader,
+                transactionSupport);
     }
 
 
@@ -120,12 +115,7 @@ public class DomainSupportAutoConfiguration {
     public TraceRepository traceRepository() {
         return new TraceRepository() {
             @Override
-            public void batchInsert(List<MessageRecord> messages, Context context, boolean success) {
-
-            }
-
-            @Override
-            public void insert(Long invocationId, Context context, boolean success) {
+            public void record(Context context, boolean success) {
 
             }
         };
