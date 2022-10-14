@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.infrastructure.redis;
+package com.stellariver.milky.infrastructure.base.redis;
 
 import com.stellariver.milky.common.tool.common.NameSpace;
 import com.stellariver.milky.common.tool.log.Logger;

@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.infrastructure.redis;
+package com.stellariver.milky.infrastructure.base.redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
