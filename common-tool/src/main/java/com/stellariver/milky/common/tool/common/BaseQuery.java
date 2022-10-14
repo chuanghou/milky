@@ -89,7 +89,7 @@ public abstract class BaseQuery<ID, T> {
         if (cacheConfig != null) {
             return cacheConfig;
         }
-        ThreadLocalCacheConfiguration annotation = this.getClass().getAnnotation(ThreadLocalCacheConfiguration.class);
+        TLCConfiguration annotation = this.getClass().getAnnotation(TLCConfiguration.class);
         SysException.nullThrow(annotation);
         cacheConfig =  CacheConfig.builder()
                 .maximumSize(annotation.maximumSize())
