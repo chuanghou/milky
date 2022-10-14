@@ -7,10 +7,12 @@ import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.DependencyKey;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
 
 @RequiredArgsConstructor
 public class ItemDependencyPrepare implements DependencyPrepares {
 
+    @Nullable
     final UserInfoRepository userInfoRepository;
 
     @DependencyKey("userInfo")

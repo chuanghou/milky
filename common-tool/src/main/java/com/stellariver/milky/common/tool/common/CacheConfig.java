@@ -12,11 +12,9 @@ import java.util.concurrent.TimeUnit;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CacheConfig {
 
-    boolean enable;
+    long maximumSize;
 
-    Long maximumSize;
-
-    Long expireAfterWrite;
+    long expireAfterWrite;
 
     TimeUnit timeUnit;
 

@@ -11,7 +11,7 @@ public class Result<T> implements Serializable {
 
     protected T data;
 
-    protected String errorCode;
+    protected String code;
 
     protected String message;
 
@@ -29,8 +29,8 @@ public class Result<T> implements Serializable {
         this.data = data;
     }
 
-    public String getErrorCode() {
-        return this.errorCode;
+    public String getCode() {
+        return this.code;
     }
 
     public String getMessage() {
@@ -46,7 +46,7 @@ public class Result<T> implements Serializable {
         return "Result{" +
                 "success=" + success +
                 ", data=" + data +
-                ", errorCode='" + errorCode + '\'' +
+                ", errorCode='" + code + '\'' +
                 ", message='" + message + '\'' +
                 ", errors=" + errors +
                 '}';
@@ -65,7 +65,7 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> error(Error error) {
         Result<T> result = new Result<>();
         result.success = false;
-        result.errorCode = error.getCode();
+        result.code = error.getCode();
         result.message = error.getMessage();
         result.errors = Collections.singletonList(error);
         return result;
@@ -74,7 +74,7 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> error(List<Error> errors) {
         Result<T> result = new Result<>();
         result.success = false;
-        result.errorCode = errors.get(0).getCode();
+        result.code = errors.get(0).getCode();
         result.message = errors.get(0).getMessage();
         result.errors = errors;
         return result;

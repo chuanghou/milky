@@ -1,6 +1,7 @@
 package com.stellariver.milky.common.tool.util;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,13 +14,12 @@ import java.util.Set;
 @Slf4j
 public class Json {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    static {
-        MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        MAPPER.configure(MapperFeature.AUTO_DETECT_FIELDS,true);
-    }
+    private static final JsonMapper MAPPER = JsonMapper.builder()
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .configure(MapperFeature.AUTO_DETECT_FIELDS, true)
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false)
+            .build();
 
     @SneakyThrows
     public static String toJson(Object target) {
@@ -72,6 +72,12 @@ public class Json {
     @SneakyThrows
     public static JsonNode toJsonNode(String json) {
         return MAPPER.readTree(json);
+    }
+
+    public static void main(String[] args) {
+        String s = "test";
+        String s1 = Json.toJson(s);
+        String s2 = Json.toJson(s1);
     }
 
 }

@@ -1,9 +1,12 @@
 package com.stellariver.milky.common.tool.util;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.stellariver.milky.common.tool.common.ErrorEnumBase;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.SysException;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -172,19 +175,24 @@ public class Collect {
         return Sets.symmetricDifference(set1, set2);
     }
 
-    public static boolean isEmpty(Map<?, ?> map) {
-        return map == null || map.isEmpty();
+    public static boolean isEmpty(Object object) {
+        return CollectionUtils.size(object) == 0;
     }
 
-    public static boolean isNotEmpty(Map<?, ?> map) {
-        return !isEmpty(map);
+    public static boolean isNotEmpty(Object object) {
+        return !isEmpty(object);
     }
 
-    public static boolean isEmpty(Collection<?> collection) {
-        return collection == null || collection.isEmpty();
+    public static int size(final Object object) {
+        return CollectionUtils.size(object);
     }
 
-    public static boolean isNotEmpty(Collection<?> collection) {
-        return !isEmpty(collection);
+    public <T> List<List<T>> partition(List<T> ts, int size) {
+        return Lists.partition(ts, size);
     }
+
+    public <K, V> V getV(Map<? super K, V> map, K key) {
+        return MapUtils.getObject(map, key);
+    }
+
 }
