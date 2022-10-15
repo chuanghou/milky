@@ -1,49 +1,1102 @@
-{"time":"2022-02-22 11:47:22.076","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"55","message":"Starting Application using Java 1.8.0_151 on ChuangHou-Mac-Pro with PID 49424 (/Users/houchuang/milky/example/target/classes started by houchuang in /Users/houchuang/milky)"}
-{"time":"2022-02-22 11:47:22.082","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"635","message":"No active profile set, falling back to default profiles: default"}
-{"time":"2022-02-22 11:47:22.820","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"108","message":"Tomcat initialized with port(s): 8080 (http)"}
-{"time":"2022-02-22 11:47:22.828","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardService","line":"173","message":"Starting service [Tomcat]"}
-{"time":"2022-02-22 11:47:22.829","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardEngine","line":"173","message":"Starting Servlet engine: [Apache Tomcat/9.0.56]"}
-{"time":"2022-02-22 11:47:22.892","level":"INFO","thread":"main","loggerClass":"o.a.c.c.C.[.[localhost].[/]","line":"173","message":"Initializing Spring embedded WebApplicationContext"}
-{"time":"2022-02-22 11:47:22.892","level":"INFO","thread":"main","loggerClass":"o.s.b.w.s.c.ServletWebServerApplicationContext","line":"290","message":"Root WebApplicationContext: initialization completed in 778 ms"}
-{"time":"2022-02-22 11:47:22.997","level":"INFO","thread":"main","loggerClass":"org.reflections.Reflections","line":"232","message":"Reflections took 25 ms to scan 1 urls, producing 17 keys and 18 values "}
-{"time":"2022-02-22 11:47:23.262","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"220","message":"Tomcat started on port(s): 8080 (http) with context path ''"}
-{"time":"2022-02-22 11:47:23.271","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"61","message":"Started Application in 1.628 seconds (JVM running for 2.143)"}
-{"time":"2022-02-22 11:47:29.386","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"o.a.c.c.C.[.[localhost].[/]","line":"173","message":"Initializing Spring DispatcherServlet 'dispatcherServlet'"}
-{"time":"2022-02-22 11:47:29.387","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"o.s.w.s.DispatcherServlet","line":"525","message":"Initializing Servlet 'dispatcherServlet'"}
-{"time":"2022-02-22 11:47:29.388","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"o.s.w.s.DispatcherServlet","line":"547","message":"Completed initialization in 1 ms"}
-{"time":"2022-02-22 11:47:29.535","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"c.s.m.e.domain.user.Student","line":"297","message":"message","grade":"730"}
-{"time":"2022-02-22 11:47:29.536","level":"INFO","thread":"http-nio-8080-exec-2","loggerClass":"c.s.m.e.domain.user.Student","line":"297","message":"message"}
-{"time":"2022-02-22 13:33:52.408","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"55","message":"Starting Application using Java 1.8.0_151 on ChuangHou-Mac-Pro with PID 51284 (/Users/houchuang/milky/example/target/classes started by houchuang in /Users/houchuang/milky)"}
-{"time":"2022-02-22 13:33:52.416","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"637","message":"No active profile set, falling back to default profiles: default"}
-{"time":"2022-02-22 13:33:53.369","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"108","message":"Tomcat initialized with port(s): 8080 (http)"}
-{"time":"2022-02-22 13:33:53.378","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardService","line":"173","message":"Starting service [Tomcat]"}
-{"time":"2022-02-22 13:33:53.379","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardEngine","line":"173","message":"Starting Servlet engine: [Apache Tomcat/9.0.56]"}
-{"time":"2022-02-22 13:33:53.447","level":"INFO","thread":"main","loggerClass":"o.a.c.c.C.[.[localhost].[/]","line":"173","message":"Initializing Spring embedded WebApplicationContext"}
-{"time":"2022-02-22 13:33:53.448","level":"INFO","thread":"main","loggerClass":"o.s.b.w.s.c.ServletWebServerApplicationContext","line":"290","message":"Root WebApplicationContext: initialization completed in 987 ms"}
-{"time":"2022-02-22 13:33:53.552","level":"INFO","thread":"main","loggerClass":"org.reflections.Reflections","line":"232","message":"Reflections took 25 ms to scan 1 urls, producing 21 keys and 22 values "}
-{"time":"2022-02-22 13:33:54.174","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"220","message":"Tomcat started on port(s): 8080 (http) with context path ''"}
-{"time":"2022-02-22 13:33:54.182","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"61","message":"Started Application in 2.561 seconds (JVM running for 3.177)"}
-{"time":"2022-02-22 13:35:22.110","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"55","message":"Starting Application using Java 1.8.0_151 on ChuangHou-Mac-Pro with PID 51343 (/Users/houchuang/milky/example/target/classes started by houchuang in /Users/houchuang/milky)"}
-{"time":"2022-02-22 13:35:22.115","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"637","message":"No active profile set, falling back to default profiles: default"}
-{"time":"2022-02-22 13:35:23.038","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"108","message":"Tomcat initialized with port(s): 8080 (http)"}
-{"time":"2022-02-22 13:35:23.046","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardService","line":"173","message":"Starting service [Tomcat]"}
-{"time":"2022-02-22 13:35:23.047","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardEngine","line":"173","message":"Starting Servlet engine: [Apache Tomcat/9.0.56]"}
-{"time":"2022-02-22 13:35:23.113","level":"INFO","thread":"main","loggerClass":"o.a.c.c.C.[.[localhost].[/]","line":"173","message":"Initializing Spring embedded WebApplicationContext"}
-{"time":"2022-02-22 13:35:23.113","level":"INFO","thread":"main","loggerClass":"o.s.b.w.s.c.ServletWebServerApplicationContext","line":"290","message":"Root WebApplicationContext: initialization completed in 966 ms"}
-{"time":"2022-02-22 13:35:23.198","level":"INFO","thread":"main","loggerClass":"org.reflections.Reflections","line":"232","message":"Reflections took 21 ms to scan 1 urls, producing 21 keys and 22 values "}
-{"time":"2022-02-22 13:35:23.933","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"220","message":"Tomcat started on port(s): 8080 (http) with context path ''"}
-{"time":"2022-02-22 13:35:23.947","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"61","message":"Started Application in 2.247 seconds (JVM running for 2.663)"}
-{"time":"2022-02-22 13:46:20.780","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"55","message":"Starting Application using Java 1.8.0_151 on ChuangHou-Mac-Pro with PID 51834 (/Users/houchuang/milky/example/target/classes started by houchuang in /Users/houchuang/milky)"}
-{"time":"2022-02-22 13:46:20.788","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"637","message":"No active profile set, falling back to default profiles: default"}
-{"time":"2022-02-22 13:46:21.775","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"108","message":"Tomcat initialized with port(s): 8080 (http)"}
-{"time":"2022-02-22 13:46:21.784","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardService","line":"173","message":"Starting service [Tomcat]"}
-{"time":"2022-02-22 13:46:21.784","level":"INFO","thread":"main","loggerClass":"o.a.c.core.StandardEngine","line":"173","message":"Starting Servlet engine: [Apache Tomcat/9.0.56]"}
-{"time":"2022-02-22 13:46:21.856","level":"INFO","thread":"main","loggerClass":"o.a.c.c.C.[.[localhost].[/]","line":"173","message":"Initializing Spring embedded WebApplicationContext"}
-{"time":"2022-02-22 13:46:21.856","level":"INFO","thread":"main","loggerClass":"o.s.b.w.s.c.ServletWebServerApplicationContext","line":"290","message":"Root WebApplicationContext: initialization completed in 1020 ms"}
-{"time":"2022-02-22 13:46:21.956","level":"INFO","thread":"main","loggerClass":"org.reflections.Reflections","line":"232","message":"Reflections took 23 ms to scan 1 urls, producing 21 keys and 22 values "}
-{"time":"2022-02-22 13:46:22.520","level":"INFO","thread":"main","loggerClass":"o.s.b.w.e.t.TomcatWebServer","line":"220","message":"Tomcat started on port(s): 8080 (http) with context path ''"}
-{"time":"2022-02-22 13:46:22.528","level":"INFO","thread":"main","loggerClass":"c.s.milky.example.Application","line":"61","message":"Started Application in 2.235 seconds (JVM running for 2.822)"}
-{"time":"2022-02-22 14:00:22.904","level":"INFO","thread":"http-nio-8080-exec-1","loggerClass":"o.a.c.c.C.[.[localhost].[/]","line":"173","message":"Initializing Spring DispatcherServlet 'dispatcherServlet'"}
-{"time":"2022-02-22 14:00:22.904","level":"INFO","thread":"http-nio-8080-exec-1","loggerClass":"o.s.w.s.DispatcherServlet","line":"525","message":"Initializing Servlet 'dispatcherServlet'"}
-{"time":"2022-02-22 14:00:22.905","level":"INFO","thread":"http-nio-8080-exec-1","loggerClass":"o.s.w.s.DispatcherServlet","line":"547","message":"Completed initialization in 1 ms"}
-{"time":"2022-02-22 14:00:22.954","level":"ERROR","thread":"http-nio-8080-exec-1","loggerClass":"o.a.c.c.C.[.[.[.[dispatcherServlet]","line":"175","message":"Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is java.lang.NullPointerException] with root cause","stack_trace":"java.lang.NullPointerException: null\n\tat com.stellariver.milky.example.domain.user.command.ChangeCommand.getAggregationId(ChangeCommand.java:21)\n\tat com.stellariver.milky.domain.support.command.CommandBus.send(CommandBus.java:187)\n\tat com.stellariver.milky.domain.support.command.CommandBus.send(CommandBus.java:182)\n\tat com.stellariver.milky.example.adpater.controller.UserController.changeName(UserController.java:21)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)\n\tat org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)\n\tat org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)\n\tat org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\n\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1067)\n\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:963)\n\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\n\tat org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:898)\n\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:655)\n\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)\n\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:764)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:227)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)\n\tat org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)\n\tat org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)\n"}
+{"instant":{"epochSecond":1665875235,"nanoOfSecond":180000000},"thread":"main","level":"INFO","loggerName":"org.springframework.boot.test.context.SpringBootTestContextBootstrapper","message":"Neither @ContextConfiguration nor @ContextHierarchy found for test class [com.stellariver.milky.demo.MilkyDemoTest], using SpringBootContextLoader","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":13,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875235,"nanoOfSecond":187000000},"thread":"main","level":"INFO","loggerName":"org.springframework.test.context.support.AbstractContextLoader","message":"Could not detect default resource locations for test class [com.stellariver.milky.demo.MilkyDemoTest]: no resource found for suffixes {-context.xml, Context.groovy}.","endOfBatch":false,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":13,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875235,"nanoOfSecond":188000000},"thread":"main","level":"INFO","loggerName":"org.springframework.test.context.support.AnnotationConfigContextLoaderUtils","message":"Could not detect default configuration classes for test class [com.stellariver.milky.demo.MilkyDemoTest]: MilkyDemoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":13,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875235,"nanoOfSecond":287000000},"thread":"main","level":"INFO","loggerName":"org.springframework.boot.test.context.SpringBootTestContextBootstrapper","message":"Found @SpringBootConfiguration com.stellariver.milky.demo.MilkyDemoApplication for test class com.stellariver.milky.demo.MilkyDemoTest","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":13,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875235,"nanoOfSecond":338000000},"thread":"main","level":"INFO","loggerName":"org.springframework.boot.test.context.SpringBootTestContextBootstrapper","message":"Loaded default TestExecutionListener class names from location [META-INF/spring.factories]: [org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener, org.springframework.test.context.web.ServletTestExecutionListener, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener, org.springframework.test.context.event.ApplicationEventsTestExecutionListener, org.springframework.test.context.support.DependencyInjectionTestExecutionListener, org.springframework.test.context.support.DirtiesContextTestExecutionListener, org.springframework.test.context.transaction.TransactionalTestExecutionListener, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener, org.springframework.test.context.event.EventPublishingTestExecutionListener]","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":13,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875235,"nanoOfSecond":350000000},"thread":"main","level":"INFO","loggerName":"org.springframework.boot.test.context.SpringBootTestContextBootstrapper","message":"Using TestExecutionListeners: [org.springframework.test.context.web.ServletTestExecutionListener@74cadd41, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener@2e54db99, org.springframework.test.context.event.ApplicationEventsTestExecutionListener@55e8ec2f, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener@4f2613d1, org.springframework.boot.test.autoconfigure.SpringBootDependencyInjectionTestExecutionListener@6d24ffa1, org.springframework.test.context.support.DirtiesContextTestExecutionListener@65a4798f, org.springframework.test.context.transaction.TransactionalTestExecutionListener@773f7880, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener@878452d, org.springframework.test.context.event.EventPublishingTestExecutionListener@426b6a74, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener@4c51bb7, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener@83298d7, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener@42a9e5d1, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener@5b080f3a, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener@773cbf4f, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener@6b54655f]","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":13,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875235,"nanoOfSecond":604000000},"thread":"background-preinit","level":"INFO","loggerName":"org.hibernate.validator.internal.util.Version","message":"HV000001: Hibernate Validator 6.2.5.Final","endOfBatch":true,"loggerFqcn":"org.hibernate.validator.internal.util.logging.Log_$logger","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875235,"nanoOfSecond":614000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.MilkyDemoTest","message":"Starting MilkyDemoTest using Java 1.8.0_322 on houchuangs-MBP with PID 52511 (started by houchuang in /Users/houchuang/IdeaProjects/milky/demo)","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875235,"nanoOfSecond":617000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.MilkyDemoTest","message":"No active profile set, falling back to 1 default profile: \"default\"","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875236,"nanoOfSecond":409000000},"thread":"main","level":"INFO","loggerName":"org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory","message":"Starting embedded database: url='jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875236,"nanoOfSecond":739000000},"thread":"main","level":"WARN","loggerName":"com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean","marker":{"name":"MYBATIS"},"message":"Can't find class in '[com.stellariver.milky.demo.common.enum]' package. Please check your configuration.","endOfBatch":true,"loggerFqcn":"org.apache.ibatis.logging.slf4j.Slf4jImpl","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875236,"nanoOfSecond":940000000},"thread":"main","level":"INFO","loggerName":"org.reflections.Reflections","message":"Reflections took 33 ms to scan 2 urls, producing 59 keys and 104 values ","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875237,"nanoOfSecond":524000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.MilkyDemoTest","message":"Started MilkyDemoTest in 2.136 seconds (JVM running for 3.914)","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875237,"nanoOfSecond":553000000},"thread":"main","level":"INFO","loggerName":"org.springframework.test.context.transaction.TransactionContext","message":"Began transaction (1) for test context [DefaultTestContext@7d2c345d testClass = MilkyDemoTest, testInstance = com.stellariver.milky.demo.MilkyDemoTest@217dc48e, testMethod = publishItemDOTest@MilkyDemoTest, testException = [null], mergedContextConfiguration = [WebMergedContextConfiguration@5db948c9 testClass = MilkyDemoTest, locations = '{}', classes = '{class com.stellariver.milky.demo.MilkyDemoApplication}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}', contextCustomizers = set[org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@4b1d6571, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@6e950bcf, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@22d7b4f8, org.springframework.boot.test.autoconfigure.actuate.metrics.MetricsExportContextCustomizerFactory$DisableMetricExportContextCustomizer@4f1bfe23, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizerFactory$Customizer@22bac7bc, org.springframework.boot.test.context.SpringBootTestArgs@1, org.springframework.boot.test.context.SpringBootTestWebEnvironment@34033bd0], resourceBasePath = 'src/main/webapp', contextLoader = 'org.springframework.boot.test.context.SpringBootContextLoader', parent = [null]], attributes = map['org.springframework.test.context.web.ServletTestExecutionListener.activateListener' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.populatedRequestContextHolder' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.resetRequestContextHolder' -> true, 'org.springframework.test.context.event.ApplicationEventsTestExecutionListener.recordApplicationEvents' -> false]]; transaction manager [org.springframework.jdbc.support.JdbcTransactionManager@296edc75]; rollback [true]","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875237,"nanoOfSecond":709000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.MilkyDemoTest","message":"Tag","thrown":{"commonElementCount":0,"localizedMessage":"sdfsdfsdfdsfdsadsad","message":"sdfsdfsdfdsfdsadsad","name":"java.lang.RuntimeException","extendedStackTrace":[{"class":"com.stellariver.milky.demo.MilkyDemoTest","method":"publishItemDOTest","file":"MilkyDemoTest.java","line":37,"exact":false,"location":"test-classes/","version":"?"},{"class":"sun.reflect.NativeMethodAccessorImpl","method":"invoke0","file":"NativeMethodAccessorImpl.java","line":-2,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"sun.reflect.NativeMethodAccessorImpl","method":"invoke","file":"NativeMethodAccessorImpl.java","line":62,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"sun.reflect.DelegatingMethodAccessorImpl","method":"invoke","file":"DelegatingMethodAccessorImpl.java","line":43,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"java.lang.reflect.Method","method":"invoke","file":"Method.java","line":498,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"org.junit.platform.commons.util.ReflectionUtils","method":"invokeMethod","file":"ReflectionUtils.java","line":725,"exact":false,"location":"junit-platform-commons-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.jupiter.engine.execution.MethodInvocation","method":"proceed","file":"MethodInvocation.java","line":60,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation","method":"proceed","file":"InvocationInterceptorChain.java","line":131,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.extension.TimeoutExtension","method":"intercept","file":"TimeoutExtension.java","line":149,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.extension.TimeoutExtension","method":"interceptTestableMethod","file":"TimeoutExtension.java","line":140,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.extension.TimeoutExtension","method":"interceptTestMethod","file":"TimeoutExtension.java","line":84,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall","method":"lambda$ofVoidMethod$0","file":"ExecutableInvoker.java","line":115,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.ExecutableInvoker","method":"lambda$invoke$0","file":"ExecutableInvoker.java","line":105,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation","method":"proceed","file":"InvocationInterceptorChain.java","line":106,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain","method":"proceed","file":"InvocationInterceptorChain.java","line":64,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain","method":"chainAndInvoke","file":"InvocationInterceptorChain.java","line":45,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain","method":"invoke","file":"InvocationInterceptorChain.java","line":37,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.ExecutableInvoker","method":"invoke","file":"ExecutableInvoker.java","line":104,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.ExecutableInvoker","method":"invoke","file":"ExecutableInvoker.java","line":98,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor","method":"lambda$invokeTestMethod$7","file":"TestMethodTestDescriptor.java","line":214,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor","method":"invokeTestMethod","file":"TestMethodTestDescriptor.java","line":210,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor","method":"execute","file":"TestMethodTestDescriptor.java","line":135,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor","method":"execute","file":"TestMethodTestDescriptor.java","line":66,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$6","file":"NodeTestTask.java","line":151,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$8","file":"NodeTestTask.java","line":141,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.Node","method":"around","file":"Node.java","line":137,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$9","file":"NodeTestTask.java","line":139,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"executeRecursively","file":"NodeTestTask.java","line":138,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"execute","file":"NodeTestTask.java","line":95,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"java.util.ArrayList","method":"forEach","file":"ArrayList.java","line":1259,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService","method":"invokeAll","file":"SameThreadHierarchicalTestExecutorService.java","line":41,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$6","file":"NodeTestTask.java","line":155,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$8","file":"NodeTestTask.java","line":141,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.Node","method":"around","file":"Node.java","line":137,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$9","file":"NodeTestTask.java","line":139,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"executeRecursively","file":"NodeTestTask.java","line":138,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"execute","file":"NodeTestTask.java","line":95,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"java.util.ArrayList","method":"forEach","file":"ArrayList.java","line":1259,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService","method":"invokeAll","file":"SameThreadHierarchicalTestExecutorService.java","line":41,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$6","file":"NodeTestTask.java","line":155,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$8","file":"NodeTestTask.java","line":141,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.Node","method":"around","file":"Node.java","line":137,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$9","file":"NodeTestTask.java","line":139,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"executeRecursively","file":"NodeTestTask.java","line":138,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"execute","file":"NodeTestTask.java","line":95,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService","method":"submit","file":"SameThreadHierarchicalTestExecutorService.java","line":35,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor","method":"execute","file":"HierarchicalTestExecutor.java","line":57,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine","method":"execute","file":"HierarchicalTestEngine.java","line":54,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.EngineExecutionOrchestrator","method":"execute","file":"EngineExecutionOrchestrator.java","line":107,"exact":false,"location":"junit-platform-launcher-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.EngineExecutionOrchestrator","method":"execute","file":"EngineExecutionOrchestrator.java","line":88,"exact":false,"location":"junit-platform-launcher-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.EngineExecutionOrchestrator","method":"lambda$execute$0","file":"EngineExecutionOrchestrator.java","line":54,"exact":false,"location":"junit-platform-launcher-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.EngineExecutionOrchestrator","method":"withInterceptedStreams","file":"EngineExecutionOrchestrator.java","line":67,"exact":false,"location":"junit-platform-launcher-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.EngineExecutionOrchestrator","method":"execute","file":"EngineExecutionOrchestrator.java","line":52,"exact":false,"location":"junit-platform-launcher-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.DefaultLauncher","method":"execute","file":"DefaultLauncher.java","line":114,"exact":false,"location":"junit-platform-launcher-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.DefaultLauncher","method":"execute","file":"DefaultLauncher.java","line":86,"exact":false,"location":"junit-platform-launcher-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.DefaultLauncherSession$DelegatingLauncher","method":"execute","file":"DefaultLauncherSession.java","line":86,"exact":false,"location":"junit-platform-launcher-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.SessionPerRequestLauncher","method":"execute","file":"SessionPerRequestLauncher.java","line":53,"exact":false,"location":"junit-platform-launcher-1.8.2.jar","version":"1.8.2"},{"class":"com.intellij.junit5.JUnit5IdeaTestRunner","method":"startRunnerWithArgs","file":"JUnit5IdeaTestRunner.java","line":71,"exact":false,"location":"junit5-rt.jar","version":"?"},{"class":"com.intellij.rt.junit.IdeaTestRunner$Repeater$1","method":"execute","file":"IdeaTestRunner.java","line":38,"exact":false,"location":"junit-rt.jar","version":"?"},{"class":"com.intellij.rt.execution.junit.TestsRepeater","method":"repeat","file":"TestsRepeater.java","line":11,"exact":false,"location":"idea_rt.jar","version":"?"},{"class":"com.intellij.rt.junit.IdeaTestRunner$Repeater","method":"startRunnerWithArgs","file":"IdeaTestRunner.java","line":35,"exact":false,"location":"junit-rt.jar","version":"?"},{"class":"com.intellij.rt.junit.JUnitStarter","method":"prepareStreamsAndStart","file":"JUnitStarter.java","line":235,"exact":false,"location":"junit-rt.jar","version":"?"},{"class":"com.intellij.rt.junit.JUnitStarter","method":"main","file":"JUnitStarter.java","line":54,"exact":false,"location":"junit-rt.jar","version":"?"}]},"endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"test0","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875238,"nanoOfSecond":121000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.domain.service.MqService","message":"ItemCreatedMessage","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"{\"itemId\":1,\"title\":\"测试商品\"}","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875238,"nanoOfSecond":174000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.domain.service.MqService","message":"ItemAmountUpdatedMessage","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"{\"itemId\":1,\"oldAmount\":100,\"newAmount\":100}","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875238,"nanoOfSecond":182000000},"thread":"main","level":"INFO","loggerName":"org.springframework.test.context.transaction.TransactionContext","message":"Rolled back transaction for test: [DefaultTestContext@7d2c345d testClass = MilkyDemoTest, testInstance = com.stellariver.milky.demo.MilkyDemoTest@217dc48e, testMethod = publishItemDOTest@MilkyDemoTest, testException = [null], mergedContextConfiguration = [WebMergedContextConfiguration@5db948c9 testClass = MilkyDemoTest, locations = '{}', classes = '{class com.stellariver.milky.demo.MilkyDemoApplication}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}', contextCustomizers = set[org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@4b1d6571, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@6e950bcf, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@22d7b4f8, org.springframework.boot.test.autoconfigure.actuate.metrics.MetricsExportContextCustomizerFactory$DisableMetricExportContextCustomizer@4f1bfe23, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizerFactory$Customizer@22bac7bc, org.springframework.boot.test.context.SpringBootTestArgs@1, org.springframework.boot.test.context.SpringBootTestWebEnvironment@34033bd0], resourceBasePath = 'src/main/webapp', contextLoader = 'org.springframework.boot.test.context.SpringBootContextLoader', parent = [null]], attributes = map['org.springframework.test.context.web.ServletTestExecutionListener.activateListener' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.populatedRequestContextHolder' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.resetRequestContextHolder' -> true, 'org.springframework.test.context.event.ApplicationEventsTestExecutionListener.recordApplicationEvents' -> false]]","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875238,"nanoOfSecond":200000000},"thread":"SpringApplicationShutdownHook","level":"INFO","loggerName":"org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory","message":"Shutting down embedded database: url='jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false'","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875268,"nanoOfSecond":855000000},"thread":"main","level":"INFO","loggerName":"org.springframework.boot.test.context.SpringBootTestContextBootstrapper","message":"Neither @ContextConfiguration nor @ContextHierarchy found for test class [com.stellariver.milky.demo.MilkyDemoTest], using SpringBootContextLoader","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875268,"nanoOfSecond":863000000},"thread":"main","level":"INFO","loggerName":"org.springframework.test.context.support.AbstractContextLoader","message":"Could not detect default resource locations for test class [com.stellariver.milky.demo.MilkyDemoTest]: no resource found for suffixes {-context.xml, Context.groovy}.","endOfBatch":false,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875268,"nanoOfSecond":863000000},"thread":"main","level":"INFO","loggerName":"org.springframework.test.context.support.AnnotationConfigContextLoaderUtils","message":"Could not detect default configuration classes for test class [com.stellariver.milky.demo.MilkyDemoTest]: MilkyDemoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875268,"nanoOfSecond":964000000},"thread":"main","level":"INFO","loggerName":"org.springframework.boot.test.context.SpringBootTestContextBootstrapper","message":"Found @SpringBootConfiguration com.stellariver.milky.demo.MilkyDemoApplication for test class com.stellariver.milky.demo.MilkyDemoTest","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875269,"nanoOfSecond":42000000},"thread":"main","level":"INFO","loggerName":"org.springframework.boot.test.context.SpringBootTestContextBootstrapper","message":"Loaded default TestExecutionListener class names from location [META-INF/spring.factories]: [org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener, org.springframework.test.context.web.ServletTestExecutionListener, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener, org.springframework.test.context.event.ApplicationEventsTestExecutionListener, org.springframework.test.context.support.DependencyInjectionTestExecutionListener, org.springframework.test.context.support.DirtiesContextTestExecutionListener, org.springframework.test.context.transaction.TransactionalTestExecutionListener, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener, org.springframework.test.context.event.EventPublishingTestExecutionListener]","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875269,"nanoOfSecond":56000000},"thread":"main","level":"INFO","loggerName":"org.springframework.boot.test.context.SpringBootTestContextBootstrapper","message":"Using TestExecutionListeners: [org.springframework.test.context.web.ServletTestExecutionListener@475534d1, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener@52e67513, org.springframework.test.context.event.ApplicationEventsTestExecutionListener@1e60d113, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener@697ea6b2, org.springframework.boot.test.autoconfigure.SpringBootDependencyInjectionTestExecutionListener@7e3f4f0, org.springframework.test.context.support.DirtiesContextTestExecutionListener@664c47f2, org.springframework.test.context.transaction.TransactionalTestExecutionListener@7e3cea61, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener@626b8822, org.springframework.test.context.event.EventPublishingTestExecutionListener@7ab7a4eb, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener@7ec00f98, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener@67b68dc3, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener@5922338f, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener@1e7544bc, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener@60b73425, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener@33bc7565]","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":15,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875269,"nanoOfSecond":267000000},"thread":"background-preinit","level":"INFO","loggerName":"org.hibernate.validator.internal.util.Version","message":"HV000001: Hibernate Validator 6.2.5.Final","endOfBatch":true,"loggerFqcn":"org.hibernate.validator.internal.util.logging.Log_$logger","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875269,"nanoOfSecond":292000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.MilkyDemoTest","message":"Starting MilkyDemoTest using Java 1.8.0_322 on houchuangs-MBP with PID 52556 (started by houchuang in /Users/houchuang/IdeaProjects/milky/demo)","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875269,"nanoOfSecond":294000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.MilkyDemoTest","message":"No active profile set, falling back to 1 default profile: \"default\"","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875270,"nanoOfSecond":238000000},"thread":"main","level":"INFO","loggerName":"org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory","message":"Starting embedded database: url='jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875270,"nanoOfSecond":681000000},"thread":"main","level":"WARN","loggerName":"com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean","marker":{"name":"MYBATIS"},"message":"Can't find class in '[com.stellariver.milky.demo.common.enum]' package. Please check your configuration.","endOfBatch":true,"loggerFqcn":"org.apache.ibatis.logging.slf4j.Slf4jImpl","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875270,"nanoOfSecond":932000000},"thread":"main","level":"INFO","loggerName":"org.reflections.Reflections","message":"Reflections took 54 ms to scan 2 urls, producing 59 keys and 104 values ","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875271,"nanoOfSecond":630000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.MilkyDemoTest","message":"Started MilkyDemoTest in 2.534 seconds (JVM running for 4.072)","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875271,"nanoOfSecond":665000000},"thread":"main","level":"INFO","loggerName":"org.springframework.test.context.transaction.TransactionContext","message":"Began transaction (1) for test context [DefaultTestContext@6aff8833 testClass = MilkyDemoTest, testInstance = com.stellariver.milky.demo.MilkyDemoTest@550b77d5, testMethod = publishItemDOTest@MilkyDemoTest, testException = [null], mergedContextConfiguration = [WebMergedContextConfiguration@2b2e98d9 testClass = MilkyDemoTest, locations = '{}', classes = '{class com.stellariver.milky.demo.MilkyDemoApplication}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}', contextCustomizers = set[org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@2baf2c6, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@1d7135c, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@52dbd3d, org.springframework.boot.test.autoconfigure.actuate.metrics.MetricsExportContextCustomizerFactory$DisableMetricExportContextCustomizer@537979aa, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizerFactory$Customizer@2bfe2327, org.springframework.boot.test.context.SpringBootTestArgs@1, org.springframework.boot.test.context.SpringBootTestWebEnvironment@3dd1dc90], resourceBasePath = 'src/main/webapp', contextLoader = 'org.springframework.boot.test.context.SpringBootContextLoader', parent = [null]], attributes = map['org.springframework.test.context.web.ServletTestExecutionListener.activateListener' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.populatedRequestContextHolder' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.resetRequestContextHolder' -> true, 'org.springframework.test.context.event.ApplicationEventsTestExecutionListener.recordApplicationEvents' -> false]]; transaction manager [org.springframework.jdbc.support.JdbcTransactionManager@77cbb672]; rollback [true]","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875271,"nanoOfSecond":884000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.MilkyDemoTest","message":"Tag","thrown":{"commonElementCount":0,"localizedMessage":"sdfsdfsdfdsfdsadsad","message":"sdfsdfsdfdsfdsadsad","name":"java.lang.RuntimeException","extendedStackTrace":[{"class":"com.stellariver.milky.demo.MilkyDemoTest","method":"publishItemDOTest","file":"MilkyDemoTest.java","line":37,"exact":false,"location":"test-classes/","version":"?"},{"class":"sun.reflect.NativeMethodAccessorImpl","method":"invoke0","file":"NativeMethodAccessorImpl.java","line":-2,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"sun.reflect.NativeMethodAccessorImpl","method":"invoke","file":"NativeMethodAccessorImpl.java","line":62,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"sun.reflect.DelegatingMethodAccessorImpl","method":"invoke","file":"DelegatingMethodAccessorImpl.java","line":43,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"java.lang.reflect.Method","method":"invoke","file":"Method.java","line":498,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"org.junit.platform.commons.util.ReflectionUtils","method":"invokeMethod","file":"ReflectionUtils.java","line":725,"exact":false,"location":"junit-platform-commons-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.jupiter.engine.execution.MethodInvocation","method":"proceed","file":"MethodInvocation.java","line":60,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation","method":"proceed","file":"InvocationInterceptorChain.java","line":131,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.extension.TimeoutExtension","method":"intercept","file":"TimeoutExtension.java","line":149,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.extension.TimeoutExtension","method":"interceptTestableMethod","file":"TimeoutExtension.java","line":140,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.extension.TimeoutExtension","method":"interceptTestMethod","file":"TimeoutExtension.java","line":84,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall","method":"lambda$ofVoidMethod$0","file":"ExecutableInvoker.java","line":115,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.ExecutableInvoker","method":"lambda$invoke$0","file":"ExecutableInvoker.java","line":105,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation","method":"proceed","file":"InvocationInterceptorChain.java","line":106,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain","method":"proceed","file":"InvocationInterceptorChain.java","line":64,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain","method":"chainAndInvoke","file":"InvocationInterceptorChain.java","line":45,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.InvocationInterceptorChain","method":"invoke","file":"InvocationInterceptorChain.java","line":37,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.ExecutableInvoker","method":"invoke","file":"ExecutableInvoker.java","line":104,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.execution.ExecutableInvoker","method":"invoke","file":"ExecutableInvoker.java","line":98,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor","method":"lambda$invokeTestMethod$7","file":"TestMethodTestDescriptor.java","line":214,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor","method":"invokeTestMethod","file":"TestMethodTestDescriptor.java","line":210,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor","method":"execute","file":"TestMethodTestDescriptor.java","line":135,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor","method":"execute","file":"TestMethodTestDescriptor.java","line":66,"exact":false,"location":"junit-jupiter-engine-5.8.2.jar","version":"5.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$6","file":"NodeTestTask.java","line":151,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$8","file":"NodeTestTask.java","line":141,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.Node","method":"around","file":"Node.java","line":137,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$9","file":"NodeTestTask.java","line":139,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"executeRecursively","file":"NodeTestTask.java","line":138,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"execute","file":"NodeTestTask.java","line":95,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"java.util.ArrayList","method":"forEach","file":"ArrayList.java","line":1259,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService","method":"invokeAll","file":"SameThreadHierarchicalTestExecutorService.java","line":41,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$6","file":"NodeTestTask.java","line":155,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$8","file":"NodeTestTask.java","line":141,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.Node","method":"around","file":"Node.java","line":137,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$9","file":"NodeTestTask.java","line":139,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"executeRecursively","file":"NodeTestTask.java","line":138,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"execute","file":"NodeTestTask.java","line":95,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"java.util.ArrayList","method":"forEach","file":"ArrayList.java","line":1259,"exact":false,"location":"?","version":"1.8.0_322"},{"class":"org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService","method":"invokeAll","file":"SameThreadHierarchicalTestExecutorService.java","line":41,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$6","file":"NodeTestTask.java","line":155,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$8","file":"NodeTestTask.java","line":141,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.Node","method":"around","file":"Node.java","line":137,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"lambda$executeRecursively$9","file":"NodeTestTask.java","line":139,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.ThrowableCollector","method":"execute","file":"ThrowableCollector.java","line":73,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"executeRecursively","file":"NodeTestTask.java","line":138,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.NodeTestTask","method":"execute","file":"NodeTestTask.java","line":95,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService","method":"submit","file":"SameThreadHierarchicalTestExecutorService.java","line":35,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor","method":"execute","file":"HierarchicalTestExecutor.java","line":57,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine","method":"execute","file":"HierarchicalTestEngine.java","line":54,"exact":false,"location":"junit-platform-engine-1.8.2.jar","version":"1.8.2"},{"class":"org.junit.platform.launcher.core.DefaultLauncher","method":"execute","file":"DefaultLauncher.java","line":220,"exact":false,"location":"junit-platform-launcher-1.3.1.jar","version":"1.3.1"},{"class":"org.junit.platform.launcher.core.DefaultLauncher","method":"lambda$execute$6","file":"DefaultLauncher.java","line":188,"exact":false,"location":"junit-platform-launcher-1.3.1.jar","version":"1.3.1"},{"class":"org.junit.platform.launcher.core.DefaultLauncher","method":"withInterceptedStreams","file":"DefaultLauncher.java","line":202,"exact":false,"location":"junit-platform-launcher-1.3.1.jar","version":"1.3.1"},{"class":"org.junit.platform.launcher.core.DefaultLauncher","method":"execute","file":"DefaultLauncher.java","line":181,"exact":false,"location":"junit-platform-launcher-1.3.1.jar","version":"1.3.1"},{"class":"org.junit.platform.launcher.core.DefaultLauncher","method":"execute","file":"DefaultLauncher.java","line":128,"exact":false,"location":"junit-platform-launcher-1.3.1.jar","version":"1.3.1"},{"class":"org.apache.maven.surefire.junitplatform.JUnitPlatformProvider","method":"invokeAllTests","file":"JUnitPlatformProvider.java","line":150,"exact":false,"location":"surefire-junit-platform-2.22.2.jar","version":"2.22.2"},{"class":"org.apache.maven.surefire.junitplatform.JUnitPlatformProvider","method":"invoke","file":"JUnitPlatformProvider.java","line":124,"exact":false,"location":"surefire-junit-platform-2.22.2.jar","version":"2.22.2"},{"class":"org.apache.maven.surefire.booter.ForkedBooter","method":"invokeProviderInSameClassLoader","file":"ForkedBooter.java","line":384,"exact":false,"location":"surefire-booter-2.22.2.jar","version":"2.22.2"},{"class":"org.apache.maven.surefire.booter.ForkedBooter","method":"runSuitesInProcess","file":"ForkedBooter.java","line":345,"exact":false,"location":"surefire-booter-2.22.2.jar","version":"2.22.2"},{"class":"org.apache.maven.surefire.booter.ForkedBooter","method":"execute","file":"ForkedBooter.java","line":126,"exact":false,"location":"surefire-booter-2.22.2.jar","version":"2.22.2"},{"class":"org.apache.maven.surefire.booter.ForkedBooter","method":"main","file":"ForkedBooter.java","line":418,"exact":false,"location":"surefire-booter-2.22.2.jar","version":"2.22.2"}]},"endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"test0","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875272,"nanoOfSecond":276000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.domain.service.MqService","message":"ItemCreatedMessage","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"{\"itemId\":1,\"title\":\"测试商品\"}","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875272,"nanoOfSecond":358000000},"thread":"main","level":"INFO","loggerName":"com.stellariver.milky.demo.domain.service.MqService","message":"ItemAmountUpdatedMessage","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"{\"itemId\":1,\"oldAmount\":100,\"newAmount\":100}","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875272,"nanoOfSecond":368000000},"thread":"main","level":"INFO","loggerName":"org.springframework.test.context.transaction.TransactionContext","message":"Rolled back transaction for test: [DefaultTestContext@6aff8833 testClass = MilkyDemoTest, testInstance = com.stellariver.milky.demo.MilkyDemoTest@550b77d5, testMethod = publishItemDOTest@MilkyDemoTest, testException = [null], mergedContextConfiguration = [WebMergedContextConfiguration@2b2e98d9 testClass = MilkyDemoTest, locations = '{}', classes = '{class com.stellariver.milky.demo.MilkyDemoApplication}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}', contextCustomizers = set[org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@2baf2c6, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@1d7135c, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@52dbd3d, org.springframework.boot.test.autoconfigure.actuate.metrics.MetricsExportContextCustomizerFactory$DisableMetricExportContextCustomizer@537979aa, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizerFactory$Customizer@2bfe2327, org.springframework.boot.test.context.SpringBootTestArgs@1, org.springframework.boot.test.context.SpringBootTestWebEnvironment@3dd1dc90], resourceBasePath = 'src/main/webapp', contextLoader = 'org.springframework.boot.test.context.SpringBootContextLoader', parent = [null]], attributes = map['org.springframework.test.context.web.ServletTestExecutionListener.activateListener' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.populatedRequestContextHolder' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.resetRequestContextHolder' -> true, 'org.springframework.test.context.event.ApplicationEventsTestExecutionListener.recordApplicationEvents' -> false]]","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{"instant":{"epochSecond":1665875272,"nanoOfSecond":399000000},"thread":"SpringApplicationShutdownHook","level":"INFO","loggerName":"org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory","message":"Shutting down embedded database: url='jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false'","endOfBatch":true,"loggerFqcn":"org.apache.commons.logging.LogAdapter$Log4jLog","threadId":16,"threadPriority":5,"success":"null","cost":"null","trace_id":"null","milky_line":"null","invocation_id":"null","arg0":"null","arg1":"null","arg2":"null","arg3":"null","arg4":"null","result":"null","test":"null"}
+{
+  "instant" : {
+    "epochSecond" : 1665875394,
+    "nanoOfSecond" : 752000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.boot.test.context.SpringBootTestContextBootstrapper",
+  "message" : "Neither @ContextConfiguration nor @ContextHierarchy found for test class [com.stellariver.milky.demo.MilkyDemoTest], using SpringBootContextLoader",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 13,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875394,
+    "nanoOfSecond" : 757000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.test.context.support.AbstractContextLoader",
+  "message" : "Could not detect default resource locations for test class [com.stellariver.milky.demo.MilkyDemoTest]: no resource found for suffixes {-context.xml, Context.groovy}.",
+  "endOfBatch" : false,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 13,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875394,
+    "nanoOfSecond" : 757000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.test.context.support.AnnotationConfigContextLoaderUtils",
+  "message" : "Could not detect default configuration classes for test class [com.stellariver.milky.demo.MilkyDemoTest]: MilkyDemoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 13,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875394,
+    "nanoOfSecond" : 822000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.boot.test.context.SpringBootTestContextBootstrapper",
+  "message" : "Found @SpringBootConfiguration com.stellariver.milky.demo.MilkyDemoApplication for test class com.stellariver.milky.demo.MilkyDemoTest",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 13,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875394,
+    "nanoOfSecond" : 868000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.boot.test.context.SpringBootTestContextBootstrapper",
+  "message" : "Loaded default TestExecutionListener class names from location [META-INF/spring.factories]: [org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener, org.springframework.test.context.web.ServletTestExecutionListener, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener, org.springframework.test.context.event.ApplicationEventsTestExecutionListener, org.springframework.test.context.support.DependencyInjectionTestExecutionListener, org.springframework.test.context.support.DirtiesContextTestExecutionListener, org.springframework.test.context.transaction.TransactionalTestExecutionListener, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener, org.springframework.test.context.event.EventPublishingTestExecutionListener]",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 13,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875394,
+    "nanoOfSecond" : 879000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.boot.test.context.SpringBootTestContextBootstrapper",
+  "message" : "Using TestExecutionListeners: [org.springframework.test.context.web.ServletTestExecutionListener@2e54db99, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener@55e8ec2f, org.springframework.test.context.event.ApplicationEventsTestExecutionListener@4f2613d1, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener@6d24ffa1, org.springframework.boot.test.autoconfigure.SpringBootDependencyInjectionTestExecutionListener@65a4798f, org.springframework.test.context.support.DirtiesContextTestExecutionListener@773f7880, org.springframework.test.context.transaction.TransactionalTestExecutionListener@878452d, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener@426b6a74, org.springframework.test.context.event.EventPublishingTestExecutionListener@4c51bb7, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener@83298d7, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener@42a9e5d1, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener@5b080f3a, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener@773cbf4f, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener@6b54655f, org.springframework.boot.test.autoconfigure.webservices.client.MockWebServiceServerTestExecutionListener@665e9289]",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 13,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875395,
+    "nanoOfSecond" : 49000000
+  },
+  "thread" : "background-preinit",
+  "level" : "INFO",
+  "loggerName" : "org.hibernate.validator.internal.util.Version",
+  "message" : "HV000001: Hibernate Validator 6.2.5.Final",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.hibernate.validator.internal.util.logging.Log_$logger",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875395,
+    "nanoOfSecond" : 62000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "com.stellariver.milky.demo.MilkyDemoTest",
+  "message" : "Starting MilkyDemoTest using Java 1.8.0_322 on houchuangs-MBP with PID 52629 (started by houchuang in /Users/houchuang/IdeaProjects/milky/demo)",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875395,
+    "nanoOfSecond" : 65000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "com.stellariver.milky.demo.MilkyDemoTest",
+  "message" : "No active profile set, falling back to 1 default profile: \"default\"",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875395,
+    "nanoOfSecond" : 832000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory",
+  "message" : "Starting embedded database: url='jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875396,
+    "nanoOfSecond" : 166000000
+  },
+  "thread" : "main",
+  "level" : "WARN",
+  "loggerName" : "com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean",
+  "marker" : {
+    "name" : "MYBATIS"
+  },
+  "message" : "Can't find class in '[com.stellariver.milky.demo.common.enum]' package. Please check your configuration.",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.ibatis.logging.slf4j.Slf4jImpl",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875396,
+    "nanoOfSecond" : 370000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.reflections.Reflections",
+  "message" : "Reflections took 43 ms to scan 2 urls, producing 59 keys and 104 values ",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.logging.slf4j.Log4jLogger",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875397,
+    "nanoOfSecond" : 36000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "com.stellariver.milky.demo.MilkyDemoTest",
+  "message" : "Started MilkyDemoTest in 2.12 seconds (JVM running for 3.492)",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875397,
+    "nanoOfSecond" : 68000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.test.context.transaction.TransactionContext",
+  "message" : "Began transaction (1) for test context [DefaultTestContext@450f0235 testClass = MilkyDemoTest, testInstance = com.stellariver.milky.demo.MilkyDemoTest@78c262ba, testMethod = publishItemDOTest@MilkyDemoTest, testException = [null], mergedContextConfiguration = [WebMergedContextConfiguration@7d2c9361 testClass = MilkyDemoTest, locations = '{}', classes = '{class com.stellariver.milky.demo.MilkyDemoApplication}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}', contextCustomizers = set[org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@4b1d6571, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@6e950bcf, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@22d7b4f8, org.springframework.boot.test.autoconfigure.actuate.metrics.MetricsExportContextCustomizerFactory$DisableMetricExportContextCustomizer@4f1bfe23, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizerFactory$Customizer@22bac7bc, org.springframework.boot.test.context.SpringBootTestArgs@1, org.springframework.boot.test.context.SpringBootTestWebEnvironment@34033bd0], resourceBasePath = 'src/main/webapp', contextLoader = 'org.springframework.boot.test.context.SpringBootContextLoader', parent = [null]], attributes = map['org.springframework.test.context.web.ServletTestExecutionListener.activateListener' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.populatedRequestContextHolder' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.resetRequestContextHolder' -> true, 'org.springframework.test.context.event.ApplicationEventsTestExecutionListener.recordApplicationEvents' -> false]]; transaction manager [org.springframework.jdbc.support.JdbcTransactionManager@329dc214]; rollback [true]",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875397,
+    "nanoOfSecond" : 260000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "com.stellariver.milky.demo.MilkyDemoTest",
+  "message" : "Tag",
+  "thrown" : {
+    "commonElementCount" : 0,
+    "localizedMessage" : "sdfsdfsdfdsfdsadsad",
+    "message" : "sdfsdfsdfdsfdsadsad",
+    "name" : "java.lang.RuntimeException",
+    "extendedStackTrace" : [ {
+      "class" : "com.stellariver.milky.demo.MilkyDemoTest",
+      "method" : "publishItemDOTest",
+      "file" : "MilkyDemoTest.java",
+      "line" : 37,
+      "exact" : false,
+      "location" : "test-classes/",
+      "version" : "?"
+    }, {
+      "class" : "sun.reflect.NativeMethodAccessorImpl",
+      "method" : "invoke0",
+      "file" : "NativeMethodAccessorImpl.java",
+      "line" : -2,
+      "exact" : false,
+      "location" : "?",
+      "version" : "1.8.0_322"
+    }, {
+      "class" : "sun.reflect.NativeMethodAccessorImpl",
+      "method" : "invoke",
+      "file" : "NativeMethodAccessorImpl.java",
+      "line" : 62,
+      "exact" : false,
+      "location" : "?",
+      "version" : "1.8.0_322"
+    }, {
+      "class" : "sun.reflect.DelegatingMethodAccessorImpl",
+      "method" : "invoke",
+      "file" : "DelegatingMethodAccessorImpl.java",
+      "line" : 43,
+      "exact" : false,
+      "location" : "?",
+      "version" : "1.8.0_322"
+    }, {
+      "class" : "java.lang.reflect.Method",
+      "method" : "invoke",
+      "file" : "Method.java",
+      "line" : 498,
+      "exact" : false,
+      "location" : "?",
+      "version" : "1.8.0_322"
+    }, {
+      "class" : "org.junit.platform.commons.util.ReflectionUtils",
+      "method" : "invokeMethod",
+      "file" : "ReflectionUtils.java",
+      "line" : 725,
+      "exact" : false,
+      "location" : "junit-platform-commons-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.MethodInvocation",
+      "method" : "proceed",
+      "file" : "MethodInvocation.java",
+      "line" : 60,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation",
+      "method" : "proceed",
+      "file" : "InvocationInterceptorChain.java",
+      "line" : 131,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.extension.TimeoutExtension",
+      "method" : "intercept",
+      "file" : "TimeoutExtension.java",
+      "line" : 149,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.extension.TimeoutExtension",
+      "method" : "interceptTestableMethod",
+      "file" : "TimeoutExtension.java",
+      "line" : 140,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.extension.TimeoutExtension",
+      "method" : "interceptTestMethod",
+      "file" : "TimeoutExtension.java",
+      "line" : 84,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall",
+      "method" : "lambda$ofVoidMethod$0",
+      "file" : "ExecutableInvoker.java",
+      "line" : 115,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.ExecutableInvoker",
+      "method" : "lambda$invoke$0",
+      "file" : "ExecutableInvoker.java",
+      "line" : 105,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation",
+      "method" : "proceed",
+      "file" : "InvocationInterceptorChain.java",
+      "line" : 106,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.InvocationInterceptorChain",
+      "method" : "proceed",
+      "file" : "InvocationInterceptorChain.java",
+      "line" : 64,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.InvocationInterceptorChain",
+      "method" : "chainAndInvoke",
+      "file" : "InvocationInterceptorChain.java",
+      "line" : 45,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.InvocationInterceptorChain",
+      "method" : "invoke",
+      "file" : "InvocationInterceptorChain.java",
+      "line" : 37,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.ExecutableInvoker",
+      "method" : "invoke",
+      "file" : "ExecutableInvoker.java",
+      "line" : 104,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.execution.ExecutableInvoker",
+      "method" : "invoke",
+      "file" : "ExecutableInvoker.java",
+      "line" : 98,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor",
+      "method" : "lambda$invokeTestMethod$7",
+      "file" : "TestMethodTestDescriptor.java",
+      "line" : 214,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.ThrowableCollector",
+      "method" : "execute",
+      "file" : "ThrowableCollector.java",
+      "line" : 73,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor",
+      "method" : "invokeTestMethod",
+      "file" : "TestMethodTestDescriptor.java",
+      "line" : 210,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor",
+      "method" : "execute",
+      "file" : "TestMethodTestDescriptor.java",
+      "line" : 135,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor",
+      "method" : "execute",
+      "file" : "TestMethodTestDescriptor.java",
+      "line" : 66,
+      "exact" : false,
+      "location" : "junit-jupiter-engine-5.8.2.jar",
+      "version" : "5.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "lambda$executeRecursively$6",
+      "file" : "NodeTestTask.java",
+      "line" : 151,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.ThrowableCollector",
+      "method" : "execute",
+      "file" : "ThrowableCollector.java",
+      "line" : 73,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "lambda$executeRecursively$8",
+      "file" : "NodeTestTask.java",
+      "line" : 141,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.Node",
+      "method" : "around",
+      "file" : "Node.java",
+      "line" : 137,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "lambda$executeRecursively$9",
+      "file" : "NodeTestTask.java",
+      "line" : 139,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.ThrowableCollector",
+      "method" : "execute",
+      "file" : "ThrowableCollector.java",
+      "line" : 73,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "executeRecursively",
+      "file" : "NodeTestTask.java",
+      "line" : 138,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "execute",
+      "file" : "NodeTestTask.java",
+      "line" : 95,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "java.util.ArrayList",
+      "method" : "forEach",
+      "file" : "ArrayList.java",
+      "line" : 1259,
+      "exact" : false,
+      "location" : "?",
+      "version" : "1.8.0_322"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService",
+      "method" : "invokeAll",
+      "file" : "SameThreadHierarchicalTestExecutorService.java",
+      "line" : 41,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "lambda$executeRecursively$6",
+      "file" : "NodeTestTask.java",
+      "line" : 155,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.ThrowableCollector",
+      "method" : "execute",
+      "file" : "ThrowableCollector.java",
+      "line" : 73,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "lambda$executeRecursively$8",
+      "file" : "NodeTestTask.java",
+      "line" : 141,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.Node",
+      "method" : "around",
+      "file" : "Node.java",
+      "line" : 137,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "lambda$executeRecursively$9",
+      "file" : "NodeTestTask.java",
+      "line" : 139,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.ThrowableCollector",
+      "method" : "execute",
+      "file" : "ThrowableCollector.java",
+      "line" : 73,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "executeRecursively",
+      "file" : "NodeTestTask.java",
+      "line" : 138,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "execute",
+      "file" : "NodeTestTask.java",
+      "line" : 95,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "java.util.ArrayList",
+      "method" : "forEach",
+      "file" : "ArrayList.java",
+      "line" : 1259,
+      "exact" : false,
+      "location" : "?",
+      "version" : "1.8.0_322"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService",
+      "method" : "invokeAll",
+      "file" : "SameThreadHierarchicalTestExecutorService.java",
+      "line" : 41,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "lambda$executeRecursively$6",
+      "file" : "NodeTestTask.java",
+      "line" : 155,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.ThrowableCollector",
+      "method" : "execute",
+      "file" : "ThrowableCollector.java",
+      "line" : 73,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "lambda$executeRecursively$8",
+      "file" : "NodeTestTask.java",
+      "line" : 141,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.Node",
+      "method" : "around",
+      "file" : "Node.java",
+      "line" : 137,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "lambda$executeRecursively$9",
+      "file" : "NodeTestTask.java",
+      "line" : 139,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.ThrowableCollector",
+      "method" : "execute",
+      "file" : "ThrowableCollector.java",
+      "line" : 73,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "executeRecursively",
+      "file" : "NodeTestTask.java",
+      "line" : 138,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.NodeTestTask",
+      "method" : "execute",
+      "file" : "NodeTestTask.java",
+      "line" : 95,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService",
+      "method" : "submit",
+      "file" : "SameThreadHierarchicalTestExecutorService.java",
+      "line" : 35,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor",
+      "method" : "execute",
+      "file" : "HierarchicalTestExecutor.java",
+      "line" : 57,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine",
+      "method" : "execute",
+      "file" : "HierarchicalTestEngine.java",
+      "line" : 54,
+      "exact" : false,
+      "location" : "junit-platform-engine-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.launcher.core.EngineExecutionOrchestrator",
+      "method" : "execute",
+      "file" : "EngineExecutionOrchestrator.java",
+      "line" : 107,
+      "exact" : false,
+      "location" : "junit-platform-launcher-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.launcher.core.EngineExecutionOrchestrator",
+      "method" : "execute",
+      "file" : "EngineExecutionOrchestrator.java",
+      "line" : 88,
+      "exact" : false,
+      "location" : "junit-platform-launcher-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.launcher.core.EngineExecutionOrchestrator",
+      "method" : "lambda$execute$0",
+      "file" : "EngineExecutionOrchestrator.java",
+      "line" : 54,
+      "exact" : false,
+      "location" : "junit-platform-launcher-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.launcher.core.EngineExecutionOrchestrator",
+      "method" : "withInterceptedStreams",
+      "file" : "EngineExecutionOrchestrator.java",
+      "line" : 67,
+      "exact" : false,
+      "location" : "junit-platform-launcher-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.launcher.core.EngineExecutionOrchestrator",
+      "method" : "execute",
+      "file" : "EngineExecutionOrchestrator.java",
+      "line" : 52,
+      "exact" : false,
+      "location" : "junit-platform-launcher-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.launcher.core.DefaultLauncher",
+      "method" : "execute",
+      "file" : "DefaultLauncher.java",
+      "line" : 114,
+      "exact" : false,
+      "location" : "junit-platform-launcher-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.launcher.core.DefaultLauncher",
+      "method" : "execute",
+      "file" : "DefaultLauncher.java",
+      "line" : 86,
+      "exact" : false,
+      "location" : "junit-platform-launcher-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.launcher.core.DefaultLauncherSession$DelegatingLauncher",
+      "method" : "execute",
+      "file" : "DefaultLauncherSession.java",
+      "line" : 86,
+      "exact" : false,
+      "location" : "junit-platform-launcher-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "org.junit.platform.launcher.core.SessionPerRequestLauncher",
+      "method" : "execute",
+      "file" : "SessionPerRequestLauncher.java",
+      "line" : 53,
+      "exact" : false,
+      "location" : "junit-platform-launcher-1.8.2.jar",
+      "version" : "1.8.2"
+    }, {
+      "class" : "com.intellij.junit5.JUnit5IdeaTestRunner",
+      "method" : "startRunnerWithArgs",
+      "file" : "JUnit5IdeaTestRunner.java",
+      "line" : 71,
+      "exact" : false,
+      "location" : "junit5-rt.jar",
+      "version" : "?"
+    }, {
+      "class" : "com.intellij.rt.junit.IdeaTestRunner$Repeater$1",
+      "method" : "execute",
+      "file" : "IdeaTestRunner.java",
+      "line" : 38,
+      "exact" : false,
+      "location" : "junit-rt.jar",
+      "version" : "?"
+    }, {
+      "class" : "com.intellij.rt.execution.junit.TestsRepeater",
+      "method" : "repeat",
+      "file" : "TestsRepeater.java",
+      "line" : 11,
+      "exact" : false,
+      "location" : "idea_rt.jar",
+      "version" : "?"
+    }, {
+      "class" : "com.intellij.rt.junit.IdeaTestRunner$Repeater",
+      "method" : "startRunnerWithArgs",
+      "file" : "IdeaTestRunner.java",
+      "line" : 35,
+      "exact" : false,
+      "location" : "junit-rt.jar",
+      "version" : "?"
+    }, {
+      "class" : "com.intellij.rt.junit.JUnitStarter",
+      "method" : "prepareStreamsAndStart",
+      "file" : "JUnitStarter.java",
+      "line" : 235,
+      "exact" : false,
+      "location" : "junit-rt.jar",
+      "version" : "?"
+    }, {
+      "class" : "com.intellij.rt.junit.JUnitStarter",
+      "method" : "main",
+      "file" : "JUnitStarter.java",
+      "line" : 54,
+      "exact" : false,
+      "location" : "junit-rt.jar",
+      "version" : "?"
+    } ]
+  },
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.logging.slf4j.Log4jLogger",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "test0",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875397,
+    "nanoOfSecond" : 695000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "com.stellariver.milky.demo.domain.service.MqService",
+  "message" : "ItemCreatedMessage",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.logging.slf4j.Log4jLogger",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "{\"itemId\":1,\"title\":\"测试商品\"}",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875397,
+    "nanoOfSecond" : 741000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "com.stellariver.milky.demo.domain.service.MqService",
+  "message" : "ItemAmountUpdatedMessage",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.logging.slf4j.Log4jLogger",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "{\"itemId\":1,\"oldAmount\":100,\"newAmount\":100}",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875397,
+    "nanoOfSecond" : 748000000
+  },
+  "thread" : "main",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.test.context.transaction.TransactionContext",
+  "message" : "Rolled back transaction for test: [DefaultTestContext@450f0235 testClass = MilkyDemoTest, testInstance = com.stellariver.milky.demo.MilkyDemoTest@78c262ba, testMethod = publishItemDOTest@MilkyDemoTest, testException = [null], mergedContextConfiguration = [WebMergedContextConfiguration@7d2c9361 testClass = MilkyDemoTest, locations = '{}', classes = '{class com.stellariver.milky.demo.MilkyDemoApplication}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}', contextCustomizers = set[org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@4b1d6571, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@6e950bcf, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@22d7b4f8, org.springframework.boot.test.autoconfigure.actuate.metrics.MetricsExportContextCustomizerFactory$DisableMetricExportContextCustomizer@4f1bfe23, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizerFactory$Customizer@22bac7bc, org.springframework.boot.test.context.SpringBootTestArgs@1, org.springframework.boot.test.context.SpringBootTestWebEnvironment@34033bd0], resourceBasePath = 'src/main/webapp', contextLoader = 'org.springframework.boot.test.context.SpringBootContextLoader', parent = [null]], attributes = map['org.springframework.test.context.web.ServletTestExecutionListener.activateListener' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.populatedRequestContextHolder' -> true, 'org.springframework.test.context.web.ServletTestExecutionListener.resetRequestContextHolder' -> true, 'org.springframework.test.context.event.ApplicationEventsTestExecutionListener.recordApplicationEvents' -> false]]",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
+{
+  "instant" : {
+    "epochSecond" : 1665875397,
+    "nanoOfSecond" : 758000000
+  },
+  "thread" : "SpringApplicationShutdownHook",
+  "level" : "INFO",
+  "loggerName" : "org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory",
+  "message" : "Shutting down embedded database: url='jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false'",
+  "endOfBatch" : true,
+  "loggerFqcn" : "org.apache.commons.logging.LogAdapter$Log4jLog",
+  "threadId" : 14,
+  "threadPriority" : 5,
+  "success" : "null",
+  "cost" : "null",
+  "trace_id" : "null",
+  "milky_line" : "null",
+  "invocation_id" : "null",
+  "arg0" : "null",
+  "arg1" : "null",
+  "arg2" : "null",
+  "arg3" : "null",
+  "arg4" : "null",
+  "result" : "null",
+  "test" : "null"
+}
