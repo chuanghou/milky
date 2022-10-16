@@ -277,6 +277,7 @@ public class CommandBus {
                                                                        Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         instance.memoryTxTL.set(true);
+        SysException.nullThrow(instance.transactionSupport);
         try {
             result = instance.doSend(command, parameters, aggregateIdMap);
         } finally {

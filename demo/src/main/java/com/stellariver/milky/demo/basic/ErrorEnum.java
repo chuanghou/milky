@@ -11,8 +11,10 @@ public class ErrorEnum extends ErrorEnumBase {
 
     public static Error ITEM_NOT_EXIST;
 
+    public static Error MOCK_EXCEPTION;
+
     static {
-        for (Field field : ErrorEnumBase.class.getDeclaredFields()) {
+        for (Field field : ErrorEnum.class.getDeclaredFields()) {
             try {
                 field.setAccessible(true);
                 Object o = field.get(null);
