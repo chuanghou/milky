@@ -17,6 +17,7 @@ import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import com.stellariver.milky.spring.partner.BeanLoaderImpl;
+import com.stellariver.milky.spring.partner.TransactionSupportImpl;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
@@ -25,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -37,6 +39,11 @@ public class DomainSupportAutoConfiguration {
     @Bean
     public MilkyConfiguration milkyConfiguration(MilkyScanPackages milkyScanPackages, MilkProperties milkProperties) {
         return new MilkyConfiguration(milkProperties.enableMq, milkyScanPackages.getScanPackages());
+    }
+
+    @Bean
+    public TransactionSupport transactionSupport(DataSourceTransactionManager dataSourceTransactionManager) {
+        return new TransactionSupportImpl(dataSourceTransactionManager);
     }
 
     @Bean

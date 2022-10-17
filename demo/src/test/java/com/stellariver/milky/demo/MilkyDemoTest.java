@@ -85,9 +85,9 @@ public class MilkyDemoTest {
         Assertions.assertTrue(throwable instanceof BizException);
         Optional<Item> item = itemRepository.queryByIdOptional(1L);
 
-        Assertions.assertTrue(!item.isPresent());
-        Inventory inventory = inventoryRepository.queryByIdOptional(1L).get();
-        Assertions.assertNull(inventory);
+        Assertions.assertFalse(item.isPresent());
+        boolean present = inventoryRepository.queryByIdOptional(1L).isPresent();
+        Assertions.assertFalse(present);
     }
 
 
