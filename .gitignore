@@ -1,7 +1,7 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
 
-application.log
+.application.log
 
 backup/
 
