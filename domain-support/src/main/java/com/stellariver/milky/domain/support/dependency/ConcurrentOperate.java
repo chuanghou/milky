@@ -3,16 +3,13 @@ package com.stellariver.milky.domain.support.dependency;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.NameSpace;
 import com.stellariver.milky.common.tool.common.SysException;
-import com.stellariver.milky.domain.support.ErrorEnum;
+import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.RetryParameter;
-import com.stellariver.milky.domain.support.command.Command;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @CustomLog
 public abstract class ConcurrentOperate {
@@ -41,7 +38,7 @@ public abstract class ConcurrentOperate {
     public boolean unReentrantLock(NameSpace nameSpace, String lockKey, String encryptionKey) {
         String key = nameSpace.preFix(lockKey);
         boolean contains = lockedKeys.get().containsKey(nameSpace.preFix(lockKey));
-        SysException.falseThrow(contains, ErrorEnum.SYSTEM_EXCEPTION.message(key));
+        SysException.falseThrow(contains, ErrorEnums.SYSTEM_EXCEPTION.message(key));
         Integer lockedTimes = lockedKeys.get().get(key);
         lockedTimes--;
         if (Kit.eq(lockedTimes, 0)) {

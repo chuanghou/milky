@@ -1,16 +1,13 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.common.ConcurrentTool;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.domain.support.ErrorEnum;
+import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.util.AsyncExecutor;
-import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.NonNull;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -53,7 +50,7 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
 
     default Aggregate getByAggregateId(String aggregateId, Context context) {
         return getByAggregateIdOptional(aggregateId, context)
-                .orElseThrow(() -> new SysException(ErrorEnum.AGGREGATE_NOT_EXISTED.message(aggregateId)));
+                .orElseThrow(() -> new SysException(ErrorEnums.AGGREGATE_NOT_EXISTED.message(aggregateId)));
     }
 
     default Map<String, Aggregate> batchGetByAggregateIds(Set<String> aggregateIds, Context context) {

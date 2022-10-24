@@ -15,7 +15,7 @@ public class Result<T> implements Serializable {
 
     protected String message;
 
-    protected List<Error> errors;
+    protected List<ErrorEnum> errorEnums;
 
     public Boolean isSuccess() {
         return success;
@@ -37,8 +37,8 @@ public class Result<T> implements Serializable {
         return this.message;
     }
 
-    public List<Error> getErrors() {
-        return this.errors;
+    public List<ErrorEnum> getErrors() {
+        return this.errorEnums;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class Result<T> implements Serializable {
                 ", data=" + data +
                 ", code='" + code + '\'' +
                 ", message='" + message + '\'' +
-                ", errors=" + errors +
+                ", errors=" + errorEnums +
                 '}';
     }
 
@@ -62,21 +62,21 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static <T> Result<T> error(Error error) {
+    public static <T> Result<T> error(ErrorEnum errorEnum) {
         Result<T> result = new Result<>();
         result.success = false;
-        result.code = error.getCode();
-        result.message = error.getMessage();
-        result.errors = Collections.singletonList(error);
+        result.code = errorEnum.getCode();
+        result.message = errorEnum.getMessage();
+        result.errorEnums = Collections.singletonList(errorEnum);
         return result;
     }
 
-    public static <T> Result<T> error(List<Error> errors) {
+    public static <T> Result<T> error(List<ErrorEnum> errorEnums) {
         Result<T> result = new Result<>();
         result.success = false;
-        result.code = errors.get(0).getCode();
-        result.message = errors.get(0).getMessage();
-        result.errors = errors;
+        result.code = errorEnums.get(0).getCode();
+        result.message = errorEnums.get(0).getMessage();
+        result.errorEnums = errorEnums;
         return result;
     }
 

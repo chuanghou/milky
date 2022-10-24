@@ -3,10 +3,8 @@ package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.demo.basic.ErrorEnum;
+import com.stellariver.milky.demo.basic.ErrorEnums;
 import com.stellariver.milky.demo.basic.NameTypes;
-import com.stellariver.milky.demo.domain.inventory.Inventory;
-import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
@@ -48,7 +46,7 @@ public class MemoryTxTest {
         HashMap<NameType<?>, Object> parameters = new HashMap<>();
         parameters.put(NameTypes.employee, new Employee("110", "小明"));
 
-        Mockito.when(inventoryDOMapper.insert(Mockito.any())).thenThrow(new BizException(ErrorEnum.MOCK_EXCEPTION));
+        Mockito.when(inventoryDOMapper.insert(Mockito.any())).thenThrow(new BizException(ErrorEnums.MOCK_EXCEPTION));
         Throwable throwable = null;
         try {
             CommandBus.acceptMemoryTransactional(itemCreateCommand, parameters);

@@ -4,7 +4,7 @@ package com.stellariver.milky.domain.support.context;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.domain.support.ErrorEnum;
+import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
@@ -122,7 +122,7 @@ public class Context{
 
     public <Aggregate extends AggregateRoot> Aggregate getByAggregateId(Class<Aggregate> clazz, String aggregateId) {
         Aggregate aggregate = batchGetByAggregateIds(clazz, Collect.asSet(aggregateId)).get(aggregateId);
-        return Kit.op(aggregate).orElseThrow(() -> new SysException(ErrorEnum.AGGREGATE_NOT_EXISTED));
+        return Kit.op(aggregate).orElseThrow(() -> new SysException(ErrorEnums.AGGREGATE_NOT_EXISTED));
     }
 
     @SuppressWarnings("unchecked")

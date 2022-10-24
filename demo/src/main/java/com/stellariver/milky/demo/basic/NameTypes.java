@@ -71,7 +71,7 @@ public class NameTypes {
                         throw new SysException(e);
                     }
                     boolean b = nameTypeMap.containsKey(value.getName());
-                    BizException.trueThrow(b, ErrorEnum.CONFIG_ERROR.message(String.format("同名%sNameType!", value.getName())));
+                    BizException.trueThrow(b, ErrorEnums.configErrorEnum.message(String.format("同名%sNameType!", value.getName())));
                     nameTypeMap.put(value.getName(), value);
                 });
     }

@@ -3,7 +3,7 @@ package com.stellariver.milky.demo.adapter.repository.domain;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.demo.basic.ErrorEnum;
+import com.stellariver.milky.demo.basic.ErrorEnums;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
 import com.stellariver.milky.domain.support.dependency.DAOWrapper;
@@ -28,7 +28,7 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
     public void batchSave(@NonNull List<ItemDO> itemDOs) {
         itemDOs.forEach(itemDO -> {
             int count = itemDOMapper.insert(itemDO);
-            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnum.SYSTEM_EXCEPTION.message(itemDO));
+            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.SYSTEM_EXCEPTION.message(itemDO));
         });
     }
 
@@ -36,7 +36,7 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
     public void batchUpdate(@NonNull List<ItemDO> itemDOs) {
         itemDOs.forEach(itemDO -> {
             int count = itemDOMapper.updateById(itemDO);
-            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnum.SYSTEM_EXCEPTION.message(itemDO));
+            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.SYSTEM_EXCEPTION.message(itemDO));
         });
     }
 

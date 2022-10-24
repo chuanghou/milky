@@ -5,7 +5,7 @@ import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.LogChoice;
 import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.infrastructure.base.ErrorEnum;
+import com.stellariver.milky.infrastructure.base.ErrorEnums;
 import lombok.CustomLog;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -33,7 +33,7 @@ public abstract class AbstractRocketMQLimitMessageListenerConcurrently extends B
             throwable = e;
             boolean retryable = messageExt.getReconsumeTimes() < 10;
             if (retryable) {
-                throwable = new BizException(ErrorEnum.MESSAGE_RETRY, e);
+                throwable = new BizException(ErrorEnums.MESSAGE_RETRY, e);
                 return ConsumeConcurrentlyStatus.RECONSUME_LATER;
             } else {
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;

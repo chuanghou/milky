@@ -5,7 +5,7 @@ import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.ErrorEnum;
+import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.context.Context;
@@ -32,8 +32,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.stellariver.milky.common.tool.common.ErrorEnumBase.CONCURRENCY_VIOLATION;
-import static com.stellariver.milky.domain.support.ErrorEnum.*;
+import static com.stellariver.milky.common.tool.common.ErrorEnumsBase.CONCURRENCY_VIOLATION;
+import static com.stellariver.milky.domain.support.ErrorEnums.*;
 import static com.stellariver.milky.domain.support.command.HandlerType.*;
 
 @CustomLog
@@ -122,7 +122,7 @@ public class CommandBus {
                 .filter(m -> m.getParameterTypes()[0].isAssignableFrom(Command.class))
                 .filter(m -> {
                     boolean test = commandInterceptorFormat.test(m.getParameterTypes());
-                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    SysException.falseThrow(test, ErrorEnums.configErrorEnum.message(m.toGenericString()));
                     return test;
                 }).collect(Collectors.toList())
                 .forEach(method -> {
@@ -169,7 +169,7 @@ public class CommandBus {
                     .map(i -> (ParameterizedType) i)
                     .filter(t -> Objects.equals(t.getRawType(), AggregateDaoAdapter.class))
                     .map(ParameterizedType::getActualTypeArguments).findFirst()
-                    .orElseThrow(() -> new SysException(ErrorEnum.CONFIG_ERROR));
+                    .orElseThrow(() -> new SysException(ErrorEnums.configErrorEnum));
             daoAdapterMap.put((Class<? extends AggregateRoot>) types[0], bean);
         });
     }
@@ -181,7 +181,7 @@ public class CommandBus {
                     .map(i -> (ParameterizedType) i)
                     .filter(t -> Objects.equals(t.getRawType(), DAOWrapper.class))
                     .map(ParameterizedType::getActualTypeArguments).findFirst()
-                    .orElseThrow(() -> new SysException(ErrorEnum.CONFIG_ERROR));
+                    .orElseThrow(() -> new SysException(ErrorEnums.configErrorEnum));
             daoWrappersMap.put((Class<? extends BaseDataObject<?>>) types[0], bean);
         });
     }
@@ -195,7 +195,7 @@ public class CommandBus {
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class))
                 .filter(m -> {
                     boolean test = format.test(m.getParameterTypes());
-                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    SysException.falseThrow(test, ErrorEnums.configErrorEnum.message(m.toGenericString()));
                     return test;
                 }).collect(Collectors.toList());
 
@@ -209,7 +209,7 @@ public class CommandBus {
             Handler handler = new Handler(clazz, method, null, handlerType, hasReturn, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
             SysException.trueThrow(commandHandlers.containsKey(commandType),
-                    ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
+                    ErrorEnums.configErrorEnum.message(commandType.getName() + "has two command handlers"));
             commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
         });
 
@@ -217,7 +217,7 @@ public class CommandBus {
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class))
                 .filter(m -> {
                     boolean test = format.test(m.getParameterTypes());
-                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    SysException.falseThrow(test, ErrorEnums.configErrorEnum.message(m.toGenericString()));
                     return test;
                 }).collect(Collectors.toList());
 
@@ -229,7 +229,7 @@ public class CommandBus {
             Handler handler = new Handler(clazz, null, constructor, CONSTRUCTOR_METHOD, true, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
             SysException.trueThrow(commandHandlers.containsKey(commandType),
-                    ErrorEnum.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
+                    ErrorEnums.configErrorEnum.message(commandType.getName() + "has two command handlers"));
             commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
         });
     }
@@ -244,7 +244,7 @@ public class CommandBus {
                 .filter(method -> method.isAnnotationPresent(DependencyKey.class))
                 .filter(method -> {
                     boolean test = format.test(method.getParameterTypes());
-                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(method.toGenericString()));
+                    SysException.falseThrow(test, ErrorEnums.configErrorEnum.message(method.toGenericString()));
                     return test;
                 }).collect(Collectors.toList());
 

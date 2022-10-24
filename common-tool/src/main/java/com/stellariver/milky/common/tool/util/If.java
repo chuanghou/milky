@@ -1,14 +1,14 @@
 package com.stellariver.milky.common.tool.util;
 
 
-import com.stellariver.milky.common.tool.common.ErrorEnumBase;
+import com.stellariver.milky.common.tool.common.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.common.SysException;
 
 public class If {
 
     static public void isTrue(boolean test, Runnable runnable) {
-        SysException.anyNullThrow(test, ErrorEnumBase.PARAM_IS_NULL);
-        SysException.anyNullThrow(runnable, ErrorEnumBase.PARAM_IS_NULL);
+        SysException.anyNullThrow(test, ErrorEnumsBase.PARAM_IS_NULL);
+        SysException.anyNullThrow(runnable, ErrorEnumsBase.PARAM_IS_NULL);
         if (test) {
             runnable.run();
         }
@@ -19,9 +19,9 @@ public class If {
     }
 
     static public void trueOrFalse(boolean test, Runnable trueRunnable, Runnable falseRunnable) {
-        SysException.anyNullThrow(test, ErrorEnumBase.PARAM_IS_NULL);
-        SysException.anyNullThrow(trueRunnable, ErrorEnumBase.PARAM_IS_NULL);
-        SysException.anyNullThrow(falseRunnable, ErrorEnumBase.PARAM_IS_NULL);
+        SysException.anyNullThrow(test, ErrorEnumsBase.PARAM_IS_NULL);
+        SysException.anyNullThrow(trueRunnable, ErrorEnumsBase.PARAM_IS_NULL);
+        SysException.anyNullThrow(falseRunnable, ErrorEnumsBase.PARAM_IS_NULL);
         if (test) {
             trueRunnable.run();
         } else {

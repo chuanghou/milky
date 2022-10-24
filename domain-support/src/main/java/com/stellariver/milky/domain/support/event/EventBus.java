@@ -6,7 +6,7 @@ import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.ErrorEnum;
+import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
@@ -40,7 +40,7 @@ public class EventBus {
         Class<?>[] parameterTypes = method.getParameterTypes();
         boolean parametersMatch = parameterTypes.length == 2 &&
                 List.class.isAssignableFrom(parameterTypes[0]) && Context.class.isAssignableFrom(parameterTypes[1]);
-        SysException.falseThrow(parametersMatch, ErrorEnum.CONFIG_ERROR.message("FinalEventRouter format wrong! "
+        SysException.falseThrow(parametersMatch, ErrorEnums.configErrorEnum.message("FinalEventRouter format wrong! "
                 + method.getDeclaringClass().getName() + "#" + method.getName()));
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Type actualTypeArgument = ((ParameterizedType) genericParameterTypes[0]).getActualTypeArguments()[0];
@@ -63,7 +63,7 @@ public class EventBus {
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .filter(m -> {
                     boolean test = format.test(m);
-                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    SysException.falseThrow(test, ErrorEnums.configErrorEnum.message(m.toGenericString()));
                     return test;
                 })
                 .collect(Collectors.toList());
@@ -91,7 +91,7 @@ public class EventBus {
                 .filter(m -> m.getParameterTypes()[0].isAssignableFrom(Event.class))
                 .filter(m -> {
                     boolean test = format.test(m);
-                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    SysException.falseThrow(test, ErrorEnums.configErrorEnum.message(m.toGenericString()));
                     return test;
                 }).filter(method -> method.getParameterTypes()[0].isAssignableFrom(Event.class))
                 .collect(Collectors.toList())
@@ -126,13 +126,13 @@ public class EventBus {
                 .filter(m -> m.isAnnotationPresent(FinalEventRouter.class))
                 .filter(m -> {
                     boolean test = finalEventRouterFormat.test(m);
-                    SysException.falseThrow(test, ErrorEnum.CONFIG_ERROR.message(m.toGenericString()));
+                    SysException.falseThrow(test, ErrorEnums.configErrorEnum.message(m.toGenericString()));
                     return test;
                 }).collect(Collectors.toList());
 
         List<FinalRouter<Class<? extends Event>>> tempFinalRouters = methods.stream().map(method -> {
             FinalEventRouter annotation = method.getAnnotation(FinalEventRouter.class);
-            BizException.trueThrow(Kit.eq(annotation.order(), 0), ErrorEnum.CONFIG_ERROR.message("final event router order must not 0!"));
+            BizException.trueThrow(Kit.eq(annotation.order(), 0), ErrorEnums.configErrorEnum.message("final event router order must not 0!"));
             Type typeArgument = ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Class<? extends Event> eventClass = (Class<? extends Event>) typeArgument;
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
@@ -147,7 +147,7 @@ public class EventBus {
                 .filter(fR -> !Kit.eq(fR.getOrder(), Integer.MAX_VALUE)).collect(Collectors.toList());
         Set<Integer> orders = Collect.transfer(notDefaultOrderRouters, FinalRouter::getOrder, HashSet::new);
         SysException.falseThrow(Kit.eq(orders.size(), notDefaultOrderRouters.size()),
-                ErrorEnum.CONFIG_ERROR.message("exists finalEventRouters share same order!"));
+                ErrorEnums.configErrorEnum.message("exists finalEventRouters share same order!"));
         finalRouters.addAll(tempFinalRouters);
     }
 

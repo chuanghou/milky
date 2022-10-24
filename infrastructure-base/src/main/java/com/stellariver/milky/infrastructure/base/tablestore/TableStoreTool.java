@@ -8,7 +8,7 @@ import com.alicloud.openservices.tablestore.model.search.sort.SortOrder;
 import com.google.common.base.Strings;
 import com.stellariver.milky.common.base.TSSearch;
 import com.stellariver.milky.common.tool.common.BizException;
-import com.stellariver.milky.common.tool.common.ErrorEnumBase;
+import com.stellariver.milky.common.tool.common.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.SysException;
 import lombok.SneakyThrows;
@@ -58,7 +58,7 @@ public class TableStoreTool {
         }
 
         if (annotation.like()) {
-            SysException.falseThrow(value instanceof String, ErrorEnumBase.PARAM_FORMAT_WRONG.message("like only support String field!"));
+            SysException.falseThrow(value instanceof String, ErrorEnumsBase.PARAM_FORMAT_WRONG.message("like only support String field!"));
             Query query = QueryBuilders.matchPhrase(index, (String) value).build();
             return doBuildQuery(index, query);
         } else {
@@ -81,7 +81,7 @@ public class TableStoreTool {
     private static Query doBuildQuery(String index, Query query) {
         if (index.contains(".")) {
             String[] paths = index.split("\\.");
-            BizException.trueThrow(paths.length != 2, ErrorEnumBase.SYSTEM_EXCEPTION.message("search param size is not 2!"));
+            BizException.trueThrow(paths.length != 2, ErrorEnumsBase.SYSTEM_EXCEPTION.message("search param size is not 2!"));
             String path = paths[0];
             NestedQuery nestedQuery = new NestedQuery(); // 设置查询类型为NestedQuery
             nestedQuery.setPath(path); // 设置嵌套类型列的路径

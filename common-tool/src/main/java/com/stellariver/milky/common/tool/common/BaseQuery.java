@@ -34,7 +34,7 @@ public abstract class BaseQuery<ID, T> {
     public Map<ID, T> queryMapByIdsNotAllowLost(Set<ID> ids) {
         Map<ID, T> idtMap = queryMapByIds(ids);
         SysException.trueThrowGet(!Kit.eq(idtMap.size(), ids.size()),
-                () -> ErrorEnumBase.NOT_ALLOW_LOST.message(Collect.diff(ids, idtMap.keySet())));
+                () -> ErrorEnumsBase.NOT_ALLOW_LOST.message(Collect.diff(ids, idtMap.keySet())));
         return idtMap;
     }
 
@@ -123,11 +123,11 @@ public abstract class BaseQuery<ID, T> {
 
     public T queryById(ID id) {
         Optional<T> optional = queryByIdOptional(id);
-        return optional.orElseThrow(() -> new SysException(ErrorEnumBase.ENTITY_NOT_FOUND.message("id:" + Json.toJson(id))));
+        return optional.orElseThrow(() -> new SysException(ErrorEnumsBase.ENTITY_NOT_FOUND.message("id:" + Json.toJson(id))));
     }
 
     public Iterator<List<T>> buildIterator(Integer pageSize) {
-        throw new SysException(ErrorEnumBase.CONFIG_ERROR.message("need to instantiate by sub class!"));
+        throw new SysException(ErrorEnumsBase.configErrorEnum.message("need to instantiate by sub class!"));
     }
 
 }

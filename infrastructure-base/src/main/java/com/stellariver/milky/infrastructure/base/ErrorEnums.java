@@ -1,18 +1,18 @@
 package com.stellariver.milky.infrastructure.base;
 
-import com.stellariver.milky.common.base.Error;
+import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.tool.common.DefaultMessage;
-import com.stellariver.milky.common.tool.common.ErrorEnumBase;
+import com.stellariver.milky.common.tool.common.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.common.Kit;
 
 import java.lang.reflect.Field;
 
-public class ErrorEnum extends ErrorEnumBase {
+public class ErrorEnums extends ErrorEnumsBase {
 
-    public static Error MESSAGE_RETRY;
+    public static ErrorEnum MESSAGE_RETRY;
 
     static {
-        for (Field field : ErrorEnumBase.class.getDeclaredFields()) {
+        for (Field field : ErrorEnumsBase.class.getDeclaredFields()) {
             try {
                 field.setAccessible(true);
                 Object o = field.get(null);
@@ -22,10 +22,10 @@ public class ErrorEnum extends ErrorEnumBase {
             } catch (Throwable ignore) {
             }
             String name = field.getName();
-            Error error = Error.code(name).message(Kit.op(field.getAnnotation(DefaultMessage.class))
+            ErrorEnum errorEnum = ErrorEnum.code(name).message(Kit.op(field.getAnnotation(DefaultMessage.class))
                     .map(DefaultMessage::value).orElse("系统繁忙请稍后再试"));
             try {
-                field.set(null, error);
+                field.set(null, errorEnum);
             } catch (Throwable ignore) {
             }
         }

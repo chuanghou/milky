@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.stellariver.milky.demo.basic.ErrorEnum.ITEM_NOT_EXIST;
+import static com.stellariver.milky.demo.basic.ErrorEnums.ITEM_NOT_EXIST;
 
 @Service
 @RequiredArgsConstructor

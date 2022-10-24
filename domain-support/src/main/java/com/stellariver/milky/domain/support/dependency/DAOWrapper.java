@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.common.ErrorEnumBase;
+import com.stellariver.milky.common.tool.common.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -21,7 +21,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
             Object o = field.get(obj);
             SysException.nullThrowGet(o, () -> {
                 String message = String.format("class %s, field %s", obj.getClass().getSimpleName(), field.getName());
-                return ErrorEnumBase.FIELD_IS_NULL.message(message);
+                return ErrorEnumsBase.FIELD_IS_NULL.message(message);
             });
         }
     }

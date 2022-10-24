@@ -1,35 +1,35 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.base.Error;
+import com.stellariver.milky.common.base.ErrorEnum;
 
 import java.util.Collections;
 import java.util.List;
 
 public abstract class BaseException extends RuntimeException {
 
-    private final List<Error> errors;
+    private final List<ErrorEnum> errorEnums;
 
     public BaseException(Throwable t) {
         super(t);
-        this.errors = Collections.singletonList(ErrorEnumBase.UNDEFINED.message(t.getMessage()));
+        this.errorEnums = Collections.singletonList(ErrorEnumsBase.UNDEFINED.message(t.getMessage()));
     }
 
-    public BaseException(List<Error> errors) {
-        super(errors.get(0).getMessage());
-        this.errors = errors;
+    public BaseException(List<ErrorEnum> errorEnums) {
+        super(errorEnums.get(0).getMessage());
+        this.errorEnums = errorEnums;
     }
 
-    public BaseException(List<Error> errors, Throwable t) {
-        super(errors.get(0).getMessage(), t);
-        this.errors = errors;
+    public BaseException(List<ErrorEnum> errorEnums, Throwable t) {
+        super(errorEnums.get(0).getMessage(), t);
+        this.errorEnums = errorEnums;
     }
 
-    public List<Error> getErrors() {
-        return errors;
+    public List<ErrorEnum> getErrors() {
+        return errorEnums;
     }
 
-    public Error getFirstError() {
-        return errors.get(0);
+    public ErrorEnum getFirstError() {
+        return errorEnums.get(0);
     }
 
 }

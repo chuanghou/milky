@@ -4,7 +4,7 @@ import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.common.tool.common.LogChoice;
 import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.infrastructure.base.ErrorEnum;
+import com.stellariver.milky.infrastructure.base.ErrorEnums;
 import lombok.CustomLog;
 import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
@@ -38,7 +38,7 @@ public abstract class AbstractRocketMQLimitMessageListenerOrderly extends BaseRo
                 retryable = false;
             }
             if (retryable) {
-                throwable = new BizException(ErrorEnum.MESSAGE_RETRY, throwable);
+                throwable = new BizException(ErrorEnums.MESSAGE_RETRY, throwable);
             }
             return ConsumeOrderlyStatus.SUCCESS;
         } finally {

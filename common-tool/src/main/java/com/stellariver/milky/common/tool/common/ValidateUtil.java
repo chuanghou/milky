@@ -49,9 +49,9 @@ public class ValidateUtil {
             StringBuilder errorMsg = new StringBuilder();
             validateResult.forEach(validate -> errorMsg.append(validate.getPropertyPath()).append(validate.getMessage()).append(";"));
             if (type == ExceptionType.BIZ) {
-                throw new BizException(ErrorEnumBase.PARAM_FORMAT_WRONG.message(errorMsg.toString()));
+                throw new BizException(ErrorEnumsBase.PARAM_FORMAT_WRONG.message(errorMsg.toString()));
             } else {
-                throw new SysException(ErrorEnumBase.PARAM_FORMAT_WRONG.message(errorMsg.toString()));
+                throw new SysException(ErrorEnumsBase.PARAM_FORMAT_WRONG.message(errorMsg.toString()));
             }
         }
     }
