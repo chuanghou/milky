@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
@@ -51,9 +52,9 @@ public class EventBus {
 
     private final List<FinalRouter<Class<? extends Event>>> finalRouters = new ArrayList<>();
 
-    private final Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors = new HashMap<>();
+    private Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors;
 
-    private final Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors = new HashMap<>();
+    private Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors;
 
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {
@@ -116,10 +117,19 @@ public class EventBus {
         });
 
         // internal order
-        beforeEventInterceptors.forEach((k, v) ->
-                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
-        afterEventInterceptors.forEach((k, v) ->
-                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
+        List<Pair<? extends Class<? extends Event>, List<Interceptor>>> tempInterceptors =
+                beforeEventInterceptors.entrySet().stream().map(e -> {
+                    List<Interceptor> sortedInterceptors = e.getValue().stream()
+                            .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
+                    return Pair.of(e.getKey(), sortedInterceptors);
+                }).collect(Collectors.toList());
+        beforeEventInterceptors = Collect.toMap(tempInterceptors, Pair::getKey, Pair::getValue);
+        tempInterceptors = afterEventInterceptors.entrySet().stream().map(e -> {
+                    List<Interceptor> sortedInterceptors = e.getValue().stream()
+                            .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
+                    return Pair.of(e.getKey(), sortedInterceptors);
+                }).collect(Collectors.toList());
+        afterEventInterceptors = Collect.toMap(tempInterceptors, Pair::getKey, Pair::getValue);
 
         methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
@@ -132,7 +142,10 @@ public class EventBus {
 
         List<FinalRouter<Class<? extends Event>>> tempFinalRouters = methods.stream().map(method -> {
             FinalEventRouter annotation = method.getAnnotation(FinalEventRouter.class);
-            BizException.trueThrow(Kit.eq(annotation.order(), 0), ErrorEnums.CONFIG_ERROR.message("final event router order must not 0!"));
+            BizException.trueThrowGet(Kit.eq(annotation.order(), 0),
+                    () -> ErrorEnums.CONFIG_ERROR.message("final event router order must not 0!"));
+            BizException.trueThrowGet(annotation.asyncable() && Kit.notEq(annotation.order(), Integer.MAX_VALUE),
+                    () -> ErrorEnums.CONFIG_ERROR.message("asyncable final event router must process finally"));
             Type typeArgument = ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Class<? extends Event> eventClass = (Class<? extends Event>) typeArgument;
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
