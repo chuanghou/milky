@@ -22,10 +22,8 @@ public abstract class BaseQuery<ID, T> {
     private CacheConfig cacheConfig;
 
     private final ThreadLocal<Cache<ID, T>> threadLocal = ThreadLocal.withInitial(
-            () -> CacheBuilder.newBuilder()
-                    .maximumSize(getCacheConfiguration().getMaximumSize())
-                    .expireAfterWrite(getCacheConfiguration().getExpireAfterWrite(),
-                            Kit.op(getCacheConfiguration().getTimeUnit()).orElse(TimeUnit.MILLISECONDS))
+            () -> CacheBuilder.newBuilder().maximumSize(getCacheConfiguration().getMaximumSize())
+                    .expireAfterWrite(getCacheConfiguration().getExpireAfterWrite(), getCacheConfiguration().getTimeUnit())
                     .build()
     );
 
@@ -127,7 +125,7 @@ public abstract class BaseQuery<ID, T> {
     }
 
     public Iterator<List<T>> buildIterator(Integer pageSize) {
-        throw new SysException(ErrorEnumsBase.configErrorEnum.message("need to instantiate by sub class!"));
+        throw new SysException(ErrorEnumsBase.CONFIG_ERROR.message("need to instantiate by sub class!"));
     }
 
 }

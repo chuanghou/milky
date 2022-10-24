@@ -4,6 +4,7 @@ package com.stellariver.milky.common.base;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class Result<T> implements Serializable {
 
@@ -14,6 +15,8 @@ public class Result<T> implements Serializable {
     protected String code;
 
     protected String message;
+
+    protected Map<String, Object> extendInfo;
 
     protected List<ErrorEnum> errorEnums;
 
@@ -78,6 +81,11 @@ public class Result<T> implements Serializable {
         result.message = errorEnums.get(0).getMessage();
         result.errorEnums = errorEnums;
         return result;
+    }
+
+    public Result<T> extendInfo(Map<String, Object> extendInfo) {
+        this.extendInfo = extendInfo;
+        return this;
     }
 
 }

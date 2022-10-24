@@ -1,12 +1,12 @@
 package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.stellariver.milky.common.tool.common.BaseQuery;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
-import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventRouters;
@@ -18,6 +18,10 @@ import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import com.stellariver.milky.spring.partner.BeanLoaderImpl;
 import com.stellariver.milky.spring.partner.TransactionSupportImpl;
+import com.stellariver.milky.spring.partner.limit.RateLimitConfigTunnel;
+import com.stellariver.milky.spring.partner.limit.RateLimitSupport;
+import com.stellariver.milky.spring.partner.tlc.TLCSupport;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
@@ -82,7 +86,6 @@ public class DomainSupportAutoConfiguration {
                 transactionSupport);
     }
 
-
     @Bean
     public CommandBus commandBus(MilkySupport milkySupport, EventBus eventBus, MilkyConfiguration milkyConfiguration) {
         return new CommandBus(milkySupport, eventBus, milkyConfiguration);
@@ -121,12 +124,32 @@ public class DomainSupportAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public TraceRepository traceRepository() {
-        return new TraceRepository() {
-            @Override
-            public void record(Context context, boolean success) {
+        return (context, success) -> {};
+    }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public RateLimitConfigTunnel rateLimitConfigTunnel() {
+        return new RateLimitConfigTunnel() {
+            @Override
+            public Integer qps(String key) {
+                return 100;
+            }
+            @Override
+            public String key(ProceedingJoinPoint pjp) {
+                return pjp.toLongString();
             }
         };
+    }
+
+    @Bean
+    public RateLimitSupport rateLimitSupportAspect(RateLimitConfigTunnel rateLimitConfigTunnel) {
+        return new RateLimitSupport(rateLimitConfigTunnel);
+    }
+
+    @Bean
+    public TLCSupport tlcSupportAspect(List<BaseQuery<?, ?>> baseQueries) {
+        return new TLCSupport(baseQueries);
     }
 
 }

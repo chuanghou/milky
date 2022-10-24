@@ -13,7 +13,6 @@ import java.util.*;
 
 public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
 
-
     @SneakyThrows
     default void checkNullField(Object obj) {
         for (Field field : obj.getClass().getDeclaredFields()) {

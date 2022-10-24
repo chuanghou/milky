@@ -9,11 +9,11 @@ import java.util.function.Supplier;
 public class SysException extends BaseException {
 
     public SysException(String message) {
-        super(Collections.singletonList(ErrorEnumsBase.UNDEFINED.message(message)));
+        super(Collections.singletonList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(message)));
     }
 
     public SysException(Object object) {
-        super(Collections.singletonList(ErrorEnumsBase.UNDEFINED.message(Json.toJson(object))));
+        super(Collections.singletonList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(Json.toJson(object))));
     }
 
     public SysException(Throwable throwable) {

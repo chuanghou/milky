@@ -1,12 +1,12 @@
-package com.stellariver.milky.spring.partner;
+package com.stellariver.milky.spring.partner.tlc;
 
 import com.stellariver.milky.common.tool.common.BaseQuery;
 
 import java.lang.annotation.*;
 
-@Inherited
+@Target( ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Target( {ElementType.METHOD, ElementType.TYPE})
+@Inherited
 public @interface EnableTLC {
 
     Class<? extends BaseQuery<?, ?>>[] disableBaseQueries() default {};

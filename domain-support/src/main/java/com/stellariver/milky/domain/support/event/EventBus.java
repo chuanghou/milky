@@ -40,7 +40,7 @@ public class EventBus {
         Class<?>[] parameterTypes = method.getParameterTypes();
         boolean parametersMatch = parameterTypes.length == 2 &&
                 List.class.isAssignableFrom(parameterTypes[0]) && Context.class.isAssignableFrom(parameterTypes[1]);
-        SysException.falseThrow(parametersMatch, ErrorEnums.configErrorEnum.message("FinalEventRouter format wrong! "
+        SysException.falseThrow(parametersMatch, ErrorEnums.CONFIG_ERROR.message("FinalEventRouter format wrong! "
                 + method.getDeclaringClass().getName() + "#" + method.getName()));
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Type actualTypeArgument = ((ParameterizedType) genericParameterTypes[0]).getActualTypeArguments()[0];
