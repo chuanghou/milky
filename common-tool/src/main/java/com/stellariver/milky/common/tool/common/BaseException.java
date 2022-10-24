@@ -3,7 +3,6 @@ package com.stellariver.milky.common.tool.common;
 import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.tool.util.Collect;
 
-import java.util.Collections;
 import java.util.List;
 
 public abstract class BaseException extends RuntimeException {
