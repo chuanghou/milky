@@ -71,7 +71,7 @@ public class SysException extends BaseException {
 
     static public void trueThrow(boolean test, Object object) {
         if (test) {
-            throw new SysException(ErrorEnumsBase.UNDEFINED.message(object));
+            throw new SysException(ErrorEnumsBase.SYSTEM_EXCEPTION.message(object));
         }
     }
 

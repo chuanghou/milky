@@ -181,7 +181,7 @@ public class CommandBus {
                     .map(i -> (ParameterizedType) i)
                     .filter(t -> Objects.equals(t.getRawType(), DAOWrapper.class))
                     .map(ParameterizedType::getActualTypeArguments).findFirst()
-                    .orElseThrow(() -> new SysException(ErrorEnums.configErrorEnum));
+                    .orElseThrow(() -> new SysException(ErrorEnums.CONFIG_ERROR));
             daoWrappersMap.put((Class<? extends BaseDataObject<?>>) types[0], bean);
         });
     }
