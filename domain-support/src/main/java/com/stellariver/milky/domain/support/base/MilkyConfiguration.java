@@ -7,8 +7,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MilkyConfiguration {
 
-    boolean enableMq;
-
     String[] scanPackages;
 
 }

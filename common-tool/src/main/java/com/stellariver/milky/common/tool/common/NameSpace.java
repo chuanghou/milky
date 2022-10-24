@@ -12,6 +12,14 @@ public class NameSpace {
         return this.name;
     }
 
+    public String preFix(String delimiter, String value) {
+        return name + "_" + value;
+    }
+
+    public String preFix(String value) {
+        return preFix("_", value);
+    }
+
     static public NameSpace build(Class<?> clazz) {
         return new NameSpace(clazz.getName());
     }

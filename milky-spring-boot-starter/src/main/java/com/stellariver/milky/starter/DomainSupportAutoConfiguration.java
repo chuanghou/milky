@@ -37,8 +37,9 @@ public class DomainSupportAutoConfiguration {
     private static final Logger log = Logger.getLogger(DomainSupportAutoConfiguration.class);
 
     @Bean
+    @SuppressWarnings("all")
     public MilkyConfiguration milkyConfiguration(MilkyScanPackages milkyScanPackages, MilkProperties milkProperties) {
-        return new MilkyConfiguration(milkProperties.enableMq, milkyScanPackages.getScanPackages());
+        return new MilkyConfiguration(milkyScanPackages.getScanPackages());
     }
 
     @Bean

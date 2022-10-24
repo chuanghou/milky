@@ -6,16 +6,7 @@ import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConcurrentOperateImpl implements ConcurrentOperate {
-    @Override
-    public void sendOrderly(Command command) {
-
-    }
-
-    @Override
-    public void receiveCommand(Command command) {
-
-    }
+public class ConcurrentOperateImpl extends ConcurrentOperate {
 
     @Override
     public boolean tryLock(NameSpace nameSpace, String lockKey, String encryptionKey, int milsToExpire) {

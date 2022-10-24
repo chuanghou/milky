@@ -70,8 +70,6 @@ public class CommandBus {
 
     private final EventBus eventBus;
 
-    private final boolean enableMq;
-
     private final TraceRepository traceRepository;
 
     private final AsyncExecutor asyncExecutor;
@@ -89,7 +87,6 @@ public class CommandBus {
         this.transactionSupport = milkySupport.getTransactionSupport();
         this.asyncExecutor = milkySupport.getAsyncExecutor();
         this.eventBus = eventBus;
-        this.enableMq = milkyConfiguration.isEnableMq();
         this.reflections = milkySupport.getReflections();
 
         prepareCommandHandlers();
@@ -381,11 +378,9 @@ public class CommandBus {
         long now = SystemClock.now();
         boolean locked = false;
         try {
-            locked = concurrentOperate.tryLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils());
+            locked = concurrentOperate.tryReentrantLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils());
             if (locked) {
                 result = doRoute(command, context, commandHandler);
-            } else if (enableMq && !commandHandler.hasReturn && command.allowAsync()) {
-                concurrentOperate.sendOrderly(command);
             } else {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
                 RetryParameter retryParameter = RetryParameter.builder()
@@ -403,7 +398,7 @@ public class CommandBus {
             tLContext.get().clearDependencies();
         } finally {
             if (locked) {
-                boolean unlock = concurrentOperate.unlock(nameSpace, lockKey, encryptionKey);
+                boolean unlock = concurrentOperate.unReentrantLock(nameSpace, lockKey, encryptionKey);
                 if (!unlock) {
                     log.arg0(nameSpace).arg1(lockKey).cost(SystemClock.now() - now).error("UNLOCK_FAILURE");
                 }
