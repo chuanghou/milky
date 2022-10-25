@@ -1,6 +1,6 @@
 package com.stellariver.milky.infrastructure.base;
 
-import com.stellariver.milky.common.tool.common.LogChoice;
+import com.stellariver.milky.common.tool.log.LogChoice;
 
 public interface LogConfiguration {
 

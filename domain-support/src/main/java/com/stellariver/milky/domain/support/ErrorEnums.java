@@ -1,9 +1,9 @@
 package com.stellariver.milky.domain.support;
 
 import com.stellariver.milky.common.base.ErrorEnum;
-import com.stellariver.milky.common.tool.common.DefaultMessage;
-import com.stellariver.milky.common.tool.common.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.exception.DefaultMessage;
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
+import com.stellariver.milky.common.tool.util.Kit;
 
 import java.lang.reflect.Field;
 

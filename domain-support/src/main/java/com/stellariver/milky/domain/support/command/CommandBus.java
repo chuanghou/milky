@@ -1,10 +1,12 @@
 package com.stellariver.milky.domain.support.command;
 
-import com.stellariver.milky.common.tool.common.*;
-import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.common.tool.util.Json;
+import com.stellariver.milky.common.tool.NameSpace;
+import com.stellariver.milky.common.tool.Runner;
+import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.log.LogChoice;
+import com.stellariver.milky.common.tool.util.*;
 import com.stellariver.milky.common.tool.util.Random;
-import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.base.*;
@@ -32,7 +34,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.stellariver.milky.common.tool.common.ErrorEnumsBase.CONCURRENCY_VIOLATION;
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONCURRENCY_VIOLATION;
 import static com.stellariver.milky.domain.support.ErrorEnums.*;
 import static com.stellariver.milky.domain.support.command.HandlerType.*;
 
@@ -391,7 +393,7 @@ public class CommandBus {
                         .times(command.retryTimes())
                         .sleepTimeMils(sleepTimeMs)
                         .build();
-                locked = concurrentOperate.tryRetryLock(retryParameter);
+                locked = concurrentOperate.retryReentrantLock(retryParameter);
                 BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doRoute(command, context, commandHandler);
             }

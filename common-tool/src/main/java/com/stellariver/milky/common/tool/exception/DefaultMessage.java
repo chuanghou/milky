@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.common;
+package com.stellariver.milky.common.tool.exception;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

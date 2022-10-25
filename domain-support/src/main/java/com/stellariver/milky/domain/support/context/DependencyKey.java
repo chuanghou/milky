@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.context;
 
-import com.stellariver.milky.common.tool.common.LogChoice;
+import com.stellariver.milky.common.tool.log.LogChoice;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

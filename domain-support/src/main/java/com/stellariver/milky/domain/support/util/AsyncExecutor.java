@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.util;
 
-import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.util.Kit;
 import lombok.NonNull;
 
 import java.util.ArrayList;

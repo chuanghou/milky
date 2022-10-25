@@ -1,6 +1,6 @@
-package com.stellariver.milky.common.tool.common;
+package com.stellariver.milky.common.tool;
 
-import com.stellariver.milky.common.tool.util.Json;
+import com.stellariver.milky.common.tool.exception.SysException;
 import lombok.SneakyThrows;
 
 import java.io.Serializable;

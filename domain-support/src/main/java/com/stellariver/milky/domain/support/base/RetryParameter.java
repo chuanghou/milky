@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.base;
 
-import com.stellariver.milky.common.tool.common.NameSpace;
+import com.stellariver.milky.common.tool.NameSpace;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

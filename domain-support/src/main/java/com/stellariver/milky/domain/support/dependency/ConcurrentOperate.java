@@ -1,8 +1,8 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.common.NameSpace;
-import com.stellariver.milky.common.tool.common.SysException;
+import com.stellariver.milky.common.tool.util.Kit;
+import com.stellariver.milky.common.tool.NameSpace;
+import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.RetryParameter;
 import lombok.CustomLog;
@@ -56,7 +56,7 @@ public abstract class ConcurrentOperate {
     abstract protected boolean unlock(NameSpace nameSpace, String lockKey, String encryptionKey);
 
     @SneakyThrows
-    public boolean tryRetryLock(RetryParameter retryParameter) {
+    public boolean retryReentrantLock(RetryParameter retryParameter) {
         SysException.anyNullThrow(retryParameter.getLockKey());
         SysException.trueThrow(retryParameter.getTimes() <= 0, "retry times should not smaller than 0 or equal with 0");
         SysException.trueThrow(retryParameter.getSleepTimeMils() > 5000, "sleep time is too long");

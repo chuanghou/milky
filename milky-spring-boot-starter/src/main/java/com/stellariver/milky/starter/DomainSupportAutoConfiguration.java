@@ -1,7 +1,7 @@
 package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.stellariver.milky.common.tool.common.BaseQuery;
+import com.stellariver.milky.common.tool.BaseQuery;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;

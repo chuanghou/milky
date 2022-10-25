@@ -2,7 +2,7 @@ package com.stellariver.milky.demo.adapter.controller;
 
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.tool.common.BizException;
+import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.demo.application.ItemAbility;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.spring.partner.limit.EnableRateLimit;

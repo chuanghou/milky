@@ -1,7 +1,7 @@
 package com.stellariver.milky.infrastructure.base.mq;
 
 import com.alibaba.csp.sentinel.SphO;
-import com.stellariver.milky.common.tool.common.LogChoice;
+import com.stellariver.milky.common.tool.log.LogChoice;
 import com.stellariver.milky.infrastructure.base.LogConfiguration;
 import lombok.CustomLog;
 import lombok.SneakyThrows;

@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.common;
+package com.stellariver.milky.common.tool;
 
 import java.io.Serializable;
 

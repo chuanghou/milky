@@ -1,7 +1,6 @@
 package com.stellariver.milky.demo.adapter.repository;
 
-import com.stellariver.milky.common.tool.common.NameSpace;
-import com.stellariver.milky.domain.support.command.Command;
+import com.stellariver.milky.common.tool.NameSpace;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import org.springframework.stereotype.Component;
 

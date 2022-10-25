@@ -1,5 +1,7 @@
-package com.stellariver.milky.common.tool.common;
+package com.stellariver.milky.common.tool.util;
 
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
+import com.stellariver.milky.common.tool.exception.SysException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;

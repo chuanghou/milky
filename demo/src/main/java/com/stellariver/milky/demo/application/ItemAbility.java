@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.application;
 
 import com.stellariver.milky.common.base.Employee;
-import com.stellariver.milky.common.tool.common.BizException;
+import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.demo.basic.NameTypes;
 import com.stellariver.milky.demo.domain.item.Item;

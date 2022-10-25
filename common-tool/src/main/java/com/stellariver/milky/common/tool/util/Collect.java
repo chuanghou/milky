@@ -2,9 +2,8 @@ package com.stellariver.milky.common.tool.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.stellariver.milky.common.tool.common.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.common.SysException;
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
+import com.stellariver.milky.common.tool.exception.SysException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 

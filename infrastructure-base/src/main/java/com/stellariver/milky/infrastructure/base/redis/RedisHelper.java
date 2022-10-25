@@ -1,7 +1,6 @@
 package com.stellariver.milky.infrastructure.base.redis;
 
-import com.stellariver.milky.common.tool.common.NameSpace;
-import com.stellariver.milky.common.tool.log.Logger;
+import com.stellariver.milky.common.tool.NameSpace;
 import com.stellariver.milky.common.tool.util.Collect;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;

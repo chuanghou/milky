@@ -1,8 +1,6 @@
 package com.stellariver.milky.spring.partner.tlc;
 
-import com.stellariver.milky.common.tool.common.BaseQuery;
-import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.BaseQuery;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -12,11 +10,9 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 

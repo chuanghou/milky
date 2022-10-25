@@ -1,6 +1,6 @@
 package com.stellariver.milky.infrastructure.base.schedulex;
 
-import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.util.SystemClock;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

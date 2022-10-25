@@ -1,12 +1,14 @@
-package com.stellariver.milky.common.tool.common;
+package com.stellariver.milky.common.tool;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
+import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
+import com.stellariver.milky.common.tool.util.Kit;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public abstract class BaseQuery<ID, T> {
 

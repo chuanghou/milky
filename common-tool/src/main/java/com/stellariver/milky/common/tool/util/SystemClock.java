@@ -1,8 +1,7 @@
-package com.stellariver.milky.common.tool.common;
+package com.stellariver.milky.common.tool.util;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

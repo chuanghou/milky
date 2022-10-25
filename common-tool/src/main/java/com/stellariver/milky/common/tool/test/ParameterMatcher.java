@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.test;
 
-import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.util.Kit;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.mockito.ArgumentMatcher;

@@ -1,5 +1,6 @@
-package com.stellariver.milky.common.tool.common;
+package com.stellariver.milky.common.tool;
 
+import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -10,7 +11,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ConcurrentTool {
