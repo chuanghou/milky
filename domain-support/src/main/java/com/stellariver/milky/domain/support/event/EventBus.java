@@ -52,9 +52,9 @@ public class EventBus {
 
     private final List<FinalRouter<Class<? extends Event>>> finalRouters = new ArrayList<>();
 
-    private Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors;
+    private Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors = new HashMap<>();
 
-    private Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors;
+    private Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {

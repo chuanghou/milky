@@ -5,6 +5,7 @@ import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.common.BizException;
 import com.stellariver.milky.demo.application.ItemAbility;
 import com.stellariver.milky.demo.domain.item.Item;
+import com.stellariver.milky.spring.partner.limit.EnableRateLimit;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,6 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ItemController {
 
     ItemAbility itemAbility;
+
+    @GetMapping("testRateLimit")
+    @EnableRateLimit
+    public Result<Boolean> testRateLimit() {
+        return Result.success();
+    }
 
     @GetMapping("publish")
     public Result<Boolean> publish(String title) {
