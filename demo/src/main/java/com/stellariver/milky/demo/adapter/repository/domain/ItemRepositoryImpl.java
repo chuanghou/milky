@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.adapter.repository;
+package com.stellariver.milky.demo.adapter.repository.domain;
 
 import com.stellariver.milky.common.tool.common.TLCConfiguration;
 import com.stellariver.milky.common.tool.util.Collect;

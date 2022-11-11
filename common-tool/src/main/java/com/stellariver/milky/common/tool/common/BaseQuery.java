@@ -2,13 +2,15 @@ package com.stellariver.milky.common.tool.common;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.stellariver.milky.common.tool.CacheConfig;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public abstract class BaseQuery<ID, T> {
 
@@ -128,6 +130,21 @@ public abstract class BaseQuery<ID, T> {
 
     public Iterator<List<T>> buildIterator(Integer pageSize) {
         throw new SysException(ErrorEnumsBase.CONFIG_ERROR.message("need to instantiate by sub class!"));
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class CacheConfig {
+
+        long maximumSize;
+
+        long expireAfterWrite;
+
+        TimeUnit timeUnit;
+
     }
 
 }

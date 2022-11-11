@@ -17,7 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.tuple.Pair;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
@@ -52,9 +51,9 @@ public class EventBus {
 
     private final List<FinalRouter<Class<? extends Event>>> finalRouters = new ArrayList<>();
 
-    private Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors = new HashMap<>();
+    private final Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors = new HashMap<>();
 
-    private Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors = new HashMap<>();
+    private final Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {
@@ -117,19 +116,10 @@ public class EventBus {
         });
 
         // internal order
-        List<Pair<? extends Class<? extends Event>, List<Interceptor>>> tempInterceptors =
-                beforeEventInterceptors.entrySet().stream().map(e -> {
-                    List<Interceptor> sortedInterceptors = e.getValue().stream()
-                            .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
-                    return Pair.of(e.getKey(), sortedInterceptors);
-                }).collect(Collectors.toList());
-        beforeEventInterceptors = Collect.toMap(tempInterceptors, Pair::getKey, Pair::getValue);
-        tempInterceptors = afterEventInterceptors.entrySet().stream().map(e -> {
-                    List<Interceptor> sortedInterceptors = e.getValue().stream()
-                            .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
-                    return Pair.of(e.getKey(), sortedInterceptors);
-                }).collect(Collectors.toList());
-        afterEventInterceptors = Collect.toMap(tempInterceptors, Pair::getKey, Pair::getValue);
+        beforeEventInterceptors.forEach((k, v) ->
+                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
+        afterEventInterceptors.forEach((k, v) ->
+                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
 
         methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
@@ -142,10 +132,7 @@ public class EventBus {
 
         List<FinalRouter<Class<? extends Event>>> tempFinalRouters = methods.stream().map(method -> {
             FinalEventRouter annotation = method.getAnnotation(FinalEventRouter.class);
-            BizException.trueThrowGet(Kit.eq(annotation.order(), 0),
-                    () -> ErrorEnums.CONFIG_ERROR.message("final event router order must not 0!"));
-            BizException.trueThrowGet(annotation.asyncable() && Kit.notEq(annotation.order(), Integer.MAX_VALUE),
-                    () -> ErrorEnums.CONFIG_ERROR.message("asyncable final event router must process finally"));
+            BizException.trueThrow(Kit.eq(annotation.order(), 0.0), ErrorEnums.CONFIG_ERROR.message("final event router order must not 0!"));
             Type typeArgument = ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Class<? extends Event> eventClass = (Class<? extends Event>) typeArgument;
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
@@ -157,8 +144,8 @@ public class EventBus {
                     .build();
         }).collect(Collectors.toList());
         List<FinalRouter<Class<? extends Event>>> notDefaultOrderRouters = tempFinalRouters.stream()
-                .filter(fR -> !Kit.eq(fR.getOrder(), Integer.MAX_VALUE)).collect(Collectors.toList());
-        Set<Integer> orders = Collect.transfer(notDefaultOrderRouters, FinalRouter::getOrder, HashSet::new);
+                .filter(fR -> !Kit.eq(fR.getOrder(), Double.MAX_VALUE)).collect(Collectors.toList());
+        Set<Double> orders = Collect.transfer(notDefaultOrderRouters, FinalRouter::getOrder, HashSet::new);
         SysException.falseThrow(Kit.eq(orders.size(), notDefaultOrderRouters.size()),
                 ErrorEnums.CONFIG_ERROR.message("exists finalEventRouters share same order!"));
         finalRouters.addAll(tempFinalRouters);
@@ -211,7 +198,7 @@ public class EventBus {
 
         private boolean asyncable;
 
-        private int order;
+        private double order;
 
         private ExecutorService executorService;
 

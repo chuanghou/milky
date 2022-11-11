@@ -19,12 +19,6 @@ public class ItemController {
 
     ItemAbility itemAbility;
 
-    @GetMapping("testRateLimit")
-    @EnableRateLimit
-    public Result<Boolean> testRateLimit() {
-        return Result.success();
-    }
-
     @GetMapping("publish")
     public Result<Boolean> publish(String title) {
         Item item = itemAbility.publishItem(10086L, title);
