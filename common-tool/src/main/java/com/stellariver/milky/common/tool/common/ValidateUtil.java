@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.util;
+package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;

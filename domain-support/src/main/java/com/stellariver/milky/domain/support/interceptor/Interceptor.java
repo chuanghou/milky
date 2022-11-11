@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.interceptor;
 
-import com.stellariver.milky.common.tool.Runner;
+import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.context.Context;
 import lombok.AllArgsConstructor;

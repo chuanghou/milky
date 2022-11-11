@@ -1,8 +1,8 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.util.Kit;
-import com.stellariver.milky.common.tool.NameSpace;
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.common.UK;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.RetryParameter;
 import lombok.CustomLog;
@@ -16,10 +16,9 @@ public abstract class ConcurrentOperate {
 
     private final ThreadLocal<Map<String, Integer>> lockedKeys = ThreadLocal.withInitial(HashMap::new);
 
-    public boolean tryReentrantLock(NameSpace nameSpace, String lockKey, String encryptionKey, int milsToExpire) {
+    public boolean tryReentrantLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire) {
         String key = nameSpace.preFix(lockKey);
-        boolean contains = lockedKeys.get().containsKey(nameSpace.preFix(lockKey));
-
+        boolean contains = lockedKeys.get().containsKey(key);
         if (!contains) {
             boolean locked = tryLock(nameSpace, lockKey, encryptionKey, milsToExpire);
             if (!locked) {
@@ -33,11 +32,11 @@ public abstract class ConcurrentOperate {
         return true;
     }
 
-    abstract protected boolean tryLock(NameSpace nameSpace, String lockKey, String encryptionKey, int milsToExpire);
+    abstract protected boolean tryLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire);
 
-    public boolean unReentrantLock(NameSpace nameSpace, String lockKey, String encryptionKey) {
-        String key = nameSpace.preFix(lockKey);
-        boolean contains = lockedKeys.get().containsKey(nameSpace.preFix(lockKey));
+    public boolean unReentrantLock(UK nameSpace, String lockKey, String encryptionKey) {
+        String key = nameSpace.getKey() + "_" + lockKey;
+        boolean contains = lockedKeys.get().containsKey(key);
         SysException.falseThrow(contains, ErrorEnums.SYSTEM_EXCEPTION.message(key));
         Integer lockedTimes = lockedKeys.get().get(key);
         lockedTimes--;
@@ -53,10 +52,10 @@ public abstract class ConcurrentOperate {
         return true;
     }
 
-    abstract protected boolean unlock(NameSpace nameSpace, String lockKey, String encryptionKey);
+    abstract protected boolean unlock(UK nameSpace, String lockKey, String encryptionKey);
 
     @SneakyThrows
-    public boolean retryReentrantLock(RetryParameter retryParameter) {
+    public boolean tryRetryLock(RetryParameter retryParameter) {
         SysException.anyNullThrow(retryParameter.getLockKey());
         SysException.trueThrow(retryParameter.getTimes() <= 0, "retry times should not smaller than 0 or equal with 0");
         SysException.trueThrow(retryParameter.getSleepTimeMils() > 5000, "sleep time is too long");

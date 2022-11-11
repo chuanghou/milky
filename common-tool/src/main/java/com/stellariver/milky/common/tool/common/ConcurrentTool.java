@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool;
+package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;

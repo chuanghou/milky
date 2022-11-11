@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.log;
+package com.stellariver.milky.common.tool.common;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -23,10 +23,10 @@ public class Option<R, T> {
 
     Function<R, T> transfer;
 
-    Function<R, String> logResultSelector;
+    Function<R, String> rSelector;
 
     T defaultValue;
 
-    @Builder.Default
-    int stackTraceLevel = 3;
+    UK lambdaId;
+
 }

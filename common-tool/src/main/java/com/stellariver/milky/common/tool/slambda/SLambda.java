@@ -1,5 +1,7 @@
-package com.stellariver.milky.common.tool;
+package com.stellariver.milky.common.tool.slambda;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.stellariver.milky.common.tool.exception.SysException;
 import lombok.SneakyThrows;
 
@@ -12,7 +14,7 @@ import java.util.Map;
 public class SLambda {
 
     @SneakyThrows
-    public static <T extends Serializable> Map<String, Object> resolve(T lambda) {
+    public static <T extends Serializable> Map<String, Object> resolveArgs(T lambda) {
         Method method = lambda.getClass().getDeclaredMethod("writeReplace");
         method.setAccessible(true);
         SerializedLambda sLambda = (SerializedLambda) method.invoke(lambda);

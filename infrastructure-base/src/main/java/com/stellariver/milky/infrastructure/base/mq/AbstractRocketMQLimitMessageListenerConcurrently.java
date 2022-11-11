@@ -2,8 +2,7 @@ package com.stellariver.milky.infrastructure.base.mq;
 
 
 import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.common.tool.log.LogChoice;
-import com.stellariver.milky.common.tool.util.SystemClock;
+import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.infrastructure.base.ErrorEnums;
 import lombok.CustomLog;
@@ -13,7 +12,6 @@ import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
 
 import java.util.List;
-import java.util.Objects;
 
 @CustomLog
 public abstract class AbstractRocketMQLimitMessageListenerConcurrently extends BaseRocketMQLimitMessageListener implements MessageListenerConcurrently {
@@ -42,12 +40,10 @@ public abstract class AbstractRocketMQLimitMessageListenerConcurrently extends B
             finalWork();
             log.arg0(mqBodyLogger(messageExt)).arg1(messageExt.getKeys()).arg2(messageExt.getTags())
                     .cost(SystemClock.now() - now);
-            if (Objects.equals(logChoice(), LogChoice.ALWAYS)) {
+            if (alwaysLog()) {
                 log.log(this.getClass().getSimpleName(), throwable);
-            } else if(Objects.equals(logChoice(), LogChoice.EXCEPTION)) {
-                log.logWhenException(this.getClass().getSimpleName(), throwable);
             } else {
-                log.error("UNREACHED_PART", throwable);
+                log.logWhenException(this.getClass().getSimpleName(), throwable);
             }
         }
     }

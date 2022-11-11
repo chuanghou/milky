@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.util;
+package com.stellariver.milky.common.tool.common;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 

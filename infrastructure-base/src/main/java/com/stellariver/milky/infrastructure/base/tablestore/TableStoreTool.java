@@ -9,7 +9,7 @@ import com.google.common.base.Strings;
 import com.stellariver.milky.common.base.TSSearch;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.util.Kit;
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import lombok.SneakyThrows;
 

@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.base;
 
-import com.stellariver.milky.common.tool.util.Kit;
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventRouters;

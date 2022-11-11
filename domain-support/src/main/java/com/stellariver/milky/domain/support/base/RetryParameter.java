@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.base;
 
-import com.stellariver.milky.common.tool.NameSpace;
+import com.stellariver.milky.common.tool.common.UK;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RetryParameter {
 
-    NameSpace nameSpace;
+    UK nameSpace;
 
     String lockKey;
 

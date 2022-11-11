@@ -1,29 +1,31 @@
 package com.stellariver.milky.infrastructure.base.mq;
 
 import com.alibaba.csp.sentinel.SphO;
-import com.stellariver.milky.common.tool.log.LogChoice;
-import com.stellariver.milky.infrastructure.base.LogConfiguration;
+import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
+import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.util.concurrent.TimeUnit;
 
 @CustomLog
-public abstract class BaseLimitMessageListener implements LogConfiguration {
+public abstract class BaseLimitMessageListener {
 
-    @SneakyThrows
     protected void flowControl() {
-        try {
-            while (Boolean.FALSE.equals(SphO.entry(this.getClass().getName()))) {
-                TimeUnit.MILLISECONDS.sleep(100);
-            }
-        } finally {
-            SphO.exit();
+        AbstractStableSupport abstractStableSupport = AbstractStableSupport.abstractStableSupport;
+        if (abstractStableSupport == null) {
+            return;
+        }
+        String key = this.getClass().getName();
+        RateLimiterWrapper rateLimiterWrapper = abstractStableSupport.rateLimiter(key);
+        if (rateLimiterWrapper != null) {
+            rateLimiterWrapper.acquire();
         }
     }
 
-    public LogChoice logChoice() {
-        return LogChoice.ALWAYS;
+    public boolean alwaysLog() {
+        return true;
     }
 
     public void finalWork() {

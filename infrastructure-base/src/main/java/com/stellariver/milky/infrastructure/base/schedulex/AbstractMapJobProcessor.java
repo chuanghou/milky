@@ -3,10 +3,8 @@ package com.stellariver.milky.infrastructure.base.schedulex;
 import com.alibaba.schedulerx.worker.domain.JobContext;
 import com.alibaba.schedulerx.worker.processor.MapJobProcessor;
 import com.alibaba.schedulerx.worker.processor.ProcessResult;
-import com.stellariver.milky.common.tool.util.Kit;
-import com.stellariver.milky.common.tool.log.LogChoice;
 import com.stellariver.milky.common.tool.exception.SysException;
-import com.stellariver.milky.common.tool.util.SystemClock;
+import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.CustomLog;
 import org.apache.commons.lang3.StringUtils;
@@ -57,12 +55,10 @@ abstract public class AbstractMapJobProcessor<T extends BaseScheduleData> extend
                 } finally {
                     interceptAfterTaskFinally(t, param);
                     log.arg0(t).arg1(param).cost(SystemClock.now() - now);
-                    if (Kit.eq(logChoice(), LogChoice.ALWAYS)) {
+                    if (alwaysLog()) {
                         log.log(this.getClass().getSimpleName(), throwable);
-                    } else if (Kit.eq(logChoice(), LogChoice.EXCEPTION)) {
+                    } else{
                         log.logWhenException(this.getClass().getSimpleName(), throwable);
-                    } else {
-                        log.error("UNREACHED_PART", throwable);
                     }
                 }
             }
@@ -80,8 +76,8 @@ abstract public class AbstractMapJobProcessor<T extends BaseScheduleData> extend
         throw new SysException("It should be implemented by its sub class!");
     }
 
-    public LogChoice logChoice() {
-        return LogChoice.ALWAYS;
+    public boolean alwaysLog() {
+        return false;
     }
 
     public void interceptBeforeTask(T t, ScheduleParam param) {

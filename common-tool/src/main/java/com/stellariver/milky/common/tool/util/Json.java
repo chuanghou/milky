@@ -3,10 +3,13 @@ package com.stellariver.milky.common.tool.util;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +24,9 @@ public class Json {
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false)
             .build();
 
+    static {
+        MAPPER.registerModule(new JavaTimeModule());
+    }
     @SneakyThrows
     public static String toJson(Object target) {
         return MAPPER.writeValueAsString(target);
@@ -70,14 +76,52 @@ public class Json {
     }
 
     @SneakyThrows
-    public static JsonNode toJsonNode(String json) {
+    public static JsonNode parseJsonNode(String json) {
         return MAPPER.readTree(json);
     }
 
-    public static void main(String[] args) {
-        String s = "test";
-        String s1 = Json.toJson(s);
-        String s2 = Json.toJson(s1);
+
+    public static JsonNode toJsonNode(Object object) {
+        return MAPPER.valueToTree(object);
     }
+
+    @Nullable
+    @SneakyThrows
+    public static <T> T parse(JsonNode jsonNode, Class<T> clazz) {
+        if (jsonNode == null) {
+            return null;
+        }
+        return MAPPER.treeToValue(jsonNode, clazz);
+    }
+
+    @Nullable
+    @SneakyThrows
+    public static <T> List<T> parseList(JsonNode jsonNode, Class<T> clazz) {
+        if (jsonNode == null) {
+            return null;
+        }
+        JavaType type = MAPPER.getTypeFactory().constructParametricType(List.class, clazz);
+        return MAPPER.treeToValue(jsonNode, type);
+    }
+
+    @Nullable
+    @SneakyThrows
+    public static <T> Set<T> parseSet(JsonNode jsonNode, Class<T> clazz) {
+        if (jsonNode == null) {
+            return null;
+        }
+        JavaType type = MAPPER.getTypeFactory().constructParametricType(Set.class, clazz);
+        return MAPPER.treeToValue(jsonNode, type);
+    }
+
+    @Nullable
+    @SneakyThrows
+    public static <K, V> Map<K, V> parseMap(JsonNode jsonNode, Class<K> keyClazz, Class<V> valueClazz) {
+        if (jsonNode == null) {
+            return null;
+        }
+        return MAPPER.treeToValue(jsonNode, TypeFactory.defaultInstance().constructMapType(Map.class, keyClazz, valueClazz));
+    }
+
 
 }

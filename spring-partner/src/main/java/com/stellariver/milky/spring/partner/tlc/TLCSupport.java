@@ -1,6 +1,6 @@
 package com.stellariver.milky.spring.partner.tlc;
 
-import com.stellariver.milky.common.tool.BaseQuery;
+import com.stellariver.milky.common.tool.common.BaseQuery;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,8 @@
 package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.stellariver.milky.common.tool.BaseQuery;
+import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
+import com.stellariver.milky.common.tool.common.BaseQuery;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
@@ -18,14 +19,13 @@ import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import com.stellariver.milky.spring.partner.BeanLoaderImpl;
 import com.stellariver.milky.spring.partner.TransactionSupportImpl;
-import com.stellariver.milky.spring.partner.limit.RateLimitConfigTunnel;
 import com.stellariver.milky.spring.partner.limit.RateLimitSupport;
 import com.stellariver.milky.spring.partner.tlc.TLCSupport;
-import org.aspectj.lang.ProceedingJoinPoint;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -47,6 +47,7 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
+    @SuppressWarnings("all")
     public TransactionSupport transactionSupport(DataSourceTransactionManager dataSourceTransactionManager) {
         return new TransactionSupportImpl(dataSourceTransactionManager);
     }
@@ -128,27 +129,13 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public RateLimitConfigTunnel rateLimitConfigTunnel() {
-        return new RateLimitConfigTunnel() {
-            @Override
-            public Integer qps(String key) {
-                return 100;
-            }
-            @Override
-            public String key(ProceedingJoinPoint pjp) {
-                return pjp.toLongString();
-            }
-        };
+    @ConditionalOnBean(AbstractStableSupport.class)
+    public RateLimitSupport rateLimitSupport(AbstractStableSupport abstractStableSupport) {
+        return new RateLimitSupport(abstractStableSupport);
     }
 
     @Bean
-    public RateLimitSupport rateLimitSupportAspect(RateLimitConfigTunnel rateLimitConfigTunnel) {
-        return new RateLimitSupport(rateLimitConfigTunnel);
-    }
-
-    @Bean
-    public TLCSupport tlcSupportAspect(List<BaseQuery<?, ?>> baseQueries) {
+    public TLCSupport tlcSupport(List<BaseQuery<?, ?>> baseQueries) {
         return new TLCSupport(baseQueries);
     }
 

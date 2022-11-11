@@ -1,12 +1,12 @@
-package com.stellariver.milky.common.tool;
+package com.stellariver.milky.common.tool.common;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.stellariver.milky.common.tool.CacheConfig;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
-import com.stellariver.milky.common.tool.util.Kit;
 
 import java.util.*;
 

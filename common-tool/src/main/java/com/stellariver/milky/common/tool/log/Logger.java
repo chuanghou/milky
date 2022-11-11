@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.log;
 
 import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.common.tool.util.SystemClock;
+import com.stellariver.milky.common.tool.common.SystemClock;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.EqualsAndHashCode;

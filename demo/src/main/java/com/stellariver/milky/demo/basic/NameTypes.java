@@ -2,7 +2,7 @@ package com.stellariver.milky.demo.basic;
 
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.common.tool.util.Kit;
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.StreamMap;

@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.text.StringSubstitutor;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -18,48 +19,30 @@ public class ErrorEnum {
 
     String message;
 
-    Map<String, Object> extendInfo;
+    Map<String, Object> params;
 
-    ErrorEnum(@NonNull String code, String message, Map<String, Object> extendInfo) {
+    public ErrorEnum(@NonNull String code, String message, Map<String, Object> params) {
         this.code = code;
         this.message = message;
-        this.extendInfo = extendInfo;
+        this.params = params;
     }
 
-    public String getCode() {
-        return this.code;
-    }
-
-    public String getMessage() {
-        return Optional.ofNullable(message).orElse(code);
-    }
-
-    static public ErrorEnum code(String code) {
-        return new ErrorEnum(code, null, null);
-    }
 
     public ErrorEnum message(Supplier<String> supplier) {
-        this.message = StringSubstitutor.replace(supplier.get(), extendInfo);
-        return this;
+        return message(supplier.get());
     }
 
     public ErrorEnum message(Object object) {
-        this.message = StringSubstitutor.replace(object, extendInfo);
-        return this;
+        return new ErrorEnum(code, StringSubstitutor.replace(object, params), Optional.ofNullable(params).orElseGet(HashMap::new));
     }
 
-    public ErrorEnum extendInfo(Map<String, Object> extendInfo) {
-        this.extendInfo = extendInfo;
-        this.message = StringSubstitutor.replace(this.message, this.extendInfo);
-        return this;
+    public ErrorEnum params(Map<String, Object> params) {
+        return new ErrorEnum(code, StringSubstitutor.replace(message, params), Optional.ofNullable(params).orElseGet(HashMap::new));
     }
 
     @Override
     public String toString() {
-        return "ErrorEnum{" +
-                "code='" + code + '\'' +
-                ", message='" + message + '\'' +
-                ", extendInfo=" + extendInfo +
-                '}';
+        return String.format("code: %s, message: %s", code, message);
     }
+
 }

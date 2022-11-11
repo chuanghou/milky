@@ -1,6 +1,6 @@
 package com.stellariver.milky.infrastructure.base.redis;
 
-import com.stellariver.milky.common.tool.NameSpace;
+import com.stellariver.milky.common.tool.common.UK;
 import com.stellariver.milky.common.tool.util.Collect;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +21,12 @@ public class RedisHelper {
     final JedisPool jedisPool;
 
     @SuppressWarnings("unused")
-    public boolean tryLock(NameSpace nameSpace, String key, String encryption, long expire) {
+    public boolean tryLock(UK nameSpace, String key, String encryption, long expire) {
         return tryLockFallbackable(nameSpace, key, encryption, expire, false);
     }
 
-    public boolean tryLockFallbackable(NameSpace nameSpace, String key, String encryption, long expire, boolean fallbackable) {
-        key = nameSpace.getName() + "_" + key;
+    public boolean tryLockFallbackable(UK nameSpace, String key, String encryption, long expire, boolean fallbackable) {
+        key = nameSpace.getKey() + "_" + key;
         try (Jedis jedis = jedisPool.getResource()) {
             SetParams setParams = SetParams.setParams().nx().ex(expire);
             String result = jedis.set(key, encryption, setParams);
@@ -44,12 +44,12 @@ public class RedisHelper {
     static final String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 
     @SuppressWarnings("unused")
-    public boolean unlock(NameSpace nameSpace, String key, String encryption) {
+    public boolean unlock(UK nameSpace, String key, String encryption) {
         return unlockFallbackable(nameSpace, key, encryption, false);
     }
 
-    public boolean unlockFallbackable(NameSpace nameSpace, String key, String encryption, boolean fallbackable) {
-        key = nameSpace.getName() + "_" + key;
+    public boolean unlockFallbackable(UK nameSpace, String key, String encryption, boolean fallbackable) {
+        key = nameSpace.getKey() + "_" + key;
         try (Jedis jedis = jedisPool.getResource()) {
             Object result = jedis.eval(script, Collect.asList(key), Collect.asList(encryption));
             return RELEASE_SUCCESS.equals(result);
@@ -63,12 +63,12 @@ public class RedisHelper {
         return false;
     }
 
-    public boolean set(NameSpace nameSpace, String key, String value, long expire) {
+    public boolean set(UK nameSpace, String key, String value, long expire) {
         return setFallbackable(nameSpace, key, value, expire, false);
     }
 
-    public boolean setFallbackable(NameSpace nameSpace, String key, String value, long expire, boolean fallbackable) {
-        key = nameSpace.getName() + "_" + key;
+    public boolean setFallbackable(UK nameSpace, String key, String value, long expire, boolean fallbackable) {
+        key = nameSpace.getKey() + "_" + key;
         try (Jedis jedis = jedisPool.getResource()) {
             SetParams setParams = SetParams.setParams().ex(expire);
             String result = jedis.set(key, value, setParams);
@@ -84,13 +84,13 @@ public class RedisHelper {
 
     @Nullable
     @SuppressWarnings("unused")
-    public String get(NameSpace nameSpace, String key) {
+    public String get(UK nameSpace, String key) {
         return getFallbackable(nameSpace, key, false);
     }
 
     @Nullable
-    public String getFallbackable(NameSpace nameSpace, String key, boolean fallbackable) {
-        key = nameSpace.getName() + "_" + key;
+    public String getFallbackable(UK nameSpace, String key, boolean fallbackable) {
+        key = nameSpace.getKey() + "_" + key;
         try (Jedis jedis = jedisPool.getResource()) {
             return jedis.get(key);
         } catch (Throwable e) {
@@ -103,12 +103,12 @@ public class RedisHelper {
     }
 
     @SuppressWarnings("unused")
-    public boolean delete(NameSpace nameSpace, String key) {
+    public boolean delete(UK nameSpace, String key) {
         return deleteFallbackable(nameSpace, key, false);
     }
 
-    public boolean deleteFallbackable(NameSpace nameSpace, String key, boolean fallbackable) {
-        key = nameSpace.getName() + "_" + key;
+    public boolean deleteFallbackable(UK nameSpace, String key, boolean fallbackable) {
+        key = nameSpace.getKey() + "_" + key;
         try (Jedis jedis = jedisPool.getResource()) {
             return Long.valueOf(1).equals(jedis.del(key));
         } catch (Throwable e) {

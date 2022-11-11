@@ -1,12 +1,12 @@
 package com.stellariver.milky.domain.support.command;
 
-import com.stellariver.milky.common.tool.NameSpace;
-import com.stellariver.milky.common.tool.Runner;
+import com.stellariver.milky.common.tool.common.*;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.SysException;
-import com.stellariver.milky.common.tool.log.LogChoice;
-import com.stellariver.milky.common.tool.util.*;
+import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
+import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.base.*;
@@ -255,7 +255,7 @@ public class CommandBus {
             DependencyKey annotation = method.getAnnotation(DependencyKey.class);
             String key = annotation.value();
             String[] requiredKeys = annotation.requiredKeys();
-            LogChoice logChoice = annotation.logChoice();
+            boolean logChoice = annotation.alwaysLog();
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
             DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method, logChoice);
             Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
@@ -285,6 +285,7 @@ public class CommandBus {
         return result;
     }
 
+    @SuppressWarnings("all")
     static public <T extends Command> Object acceptMemoryTransactional(T command, Map<NameType<?>, Object> parameters) {
         return acceptMemoryTransactional(command, parameters, null);
     }
@@ -372,10 +373,10 @@ public class CommandBus {
         SysException.anyNullThrow(command);
         Handler commandHandler= commandHandlers.get(command.getClass());
         SysException.nullThrowGet(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
-        Object result = null;
+        Object result;
         Context context = tLContext.get();
         String encryptionKey = UUID.randomUUID().toString();
-        NameSpace nameSpace = NameSpace.build(command.getClass());
+        UK nameSpace = UK.build(command.getClass());
         String lockKey = command.getAggregateId();
         long now = SystemClock.now();
         boolean locked = false;
@@ -393,7 +394,7 @@ public class CommandBus {
                         .times(command.retryTimes())
                         .sleepTimeMils(sleepTimeMs)
                         .build();
-                locked = concurrentOperate.retryReentrantLock(retryParameter);
+                locked = concurrentOperate.tryRetryLock(retryParameter);
                 BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
                 result = doRoute(command, context, commandHandler);
             }
@@ -512,7 +513,7 @@ public class CommandBus {
 
         private Method method;
 
-        private LogChoice logChoice;
+        private boolean alwaysLog;
 
         @SneakyThrows
         public void invoke(Object object, Context context) {
@@ -521,9 +522,9 @@ public class CommandBus {
                 Runner.invoke(bean, method, object, context);
             } catch (Throwable t) {
                 throwable = t;
-                if (Objects.equals(logChoice, LogChoice.ALWAYS)) {
+                if (alwaysLog) {
                     log.arg0(object).log(this.getClass().getSimpleName(), throwable);
-                } else if (Objects.equals(logChoice, LogChoice.EXCEPTION)) {
+                } else {
                     log.arg0(object).logWhenException(this.getClass().getSimpleName(), throwable);
                 }
                 throw throwable;
