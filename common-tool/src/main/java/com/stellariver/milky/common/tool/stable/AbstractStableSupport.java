@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("all")
 public abstract class AbstractStableSupport{
@@ -36,9 +36,9 @@ public abstract class AbstractStableSupport{
     @Setter
     private Map<String, RlConfig> rlConfigs = new HashMap<>();
 
-    private final Cache<String, RateLimiterWrapper> rateLimiters = CacheBuilder.newBuilder().softValues().build();
+    private final Cache<String, RateLimiterWrapper> rateLimiters = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
 
-    private final Map<String, CircuitBreaker> circuitBreakers = new ConcurrentHashMap<>();
+    private final Cache<String, CircuitBreaker> circuitBreakers = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
 
     public String key(ProceedingJoinPoint pjp) {
         return pjp.toLongString();
@@ -48,15 +48,16 @@ public abstract class AbstractStableSupport{
         return method.toString();
     }
 
-    @SneakyThrows
     @Nullable
+    @SneakyThrows
     public RateLimiterWrapper rateLimiter(@NonNull String key) {
-        return rlConfigs.containsKey(key) ? rateLimiters.get(key, () -> buildRateLimiterWrapper(key)) : null;
+        return rateLimiters.get(key, () -> buildRateLimiterWrapper(key));
     }
 
     @Nullable
+    @SneakyThrows
     public CircuitBreaker circuitBreaker(@NonNull String key) {
-        return cbConfigs.containsKey(key) ? circuitBreakers.computeIfAbsent(key, this::buildCircuitBreaker) : null;
+        return circuitBreakers.get(key, () -> buildCircuitBreaker(key));
     }
 
     protected void adjustCircuitBreakerState(CbConfig config) {
@@ -72,9 +73,12 @@ public abstract class AbstractStableSupport{
         }
     }
 
+    @Nullable
     protected CircuitBreaker buildCircuitBreaker(String key) {
+        if (cbConfigs.containsKey(key)) {
+            return null;
+        }
         CbConfig cbConfig = cbConfigs.get(key);
-        SysException.nullThrow(cbConfig);
         CircuitBreakerConfig.Builder builder = CircuitBreakerConfig.custom();
         If.isTrue(cbConfig.getSlidingWindowType() != null, () -> builder.slidingWindowType(cbConfig.getSlidingWindowType()));
         If.isTrue(cbConfig.getSlidingWindowSize() != null, () -> builder.slidingWindowSize(cbConfig.getSlidingWindowSize()));
@@ -94,21 +98,15 @@ public abstract class AbstractStableSupport{
     }
 
     protected RateLimiterWrapper buildRateLimiterWrapper(@NonNull String key) {
+        if (!rlConfigs.containsKey(key)){
+            return null;
+        }
         RlConfig rlConfig = rlConfigs.get(key);
-        SysException.nullThrow(rlConfig);
         RateLimiter rateLimiter = RateLimiter.create(rlConfigs.get(key).getQps());
         return RateLimiterWrapper.builder().rateLimiter(rateLimiter)
                 .strategy(Kit.op(rlConfig.getStrategy()).orElse(RlConfig.Strategy.FAIL_WAITING))
                 .timeout(Kit.op(rlConfig.getDuration()).orElse(Duration.ofSeconds(3)))
                 .build();
-    }
-
-    protected void clearRateLimiters() {
-        rateLimiters.invalidateAll();
-    }
-
-    protected void clearCircuitBreakers() {
-        circuitBreakers.clear();
     }
 
 }

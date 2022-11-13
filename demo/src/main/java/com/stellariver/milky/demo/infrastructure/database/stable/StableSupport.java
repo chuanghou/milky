@@ -22,10 +22,8 @@ public class StableSupport extends AbstractStableSupport implements FakeConfigCe
         SysException.nullThrow(stableConfig);
         Map<String, CbConfig> cbConfigs = Collect.toMap(stableConfig.getCbConfigs(), CbConfig::getKey);
         setCbConfigs(cbConfigs);
-        clearCircuitBreakers();
         Map<String, RlConfig> rlConfigs = Collect.toMap(stableConfig.getRlConfigs(), RlConfig::getKey);
         setRlConfigs(rlConfigs);
-        clearRateLimiters();
     }
 
     @Override
