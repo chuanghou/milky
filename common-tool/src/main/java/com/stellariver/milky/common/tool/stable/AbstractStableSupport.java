@@ -109,29 +109,26 @@ public abstract class AbstractStableSupport{
     }
 
     protected void update(StableConfig stableConfig) {
-
-        Map<String, RlConfig> rlConfigs = Kit.op(stableConfig).map(StableConfig::getRlConfigs).orElseGet(ArrayList::new)
+        Map<String, RlConfig> oldRlConfigs = rlConfigs;
+        this.rlConfigs = Kit.op(stableConfig).map(StableConfig::getRlConfigs).orElseGet(ArrayList::new)
                 .stream().collect(Collectors.toMap(RlConfig::getKey, Function.identity()));
 
-        this.rlConfigs = rlConfigs;
-
-        Set<String> diffRlConfigKeys = Collect.diff(this.rlConfigs.keySet(), rlConfigs.keySet());
+        Set<String> diffRlConfigKeys = Collect.diff(oldRlConfigs.keySet(), this.rlConfigs.keySet());
         diffRlConfigKeys.forEach(rateLimiters::invalidate);
 
-        Set<String> interRlConfigKeys = Collect.inter(this.rlConfigs.keySet(), rlConfigs.keySet());
-        interRlConfigKeys.stream().filter(k -> Kit.notEq(rlConfigs.get(k), this.rlConfigs.get(k))).forEach(rateLimiters::invalidate);
+        Set<String> interRlConfigKeys = Collect.inter(oldRlConfigs.keySet(), this.rlConfigs.keySet());
+        interRlConfigKeys.stream().filter(k -> Kit.notEq(oldRlConfigs.get(k), this.rlConfigs.get(k))).forEach(rateLimiters::invalidate);
 
 
-        Map<String, CbConfig> cbConfigs = Kit.op(stableConfig).map(StableConfig::getCbConfigs).orElseGet(ArrayList::new)
+        Map<String, CbConfig> oldCbConfigs = cbConfigs;
+        this.cbConfigs = Kit.op(stableConfig).map(StableConfig::getCbConfigs).orElseGet(ArrayList::new)
                 .stream().collect(Collectors.toMap(CbConfig::getKey, Function.identity()));
 
-        this.cbConfigs = cbConfigs;
+        Set<String> diffCbConfigKeys = Collect.diff(oldCbConfigs.keySet(), this.cbConfigs.keySet());
+        diffCbConfigKeys.forEach(circuitBreakers::invalidate);
 
-        Set<String> diffCbConfigKeys = Collect.diff(this.cbConfigs.keySet(), cbConfigs.keySet());
-        diffRlConfigKeys.forEach(circuitBreakers::invalidate);
-
-        Set<String> interCbConfigKeys = Collect.inter(this.cbConfigs.keySet(), cbConfigs.keySet());
-        interCbConfigKeys.stream().filter(k -> Kit.notEq(cbConfigs.get(k), this.cbConfigs.get(k))).forEach(circuitBreakers::invalidate);
+        Set<String> interCbConfigKeys = Collect.inter(oldCbConfigs.keySet(), this.cbConfigs.keySet());
+        interCbConfigKeys.stream().filter(k -> Kit.notEq(oldCbConfigs.get(k), this.cbConfigs.get(k))).forEach(circuitBreakers::invalidate);
 
 
     }
