@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.If;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
@@ -17,9 +18,9 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("all")
 public abstract class AbstractStableSupport{
@@ -30,15 +31,13 @@ public abstract class AbstractStableSupport{
         abstractStableSupport = support;
     }
 
-    @Setter
     private Map<String, CbConfig> cbConfigs = new HashMap<>();
 
-    @Setter
     private Map<String, RlConfig> rlConfigs = new HashMap<>();
 
-    private final Cache<String, RateLimiterWrapper> rateLimiters = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    private final Cache<String, RateLimiterWrapper> rateLimiters = CacheBuilder.newBuilder().softValues().build();
 
-    private final Cache<String, CircuitBreaker> circuitBreakers = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    private final Cache<String, CircuitBreaker> circuitBreakers = CacheBuilder.newBuilder().softValues().build();
 
     public String key(ProceedingJoinPoint pjp) {
         return pjp.toLongString();
@@ -107,6 +106,34 @@ public abstract class AbstractStableSupport{
                 .strategy(Kit.op(rlConfig.getStrategy()).orElse(RlConfig.Strategy.FAIL_WAITING))
                 .timeout(Kit.op(rlConfig.getDuration()).orElse(Duration.ofSeconds(3)))
                 .build();
+    }
+
+    protected void update(StableConfig stableConfig) {
+
+        Map<String, RlConfig> rlConfigs = Kit.op(stableConfig).map(StableConfig::getRlConfigs).orElseGet(ArrayList::new)
+                .stream().collect(Collectors.toMap(RlConfig::getKey, Function.identity()));
+
+        this.rlConfigs = rlConfigs;
+
+        Set<String> diffRlConfigKeys = Collect.diff(this.rlConfigs.keySet(), rlConfigs.keySet());
+        diffRlConfigKeys.forEach(rateLimiters::invalidate);
+
+        Set<String> interRlConfigKeys = Collect.inter(this.rlConfigs.keySet(), rlConfigs.keySet());
+        interRlConfigKeys.stream().filter(k -> Kit.notEq(rlConfigs.get(k), this.rlConfigs.get(k))).forEach(rateLimiters::invalidate);
+
+
+        Map<String, CbConfig> cbConfigs = Kit.op(stableConfig).map(StableConfig::getCbConfigs).orElseGet(ArrayList::new)
+                .stream().collect(Collectors.toMap(CbConfig::getKey, Function.identity()));
+
+        this.cbConfigs = cbConfigs;
+
+        Set<String> diffCbConfigKeys = Collect.diff(this.cbConfigs.keySet(), cbConfigs.keySet());
+        diffRlConfigKeys.forEach(circuitBreakers::invalidate);
+
+        Set<String> interCbConfigKeys = Collect.inter(this.cbConfigs.keySet(), cbConfigs.keySet());
+        interCbConfigKeys.stream().filter(k -> Kit.notEq(cbConfigs.get(k), this.cbConfigs.get(k))).forEach(circuitBreakers::invalidate);
+
+
     }
 
 }

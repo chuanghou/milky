@@ -19,11 +19,7 @@ public class StableSupport extends AbstractStableSupport implements FakeConfigCe
     @Override
     public void receiveMessage(String message) {
         StableConfig stableConfig = Json.parse(message, StableConfig.class);
-        SysException.nullThrow(stableConfig);
-        Map<String, CbConfig> cbConfigs = Collect.toMap(stableConfig.getCbConfigs(), CbConfig::getKey);
-        setCbConfigs(cbConfigs);
-        Map<String, RlConfig> rlConfigs = Collect.toMap(stableConfig.getRlConfigs(), RlConfig::getKey);
-        setRlConfigs(rlConfigs);
+        update(stableConfig);
     }
 
     @Override
