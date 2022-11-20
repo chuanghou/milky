@@ -6,12 +6,10 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
-import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.If;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import org.aspectj.lang.ProceedingJoinPoint;
 
@@ -74,7 +72,7 @@ public abstract class AbstractStableSupport{
 
     @Nullable
     protected CircuitBreaker buildCircuitBreaker(String key) {
-        if (cbConfigs.containsKey(key)) {
+        if (!cbConfigs.containsKey(key)) {
             return null;
         }
         CbConfig cbConfig = cbConfigs.get(key);
@@ -104,7 +102,7 @@ public abstract class AbstractStableSupport{
         RateLimiter rateLimiter = RateLimiter.create(rlConfigs.get(key).getQps());
         return RateLimiterWrapper.builder().rateLimiter(rateLimiter)
                 .strategy(Kit.op(rlConfig.getStrategy()).orElse(RlConfig.Strategy.FAIL_WAITING))
-                .timeout(Kit.op(rlConfig.getDuration()).orElse(Duration.ofSeconds(3)))
+                .timeout(Kit.op(rlConfig.getTimeout()).orElse(Duration.ofSeconds(3)))
                 .build();
     }
 

@@ -18,7 +18,9 @@ public class RlConfig {
 
     Strategy strategy;
 
-    Duration duration;
+    Duration timeout;
+
+    Duration warningThreshold;
 
     public enum Strategy {
 

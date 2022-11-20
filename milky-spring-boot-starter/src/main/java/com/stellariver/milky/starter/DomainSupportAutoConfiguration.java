@@ -21,6 +21,7 @@ import com.stellariver.milky.spring.partner.BeanLoaderImpl;
 import com.stellariver.milky.spring.partner.TransactionSupportImpl;
 import com.stellariver.milky.spring.partner.limit.RateLimitSupport;
 import com.stellariver.milky.spring.partner.tlc.TLCSupport;
+import lombok.CustomLog;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
@@ -35,10 +36,9 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import java.util.List;
 import java.util.concurrent.*;
 
+@CustomLog
 @EnableConfigurationProperties(MilkProperties.class)
 public class DomainSupportAutoConfiguration {
-
-    private static final Logger log = Logger.getLogger(DomainSupportAutoConfiguration.class);
 
     @Bean
     @SuppressWarnings("all")

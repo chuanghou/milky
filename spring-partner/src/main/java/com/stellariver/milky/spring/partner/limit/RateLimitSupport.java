@@ -38,7 +38,7 @@ public class RateLimitSupport {
         String key = abstractStableSupport.key(pjp);
         RateLimiterWrapper rateLimiter = abstractStableSupport.rateLimiter(key);
         if (rateLimiter != null) {
-            rateLimiter.acquire(Duration.of((long) enableRateLimit.warningWaitTime(), ChronoUnit.MILLIS));
+            rateLimiter.acquire();
         }
         return pjp.proceed();
     }

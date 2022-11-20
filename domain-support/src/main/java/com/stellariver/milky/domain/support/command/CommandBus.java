@@ -92,13 +92,9 @@ public class CommandBus {
         this.reflections = milkySupport.getReflections();
 
         prepareCommandHandlers();
-
         prepareContextValueProviders(milkySupport);
-
         prepareRepositories(milkySupport);
-
         prepareDAOWrappers(milkySupport);
-
         prepareCommandInterceptors(milkySupport);
 
         if (null == instance) {
@@ -207,7 +203,7 @@ public class CommandBus {
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
             boolean hasReturn = !method.getReturnType().getName().equals("void");
             HandlerType handlerType = Modifier.isStatic(method.getModifiers()) ? STATIC_METHOD : INSTANCE_METHOD;
-            List<String> requiredKeys = Arrays.asList(annotation.dependencies());
+            Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
             Handler handler = new Handler(clazz, method, null, handlerType, hasReturn, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
             SysException.trueThrow(commandHandlers.containsKey(commandType),
@@ -226,7 +222,7 @@ public class CommandBus {
         constructors.forEach(constructor -> {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             CommandHandler annotation = constructor.getAnnotation(CommandHandler.class);
-            List<String> requiredKeys = Arrays.asList(annotation.dependencies());
+            Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) constructor.getDeclaringClass();
             Handler handler = new Handler(clazz, null, constructor, CONSTRUCTOR_METHOD, true, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
@@ -255,9 +251,9 @@ public class CommandBus {
             DependencyKey annotation = method.getAnnotation(DependencyKey.class);
             String key = annotation.value();
             String[] requiredKeys = annotation.requiredKeys();
-            boolean logChoice = annotation.alwaysLog();
+            boolean alwaysLog = annotation.alwaysLog();
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
-            DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method, logChoice);
+            DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method, alwaysLog);
             Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
             SysException.trueThrow(valueProviderMap.containsKey(key),
                     "对于" + commandClass.getName() + "对于" + key + "提供了两个dependencyProvider");
@@ -382,9 +378,7 @@ public class CommandBus {
         boolean locked = false;
         try {
             locked = concurrentOperate.tryReentrantLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils());
-            if (locked) {
-                result = doRoute(command, context, commandHandler);
-            } else {
+            if (!locked) {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
                 RetryParameter retryParameter = RetryParameter.builder()
                         .nameSpace(nameSpace)
@@ -396,8 +390,8 @@ public class CommandBus {
                         .build();
                 locked = concurrentOperate.tryRetryLock(retryParameter);
                 BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
-                result = doRoute(command, context, commandHandler);
             }
+            result = doRoute(command, context, commandHandler);
             tLContext.get().clearDependencies();
         } finally {
             if (locked) {
@@ -489,10 +483,10 @@ public class CommandBus {
     private <T extends Command> void invokeDependencyProvider(T command, String key, Context context,
                                                               Map<String, DependencyProvider> providers,
                                                               Set<String> referKeys) {
-        SysException.trueThrow(referKeys.contains(key), "required key " + key + "circular reference!");
+        SysException.trueThrow(referKeys.contains(key), "required key:" + key + "circular reference!");
         referKeys.add(key);
         DependencyProvider valueProvider = providers.get(key);
-        SysException.nullThrowMessage(valueProvider, "command:" + Json.toJson(command) + ", key" + Json.toJson(key));
+        SysException.nullThrowMessage(valueProvider, "command:" + Json.toJson(command) + ", key:" + key);
         Map<String, Object> stringKeyDependencies = new HashMap<>();
         context.getDependencies().forEach((k, v) -> stringKeyDependencies.put(k.getName(), v));
         Arrays.stream(valueProvider.getRequiredKeys())
@@ -546,7 +540,7 @@ public class CommandBus {
 
         private boolean hasReturn;
 
-        private List<String> requiredKeys;
+        private Set<String> requiredKeys;
 
         @SneakyThrows
         public Object invoke(AggregateRoot aggregate, Object object, Context context) {

@@ -187,11 +187,11 @@ public class Collect {
         return CollectionUtils.size(object);
     }
 
-    public <T> List<List<T>> partition(List<T> ts, int size) {
+    public static <T> List<List<T>> partition(List<T> ts, int size) {
         return Lists.partition(ts, size);
     }
 
-    public <K, V> V getV(Map<? super K, V> map, K key) {
+    public static <K, V> V getV(Map<? super K, V> map, K key) {
         return MapUtils.getObject(map, key);
     }
 

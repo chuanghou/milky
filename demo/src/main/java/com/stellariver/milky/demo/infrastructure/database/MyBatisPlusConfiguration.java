@@ -29,16 +29,14 @@ import java.util.regex.Pattern;
 public class MyBatisPlusConfiguration {
 
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource,
-                                               AbstractStableSupport abstractStableSupport,
-                                               MyBatisBaseConfiguration myBatisBaseConfiguration) throws Exception {
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, AbstractStableSupport abstractStableSupport) throws Exception {
 
         MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
 
-        sqlSessionFactoryBean.setTypeAliasesPackage(myBatisBaseConfiguration.getTypeAliasesPackage());
-        sqlSessionFactoryBean.setTypeEnumsPackage(myBatisBaseConfiguration.getTypeEnumsPackage());
-        sqlSessionFactoryBean.setTypeHandlersPackage(myBatisBaseConfiguration.getTypeHandlersPackage());
+        sqlSessionFactoryBean.setTypeAliasesPackage("com.stellariver.milky.demo.infrastructure.database.entity");
+        sqlSessionFactoryBean.setTypeEnumsPackage("com.stellariver.milky.demo.common.enum");
+        sqlSessionFactoryBean.setTypeHandlersPackage("com.stellariver.milky.demo.infrastructure.database.handler");
 
         //驼峰转化开启
         MybatisConfiguration configuration = new MybatisConfiguration();
@@ -48,13 +46,14 @@ public class MyBatisPlusConfiguration {
 
         //mapper
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] mapperResources = resolver.getResources(myBatisBaseConfiguration.getMapperLocation());
+        Resource[] mapperResources = resolver.getResources("mapper/*.xml");
         sqlSessionFactoryBean.setMapperLocations(mapperResources);
 
         // 自定义日期自动更新器
         GlobalConfig globalConfig = GlobalConfigUtils.defaults();
         globalConfig.setMetaObjectHandler(new MyMetaObjectHandler());
         sqlSessionFactoryBean.setGlobalConfig(globalConfig);
+
         MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
         mybatisPlusInterceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
         mybatisPlusInterceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
@@ -63,6 +62,7 @@ public class MyBatisPlusConfiguration {
         Map<Pattern, String> patternMap = Collect.asMap(Pattern.compile("id_builder"), "idBuilder");
         mybatisPlusInterceptor.addInnerInterceptor(new RateLimiterInnerInterceptor(abstractStableSupport, patternMap));
         sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor);
+
         return sqlSessionFactoryBean.getObject();
     }
 

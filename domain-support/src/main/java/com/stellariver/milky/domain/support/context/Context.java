@@ -14,6 +14,7 @@ import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.Getter;
 import lombok.NonNull;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class Context{
@@ -46,8 +47,10 @@ public class Context{
 
     private final List<MessageRecord> messageRecords = new ArrayList<>();
 
-    public Object getDependency(NameType<?> key) {
-        return dependencies.get(key);
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public <T> T getDependency(NameType<T> key) {
+        return (T) dependencies.get(key);
     }
 
     public Map<NameType<?>, Object> getDependencies() {

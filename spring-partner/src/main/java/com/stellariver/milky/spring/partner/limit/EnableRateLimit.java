@@ -8,6 +8,4 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EnableRateLimit {
 
-    double warningWaitTime() default 500.0; // FAIL_WAITING 模式 warning waiting time, unit mill second
-
 }

@@ -32,8 +32,6 @@ public abstract class ConcurrentOperate {
         return true;
     }
 
-    abstract protected boolean tryLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire);
-
     public boolean unReentrantLock(UK nameSpace, String lockKey, String encryptionKey) {
         String key = nameSpace.getKey() + "_" + lockKey;
         boolean contains = lockedKeys.get().containsKey(key);
@@ -51,6 +49,8 @@ public abstract class ConcurrentOperate {
         }
         return true;
     }
+
+    abstract protected boolean tryLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire);
 
     abstract protected boolean unlock(UK nameSpace, String lockKey, String encryptionKey);
 

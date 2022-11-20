@@ -26,6 +26,8 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum NOT_REACHED_PART;
 
+    public static ErrorEnum DEEP_PAGING;
+
     @DefaultMessage("当前流量太大，请稍后再试!")
     public static ErrorEnum FLOW_CONFIG;
 

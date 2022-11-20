@@ -29,11 +29,9 @@ public class RateLimiterWrapper {
 
     Duration timeout;
 
-    public boolean acquire() {
-        return acquire(null);
-    }
+    Duration warningThreshold;
 
-    public boolean acquire(@Nullable Duration warningThreshold) {
+    public boolean acquire() {
         if (strategy == RlConfig.Strategy.FAIL_FAST) {
             return rateLimiter.tryAcquire();
         } else if (strategy == RlConfig.Strategy.FAIL_TIME_OUT) {

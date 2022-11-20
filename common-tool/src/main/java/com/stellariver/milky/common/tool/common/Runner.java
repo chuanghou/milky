@@ -22,7 +22,6 @@ import java.util.function.Function;
 @SuppressWarnings("all")
 public class Runner {
 
-    static public Integer count = 0;
     /**
      * need to be instaniate by a AbstractStableSupport Impl
      */
@@ -60,7 +59,6 @@ public class Runner {
             long now = SystemClock.now();
             try {
                 if (circuitBreaker != null) {
-                    count++;
                     result = circuitBreaker.decorateCallable(sCallable).call();
                 } else {
                     result = sCallable.call();

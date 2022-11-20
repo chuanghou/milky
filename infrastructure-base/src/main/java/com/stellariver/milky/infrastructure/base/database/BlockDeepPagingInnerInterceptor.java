@@ -3,8 +3,10 @@ package com.stellariver.milky.infrastructure.base.database;
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import com.github.vertical_blank.sqlformatter.languages.Dialect;
+import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.infrastructure.base.ErrorEnums;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
@@ -77,10 +79,8 @@ public class BlockDeepPagingInnerInterceptor implements InnerInterceptor {
                 originalSql = SqlFormatter.of(Dialect.MySql).format(originalSql);
                 String message = String.format("fatal error, slow sql possible: \n%s ", originalSql);
                 logger.error(message);
-                customStrategy(originalSql);
-                if (block) {
-                    throw new RuntimeException(message);
-                }
+                customStrategyWhenFail(originalSql);
+                BizException.trueThrow(block, ErrorEnums.DEEP_PAGING.message(message));
             }
         }
     }
@@ -89,7 +89,7 @@ public class BlockDeepPagingInnerInterceptor implements InnerInterceptor {
      * custom strategy for extend
      * @param sql deep page sql
      */
-    protected void customStrategy(String sql) {
+    protected void customStrategyWhenFail(String sql) {
 
     }
 
