@@ -46,15 +46,27 @@ public abstract class AbstractStableSupport{
     }
 
     @Nullable
-    @SneakyThrows
     public RateLimiterWrapper rateLimiter(@NonNull String key) {
-        return rateLimiters.get(key, () -> buildRateLimiterWrapper(key));
+        RateLimiterWrapper rateLimiterWrapper = rateLimiters.getIfPresent(key);
+        if (rateLimiterWrapper == null) {
+            rateLimiterWrapper = buildRateLimiterWrapper(key);
+            if (rateLimiterWrapper != null) {
+                rateLimiters.put(key, rateLimiterWrapper);
+            }
+        }
+        return rateLimiterWrapper;
     }
 
     @Nullable
-    @SneakyThrows
     public CircuitBreaker circuitBreaker(@NonNull String key) {
-        return circuitBreakers.get(key, () -> buildCircuitBreaker(key));
+        CircuitBreaker circuitBreaker = circuitBreakers.getIfPresent(key);
+        if (circuitBreaker == null) {
+            circuitBreaker = buildCircuitBreaker(key);
+            if (circuitBreaker != null) {
+                circuitBreakers.put(key, circuitBreaker);
+            }
+        }
+        return circuitBreaker;
     }
 
     protected void adjustCircuitBreakerState(CbConfig config) {
