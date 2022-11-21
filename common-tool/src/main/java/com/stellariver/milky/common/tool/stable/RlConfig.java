@@ -18,7 +18,7 @@ public class RlConfig {
 
     Strategy strategy;
 
-    Duration timeout;
+    Duration timeOut;
 
     Duration warningThreshold;
 

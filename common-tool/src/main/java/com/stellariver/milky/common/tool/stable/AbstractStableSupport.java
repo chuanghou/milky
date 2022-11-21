@@ -102,7 +102,8 @@ public abstract class AbstractStableSupport{
         RateLimiter rateLimiter = RateLimiter.create(rlConfigs.get(key).getQps());
         return RateLimiterWrapper.builder().rateLimiter(rateLimiter)
                 .strategy(Kit.op(rlConfig.getStrategy()).orElse(RlConfig.Strategy.FAIL_WAITING))
-                .timeout(Kit.op(rlConfig.getTimeout()).orElse(Duration.ofSeconds(3)))
+                .timeout(Kit.op(rlConfig.getTimeOut()).orElseGet(() -> Duration.ofSeconds(3)))
+                .warningThreshold(Kit.op(rlConfig.getWarningThreshold()).orElseGet(() -> Duration.ofSeconds(3)))
                 .build();
     }
 

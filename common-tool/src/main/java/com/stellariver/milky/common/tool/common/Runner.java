@@ -49,7 +49,7 @@ public class Runner {
     static public <R, T> T checkout(Option<R, T> option, SCallable<R> sCallable,
                                     @Nullable CircuitBreaker circuitBreaker, @Nullable RateLimiterWrapper rateLimiter, @Nullable UK lambdaId) {
         if (rateLimiter != null) {
-            rateLimiter.acquire(null);
+            rateLimiter.acquire();
         }
         SysException.anyNullThrow(option.getCheck(), option.getTransfer());
         R result = null;
