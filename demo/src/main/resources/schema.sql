@@ -1,4 +1,6 @@
 -- auto-generated definition
+drop table if exists id_builder;
+
 create table id_builder
 (
     id bigint auto_increment,
@@ -14,7 +16,7 @@ create table id_builder
 alter table id_builder
     add primary key (id);
 
-
+drop table if exists invocation_store;
 -- auto-generated definition
 create table invocation_store
 (
@@ -34,7 +36,7 @@ create table invocation_store
 alter table invocation_store
     add primary key (id);
 
-
+drop table if exists item;
 -- auto-generated definition
 create table item
 (
@@ -55,7 +57,7 @@ create table item
 alter table item
     add primary key (item_id);
 
-
+drop table if exists inventory;
 -- auto-generated definition
 create table inventory
 (
@@ -73,7 +75,7 @@ create table inventory
 alter table inventory
     add primary key (item_id);
 
-
+drop table if exists message_store;
 -- auto-generated definition
 create table message_store
 (

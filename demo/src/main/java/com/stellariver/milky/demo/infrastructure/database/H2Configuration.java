@@ -3,7 +3,6 @@ package com.stellariver.milky.demo.infrastructure.database;
 import org.h2.tools.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
@@ -26,9 +25,7 @@ public class H2Configuration {
     @Bean
     public DataSource dataSource() {
         EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-        return builder.setType(EmbeddedDatabaseType.H2)
-                .addScripts("h2/schema.sql")
-                .build();
+        return builder.setType(EmbeddedDatabaseType.H2).build();
     }
 
 }
