@@ -1,6 +1,5 @@
 package com.stellariver.milky.demo;
 
-
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.demo.basic.NameTypes;
 import com.stellariver.milky.demo.domain.item.Item;
