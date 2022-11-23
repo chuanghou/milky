@@ -28,7 +28,7 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
     public void batchSave(@NonNull List<InventoryDO> inventoryDOs) {
         inventoryDOs.forEach(inventoryDO -> {
             int count = inventoryDOMapper.insert(inventoryDO);
-            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.SYSTEM_EXCEPTION.message(inventoryDO));
+            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.PERSISTENCE_ERROR.message(inventoryDO));
         });
     }
 
@@ -36,7 +36,7 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
     public void batchUpdate(@NonNull List<InventoryDO> inventoryDOs) {
         inventoryDOs.forEach(inventoryDO -> {
             int count = inventoryDOMapper.updateById(inventoryDO);
-            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.SYSTEM_EXCEPTION.message(inventoryDO));
+            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.PERSISTENCE_ERROR.message(inventoryDO));
         });
     }
 

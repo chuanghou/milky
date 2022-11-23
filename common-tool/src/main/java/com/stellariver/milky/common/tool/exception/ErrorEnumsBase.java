@@ -24,6 +24,8 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum RPC_EXCEPTION;
 
+    public static ErrorEnum PERSISTENCE_ERROR;
+
     public static ErrorEnum NOT_REACHED_PART;
 
     public static ErrorEnum DEEP_PAGING;
