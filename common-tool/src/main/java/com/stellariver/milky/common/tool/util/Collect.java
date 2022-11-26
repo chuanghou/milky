@@ -92,37 +92,22 @@ public class Collect {
         return subPriorMerge(subMap, supMap);
     }
 
-    /**
-     * 相同key保留第一个值
-     */
     public static <K, V> Map<K, V> toMap(Collection<V> source, Function<V, K> mapper) {
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(mapper, Function.identity(), (v1, v2) -> v1));
     }
 
-    /**
-     * 相同key保留第一个值
-     */
     public static <T, K, V> Map<K, V> toMap(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper) {
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(keyMapper, valueMapper, (v1, v2) -> v1));
     }
 
-    /**
-     * 转为Map有可能抛出异常
-     */
     public static <K, V> Map<K, V> toMapMightException(Collection<V> source, Function<V, K> mapper){
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(mapper, Function.identity()));
     }
 
-    /**
-     * group
-     */
     public static <K, V> Map<K, List<V>> group(Collection<V> source, Function<V, K> keyMapper){
         return stream(source).filter(Objects::nonNull).collect(Collectors.groupingBy(keyMapper));
     }
 
-    /**
-     * group
-     */
     public static <T, K, V> Map<K, List<V>> groupList(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper){
         HashMap<K, List<V>> resultMap = new HashMap<>();
         stream(source).filter(Objects::nonNull)
@@ -130,9 +115,6 @@ public class Collect {
         return resultMap;
     }
 
-    /**
-     * group
-     */
     public static <T, K, V> Map<K, Set<V>> groupSet(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper){
         HashMap<K, Set<V>> resultMap = new HashMap<>();
         stream(source).filter(Objects::nonNull)
