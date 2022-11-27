@@ -82,6 +82,7 @@ public class CommandBus {
 
     private final ThreadLocal<Boolean> memoryTxTL = ThreadLocal.withInitial(() -> false);
 
+    @SuppressWarnings("unused")
     public CommandBus(MilkySupport milkySupport, EventBus eventBus, MilkyConfiguration milkyConfiguration) {
 
         this.concurrentOperate = milkySupport.getConcurrentOperate();
@@ -146,18 +147,14 @@ public class CommandBus {
         // divided into before and after
         finalInterceptorsMap.forEach((commandClass, interceptors) -> {
             List<Interceptor> beforeInterceptors = interceptors.stream()
-                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.BEFORE)).collect(Collectors.toList());
+                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.BEFORE))
+                    .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
             beforeCommandInterceptors.put(commandClass, beforeInterceptors);
             List<Interceptor> afterInterceptors = interceptors.stream()
-                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER)).collect(Collectors.toList());
+                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER))
+                    .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
             afterCommandInterceptors.put(commandClass, afterInterceptors);
         });
-
-        // internal order
-        beforeCommandInterceptors.forEach((k, v) ->
-                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
-        afterCommandInterceptors.forEach((k, v) ->
-                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
     }
 
     @SuppressWarnings("unchecked")
@@ -201,8 +198,13 @@ public class CommandBus {
             Class<?>[] parameterTypes = method.getParameterTypes();
             CommandHandler annotation = method.getAnnotation(CommandHandler.class);
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
-            boolean hasReturn = !method.getReturnType().getName().equals("void");
             HandlerType handlerType = Modifier.isStatic(method.getModifiers()) ? STATIC_METHOD : INSTANCE_METHOD;
+            if (handlerType == STATIC_METHOD) {
+                Class<?> returnType = method.getReturnType();
+                SysException.falseThrowGet(returnType != method.getClass(),
+                        () -> ErrorEnums.CONFIG_ERROR.message("static Command handler must return corresponding aggregate!"));
+            }
+            boolean hasReturn = !method.getReturnType().getName().equals("void");
             Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
             Handler handler = new Handler(clazz, method, null, handlerType, hasReturn, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
@@ -303,9 +305,6 @@ public class CommandBus {
         return instance.daoWrappersMap.get(clazz);
     }
 
-    private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters) {
-        return doSend(command, parameters, null);
-    }
     /**
      * 针对应用层调用的命令总线接口
      * @param command 外部命令
@@ -417,7 +416,7 @@ public class CommandBus {
         Map<String, DependencyProvider> providerMap = Kit.op(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
         commandHandler.getRequiredKeys().forEach(key -> invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
         AggregateRoot aggregate;
-        Object result = null;
+        Object result;
         CommandRecord commandRecord = CommandRecord.builder().message(command).dependencies(new HashMap<>(context.getDependencies())).build();
         context.recordCommand(commandRecord);
         String aggregateId = command.getAggregateId();
@@ -432,10 +431,12 @@ public class CommandBus {
                     .forEach(interceptor -> interceptor.invoke(command, null, context));
             aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
             aggregateStatus = AggregateStatus.CREATE;
+            result = aggregate;
         } else if (commandHandler.handlerType == STATIC_METHOD){
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> interceptor.invoke(command, null, context));
             aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
             aggregateStatus = AggregateStatus.CREATE;
+            result = aggregate;
         } else if (commandHandler.handlerType == INSTANCE_METHOD){
             aggregate = daoAdapter.getByAggregateId(aggregateId, context);
             List<Interceptor> interceptors = beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());

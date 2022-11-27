@@ -10,6 +10,7 @@ import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.domain.support.base.NameType;
 import com.stellariver.milky.domain.support.command.CommandBus;
+import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,10 +29,13 @@ public class ItemAbility {
 
     ItemRepository itemRepository;
 
+    IdBuilder idBuilder;
+
     @Transactional
     public Item publishItem(Long userId, String title) {
+        Long itemId = idBuilder.build();
         ItemCreateCommand command = ItemCreateCommand.builder().userId(userId)
-                .itemId(1L).title(title).build();
+                .itemId(itemId).title(title).amount(0L).storeCode("").build();
         Map<NameType<?>, Object> parameters = StreamMap.<NameType<?>, Object>init()
                 .put(NameTypes.employee, new Employee("110", "tom"))
                 .getMap();
@@ -45,7 +49,7 @@ public class ItemAbility {
         BizException.trueThrow(!itemOptional.isPresent(), ITEM_NOT_EXIST.message("找不到相应item，itemId:" + itemId));
         ItemTitleUpdateCommand command = ItemTitleUpdateCommand.builder().itemId(itemId).updateTitle(newTitle).build();
         Map<NameType<?>, Object> parameters = StreamMap.<NameType<?>, Object>init()
-                .put(NameTypes.employee, new Employee("110", "tom"))
+                .put(NameTypes.employee, operator)
                 .getMap();
         CommandBus.accept(command, parameters);
     }

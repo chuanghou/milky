@@ -3,10 +3,7 @@ package com.stellariver.milky.demo.infrastructure.database;
 import org.h2.tools.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 
 @Configuration
@@ -20,12 +17,6 @@ public class H2Configuration {
         // Password: 无
         // 注意如果使用断点，断点类型使用thread，不能使用all，否则webserver 无法访问
         return Server.createWebServer("-web", "-webAllowOthers", "-webDaemon", "-webPort", "8082");
-    }
-
-    @Bean
-    public DataSource dataSource() {
-        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-        return builder.setType(EmbeddedDatabaseType.H2).build();
     }
 
 }

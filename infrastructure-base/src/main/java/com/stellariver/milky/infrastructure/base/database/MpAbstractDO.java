@@ -20,12 +20,12 @@ public abstract class MpAbstractDO {
     @Version
     @Builder.Default
     @TableField(fill = FieldFill.INSERT)
-    Long version = 0L;
+    Integer version = 0;
 
     @TableLogic
     @Builder.Default
     @TableField(fill = FieldFill.INSERT)
-    Long deleted = 0L;
+    Integer deleted = 0;
 
     @Builder.Default
     @TableField(fill = FieldFill.INSERT)
