@@ -1,0 +1,73 @@
+<!--<?xml version="1.0" encoding="UTF-8" ?>-->
+<!--<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >-->
+<!--<mapper namespace="com.alibaba.c2m.smart.yummy.infrastructure.database.mapper.SkuBsNodeDOMapper">-->
+<!--    <select id="selectBySkuIdentifier" resultType="SkuDO">-->
+<!--        SELECT *-->
+<!--        FROM  sku_bs_node-->
+<!--        WHERE item_id = #{itemId} AND sku_id = #{skuId}-->
+<!--    </select>-->
+
+<!--    <select id="selectBatchSkuIdentifiers" resultType="SkuBsNodeDO">-->
+<!--        SELECT *-->
+<!--        FROM  sku_bs_node-->
+<!--        WHERE-->
+<!--        <foreach collection="list" item="skuIdentifier" separator=" OR ">-->
+<!--            (item_id = #{skuIdentifier.itemId} AND sku_id = #{skuIdentifier.skuId})-->
+<!--        </foreach>-->
+<!--    </select>-->
+
+<!--    <update id="batchUpdateBySkuIdentifiers" parameterType="java.util.List">-->
+<!--        UPDATE sku_bs_node-->
+<!--        <trim prefix="set" suffixOverrides=",">-->
+<!--            <trim prefix="bs_status =case" suffix="end,">-->
+<!--                <foreach collection="list" item="i" index="index">-->
+<!--                    <if test="i.bsStatus!=null">-->
+<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} AND deleted=0 AND version=#{i.version}) THEN #{i.bsStatus}-->
+<!--                    </if>-->
+<!--                </foreach>-->
+<!--            </trim>-->
+<!--            <trim prefix="metadata =case" suffix="end,">-->
+<!--                <foreach collection="list" item="i" index="index">-->
+<!--                    <if test="i.metadata!=null">-->
+<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} AND deleted=0 AND version=#{i.version}) THEN #{i.metadata}-->
+<!--                    </if>-->
+<!--                </foreach>-->
+<!--            </trim>-->
+<!--            <trim prefix="gmt_modified =case" suffix="end,">-->
+<!--                <foreach collection="list" item="i" index="index">-->
+<!--                    <if test="i.gmtModified!=null">-->
+<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} AND deleted=0 AND version=#{i.version}) THEN NOW()-->
+<!--                    </if>-->
+<!--                </foreach>-->
+<!--            </trim>-->
+<!--            <trim prefix="version =case" suffix="end,">-->
+<!--                <foreach collection="list" item="i" index="index">-->
+<!--                    <if test="i.version!=null">-->
+<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} AND deleted=0 AND version=#{i.version}) THEN #{i.version} + 1-->
+<!--                    </if>-->
+<!--                </foreach>-->
+<!--            </trim>-->
+<!--        </trim>-->
+<!--        WHERE-->
+<!--        <foreach collection="list" separator="or" item="i" index="index" >-->
+<!--            (item_id=#{i.itemId} AND sku_id=#{i.skuId} AND version=#{i.version} AND deleted=0)-->
+<!--        </foreach>-->
+<!--    </update>-->
+
+<!--    <update id="updateBySkuIdentifier">-->
+<!--        UPDATE sku_bs_node-->
+<!--        SET bs_status = #{bsStatus}, version = #{version} + 1, gmt_modified = now()-->
+<!--        WHERE item_id = #{itemId}-->
+<!--          AND sku_id = #{skuId}-->
+<!--          AND version = #{version}-->
+<!--    </update>-->
+
+
+<!--    <delete id="deleteBySkuIdentifierReally">-->
+<!--        DELETE-->
+<!--        FROM sku_bs_node-->
+<!--        WHERE item_id = #{itemId}-->
+<!--          AND sku_id = #{skuId}-->
+<!--    </delete>-->
+
+<!--</mapper>-->
