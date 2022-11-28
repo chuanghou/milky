@@ -35,16 +35,12 @@
 <!--            </trim>-->
 <!--            <trim prefix="gmt_modified =case" suffix="end,">-->
 <!--                <foreach collection="list" item="i" index="index">-->
-<!--                    <if test="i.gmtModified!=null">-->
-<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} THEN NOW()-->
-<!--                    </if>-->
+<!--                    WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} THEN NOW()-->
 <!--                </foreach>-->
 <!--            </trim>-->
 <!--            <trim prefix="version =case" suffix="end,">-->
 <!--                <foreach collection="list" item="i" index="index">-->
-<!--                    <if test="i.version!=null">-->
-<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} THEN #{i.version} + 1-->
-<!--                    </if>-->
+<!--                    WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} THEN #{i.version} + 1-->
 <!--                </foreach>-->
 <!--            </trim>-->
 <!--        </trim>-->
