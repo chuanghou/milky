@@ -1,9 +1,6 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
-import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.demo.basic.ErrorEnums;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
 import com.stellariver.milky.domain.support.dependency.DAOWrapper;
@@ -25,19 +22,13 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
     final ItemDOMapper itemDOMapper;
 
     @Override
-    public void batchSave(@NonNull List<ItemDO> itemDOs) {
-        itemDOs.forEach(itemDO -> {
-            int count = itemDOMapper.insert(itemDO);
-            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.SYSTEM_EXCEPTION.message(itemDO));
-        });
+    public int batchSave(@NonNull List<ItemDO> itemDOs) {
+        return itemDOs.stream().map(itemDOMapper::insert).reduce(0, Integer::sum);
     }
 
     @Override
-    public void batchUpdate(@NonNull List<ItemDO> itemDOs) {
-        itemDOs.forEach(itemDO -> {
-            int count = itemDOMapper.updateById(itemDO);
-            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.SYSTEM_EXCEPTION.message(itemDO));
-        });
+    public int batchUpdate(@NonNull List<ItemDO> itemDOs) {
+        return itemDOs.stream().map(itemDOMapper::updateById).reduce(0, Integer::sum);
     }
 
     @Override

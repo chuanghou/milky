@@ -1,9 +1,6 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
-import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.demo.basic.ErrorEnums;
 import com.stellariver.milky.demo.infrastructure.database.entity.InventoryDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.domain.support.dependency.DAOWrapper;
@@ -25,19 +22,13 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
     final InventoryDOMapper inventoryDOMapper;
 
     @Override
-    public void batchSave(@NonNull List<InventoryDO> inventoryDOs) {
-        inventoryDOs.forEach(inventoryDO -> {
-            int count = inventoryDOMapper.insert(inventoryDO);
-            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.PERSISTENCE_ERROR.message(inventoryDO));
-        });
+    public int batchSave(@NonNull List<InventoryDO> inventoryDOs) {
+        return inventoryDOs.stream().map(inventoryDOMapper::insert).reduce(0, Integer::sum);
     }
 
     @Override
-    public void batchUpdate(@NonNull List<InventoryDO> inventoryDOs) {
-        inventoryDOs.forEach(inventoryDO -> {
-            int count = inventoryDOMapper.updateById(inventoryDO);
-            SysException.falseThrowGet(Kit.eq(count, 1), () -> ErrorEnums.PERSISTENCE_ERROR.message(inventoryDO));
-        });
+    public int batchUpdate(@NonNull List<InventoryDO> inventoryDOs) {
+        return inventoryDOs.stream().map(inventoryDOMapper::updateById).reduce(0, Integer::sum);
     }
 
     @Override

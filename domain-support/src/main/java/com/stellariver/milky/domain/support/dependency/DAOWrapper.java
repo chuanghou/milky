@@ -4,6 +4,7 @@ import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -27,23 +28,23 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
 
     @SuppressWarnings("unchecked")
     default void batchSaveWrapper(List<Object> dataObjects) {
-        if (Collect.isNotEmpty(dataObjects)) {
-            dataObjects.forEach(this::checkNullField);
-            batchSave(Collect.transfer(dataObjects, doj -> (DataObject) doj));
-        }
+        SysException.trueThrow(Collect.isEmpty(dataObjects), ErrorEnums.SYSTEM_EXCEPTION);
+        dataObjects.forEach(this::checkNullField);
+        int count = batchSave(Collect.transfer(dataObjects, doj -> (DataObject) doj));
+        SysException.trueThrow(Kit.notEq(count, dataObjects.size()), ErrorEnums.PERSISTENCE_ERROR);
     }
 
-    void batchSave(@NonNull List<DataObject> dataObjects);
+    int batchSave(@NonNull List<DataObject> dataObjects);
 
     @SuppressWarnings("unchecked")
-    default void batchUpdateWrapper(@NonNull List<Object> dataObjects) {
-        if (Collect.isNotEmpty(dataObjects)) {
-            dataObjects.forEach(this::checkNullField);
-            batchUpdate(Collect.transfer(dataObjects, doj -> (DataObject) doj));
-        }
+    default void batchUpdateWrapper(List<Object> dataObjects) {
+        SysException.trueThrow(Collect.isEmpty(dataObjects), ErrorEnums.SYSTEM_EXCEPTION);
+        dataObjects.forEach(this::checkNullField);
+        int count = batchUpdate(Collect.transfer(dataObjects, doj -> (DataObject) doj));
+        SysException.trueThrow(Kit.notEq(count, dataObjects.size()), ErrorEnums.PERSISTENCE_ERROR);
     }
 
-    void batchUpdate(@NonNull List<DataObject> dataObjects);
+    int batchUpdate(@NonNull List<DataObject> dataObjects);
 
     @SuppressWarnings("unchecked")
     default Map<Object, Object> batchGetByPrimaryIdsWrapper(@NonNull Set<Object> primaryIds) {
