@@ -22,28 +22,28 @@
 <!--            <trim prefix="bs_status =case" suffix="end,">-->
 <!--                <foreach collection="list" item="i" index="index">-->
 <!--                    <if test="i.bsStatus!=null">-->
-<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} AND deleted=0 AND version=#{i.version}) THEN #{i.bsStatus}-->
+<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} THEN #{i.bsStatus}-->
 <!--                    </if>-->
 <!--                </foreach>-->
 <!--            </trim>-->
 <!--            <trim prefix="metadata =case" suffix="end,">-->
 <!--                <foreach collection="list" item="i" index="index">-->
 <!--                    <if test="i.metadata!=null">-->
-<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} AND deleted=0 AND version=#{i.version}) THEN #{i.metadata}-->
+<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} THEN #{i.metadata}-->
 <!--                    </if>-->
 <!--                </foreach>-->
 <!--            </trim>-->
 <!--            <trim prefix="gmt_modified =case" suffix="end,">-->
 <!--                <foreach collection="list" item="i" index="index">-->
 <!--                    <if test="i.gmtModified!=null">-->
-<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} AND deleted=0 AND version=#{i.version}) THEN NOW()-->
+<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} THEN NOW()-->
 <!--                    </if>-->
 <!--                </foreach>-->
 <!--            </trim>-->
 <!--            <trim prefix="version =case" suffix="end,">-->
 <!--                <foreach collection="list" item="i" index="index">-->
 <!--                    <if test="i.version!=null">-->
-<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} AND deleted=0 AND version=#{i.version}) THEN #{i.version} + 1-->
+<!--                        WHEN (item_id=#{i.itemId} AND sku_id=#{i.skuId} THEN #{i.version} + 1-->
 <!--                    </if>-->
 <!--                </foreach>-->
 <!--            </trim>-->
