@@ -9,7 +9,7 @@ import com.stellariver.milky.common.tool.stable.StableConfig;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.demo.basic.UKs;
-import com.stellariver.milky.demo.infrastructure.database.stable.FakeConfigCenterListener;
+import com.stellariver.milky.demo.infrastructure.nacos.stable.FakeConfigCenterListener;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import lombok.CustomLog;
 import lombok.SneakyThrows;

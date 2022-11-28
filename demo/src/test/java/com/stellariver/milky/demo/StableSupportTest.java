@@ -11,7 +11,7 @@ import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.demo.basic.ErrorEnums;
 import com.stellariver.milky.demo.basic.UKs;
 import com.stellariver.milky.common.tool.stable.CbConfig;
-import com.stellariver.milky.demo.infrastructure.database.stable.FakeConfigCenterListener;
+import com.stellariver.milky.demo.infrastructure.nacos.stable.FakeConfigCenterListener;
 import com.stellariver.milky.common.tool.stable.RlConfig;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;

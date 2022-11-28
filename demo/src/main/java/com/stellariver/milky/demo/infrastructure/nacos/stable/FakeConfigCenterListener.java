@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.infrastructure.database.stable;
+package com.stellariver.milky.demo.infrastructure.nacos.stable;
 
 public interface FakeConfigCenterListener {
 
