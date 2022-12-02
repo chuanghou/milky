@@ -50,9 +50,9 @@ public abstract class ConcurrentOperate {
         return true;
     }
 
-    abstract protected boolean tryLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire);
+    abstract public boolean tryLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire);
 
-    abstract protected boolean unlock(UK nameSpace, String lockKey, String encryptionKey);
+    abstract public boolean unlock(UK nameSpace, String lockKey, String encryptionKey);
 
     @SneakyThrows
     public boolean tryRetryLock(RetryParameter retryParameter) {

@@ -371,12 +371,12 @@ public class CommandBus {
         Object result;
         Context context = tLContext.get();
         String encryptionKey = UUID.randomUUID().toString();
-        UK nameSpace = UK.build(command.getClass());
+        UK nameSpace = UK.build(commandHandler.getAggregateClazz());
         String lockKey = command.getAggregateId();
         long now = SystemClock.now();
         boolean locked = false;
         try {
-            locked = concurrentOperate.tryReentrantLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils());
+            locked = concurrentOperate.tryLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils());
             if (!locked) {
                 long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
                 RetryParameter retryParameter = RetryParameter.builder()
@@ -394,7 +394,7 @@ public class CommandBus {
             tLContext.get().clearDependencies();
         } finally {
             if (locked) {
-                boolean unlock = concurrentOperate.unReentrantLock(nameSpace, lockKey, encryptionKey);
+                boolean unlock = concurrentOperate.unlock(nameSpace, lockKey, encryptionKey);
                 if (!unlock) {
                     log.arg0(nameSpace).arg1(lockKey).cost(SystemClock.now() - now).error("UNLOCK_FAILURE");
                 }
