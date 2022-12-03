@@ -343,7 +343,7 @@ public class CommandBus {
                 });
             }
             eventBus.postFinalRoute(context.getFinalRouteEvents(), context);
-            asyncExecutor.submit(() -> traceRepository.record(context));
+            asyncExecutor.submit(() -> traceRepository.record(context, true));
         } catch (Throwable throwable) {
             asyncExecutor.submit(() -> traceRepository.record(context, false));
             if (memoryTx) {

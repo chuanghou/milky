@@ -7,10 +7,6 @@ import java.util.List;
 
 public interface TraceRepository {
 
-    default void record(Context context) {
-        record(context, true);
-    }
-
     void record(Context context, boolean success);
 
 }
