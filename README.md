@@ -1,5 +1,6 @@
 # milky
 
+
 引入方式
 ```xml
 <dependency>
@@ -18,4 +19,8 @@
     <version>latest</version>
 </dependency>
 ```
-详细使用方式请看demo模块及相应测试
+详细使用方式请看demo模块及相应测试，根目录 
+```shell
+mvn clean test
+```
+即可
