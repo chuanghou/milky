@@ -305,6 +305,10 @@ public class CommandBus {
         return instance.daoWrappersMap.get(clazz);
     }
 
+    static public void reset() {
+        CommandBus.instance = null;
+    }
+
     /**
      * 针对应用层调用的命令总线接口
      * @param command 外部命令

@@ -12,11 +12,16 @@ import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.domain.support.base.NameType;
 import com.stellariver.milky.domain.support.command.CommandBus;
+import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import lombok.CustomLog;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.mock.mockito.SpyBeans;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
@@ -24,6 +29,7 @@ import java.util.HashMap;
 @CustomLog
 @Transactional
 @SpringBootTest
+@DirtiesContext
 public class BasicTest {
 
     @Autowired
@@ -34,6 +40,9 @@ public class BasicTest {
 
     @Autowired
     InventoryDOMapper inventoryDOMapper;
+
+    @SpyBean
+    ConcurrentOperate concurrentOperate;
 
     @Test
     public void publishItemDOTest() {
@@ -57,6 +66,11 @@ public class BasicTest {
         inventory = inventoryRepository.queryById(1L);
         Assertions.assertNotNull(inventory);
         Assertions.assertEquals(100L, (long) inventory.getAmount());
+    }
+
+    @AfterAll
+    static public void resetMilky() {
+        CommandBus.reset();
     }
 
 }

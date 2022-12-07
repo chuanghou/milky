@@ -51,6 +51,7 @@ public class MemoryTxTest {
             CommandBus.acceptMemoryTransactional(itemCreateCommand, parameters);
         } catch (Throwable t) {
             throwable = t;
+            log.error("TEST_THROWABLE", throwable);
         }
         Assertions.assertNotNull(throwable);
         Assertions.assertTrue(throwable instanceof DuplicateKeyException);
