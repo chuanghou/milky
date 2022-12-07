@@ -100,6 +100,7 @@ public class Runner {
                     }
                 }
             }
+            throwableBackup = null;
         } while (retryTimes-- > 0);
         throw new SysException("unreached part!");
     }
