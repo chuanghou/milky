@@ -18,21 +18,17 @@ import java.util.Date;
 public abstract class MpAbstractDO {
 
     @Version
-    @Builder.Default
     @TableField(fill = FieldFill.INSERT)
-    Integer version = 0;
+    Integer version;
 
     @TableLogic
-    @Builder.Default
     @TableField(fill = FieldFill.INSERT)
-    Integer deleted = 0;
+    Integer deleted;
 
-    @Builder.Default
     @TableField(fill = FieldFill.INSERT)
-    Date gmtCreate = new Date();
+    Date gmtCreate;
 
-    @Builder.Default
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    Date gmtModified = new Date();
+    Date gmtModified;
 
 }

@@ -23,12 +23,16 @@ public class Kit {
         return Optional.ofNullable(value);
     }
 
-    public static boolean isNull(Object value) {
+    public static <T> boolean isNull(T value) {
         return value == null;
     }
 
-    public static boolean notNull(Object value) {
+    public static <T> boolean notNull(T value) {
         return value != null;
+    }
+
+    public static <T> T isNull(T value, T defaultValue) {
+        return value == null ? defaultValue : value;
     }
 
     public static boolean isBlank(String value) {
@@ -37,6 +41,10 @@ public class Kit {
 
     public static boolean notBlank(String value) {
         return !StringUtils.isBlank(value);
+    }
+
+    public static String isBlank(String value, String defaultValue) {
+        return StringUtils.isBlank(value) ? defaultValue : value;
     }
 
 }

@@ -204,7 +204,7 @@ public class CommandBus {
                 SysException.falseThrowGet(returnType != method.getClass(),
                         () -> ErrorEnums.CONFIG_ERROR.message("static Command handler must return corresponding aggregate!"));
             }
-            boolean hasReturn = !method.getReturnType().getName().equals("void");
+            boolean hasReturn = !"void".equals(method.getReturnType().getName());
             Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
             Handler handler = new Handler(clazz, method, null, handlerType, hasReturn, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];

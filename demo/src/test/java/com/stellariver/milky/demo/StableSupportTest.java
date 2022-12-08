@@ -38,6 +38,7 @@ public class StableSupportTest {
     @SneakyThrows
     public void test() {
 
+
         RlConfig rlConfig = RlConfig.builder().key(UKs.stableTest.getKey()).qps(10.0).build();
         CbConfig cbConfig = CbConfig.builder().key(UKs.stableTest.getKey())
                 .minimumNumberOfCalls(10)
@@ -50,7 +51,8 @@ public class StableSupportTest {
 
         Option<Result<String>, String> option = Option.<Result<String>, String>builder().check(Result::isSuccess)
                 .lambdaId(UKs.stableTest)
-                .transfer(Result::getData).build();
+                .transfer(Result::getData)
+                .build();
         long now = SystemClock.now();
         for (int i = 0; i < 20; i++) {
             Runner.checkout(option, () -> stableTest(0));
