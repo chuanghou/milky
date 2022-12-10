@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
 /**
  * 防止深度分页插件，默认不阻断，分页限制1000条
