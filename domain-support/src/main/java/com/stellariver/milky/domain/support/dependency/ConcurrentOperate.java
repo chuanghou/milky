@@ -1,12 +1,11 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.common.UK;
-import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.RetryParameter;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,45 +13,38 @@ import java.util.Map;
 @CustomLog
 public abstract class ConcurrentOperate {
 
-    private final ThreadLocal<Map<String, Integer>> lockedKeys = ThreadLocal.withInitial(HashMap::new);
+    private final ThreadLocal<Map<Pair<UK, String>, String>> lockedKeys = ThreadLocal.withInitial(HashMap::new);
 
     public boolean tryReentrantLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire) {
-        String key = nameSpace.preFix(lockKey);
-        boolean contains = lockedKeys.get().containsKey(key);
+        boolean contains = lockedKeys.get().containsKey(Pair.of(nameSpace, lockKey));
         if (!contains) {
             boolean locked = tryLock(nameSpace, lockKey, encryptionKey, milsToExpire);
             if (!locked) {
                 return false;
             }
-            lockedKeys.get().put(key, 0);
+            lockedKeys.get().put(Pair.of(nameSpace, lockKey), encryptionKey);
         }
-
-        Integer lockedTimes = lockedKeys.get().get(key);
-        lockedKeys.get().put(key, ++lockedTimes);
         return true;
     }
 
-    public boolean unReentrantLock(UK nameSpace, String lockKey, String encryptionKey) {
-        String key = nameSpace.getKey() + "_" + lockKey;
-        boolean contains = lockedKeys.get().containsKey(key);
-        SysException.falseThrow(contains, ErrorEnums.SYSTEM_EXCEPTION.message(key));
-        Integer lockedTimes = lockedKeys.get().get(key);
-        lockedTimes--;
-        if (Kit.eq(lockedTimes, 0)) {
-            boolean unlock = unlock(nameSpace, lockKey, encryptionKey);
-            if (!unlock) {
-                log.arg0(nameSpace).arg1(lockKey).arg2(encryptionKey).error("UNLOCK_FAILURE");
+    public boolean unLockAll() {
+        boolean result = true;
+        for (Map.Entry<Pair<UK, String>, String> e: lockedKeys.get().entrySet()) {
+            UK nameSpace = e.getKey().getKey();
+            String lockKey = e.getKey().getValue();
+            String value = e.getValue();
+            boolean b = unLockFallbackable(nameSpace, lockKey, value);
+            if (!b) {
+                log.arg0(nameSpace).arg1(lockKey).arg2(value).error("UNLOCK_FAILURE");
             }
-            lockedKeys.get().remove(key);
-        } else {
-            lockedKeys.get().put(key, lockedTimes);
+            result = result && unLockFallbackable(nameSpace, lockKey, value);
         }
-        return true;
+        return result;
     }
 
-    abstract public boolean tryLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire);
+    abstract protected boolean tryLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire);
 
-    abstract public boolean unlock(UK nameSpace, String lockKey, String encryptionKey);
+    abstract protected boolean unLockFallbackable(UK nameSpace, String lockKey, String encryptionKey);
 
     @SneakyThrows
     public boolean tryRetryLock(RetryParameter retryParameter) {
@@ -71,4 +63,6 @@ public abstract class ConcurrentOperate {
         }
         return false;
     }
+
+
 }

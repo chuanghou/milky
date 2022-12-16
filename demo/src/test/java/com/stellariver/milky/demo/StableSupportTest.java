@@ -87,6 +87,7 @@ public class StableSupportTest {
         Assertions.assertEquals(circuitBreaker.getState(), CircuitBreaker.State.HALF_OPEN);
         for (int i = 0; i < 9; i++) {
             try {
+                stableTest(1);
                 Runner.checkout(option, () -> stableTest(0));
             } catch (Throwable ignore) {
             }

@@ -356,6 +356,10 @@ public class CommandBus {
             throw throwable;
         } finally {
             tLContext.remove();
+            boolean b = concurrentOperate.unLockAll();
+            if (!b) {
+                log.error("UNLOCK_ALL_FAILURE");
+            }
         }
         if (memoryTx) {
             transactionSupport.commit();
@@ -377,33 +381,22 @@ public class CommandBus {
         String encryptionKey = UUID.randomUUID().toString();
         UK nameSpace = UK.build(commandHandler.getAggregateClazz());
         String lockKey = command.getAggregateId();
-        long now = SystemClock.now();
-        boolean locked = false;
-        try {
-            locked = concurrentOperate.tryLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils());
-            if (!locked) {
-                long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
-                RetryParameter retryParameter = RetryParameter.builder()
-                        .nameSpace(nameSpace)
-                        .lockKey(lockKey)
-                        .encryptionKey(encryptionKey)
-                        .milsToExpire(command.lockExpireMils())
-                        .times(command.retryTimes())
-                        .sleepTimeMils(sleepTimeMs)
-                        .build();
-                locked = concurrentOperate.tryRetryLock(retryParameter);
-                BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
-            }
-            result = doRoute(command, context, commandHandler);
-            tLContext.get().clearDependencies();
-        } finally {
-            if (locked) {
-                boolean unlock = concurrentOperate.unlock(nameSpace, lockKey, encryptionKey);
-                if (!unlock) {
-                    log.arg0(nameSpace).arg1(lockKey).cost(SystemClock.now() - now).error("UNLOCK_FAILURE");
-                }
-            }
+        boolean locked = concurrentOperate.tryReentrantLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils());
+        if (!locked) {
+            long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
+            RetryParameter retryParameter = RetryParameter.builder()
+                    .nameSpace(nameSpace)
+                    .lockKey(lockKey)
+                    .encryptionKey(encryptionKey)
+                    .milsToExpire(command.lockExpireMils())
+                    .times(command.retryTimes())
+                    .sleepTimeMils(sleepTimeMs)
+                    .build();
+            locked = concurrentOperate.tryRetryLock(retryParameter);
+            BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
         }
+        result = doRoute(command, context, commandHandler);
+        tLContext.get().clearDependencies();
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
             context.recordEvent(EventRecord.builder().message(event).build());
