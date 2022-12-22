@@ -6,9 +6,11 @@ import com.stellariver.milky.common.tool.slambda.SCallable;
 import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
+import com.stellariver.milky.common.tool.util.FailureExtendable;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import lombok.CustomLog;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nullable;
@@ -28,8 +30,18 @@ public class Runner {
     @Nullable
     static private AbstractStableSupport abstractStableSupport;
 
-    static public void setAbstractStableSupport(AbstractStableSupport support) {
+
+    /**
+     * need to be instaniate by a failureExtendableImpl
+     */
+    @Nullable
+    static private FailureExtendable failureExtendable;
+
+    static public void setAbstractStableSupport(@NonNull AbstractStableSupport support) {
         abstractStableSupport = support;
+    }
+    static public void setFailureExtendable(@NonNull FailureExtendable failureExtendableImpl) {
+        failureExtendable = failureExtendableImpl;
     }
 
 
@@ -94,6 +106,9 @@ public class Runner {
                 } else if (throwableBackup != null){
                     Map<String, Object> args = SLambda.resolveArgs(sCallable);
                     if (retryTimes == 0) {
+                        if (failureExtendable != null) {
+                            failureExtendable.watch(args, throwableBackup);
+                        }
                         log.with(args).cost(SystemClock.now() - now).error(logTag, throwableBackup);
                     } else {
                         log.with(args).cost(SystemClock.now() - now).warn(logTag, throwableBackup);
