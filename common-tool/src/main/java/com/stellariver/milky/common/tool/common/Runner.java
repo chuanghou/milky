@@ -6,7 +6,7 @@ import com.stellariver.milky.common.tool.slambda.SCallable;
 import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
-import com.stellariver.milky.common.tool.util.FailureExtendable;
+import com.stellariver.milky.common.tool.util.RunnerExtension;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import lombok.CustomLog;
@@ -35,13 +35,13 @@ public class Runner {
      * need to be instaniate by a failureExtendableImpl
      */
     @Nullable
-    static private FailureExtendable failureExtendable;
+    static private RunnerExtension runnerExtension;
 
     static public void setAbstractStableSupport(@NonNull AbstractStableSupport support) {
         abstractStableSupport = support;
     }
-    static public void setFailureExtendable(@NonNull FailureExtendable failureExtendableImpl) {
-        failureExtendable = failureExtendableImpl;
+    static public void setFailureExtendable(@NonNull RunnerExtension runnerExtensionImpl) {
+        runnerExtension = runnerExtensionImpl;
     }
 
 
@@ -99,20 +99,24 @@ public class Runner {
                 }
             } finally {
                 String logTag = Kit.op(lambdaId).map(UK::getKey).orElse("NOT_SET");
+                Map<String, Object> args = null;
                 if (throwableBackup == null && option.isAlwaysLog()) {
-                    Map<String, Object> args = SLambda.resolveArgs(sCallable);
+                    args = SLambda.resolveArgs(sCallable);
                     Function<R, String> printer = Kit.op(option.getRSelector()).orElse(Objects::toString);
                     log.with(args).result(printer.apply(result)).cost(SystemClock.now() - now).info(lambdaId.getKey());
                 } else if (throwableBackup != null){
-                    Map<String, Object> args = SLambda.resolveArgs(sCallable);
+                    args = SLambda.resolveArgs(sCallable);
                     if (retryTimes == 0) {
-                        if (failureExtendable != null) {
-                            failureExtendable.watch(args, throwableBackup);
-                        }
                         log.with(args).cost(SystemClock.now() - now).error(logTag, throwableBackup);
                     } else {
                         log.with(args).cost(SystemClock.now() - now).warn(logTag, throwableBackup);
                     }
+                }
+                if (runnerExtension != null) {
+                    if (args == null) {
+                        args = SLambda.resolveArgs(sCallable);
+                    }
+                    runnerExtension.watch(args, result, lambdaId, throwableBackup);
                 }
             }
             throwableBackup = null;

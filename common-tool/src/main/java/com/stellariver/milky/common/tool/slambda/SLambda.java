@@ -1,7 +1,5 @@
 package com.stellariver.milky.common.tool.slambda;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.stellariver.milky.common.tool.exception.SysException;
 import lombok.SneakyThrows;
 
