@@ -149,8 +149,9 @@ public class Logger implements org.slf4j.Logger {
             MDC.put(k, v);
         });
         StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[3];
-        int lineNumber = stackTraceElement.getLineNumber();
-        MDC.put("_line", Integer.toString(lineNumber));
+        MDC.put("milky_class", stackTraceElement.getClassName());
+        MDC.put("milky_method", stackTraceElement.getMethodName());
+        MDC.put("milky_line", Integer.toString(stackTraceElement.getLineNumber()));
         logContents.clear();
     }
 
@@ -160,7 +161,9 @@ public class Logger implements org.slf4j.Logger {
             originalContents.forEach(MDC::put);
             originalContents.clear();
         }
-        MDC.remove("_line");
+        MDC.remove("milky_class");
+        MDC.remove("milky_method");
+        MDC.remove("milky_line");
     }
 
     @Override

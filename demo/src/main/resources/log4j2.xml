@@ -7,7 +7,7 @@
 
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] [%L] %-5level %logger{36} - %msg [milky_class:%X{milky_class}] [milky_method:%X{milky_method}] [milky_line:%X{milky_line}]%n"/>
         </Console>
 
         <RollingRandomAccessFile name="Application" immediateFlush="true"
@@ -18,11 +18,13 @@
                 <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
 
-            <JsonLayout compact="true" eventEol="true" objectMessageAsJsonObject="true">
+            <JsonLayout compact="true" eventEol="true" objectMessageAsJsonObject="true" locationInfo="true">
+                <KeyValuePair key="milky_class" value="$${ctx:milky_class:-null}"/>
+                <KeyValuePair key="milky_method" value="$${ctx:milky_method:-null}"/>
+                <KeyValuePair key="milky_line" value="$${ctx:milky_line:-null}"/>
                 <KeyValuePair key="success" value="$${ctx:success:-null}"/>
                 <KeyValuePair key="cost" value="$${ctx:cost:-null}"/>
                 <KeyValuePair key="trace_id" value="$${ctx:traceId:-null}"/>
-                <KeyValuePair key="milky_line" value="$${ctx:status:-null}"/>
                 <KeyValuePair key="invocation_id" value="$${ctx:invocationId:-null}"/>
                 <KeyValuePair key="arg0" value="$${ctx:arg0:-null}"/>
                 <KeyValuePair key="arg1" value="$${ctx:arg1:-null}"/>
