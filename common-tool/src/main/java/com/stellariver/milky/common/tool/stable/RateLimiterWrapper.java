@@ -1,15 +1,11 @@
 package com.stellariver.milky.common.tool.stable;
 
 import com.google.common.util.concurrent.RateLimiter;
-import com.stellariver.milky.common.base.ErrorEnum;
-import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
-import com.stellariver.milky.common.tool.util.Json;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
@@ -46,7 +42,7 @@ public class RateLimiterWrapper {
             }
             return true;
         } else {
-            throw new SysException(ErrorEnumsBase.NOT_REACHED_PART);
+            throw new SysException(ErrorEnumsBase.UNREACHABLE_CODE);
         }
     }
 

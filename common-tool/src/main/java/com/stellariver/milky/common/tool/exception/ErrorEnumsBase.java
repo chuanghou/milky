@@ -26,7 +26,7 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum PERSISTENCE_ERROR;
 
-    public static ErrorEnum NOT_REACHED_PART;
+    public static ErrorEnum UNREACHABLE_CODE;
 
     public static ErrorEnum DEEP_PAGING;
 

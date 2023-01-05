@@ -4,6 +4,7 @@ import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
+import org.hibernate.validator.HibernateValidator;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -19,7 +20,8 @@ public class ValidateUtil {
 
     enum ExceptionType {BIZ, SYS}
 
-    static final private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    static final private Validator validator = Validation.byProvider(HibernateValidator.class)
+            .configure().failFast(true).buildValidatorFactory().getValidator();
 
     static final private ExecutableValidator executableValidator = validator.forExecutables();
 

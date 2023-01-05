@@ -86,4 +86,10 @@ public class SysException extends BaseException {
     static public void falseThrow(boolean test,  Object object) {
         trueThrow(!test, object);
     }
+
+
+    static public SysException unreachable() {
+        return new SysException(ErrorEnumsBase.UNREACHABLE_CODE);
+    }
+
 }

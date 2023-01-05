@@ -10,7 +10,6 @@ import com.stellariver.milky.common.tool.util.If;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 import javax.annotation.Nullable;
@@ -78,7 +77,7 @@ public abstract class AbstractStableSupport{
         } else if (config.getOperation() == CbConfig.Operation.RESET) {
             circuitBreaker.reset();
         } else {
-            throw new SysException(ErrorEnumsBase.NOT_REACHED_PART);
+            throw new SysException(ErrorEnumsBase.UNREACHABLE_CODE);
         }
     }
 
