@@ -5,7 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TLCConfiguration {
+public @interface TLCConfig {
 
     long maximumSize() default 10L;
 

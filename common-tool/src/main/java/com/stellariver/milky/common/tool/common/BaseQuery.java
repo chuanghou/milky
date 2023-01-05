@@ -26,8 +26,8 @@ public abstract class BaseQuery<ID, T> {
     private CacheConfig cacheConfig;
 
     private final ThreadLocal<Cache<ID, T>> threadLocal = ThreadLocal.withInitial(
-            () -> CacheBuilder.newBuilder().maximumSize(getCacheConfiguration().getMaximumSize())
-                    .expireAfterWrite(getCacheConfiguration().getExpireAfterWrite(), getCacheConfiguration().getTimeUnit())
+            () -> CacheBuilder.newBuilder().maximumSize(getCacheConfig().getMaximumSize())
+                    .expireAfterWrite(getCacheConfig().getExpireAfterWrite(), getCacheConfig().getTimeUnit())
                     .build()
     );
 
@@ -87,17 +87,24 @@ public abstract class BaseQuery<ID, T> {
         enable.set(false);
     }
 
-    protected CacheConfig getCacheConfiguration() {
+    protected CacheConfig getCacheConfig() {
         if (cacheConfig != null) {
             return cacheConfig;
         }
-        TLCConfiguration annotation = this.getClass().getAnnotation(TLCConfiguration.class);
-        SysException.nullThrow(annotation);
-        cacheConfig =  CacheConfig.builder()
-                .maximumSize(annotation.maximumSize())
-                .expireAfterWrite(annotation.expireAfterWrite())
-                .timeUnit(annotation.timeUnit())
-                .build();
+        TLCConfig annotation = this.getClass().getAnnotation(TLCConfig.class);
+        if (annotation != null) {
+            cacheConfig =  CacheConfig.builder()
+                    .maximumSize(annotation.maximumSize())
+                    .expireAfterWrite(annotation.expireAfterWrite())
+                    .timeUnit(annotation.timeUnit())
+                    .build();
+        } else {
+            cacheConfig = CacheConfig.builder()
+                    .maximumSize(10L)
+                    .expireAfterWrite(3000L)
+                    .timeUnit(TimeUnit.MILLISECONDS)
+                    .build();
+        }
         return cacheConfig;
     }
 
