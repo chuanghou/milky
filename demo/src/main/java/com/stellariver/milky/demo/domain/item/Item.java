@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo.domain.item;
 
+import com.stellariver.milky.demo.basic.ChannelEnum;
 import com.stellariver.milky.demo.basic.NameTypes;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
@@ -37,6 +38,8 @@ public class Item extends AggregateRoot {
 
     String storeCode;
 
+    ChannelEnum channelEnum;
+
     @CommandHandler(dependencies = "userInfo")
     public Item(ItemCreateCommand command, Context context) {
         this.itemId = command.getItemId();
@@ -46,6 +49,7 @@ public class Item extends AggregateRoot {
         this.storeCode = command.getStoreCode();
         UserInfo userInfo = NameTypes.userInfo.extractFrom(context.getDependencies());
         this.userName = userInfo.getUserName();
+        this.channelEnum = command.getChannelEnum();
         context.publish(ItemCreatedEvent.builder().itemId(itemId).title(title).build());
     }
 

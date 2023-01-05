@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo.infrastructure.database.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.stellariver.milky.demo.basic.ChannelEnum;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import com.stellariver.milky.infrastructure.base.database.MpAbstractDO;
 import lombok.*;
@@ -30,6 +31,8 @@ public class ItemDO extends MpAbstractDO implements BaseDataObject<Long> {
     Long amount;
 
     String storeCode;
+
+    ChannelEnum channelEnum;
 
     @Override
     public Long getPrimaryId() {

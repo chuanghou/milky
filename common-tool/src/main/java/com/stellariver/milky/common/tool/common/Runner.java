@@ -68,7 +68,7 @@ public class Runner {
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
         do {
-            long now = SystemClock.now();
+            long now = Clock.currentTimeMillis();
             try {
                 if (circuitBreaker != null) {
                     result = circuitBreaker.decorateCallable(sCallable).call();
@@ -79,7 +79,7 @@ public class Runner {
                 if (!success) {
                     SysException sysException = new SysException(ErrorEnumsBase.SYSTEM_EXCEPTION.message(result));
                     if (circuitBreaker != null) {
-                        circuitBreaker.onError(SystemClock.now() - now, TimeUnit.MILLISECONDS, sysException);
+                        circuitBreaker.onError(Clock.currentTimeMillis() - now, TimeUnit.MILLISECONDS, sysException);
                     }
                     throw sysException;
                 }
@@ -92,7 +92,7 @@ public class Runner {
                 }
                 if (retryTimes == 0 || throwableBackup instanceof CallNotPermittedException) {
                     retryTimes = 0;
-                    if (option.getDefaultValue() == null) {
+                    if (!option.hasDefaultValue()) {
                         throw throwableBackup;
                     }
                     return option.getDefaultValue();
@@ -103,13 +103,13 @@ public class Runner {
                 if (throwableBackup == null && option.isAlwaysLog()) {
                     args = SLambda.resolveArgs(sCallable);
                     Function<R, String> printer = Kit.op(option.getRSelector()).orElse(Objects::toString);
-                    log.with(args).result(printer.apply(result)).cost(SystemClock.now() - now).info(lambdaId.getKey());
+                    log.with(args).result(printer.apply(result)).cost(Clock.currentTimeMillis() - now).info(lambdaId.getKey());
                 } else if (throwableBackup != null){
                     args = SLambda.resolveArgs(sCallable);
                     if (retryTimes == 0) {
-                        log.with(args).cost(SystemClock.now() - now).error(logTag, throwableBackup);
+                        log.with(args).cost(Clock.currentTimeMillis() - now).error(logTag, throwableBackup);
                     } else {
-                        log.with(args).cost(SystemClock.now() - now).warn(logTag, throwableBackup);
+                        log.with(args).cost(Clock.currentTimeMillis() - now).warn(logTag, throwableBackup);
                     }
                 }
                 if (runnerExtension != null) {

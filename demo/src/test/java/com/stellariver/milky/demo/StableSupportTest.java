@@ -3,7 +3,7 @@ package com.stellariver.milky.demo;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.common.Option;
 import com.stellariver.milky.common.tool.common.Runner;
-import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
 import com.stellariver.milky.common.tool.stable.StableConfig;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -53,19 +53,19 @@ public class StableSupportTest {
                 .lambdaId(UKs.stableTest)
                 .transfer(Result::getData)
                 .build();
-        long now = SystemClock.now();
+        long now = Clock.currentTimeMillis();
         for (int i = 0; i < 20; i++) {
             Runner.checkout(option, () -> stableTest(0));
         }
-        long cost = SystemClock.now() - now;
+        long cost = Clock.currentTimeMillis() - now;
         Assertions.assertTrue((cost > 1850) && (cost < 2050));
 
         Thread.sleep(1000);
-        now = SystemClock.now();
+        now = Clock.currentTimeMillis();
         for (int i = 0; i < 20; i++) {
             Runner.checkout(option, () -> stableTest(0));
         }
-        cost = SystemClock.now() - now;
+        cost = Clock.currentTimeMillis() - now;
         Assertions.assertTrue((cost > 850) && (cost < 1050));
 
         int count = 0;

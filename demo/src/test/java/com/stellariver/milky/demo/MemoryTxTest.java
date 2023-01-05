@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.demo.basic.ChannelEnum;
 import com.stellariver.milky.demo.basic.NameTypes;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
@@ -41,6 +42,7 @@ public class MemoryTxTest {
     public void transactionTest() {
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
+                .channelEnum(ChannelEnum.JD)
                 .build();
         HashMap<NameType<?>, Object> parameters = new HashMap<>();
         parameters.put(NameTypes.employee, new Employee("110", "小明"));

@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.util.BeanUtil;
@@ -22,7 +22,7 @@ public abstract class Message {
     protected Long id = BeanUtil.getBean(IdBuilder.class).build();
 
     @Builder.Default
-    protected Date gmtCreate = SystemClock.date();
+    protected Date gmtCreate = Clock.now();
 
     protected InvokeTrace invokeTrace;
 

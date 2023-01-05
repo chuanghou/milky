@@ -4,7 +4,7 @@ import com.alibaba.schedulerx.worker.domain.JobContext;
 import com.alibaba.schedulerx.worker.processor.MapJobProcessor;
 import com.alibaba.schedulerx.worker.processor.ProcessResult;
 import com.stellariver.milky.common.tool.exception.SysException;
-import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.CustomLog;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +42,7 @@ abstract public class AbstractMapJobProcessor<T extends BaseScheduleData> extend
             List<T> ts = selectByParam(param);
             for (T t: ts) {
                 Throwable throwable = null;
-                long now = SystemClock.now();
+                long now = Clock.currentTimeMillis();
                 try {
                     interceptBeforeTask(t, param);
                     processTask(t, param);
@@ -54,7 +54,7 @@ abstract public class AbstractMapJobProcessor<T extends BaseScheduleData> extend
                     throwable = th;
                 } finally {
                     interceptAfterTaskFinally(t, param);
-                    log.arg0(t).arg1(param).cost(SystemClock.now() - now);
+                    log.arg0(t).arg1(param).cost(Clock.currentTimeMillis() - now);
                     if (alwaysLog()) {
                         log.log(this.getClass().getSimpleName(), throwable);
                     } else{

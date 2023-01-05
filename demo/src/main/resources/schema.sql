@@ -48,6 +48,7 @@ create table item
     store_code varchar(100),
     version int not null,
     deleted int not null,
+    channel_enum varchar(20) not null,
     gmt_create datetime not null,
     gmt_modified datetime not null,
     constraint item_item_id_uk_index

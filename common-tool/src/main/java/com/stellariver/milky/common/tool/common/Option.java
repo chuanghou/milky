@@ -12,6 +12,8 @@ import java.util.function.Function;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Option<R, T> {
 
+    static final private Object nullObject = new Object();
+
     @Builder.Default
     boolean alwaysLog = false;
 
@@ -25,8 +27,14 @@ public class Option<R, T> {
 
     Function<R, String> rSelector;
 
-    T defaultValue;
+    @Builder.Default
+    @SuppressWarnings("all")
+    T defaultValue = (T) nullObject;
 
     UK lambdaId;
+
+    public boolean hasDefaultValue() {
+        return defaultValue != nullObject;
+    }
 
 }

@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.log;
 
 import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.EqualsAndHashCode;
@@ -741,7 +741,7 @@ public class Logger implements org.slf4j.Logger {
             if (liveMillis <= 10) {
                 throw new IllegalArgumentException( "live time must be positive");
             }
-            long currentTimeMillis = SystemClock.now();
+            long currentTimeMillis = Clock.currentTimeMillis();
             V result = super.put(key, value);
             LiveKey<K> liveKey = new LiveKey<>(key, currentTimeMillis + liveMillis);
             queue.remove(liveKey);
@@ -752,118 +752,118 @@ public class Logger implements org.slf4j.Logger {
 
         @Override
         public V get(Object key) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.get(key);
         }
 
         @Override
         public boolean containsKey(Object key) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.containsKey(key);
         }
 
         @Override
         public boolean isEmpty() {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.isEmpty();
         }
 
         @Override
         public boolean containsValue(Object value) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.containsValue(value);
         }
 
         @Override
         public boolean replace(K key, V oldValue, V newValue) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.replace(key, oldValue, newValue);
         }
 
         @Override
         public Set<K> keySet() {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.keySet();
         }
 
         @Override
         public int size() {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.size();
         }
 
         @Override
         public Collection<V> values() {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.values();
         }
 
         @Override
         public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             super.replaceAll(function);
         }
 
         @Override
         public Set<Entry<K, V>> entrySet() {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.entrySet();
         }
 
         @Override
         public V getOrDefault(Object key, V defaultValue) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.getOrDefault(key, defaultValue);
         }
 
         @Override
         public V putIfAbsent(K key, V value) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.putIfAbsent(key, value);
         }
 
         @Override
         public void forEach(BiConsumer<? super K, ? super V> action) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             super.forEach(action);
         }
 
         @Override
         public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.merge(key, value, remappingFunction);
         }
 
         @Override
         public V replace(K key, V value) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.replace(key, value);
         }
 
         @Override
         public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.computeIfAbsent(key, mappingFunction);
         }
 
         @Override
         public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.computeIfPresent(key, remappingFunction);
         }
 
         @Override
         public V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
-            removeDeath(SystemClock.now());
+            removeDeath(Clock.currentTimeMillis());
             return super.compute(key, remappingFunction);
         }
 
         @Override
         public void putAll(Map<? extends K, ? extends V> m) {
            super.putAll(m);
-           long currentTimeMillis = SystemClock.now();
+           long currentTimeMillis = Clock.currentTimeMillis();
            m.forEach((k, v) -> queue.add(new LiveKey<>(k, currentTimeMillis + DEFAULT_LIVE)));
-           removeDeath(SystemClock.now());
+           removeDeath(Clock.currentTimeMillis());
         }
 
         private void removeDeath(long currentTimeMillis) {

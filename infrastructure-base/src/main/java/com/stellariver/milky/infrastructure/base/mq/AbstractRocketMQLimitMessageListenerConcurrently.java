@@ -2,7 +2,7 @@ package com.stellariver.milky.infrastructure.base.mq;
 
 
 import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.infrastructure.base.ErrorEnums;
 import lombok.CustomLog;
@@ -23,7 +23,7 @@ public abstract class AbstractRocketMQLimitMessageListenerConcurrently extends B
         }
         MessageExt messageExt = msgs.get(0);
         Throwable throwable = null;
-        long now = SystemClock.now();
+        long now = Clock.currentTimeMillis();
         try {
             doBusinessWithFlowControl(messageExt);
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
@@ -39,7 +39,7 @@ public abstract class AbstractRocketMQLimitMessageListenerConcurrently extends B
         } finally {
             finalWork();
             log.arg0(mqBodyLogger(messageExt)).arg1(messageExt.getKeys()).arg2(messageExt.getTags())
-                    .cost(SystemClock.now() - now);
+                    .cost(Clock.currentTimeMillis() - now);
             if (alwaysLog()) {
                 log.log(this.getClass().getSimpleName(), throwable);
             } else {

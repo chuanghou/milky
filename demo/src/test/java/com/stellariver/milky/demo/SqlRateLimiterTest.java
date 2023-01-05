@@ -2,7 +2,7 @@ package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.tool.common.Option;
 import com.stellariver.milky.common.tool.common.Runner;
-import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
 import com.stellariver.milky.common.tool.stable.RlConfig;
 import com.stellariver.milky.common.tool.stable.StableConfig;
@@ -45,11 +45,11 @@ public class SqlRateLimiterTest {
                 .transfer(Function.identity())
                 .lambdaId(UKs.sqlRateLimiter)
                 .build();
-        long now = SystemClock.now();
+        long now = Clock.currentTimeMillis();
         for (int i = 0; i < 20; i++) {
             Runner.checkout(option, () -> idBuilder.build());
         }
-        long cost = SystemClock.now() - now;
+        long cost = Clock.currentTimeMillis() - now;
         Assertions.assertTrue((cost > 1850) && (cost < 2050));
 
 

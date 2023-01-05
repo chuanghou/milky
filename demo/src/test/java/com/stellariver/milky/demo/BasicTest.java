@@ -2,6 +2,7 @@ package com.stellariver.milky.demo;
 
 
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.demo.basic.ChannelEnum;
 import com.stellariver.milky.demo.basic.NameTypes;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
@@ -17,6 +18,7 @@ import lombok.CustomLog;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -46,8 +48,10 @@ public class BasicTest {
 
     @Test
     public void publishItemDOTest() {
+
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
+                .channelEnum(ChannelEnum.ALI)
                 .build();
         HashMap<NameType<?>, Object> parameters = new HashMap<>();
         parameters.put(NameTypes.employee, new Employee("110", "小明"));

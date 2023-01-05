@@ -4,7 +4,7 @@ import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.PageResult;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.exception.BaseException;
-import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.common.ValidateUtil;
 import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
@@ -46,7 +46,7 @@ public class RpcAspect<T extends Result<?>> {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
         Class<?> returnType = method.getReturnType();
-        long start = SystemClock.now();
+        long start = Clock.currentTimeMillis();
         List<ErrorEnum> errorEnums = Collections.emptyList();
         Throwable t = null;
         try {
@@ -68,7 +68,7 @@ public class RpcAspect<T extends Result<?>> {
             }
             IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
             String logTag = ((MethodSignature) pjp.getSignature()).getMethod().getName();
-            log.result(result).source("rpc's source").cost(SystemClock.now() - start).log(logTag, t);
+            log.result(result).source("rpc's source").cost(Clock.currentTimeMillis() - start).log(logTag, t);
         }
         return result;
     }

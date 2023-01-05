@@ -1,6 +1,6 @@
 package com.stellariver.milky.infrastructure.base.schedulex;
 
-import com.stellariver.milky.common.tool.common.SystemClock;
+import com.stellariver.milky.common.tool.common.Clock;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -24,7 +24,7 @@ public class ScheduleConfig {
     Long pageSize;
 
     @Builder.Default
-    String ds = SystemClock.yesterdayDs();
+    String ds = Clock.yesterdayDs();
 
     Map<String, String> metadata;
 
