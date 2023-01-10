@@ -21,10 +21,10 @@ public class ValidateUtil {
 
     enum ExceptionType {
 
-        // 业务异常
+        // business exception
         BIZ,
 
-        // 系统异常
+        // system exception
         SYS
 
     }
