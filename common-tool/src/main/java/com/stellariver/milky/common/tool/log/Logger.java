@@ -14,6 +14,9 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * @author houchuang
+ */
 public class Logger implements org.slf4j.Logger {
 
     private final org.slf4j.Logger log;
@@ -727,6 +730,10 @@ public class Logger implements org.slf4j.Logger {
 
         public static final long DEFAULT_LIVE = 100L;
 
+
+        public static final long MIN_LIVE = 10L;
+
+
         private final PriorityQueue<LiveKey<K>> queue = new PriorityQueue<>();
 
         @Override
@@ -738,7 +745,7 @@ public class Logger implements org.slf4j.Logger {
             if (key == null) {
                 throw new NullPointerException("key is null");
             }
-            if (liveMillis <= 10) {
+            if (liveMillis <= MIN_LIVE) {
                 throw new IllegalArgumentException( "live time must be positive");
             }
             long currentTimeMillis = Clock.currentTimeMillis();

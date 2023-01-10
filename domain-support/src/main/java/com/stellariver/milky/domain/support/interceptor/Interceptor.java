@@ -10,6 +10,9 @@ import lombok.SneakyThrows;
 
 import java.lang.reflect.Method;
 
+/**
+ * @author houchuang
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -23,7 +26,6 @@ public class Interceptor {
 
     private int order;
 
-    @SneakyThrows
     public void invoke(Object object, AggregateRoot aggregateRoot, Context context) {
         Runner.invoke(bean, method, object, aggregateRoot, context);
     }

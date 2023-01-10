@@ -4,6 +4,9 @@ import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import lombok.CustomLog;
 
+/**
+ * @author houchuang
+ */
 @CustomLog
 public abstract class BaseLimitMessageListener {
 

@@ -1,12 +1,14 @@
 package com.stellariver.milky.domain.support.base;
 
-import com.stellariver.milky.domain.support.base.Message;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author houchuang
+ */
 @Data
 @Builder
 @NoArgsConstructor

@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * @author houchuang
+ */
 @Data
 @Aspect
 @RequiredArgsConstructor
@@ -27,7 +30,7 @@ public class TLCSupport{
     @Pointcut("@annotation(com.stellariver.milky.spring.partner.tlc.EnableTLC)")
     void pointCut() {}
 
-    @SneakyThrows
+    @SneakyThrows(Throwable.class)
     @Around("pointCut() && @annotation(enableTLC)")
     public Object resultResponseHandler(ProceedingJoinPoint pjp, EnableTLC enableTLC) {
         Object result;

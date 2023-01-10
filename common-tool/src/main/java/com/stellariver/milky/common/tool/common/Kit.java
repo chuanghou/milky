@@ -7,6 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * @author houchuang
+ */
 public class Kit {
 
     public static boolean eq(Object a, Object b) {

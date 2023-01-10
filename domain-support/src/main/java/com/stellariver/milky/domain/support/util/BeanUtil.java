@@ -7,6 +7,9 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author houchuang
+ */
 public class BeanUtil {
 
     private static BeanLoader beanLoader;

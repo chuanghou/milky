@@ -7,6 +7,9 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author houchuang
+ */
 public class BeanLoaderImpl implements BeanLoader {
 
     private final ApplicationContext applicationContext;

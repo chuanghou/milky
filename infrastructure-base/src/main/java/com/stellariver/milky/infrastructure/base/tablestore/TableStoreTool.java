@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * @author houchuang
+ */
 public class TableStoreTool {
 
     public static BoolQuery buildQuery(Object query) {
@@ -78,13 +81,15 @@ public class TableStoreTool {
         return doBuildQuery(index, termsQuery);
     }
 
+    static final private String SEPARATOR = ".";
+
     private static Query doBuildQuery(String index, Query query) {
-        if (index.contains(".")) {
+        if (index.contains(SEPARATOR)) {
             String[] paths = index.split("\\.");
             BizException.trueThrow(paths.length != 2, ErrorEnumsBase.SYSTEM_EXCEPTION.message("search param size is not 2!"));
             String path = paths[0];
-            NestedQuery nestedQuery = new NestedQuery(); // 设置查询类型为NestedQuery
-            nestedQuery.setPath(path); // 设置嵌套类型列的路径
+            NestedQuery nestedQuery = new NestedQuery();
+            nestedQuery.setPath(path);
             nestedQuery.setQuery(query);
             nestedQuery.setScoreMode(ScoreMode.None);
             return nestedQuery;

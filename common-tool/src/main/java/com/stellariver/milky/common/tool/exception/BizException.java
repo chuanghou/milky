@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /**
+ * @author houchuang
  */
 public class BizException extends BaseException {
 

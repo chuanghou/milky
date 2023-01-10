@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.sql.SQLException;
 
+/**
+ * @author houchuang
+ */
 @Configuration
 public class H2Configuration {
 

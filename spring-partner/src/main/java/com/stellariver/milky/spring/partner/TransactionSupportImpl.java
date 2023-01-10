@@ -11,6 +11,9 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+/**
+ * @author houchuang
+ */
 @Component
 @RequiredArgsConstructor
 @ConditionalOnBean(DataSourceTransactionManager.class)

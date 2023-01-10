@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
+/**
+ * @author houchuang
+ */
 @CustomLog
 @RequiredArgsConstructor
 public class RpcAspect<T extends Result<?>> {

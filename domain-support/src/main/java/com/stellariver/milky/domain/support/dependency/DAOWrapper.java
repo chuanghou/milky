@@ -12,9 +12,12 @@ import lombok.SneakyThrows;
 import java.lang.reflect.Field;
 import java.util.*;
 
+/**
+ * @author houchuang
+ */
 public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
 
-    @SneakyThrows
+    @SneakyThrows(IllegalAccessException.class)
     default void checkNullField(Object obj) {
         for (Field field : obj.getClass().getDeclaredFields()) {
             field.setAccessible(true);

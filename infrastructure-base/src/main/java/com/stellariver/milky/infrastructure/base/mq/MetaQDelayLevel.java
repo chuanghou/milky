@@ -1,5 +1,9 @@
 package com.stellariver.milky.infrastructure.base.mq;
 
+/**
+ * @author houchuang
+ */
+
 public enum MetaQDelayLevel {
     LEVEL_NO_DELAY(0, 0),
     LEVEL_1s(1, 1),

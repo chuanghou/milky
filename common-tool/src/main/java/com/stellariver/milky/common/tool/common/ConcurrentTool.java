@@ -12,12 +12,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * @author houchuang
+ */
 public class ConcurrentTool {
 
-    @SneakyThrows
+    @SneakyThrows({ExecutionException.class, InterruptedException.class})
     static public <P, V> Map<P, V> batchCall(Set<P> params, Function<P, V> function, Executor executor) {
         List<CompletableFuture<Pair<P, V>>> batchFutures = params.stream()
                 .map(param -> CompletableFuture.supplyAsync(() -> Pair.of(param, function.apply(param)), executor))
@@ -36,7 +38,7 @@ public class ConcurrentTool {
                 .thenApply(s -> Collect.toMap(s.collect(Collectors.toList()), Pair::getKey, Pair::getValue));
     }
 
-    @SneakyThrows
+    @SneakyThrows({ExecutionException.class, InterruptedException.class})
     static public void batchRun(List<Runnable> runnables, Executor executor) {
         List<CompletableFuture<Void>> batchFuture = runnables.stream()
                 .map(runnable -> CompletableFuture.runAsync(runnable, executor))

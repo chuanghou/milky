@@ -1,5 +1,6 @@
 package com.stellariver.milky.common.tool.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -12,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @author houchuang
+ */
 @Slf4j
 public class Json {
 
@@ -25,18 +29,19 @@ public class Json {
     static {
         MAPPER.registerModule(new JavaTimeModule());
     }
-    @SneakyThrows
+
+    @SneakyThrows(JsonProcessingException.class)
     public static String toJson(Object target) {
         return MAPPER.writeValueAsString(target);
     }
 
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static String toJson(Object... objects) {
         return MAPPER.writeValueAsString(objects);
     }
 
     @Nullable
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static <T> T parse(String json, Class<T> clazz) {
         if (json == null) {
             return null;
@@ -45,7 +50,7 @@ public class Json {
     }
 
     @Nullable
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static <T> List<T> parseList(String json, Class<T> clazz) {
         if (json == null) {
             return null;
@@ -55,7 +60,7 @@ public class Json {
     }
 
     @Nullable
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static <T> Set<T> parseSet(String json, Class<T> clazz) {
         if (json == null) {
             return null;
@@ -65,7 +70,7 @@ public class Json {
     }
 
     @Nullable
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static <K, V> Map<K, V> parseMap(String json, Class<K> keyClazz, Class<V> valueClazz) {
         if (json == null) {
             return null;
@@ -73,7 +78,7 @@ public class Json {
         return MAPPER.readValue(json, TypeFactory.defaultInstance().constructMapType(Map.class, keyClazz, valueClazz));
     }
 
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static JsonNode parseJsonNode(String json) {
         return MAPPER.readTree(json);
     }
@@ -84,7 +89,7 @@ public class Json {
     }
 
     @Nullable
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static <T> T parse(JsonNode jsonNode, Class<T> clazz) {
         if (jsonNode == null) {
             return null;
@@ -93,7 +98,7 @@ public class Json {
     }
 
     @Nullable
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static <T> List<T> parseList(JsonNode jsonNode, Class<T> clazz) {
         if (jsonNode == null) {
             return null;
@@ -103,7 +108,7 @@ public class Json {
     }
 
     @Nullable
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static <T> Set<T> parseSet(JsonNode jsonNode, Class<T> clazz) {
         if (jsonNode == null) {
             return null;
@@ -113,7 +118,7 @@ public class Json {
     }
 
     @Nullable
-    @SneakyThrows
+    @SneakyThrows(JsonProcessingException.class)
     public static <K, V> Map<K, V> parseMap(JsonNode jsonNode, Class<K> keyClazz, Class<V> valueClazz) {
         if (jsonNode == null) {
             return null;

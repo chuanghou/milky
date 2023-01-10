@@ -23,10 +23,11 @@ import java.util.regex.Pattern;
  *
  * @author houchuang
  * @since 2022-11-03
+ * TODO 因为mybatis是预编译的方式，所以其实拿不到完整sql，所以这事还有点难搞，后面想想办法吧
  */
 
 @CustomLog
-// TODO 因为mybatis是预编译的方式，所以其实拿不到完整sql，所以这事还有点难搞，后面想想办法吧
+@Deprecated
 public class BlockDeepPagingInnerInterceptor implements InnerInterceptor {
 
     static private final Pattern LIMIT_PATTERN = Pattern.compile("limit\\s+[0-9]+(((\\s+(offset))|,)\\s+[0-9]+)?$");

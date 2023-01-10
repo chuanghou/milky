@@ -5,6 +5,9 @@ import org.apache.ibatis.reflection.MetaObject;
 
 import java.util.Date;
 
+/**
+ * @author houchuang
+ */
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override

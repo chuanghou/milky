@@ -16,6 +16,9 @@ import lombok.NonNull;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
+/**
+ * @author houchuang
+ */
 public class NameTypes {
 
     static public NameType<UserInfo> userInfo;
@@ -85,7 +88,7 @@ public class NameTypes {
 
     static public Map<NameType<?>, Object> deSerialize(@NonNull String value) {
         Map<String, String> stringMap = Json.parseMap(value, String.class, String.class);
-        Map<NameType<?>, Object> map = new HashMap<>();
+        Map<NameType<?>, Object> map = new HashMap<>(16);
         Kit.op(stringMap).orElseGet(HashMap::new).forEach((k, v) -> {
             NameType<?> nameType = nameTypeMap.get(k);
             map.put(nameType, nameType.parseJson(v));

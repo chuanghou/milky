@@ -10,6 +10,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author houchuang
+ */
 @CustomLog
 public abstract class ConcurrentOperate {
 
@@ -46,7 +49,7 @@ public abstract class ConcurrentOperate {
 
     abstract protected boolean unLockFallbackable(UK nameSpace, String lockKey, String encryptionKey);
 
-    @SneakyThrows
+    @SneakyThrows(InterruptedException.class)
     public boolean tryRetryLock(RetryParameter retryParameter) {
         SysException.anyNullThrow(retryParameter.getLockKey());
         SysException.trueThrow(retryParameter.getTimes() <= 0, "retry times should not smaller than 0 or equal with 0");

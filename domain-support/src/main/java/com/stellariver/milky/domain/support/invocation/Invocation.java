@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * @author houchuang
+ */
 @Data
 public class Invocation {
     private Map<String, Object> parameters;
@@ -25,7 +28,7 @@ public class Invocation {
     }
 
     static public Invocation build() {
-        return new Invocation(new HashMap<>());
+        return new Invocation(new HashMap<>(16));
     }
 
 }

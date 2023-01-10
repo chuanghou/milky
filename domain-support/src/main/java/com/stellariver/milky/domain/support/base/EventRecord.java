@@ -7,6 +7,9 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * @author houchuang
+ */
 @Data
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)

@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+/**
+ * @author houchuang
+ */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ErrorEnum {

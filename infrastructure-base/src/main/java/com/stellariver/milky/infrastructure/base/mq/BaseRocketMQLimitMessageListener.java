@@ -3,6 +3,9 @@ package com.stellariver.milky.infrastructure.base.mq;
 import lombok.CustomLog;
 import org.apache.rocketmq.common.message.MessageExt;
 
+/**
+ * @author houchuang
+ */
 @CustomLog
 public abstract class BaseRocketMQLimitMessageListener extends BaseLimitMessageListener {
 

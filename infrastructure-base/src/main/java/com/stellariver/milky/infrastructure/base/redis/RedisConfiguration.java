@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-//@Configuration
+/**
+ * @author houchuang
+ */
 public class RedisConfiguration {
 
     /**
@@ -28,7 +30,6 @@ public class RedisConfiguration {
     @Value("${redis.password}")
     private String password;
 
-    //    @Bean(destroyMethod = "close")
     public JedisPool jedisPool() {
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxTotal(32);
@@ -38,7 +39,6 @@ public class RedisConfiguration {
                 DEFAULT_CONNECTION_TIMEOUT, DEFAULT_SO_TIMEOUT, password, 0, null);
     }
 
-    //    @Bean
     public RedisHelper redisHelper(JedisPool jedisPool) {
         return new RedisHelper(jedisPool);
     }

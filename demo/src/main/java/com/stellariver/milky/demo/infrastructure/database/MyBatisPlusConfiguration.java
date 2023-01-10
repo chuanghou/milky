@@ -24,10 +24,18 @@ import javax.sql.DataSource;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * @author houchuang
+ */
+
+@SuppressWarnings("AliDeprecation")
 @Configuration
 @MapperScan(basePackages = "com.stellariver.milky.demo.infrastructure.database.mapper")
 public class MyBatisPlusConfiguration {
 
+    static private final Pattern PATTERN = Pattern.compile("id_builder");
+
+    @SuppressWarnings("AliDeprecation")
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource, AbstractStableSupport abstractStableSupport) throws Exception {
 
@@ -59,7 +67,7 @@ public class MyBatisPlusConfiguration {
         mybatisPlusInterceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
         mybatisPlusInterceptor.addInnerInterceptor(new ReplacePlaceholderInnerInterceptor());
         mybatisPlusInterceptor.addInnerInterceptor(new BlockDeepPagingInnerInterceptor(true, 1000L));
-        Map<Pattern, String> patternMap = Collect.asMap(Pattern.compile("id_builder"), "idBuilder");
+        Map<Pattern, String> patternMap = Collect.asMap(PATTERN, "idBuilder");
         mybatisPlusInterceptor.addInnerInterceptor(new RateLimiterInnerInterceptor(abstractStableSupport, patternMap));
         sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor);
 

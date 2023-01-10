@@ -9,6 +9,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
 
+/**
+ * @author houchuang
+ */
 @Data
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)

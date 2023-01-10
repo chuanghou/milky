@@ -3,6 +3,9 @@ package com.stellariver.milky.common.base;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @author houchuang
+ */
 public class PageResult<T> extends Result<List<T>> {
 
     private final Paginator paginator = new Paginator();

@@ -5,6 +5,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.function.Function;
 
+/**
+ * @author houchuang
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -12,7 +15,7 @@ import java.util.function.Function;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Option<R, T> {
 
-    static final private Object nullObject = new Object();
+    static final private Object NULL_OBJECT = new Object();
 
     @Builder.Default
     boolean alwaysLog = false;
@@ -29,12 +32,12 @@ public class Option<R, T> {
 
     @Builder.Default
     @SuppressWarnings("all")
-    T defaultValue = (T) nullObject;
+    T defaultValue = (T) NULL_OBJECT;
 
     UK lambdaId;
 
     public boolean hasDefaultValue() {
-        return defaultValue != nullObject;
+        return defaultValue != NULL_OBJECT;
     }
 
 }

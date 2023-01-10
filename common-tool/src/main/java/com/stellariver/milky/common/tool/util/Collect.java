@@ -15,6 +15,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @author houchuang
+ */
 public class Collect {
 
     @SafeVarargs
@@ -49,7 +52,7 @@ public class Collect {
 
     @SafeVarargs
     public static <K, V> Map<K, List<V>> merge(Map<K, V>... maps) {
-        HashMap<K, List<V>> resultMap = new HashMap<>();
+        HashMap<K, List<V>> resultMap = new HashMap<>(16);
         Arrays.stream(maps).flatMap(map -> map == null ? Stream.empty() : map.entrySet().stream())
                 .forEach(entry -> resultMap.computeIfAbsent(entry.getKey(), key -> new ArrayList<>()).add(entry.getValue()));
         return resultMap;
@@ -57,15 +60,15 @@ public class Collect {
 
     @SafeVarargs
     public static <K, V> Map<K, List<V>> reGroup(Map<K, List<V>>... maps) {
-        HashMap<K, List<V>> resultMap = new HashMap<>();
+        HashMap<K, List<V>> resultMap = new HashMap<>(16);
         Arrays.stream(maps).flatMap(map -> map == null ? Stream.empty() : map.entrySet().stream())
                 .forEach(entry -> resultMap.computeIfAbsent(entry.getKey(), key -> new ArrayList<>()).addAll(entry.getValue()));
         return resultMap;
     }
 
     public static <K, V> Map<K, List<V>> merge(Map<K, List<V>> map1, Map<K, V> map2) {
-        map1 = Kit.op(map1).orElse(new HashMap<>());
-        map2 = Kit.op(map2).orElse(new HashMap<>());
+        map1 = Kit.op(map1).orElse(new HashMap<>(16));
+        map2 = Kit.op(map2).orElse(new HashMap<>(16));
         HashMap<K, List<V>> map = new HashMap<>(map1);
         map2.forEach((key, value) -> map.computeIfAbsent(key, k -> new ArrayList<>()).add(value));
         return map;
@@ -109,14 +112,14 @@ public class Collect {
     }
 
     public static <T, K, V> Map<K, List<V>> groupList(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper){
-        HashMap<K, List<V>> resultMap = new HashMap<>();
+        HashMap<K, List<V>> resultMap = new HashMap<>(16);
         stream(source).filter(Objects::nonNull)
                 .forEach(t -> resultMap.computeIfAbsent(keyMapper.apply(t), i -> new ArrayList<>()).add(valueMapper.apply(t)));
         return resultMap;
     }
 
     public static <T, K, V> Map<K, Set<V>> groupSet(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper){
-        HashMap<K, Set<V>> resultMap = new HashMap<>();
+        HashMap<K, Set<V>> resultMap = new HashMap<>(16);
         stream(source).filter(Objects::nonNull)
                 .forEach(t -> resultMap.computeIfAbsent(keyMapper.apply(t), i -> new HashSet<>()).add(valueMapper.apply(t)));
         return resultMap;

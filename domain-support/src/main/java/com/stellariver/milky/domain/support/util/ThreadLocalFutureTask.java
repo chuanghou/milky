@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
+/**
+ * @author houchuang
+ */
 public class ThreadLocalFutureTask<T> extends FutureTask<T> {
 
     private final List<ThreadLocalPasser<?>> threadLocalPassers;

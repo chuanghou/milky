@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * 领域事件的抽象父类
+ * @author houchuang
  */
 @Data
 @SuperBuilder

@@ -4,6 +4,9 @@ import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import org.springframework.stereotype.Repository;
 
+/**
+ * @author houchuang
+ */
 @Repository
 public class UserInfoRepositoryImpl implements UserInfoRepository {
 

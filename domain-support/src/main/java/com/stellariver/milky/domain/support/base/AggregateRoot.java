@@ -10,6 +10,7 @@ import java.util.Map;
 
 /**
  * 聚合根父类
+ * @author houchuang
  */
 @Data
 @SuperBuilder

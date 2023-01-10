@@ -12,6 +12,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
+/**
+ * @author houchuang
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor

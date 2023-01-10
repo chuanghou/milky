@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @author houchuang
+ */
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
@@ -39,14 +42,14 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
 
     @Override
     public InventoryDO merge(@NonNull InventoryDO priority, @NonNull InventoryDO general) {
-        return Merger.inst.merge(priority, general);
+        return Merger.INST.merge(priority, general);
     }
 
     @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
             nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public interface Merger {
 
-        Merger inst = Mappers.getMapper(Merger.class);
+        Merger INST = Mappers.getMapper(Merger.class);
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
         InventoryDO merge(InventoryDO priority, @MappingTarget InventoryDO general);

@@ -12,6 +12,9 @@ import lombok.experimental.FieldDefaults;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author houchuang
+ */
 public abstract class BaseQuery<ID, T> {
 
     private final ThreadLocal<Boolean> enable = ThreadLocal.withInitial(() -> false);
@@ -41,7 +44,7 @@ public abstract class BaseQuery<ID, T> {
     }
 
     public Map<ID, T> queryMapByIds(Set<ID> ids) {
-        Map<ID, T> mapResult = new HashMap<>();
+        Map<ID, T> mapResult = new HashMap<>(16);
         if (Collect.isEmpty(ids)) {
             return mapResult;
         }

@@ -10,12 +10,15 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
+/**
+ * @author houchuang
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public abstract class MpAbstractDO {
+public abstract class AbstractMpDO {
 
     @Version
     @TableField(fill = FieldFill.INSERT)

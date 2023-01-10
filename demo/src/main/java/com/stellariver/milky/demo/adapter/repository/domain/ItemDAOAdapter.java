@@ -11,6 +11,9 @@ import lombok.experimental.FieldDefaults;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * @author houchuang
+ */
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ItemDAOAdapter implements AggregateDaoAdapter<Item> {
@@ -18,12 +21,12 @@ public class ItemDAOAdapter implements AggregateDaoAdapter<Item> {
     @Override
     public Item toAggregate(@NonNull Object dataObject) {
         ItemDO itemDO = (ItemDO) dataObject;
-        return Convertor.inst.to(itemDO);
+        return Convertor.INST.to(itemDO);
     }
 
     @Override
     public Object toDataObject(Item item, DataObjectInfo dataObjectInfo) {
-        return Convertor.inst.to(item);
+        return Convertor.INST.to(item);
     }
 
     @Override
@@ -36,7 +39,7 @@ public class ItemDAOAdapter implements AggregateDaoAdapter<Item> {
             nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public interface Convertor {
 
-        Convertor inst = Mappers.getMapper(Convertor.class);
+        Convertor INST = Mappers.getMapper(Convertor.class);
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
         Item to(ItemDO itemDO);

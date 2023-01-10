@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 import java.lang.reflect.Field;
 
+/**
+ * @author houchuang
+ */
 @RequiredArgsConstructor
 public class UK {
 

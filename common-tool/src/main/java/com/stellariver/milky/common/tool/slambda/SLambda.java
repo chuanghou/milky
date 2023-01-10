@@ -5,18 +5,22 @@ import lombok.SneakyThrows;
 
 import java.io.Serializable;
 import java.lang.invoke.SerializedLambda;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author houchuang
+ */
 public class SLambda {
 
-    @SneakyThrows
+    @SneakyThrows({InvocationTargetException.class, IllegalAccessException.class, NoSuchMethodException.class})
     public static <T extends Serializable> Map<String, Object> resolveArgs(T lambda) {
         Method method = lambda.getClass().getDeclaredMethod("writeReplace");
         method.setAccessible(true);
         SerializedLambda sLambda = (SerializedLambda) method.invoke(lambda);
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>(8);
         if (sLambda.getCapturedArgCount() == 0) {
             return result;
         }

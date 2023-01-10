@@ -5,6 +5,9 @@ import com.stellariver.milky.common.tool.util.Collect;
 
 import java.util.List;
 
+/**
+ * @author houchuang
+ */
 public abstract class BaseException extends RuntimeException {
 
     private final List<ErrorEnum> errorEnums;

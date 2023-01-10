@@ -5,6 +5,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.Duration;
 
+/**
+ * @author houchuang
+ */
 @Data
 @Builder
 @NoArgsConstructor

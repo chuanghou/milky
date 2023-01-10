@@ -3,6 +3,9 @@ package com.stellariver.milky.demo.domain.service;
 import lombok.CustomLog;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author houchuang
+ */
 @Service
 @CustomLog
 public class MqService {

@@ -4,6 +4,9 @@ package com.stellariver.milky.common.tool.util;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 
+/**
+ * @author houchuang
+ */
 public class If {
 
     static public void isTrue(boolean test, Runnable runnable) {

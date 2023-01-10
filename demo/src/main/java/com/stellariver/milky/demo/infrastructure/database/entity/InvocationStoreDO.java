@@ -2,13 +2,14 @@ package com.stellariver.milky.demo.infrastructure.database.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
-import com.stellariver.milky.infrastructure.base.database.MpAbstractDO;
+import com.stellariver.milky.infrastructure.base.database.AbstractMpDO;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
-
+/**
+ * @author houchuang
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -16,7 +17,7 @@ import java.util.Date;
 @TableName("invocation_store")
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class InvocationStoreDO extends MpAbstractDO implements BaseDataObject<Long> {
+public class InvocationStoreDO extends AbstractMpDO implements BaseDataObject<Long> {
 
     @TableId(type = IdType.INPUT)
     Long id;
@@ -27,7 +28,7 @@ public class InvocationStoreDO extends MpAbstractDO implements BaseDataObject<Lo
 
     String operatorSource;
 
-    boolean success;
+    Boolean success;
 
     @Override
     public Long getPrimaryId() {

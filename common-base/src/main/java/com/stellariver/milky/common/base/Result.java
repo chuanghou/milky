@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author houchuang
+ */
 public class Result<T> implements Serializable {
 
     protected Boolean success = true;

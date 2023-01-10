@@ -16,14 +16,25 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * @author houchuang
+ */
 public class ValidateUtil {
 
-    enum ExceptionType {BIZ, SYS}
+    enum ExceptionType {
 
-    static final private Validator validator = Validation.byProvider(HibernateValidator.class)
+        // 业务异常
+        BIZ,
+
+        // 系统异常
+        SYS
+
+    }
+
+    static final private Validator VALIDATOR = Validation.byProvider(HibernateValidator.class)
             .configure().failFast(true).buildValidatorFactory().getValidator();
 
-    static final private ExecutableValidator executableValidator = validator.forExecutables();
+    static final private ExecutableValidator EXECUTABLE_VALIDATOR = VALIDATOR.forExecutables();
 
     public static void bizValidate(Object object, Method method, Object[] params) throws BizException {
         validate(object, method, params, ExceptionType.BIZ);
@@ -36,7 +47,7 @@ public class ValidateUtil {
     }
 
     private static void validate(Object object, Method method, Object[] params, ExceptionType type) {
-        Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params);
+        Set<ConstraintViolation<Object>> validateResult = EXECUTABLE_VALIDATOR.validateParameters(object, method, params);
         check(validateResult, type);
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type));
     }
@@ -45,7 +56,7 @@ public class ValidateUtil {
         if (param instanceof Collection) {
             ((Collection<?>) param).forEach(p -> validate(p, type));
         }
-        Set<ConstraintViolation<Object>> validateResult = validator.validate(param);
+        Set<ConstraintViolation<Object>> validateResult = VALIDATOR.validate(param);
         check(validateResult, type);
     }
 

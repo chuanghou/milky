@@ -10,6 +10,9 @@ import redis.clients.jedis.params.SetParams;
 
 import javax.annotation.Nullable;
 
+/**
+ * @author houchuang
+ */
 @CustomLog
 @RequiredArgsConstructor
 public class RedisHelper {
@@ -41,7 +44,7 @@ public class RedisHelper {
         return false;
     }
 
-    static final String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+    static final String SCRIPT = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 
     @SuppressWarnings("unused")
     public boolean unlock(UK nameSpace, String key, String encryption) {
@@ -51,7 +54,7 @@ public class RedisHelper {
     public boolean unlockFallbackable(UK nameSpace, String key, String encryption, boolean fallbackable) {
         key = nameSpace.getKey() + "_" + key;
         try (Jedis jedis = jedisPool.getResource()) {
-            Object result = jedis.eval(script, Collect.asList(key), Collect.asList(encryption));
+            Object result = jedis.eval(SCRIPT, Collect.asList(key), Collect.asList(encryption));
             return RELEASE_SUCCESS.equals(result);
         } catch (Throwable e) {
             log.error("redis unlock exception, key:{}, encryption:{}, fallbackable:{}",

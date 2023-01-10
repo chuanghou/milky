@@ -22,6 +22,9 @@ import java.util.Optional;
 
 import static com.stellariver.milky.demo.basic.ErrorEnums.ITEM_NOT_EXIST;
 
+/**
+ * @author houchuang
+ */
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,7 +34,7 @@ public class ItemAbility {
 
     IdBuilder idBuilder;
 
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public Item publishItem(Long userId, String title) {
         Long itemId = idBuilder.build();
         ItemCreateCommand command = ItemCreateCommand.builder().userId(userId)
@@ -43,7 +46,7 @@ public class ItemAbility {
     }
 
 
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void changeTitle(Long itemId, String newTitle, Employee operator) {
         Optional<Item> itemOptional = itemRepository.queryByIdOptional(itemId);
         BizException.trueThrow(!itemOptional.isPresent(), ITEM_NOT_EXIST.message("找不到相应item，itemId:" + itemId));

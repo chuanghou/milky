@@ -3,6 +3,9 @@ package com.stellariver.milky.domain.support.dependency;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
+/**
+ * @author houchuang
+ */
 public interface BeanLoader {
 
     List<Object> getBeansForAnnotation(Class<? extends Annotation> annotationType);

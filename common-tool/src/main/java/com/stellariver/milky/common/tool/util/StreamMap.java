@@ -3,6 +3,9 @@ package com.stellariver.milky.common.tool.util;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author houchuang
+ */
 public class StreamMap<K, V> {
 
     private final Map<K, V> map = new HashMap<>();

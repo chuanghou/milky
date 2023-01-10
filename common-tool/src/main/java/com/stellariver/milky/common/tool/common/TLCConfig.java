@@ -4,6 +4,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author houchuang
+ */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TLCConfig {
 

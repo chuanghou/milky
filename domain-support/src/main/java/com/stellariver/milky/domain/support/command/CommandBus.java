@@ -38,15 +38,18 @@ import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONCURR
 import static com.stellariver.milky.domain.support.ErrorEnums.*;
 import static com.stellariver.milky.domain.support.command.HandlerType.*;
 
+/**
+ * @author houchuang
+ */
 @CustomLog
 public class CommandBus {
 
-    private static final Predicate<Class<?>[]> format =
+    private static final Predicate<Class<?>[]> FORMAT =
             parameterTypes -> (parameterTypes.length == 2
                     && Command.class.isAssignableFrom(parameterTypes[0])
                     && parameterTypes[1] == Context.class);
 
-    private static final Predicate<Class<?>[]> commandInterceptorFormat =
+    private static final Predicate<Class<?>[]> COMMAND_INTERCEPTOR_FORMAT =
             parameterTypes -> (parameterTypes.length == 3
                     && Command.class.isAssignableFrom(parameterTypes[0])
                     && AggregateRoot.class.isAssignableFrom(parameterTypes[1])
@@ -54,7 +57,7 @@ public class CommandBus {
 
     volatile private static CommandBus instance;
 
-    private static final ThreadLocal<Context> tLContext = ThreadLocal.withInitial(Context::new);
+    private static final ThreadLocal<Context> THREAD_LOCAL_CONTEXT = ThreadLocal.withInitial(Context::new);
 
     private final Map<Class<? extends Command>, Handler> commandHandlers = new HashMap<>();
 
@@ -110,9 +113,9 @@ public class CommandBus {
     @SuppressWarnings("unchecked")
     private void prepareCommandInterceptors(MilkySupport milkySupport) {
 
-        HashMap<Class<? extends Command>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
+        HashMap<Class<? extends Command>, List<Interceptor>> tempInterceptorsMap = new HashMap<>(16);
 
-        HashMap<Class<? extends Command>, List<Interceptor>> finalInterceptorsMap = new HashMap<>();
+        HashMap<Class<? extends Command>, List<Interceptor>> finalInterceptorsMap = new HashMap<>(16);
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
         milkySupport.getInterceptors().stream()
@@ -120,7 +123,7 @@ public class CommandBus {
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
                 .filter(m -> m.getParameterTypes()[0].isAssignableFrom(Command.class))
                 .filter(m -> {
-                    boolean test = commandInterceptorFormat.test(m.getParameterTypes());
+                    boolean test = COMMAND_INTERCEPTOR_FORMAT.test(m.getParameterTypes());
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
                     return test;
                 }).collect(Collectors.toList())
@@ -189,7 +192,7 @@ public class CommandBus {
         List<Method> methods = classes.stream().map(Class::getMethods).flatMap(Stream::of)
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class))
                 .filter(m -> {
-                    boolean test = format.test(m.getParameterTypes());
+                    boolean test = FORMAT.test(m.getParameterTypes());
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
                     return test;
                 }).collect(Collectors.toList());
@@ -216,7 +219,7 @@ public class CommandBus {
         List<Constructor<?>> constructors = classes.stream().map(Class::getDeclaredConstructors).flatMap(Stream::of)
                 .filter(m -> m.isAnnotationPresent(CommandHandler.class))
                 .filter(m -> {
-                    boolean test = format.test(m.getParameterTypes());
+                    boolean test = FORMAT.test(m.getParameterTypes());
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
                     return test;
                 }).collect(Collectors.toList());
@@ -236,14 +239,14 @@ public class CommandBus {
 
     @SuppressWarnings("unchecked")
     private void prepareContextValueProviders(MilkySupport milkySupport) {
-        Map<Class<? extends Command>, Map<String, DependencyProvider>> tempProviders = new HashMap<>();
+        Map<Class<? extends Command>, Map<String, DependencyProvider>> tempProviders = new HashMap<>(16);
 
         List<Method> methods = milkySupport.getDependencyPrepares()
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
                 .filter(method -> method.isAnnotationPresent(DependencyKey.class))
                 .filter(method -> {
-                    boolean test = format.test(method.getParameterTypes());
+                    boolean test = FORMAT.test(method.getParameterTypes());
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(method.toGenericString()));
                     return test;
                 }).collect(Collectors.toList());
@@ -256,14 +259,14 @@ public class CommandBus {
             boolean alwaysLog = annotation.alwaysLog();
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
             DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method, alwaysLog);
-            Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>());
+            Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>(16));
             SysException.trueThrow(valueProviderMap.containsKey(key),
                     "对于" + commandClass.getName() + "对于" + key + "提供了两个dependencyProvider");
             valueProviderMap.put(key, dependencyProvider);
         });
 
         reflections.getSubTypesOf(Command.class).forEach(commandClass -> {
-            Map<String, DependencyProvider> map = new HashMap<>();
+            Map<String, DependencyProvider> map = new HashMap<>(16);
             List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass);
             ancestorClasses.forEach(c -> map.putAll(Optional.ofNullable(tempProviders.get(c)).orElseGet(HashMap::new)));
             contextValueProviders.put(commandClass, map);
@@ -318,7 +321,7 @@ public class CommandBus {
     private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         Context context = Context.build(parameters, aggregateIdMap);
-        tLContext.set(context);
+        THREAD_LOCAL_CONTEXT.set(context);
         Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
         command.setInvokeTrace(invokeTrace);
@@ -355,7 +358,7 @@ public class CommandBus {
             }
             throw throwable;
         } finally {
-            tLContext.remove();
+            THREAD_LOCAL_CONTEXT.remove();
             boolean b = concurrentOperate.unLockAll();
             if (!b) {
                 log.error("UNLOCK_ALL_FAILURE");
@@ -377,7 +380,7 @@ public class CommandBus {
         Handler commandHandler= commandHandlers.get(command.getClass());
         SysException.nullThrowGet(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
         Object result;
-        Context context = tLContext.get();
+        Context context = THREAD_LOCAL_CONTEXT.get();
         String encryptionKey = UUID.randomUUID().toString();
         UK nameSpace = UK.build(commandHandler.getAggregateClazz());
         String lockKey = command.getAggregateId();
@@ -396,17 +399,17 @@ public class CommandBus {
             BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
         }
         result = doRoute(command, context, commandHandler);
-        tLContext.get().clearDependencies();
+        THREAD_LOCAL_CONTEXT.get().clearDependencies();
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
             context.recordEvent(EventRecord.builder().message(event).build());
-            eventBus.route(event, tLContext.get());
+            eventBus.route(event, THREAD_LOCAL_CONTEXT.get());
         });
         return result;
     }
 
 
-    @SneakyThrows
+    @SneakyThrows({InstantiationException.class, IllegalAccessException.class, InvocationTargetException.class})
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         AggregateDaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
         SysException.anyNullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
@@ -453,7 +456,7 @@ public class CommandBus {
             BaseDataObject<?> merge = daoWrapper.mergeWrapper(baseDataObject, temp);
             Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
             if (memoryTx) {
-                doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>()).put(primaryId, merge);
+                doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>(16)).put(primaryId, merge);
             } else {
                 Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
             }
@@ -485,7 +488,7 @@ public class CommandBus {
         referKeys.add(key);
         DependencyProvider valueProvider = providers.get(key);
         SysException.nullThrowMessage(valueProvider, "command:" + Json.toJson(command) + ", key:" + key);
-        Map<String, Object> stringKeyDependencies = new HashMap<>();
+        Map<String, Object> stringKeyDependencies = new HashMap<>(16);
         context.getDependencies().forEach((k, v) -> stringKeyDependencies.put(k.getName(), v));
         Arrays.stream(valueProvider.getRequiredKeys())
                 .filter(requiredKey -> Objects.equals(null, stringKeyDependencies.get(requiredKey)))
@@ -507,7 +510,7 @@ public class CommandBus {
 
         private boolean alwaysLog;
 
-        @SneakyThrows
+        @SneakyThrows(Throwable.class)
         public void invoke(Object object, Context context) {
             Throwable throwable;
             try {
@@ -540,7 +543,6 @@ public class CommandBus {
 
         private Set<String> requiredKeys;
 
-        @SneakyThrows
         public Object invoke(AggregateRoot aggregate, Object object, Context context) {
             return Runner.invoke(aggregate, method, object, context);
         }

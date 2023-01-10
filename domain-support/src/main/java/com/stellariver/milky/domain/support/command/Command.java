@@ -6,6 +6,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * @author houchuang
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor

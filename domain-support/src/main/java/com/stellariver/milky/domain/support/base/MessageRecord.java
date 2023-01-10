@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * @author houchuang
+ */
 @Data
 @SuperBuilder
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

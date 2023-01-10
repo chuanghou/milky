@@ -6,6 +6,9 @@ import com.stellariver.milky.common.tool.common.Kit;
 
 import java.lang.reflect.Field;
 
+/**
+ * @author houchuang
+ */
 public class ErrorEnumsBase {
 
     public static ErrorEnum MERGE_EXCEPTION;

@@ -6,6 +6,9 @@ import lombok.*;
 
 import java.util.Map;
 
+/**
+ * @author houchuang
+ */
 @Data
 public class NameType<T> {
 

@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author houchuang
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,7 +16,7 @@ public class Employee implements Displayable {
 
     private String name;
 
-    public static final Employee system = new Employee("system", "system");
+    public static final Employee SYSTEM = new Employee("system", "system");
 
     public String getId() {
         return this.id;

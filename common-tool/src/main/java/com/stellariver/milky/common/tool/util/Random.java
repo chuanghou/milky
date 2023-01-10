@@ -1,6 +1,9 @@
 package com.stellariver.milky.common.tool.util;
 
 
+/**
+ * @author houchuang
+ */
 public class Random {
 
     static public long randomRange(long[] range) {

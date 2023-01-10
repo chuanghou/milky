@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * @author houchuang
+ */
 public class AsyncExecutor extends ThreadPoolExecutor {
 
     private final List<ThreadLocalPasser<?>> threadLocalPassers;
@@ -34,7 +37,7 @@ public class AsyncExecutor extends ThreadPoolExecutor {
     @Override
     public void execute(@NonNull Runnable command) {
         final Thread superThread = Thread.currentThread();
-        HashMap<Class<?>, Object> threadLocalMap = new HashMap<>();
+        HashMap<Class<?>, Object> threadLocalMap = new HashMap<>(16);
         threadLocalPassers.forEach(passer -> threadLocalMap.put(passer.getClass(), passer.prepareThreadLocal()));
         super.execute(() -> {
             if (superThread == Thread.currentThread()) {

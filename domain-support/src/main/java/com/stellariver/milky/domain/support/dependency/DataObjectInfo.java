@@ -4,6 +4,9 @@ import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * @author houchuang
+ */
 @Data
 @Builder
 @NoArgsConstructor

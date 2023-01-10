@@ -3,6 +3,9 @@ package com.stellariver.milky.common.base;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * @author houchuang
+ */
 @Data
 @Builder
 @NoArgsConstructor

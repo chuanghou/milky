@@ -6,6 +6,9 @@ import com.stellariver.milky.common.tool.util.Json;
 import java.util.*;
 import java.util.function.Supplier;
 
+/**
+ * @author houchuang
+ */
 public class SysException extends BaseException {
 
     public SysException(String message) {
@@ -86,7 +89,6 @@ public class SysException extends BaseException {
     static public void falseThrow(boolean test,  Object object) {
         trueThrow(!test, object);
     }
-
 
     static public SysException unreachable() {
         return new SysException(ErrorEnumsBase.UNREACHABLE_CODE);

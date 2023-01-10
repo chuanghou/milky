@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * @author houchuang
+ */
 public class Reflect {
 
     @SuppressWarnings("unchecked")

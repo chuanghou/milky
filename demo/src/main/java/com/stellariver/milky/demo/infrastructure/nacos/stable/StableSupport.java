@@ -7,6 +7,9 @@ import com.stellariver.milky.common.tool.util.Json;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author houchuang
+ */
 @Component
 public class StableSupport extends AbstractStableSupport implements FakeConfigCenterListener, InitializingBean {
 

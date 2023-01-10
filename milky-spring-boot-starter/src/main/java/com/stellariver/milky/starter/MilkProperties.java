@@ -3,6 +3,9 @@ package com.stellariver.milky.starter;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * @author houchuang
+ */
 @Data
 @ConfigurationProperties("milky")
 public class MilkProperties {

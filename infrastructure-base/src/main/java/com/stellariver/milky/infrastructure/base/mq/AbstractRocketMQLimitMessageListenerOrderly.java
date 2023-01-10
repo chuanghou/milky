@@ -12,6 +12,9 @@ import org.apache.rocketmq.common.message.MessageExt;
 
 import java.util.List;
 
+/**
+ * @author houchuang
+ */
 @CustomLog
 public abstract class AbstractRocketMQLimitMessageListenerOrderly extends BaseRocketMQLimitMessageListener implements MessageListenerOrderly {
 

@@ -7,6 +7,9 @@ import com.stellariver.milky.common.tool.common.Kit;
 
 import java.lang.reflect.Field;
 
+/**
+ * @author houchuang
+ */
 public class ErrorEnums extends ErrorEnumsBase {
 
     public static ErrorEnum HANDLER_NOT_EXIST ;

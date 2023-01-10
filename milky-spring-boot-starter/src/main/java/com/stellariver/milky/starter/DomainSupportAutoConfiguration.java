@@ -36,6 +36,9 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * @author houchuang
+ */
 @CustomLog
 @EnableConfigurationProperties(MilkProperties.class)
 public class DomainSupportAutoConfiguration {

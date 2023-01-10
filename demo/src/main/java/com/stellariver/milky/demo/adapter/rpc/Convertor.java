@@ -4,9 +4,12 @@ import com.stellariver.milky.demo.client.entity.ItemDTO;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * @author houchuang
+ */
 public interface Convertor {
 
-    Convertor inst = Mappers.getMapper(Convertor.class);
+    Convertor INST = Mappers.getMapper(Convertor.class);
 
     ItemDTO to(ItemDO itemDO);
 

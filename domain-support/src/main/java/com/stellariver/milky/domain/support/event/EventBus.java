@@ -27,16 +27,19 @@ import java.util.concurrent.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * @author houchuang
+ */
 public class EventBus {
 
-    static final private Predicate<Method> format = method -> {
+    static final private Predicate<Method> FORMAT = method -> {
         Class<?>[] parameterTypes = method.getParameterTypes();
         return parameterTypes.length == 2
                 && Event.class.isAssignableFrom(parameterTypes[0])
                 && parameterTypes[1] == Context.class;
     };
 
-    static final private Predicate<Method> finalEventRouterFormat = method -> {
+    static final private Predicate<Method> FINAL_EVENT_ROUTER_FORMAT = method -> {
         Class<?>[] parameterTypes = method.getParameterTypes();
         boolean parametersMatch = parameterTypes.length == 2 &&
                 List.class.isAssignableFrom(parameterTypes[0]) && Context.class.isAssignableFrom(parameterTypes[1]);
@@ -62,7 +65,7 @@ public class EventBus {
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .filter(m -> {
-                    boolean test = format.test(m);
+                    boolean test = FORMAT.test(m);
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
                     return test;
                 })
@@ -90,7 +93,7 @@ public class EventBus {
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
                 .filter(m -> m.getParameterTypes()[0].isAssignableFrom(Event.class))
                 .filter(m -> {
-                    boolean test = format.test(m);
+                    boolean test = FORMAT.test(m);
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
                     return test;
                 }).filter(method -> method.getParameterTypes()[0].isAssignableFrom(Event.class))
@@ -125,7 +128,7 @@ public class EventBus {
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(FinalEventRouter.class))
                 .filter(m -> {
-                    boolean test = finalEventRouterFormat.test(m);
+                    boolean test = FINAL_EVENT_ROUTER_FORMAT.test(m);
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
                     return test;
                 }).collect(Collectors.toList());
@@ -179,7 +182,7 @@ public class EventBus {
 
         private final Method method;
 
-        @SneakyThrows
+        @SneakyThrows(Throwable.class)
         public void route(Event event, Context context) {
             Runner.invoke(bean, method, event, context);
         }
@@ -202,7 +205,6 @@ public class EventBus {
 
         private ExecutorService executorService;
 
-        @SneakyThrows
         public void route(List<? extends Event> events, Context context) {
             events = events.stream().filter(event -> eventClass.isAssignableFrom(event.getClass())).collect(Collectors.toList());
             if (Collect.isEmpty(events)) {

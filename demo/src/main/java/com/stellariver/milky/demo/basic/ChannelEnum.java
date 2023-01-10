@@ -2,6 +2,10 @@ package com.stellariver.milky.demo.basic;
 
 import lombok.Getter;
 
+/**
+ * @author houchuang
+ */
+
 public enum ChannelEnum {
 
     ALI("阿里") {

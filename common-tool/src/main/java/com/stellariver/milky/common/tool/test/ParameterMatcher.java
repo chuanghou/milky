@@ -7,13 +7,16 @@ import org.mockito.ArgumentMatcher;
 
 import java.lang.reflect.Field;
 
+/**
+ * @author houchuang
+ */
 @RequiredArgsConstructor
 public class ParameterMatcher<T> implements ArgumentMatcher<T> {
 
     final T value;
 
     @Override
-    @SneakyThrows
+    @SneakyThrows(IllegalAccessException.class)
     public boolean matches(T t) {
         for (Field field : value.getClass().getDeclaredFields()) {
             field.setAccessible(true);

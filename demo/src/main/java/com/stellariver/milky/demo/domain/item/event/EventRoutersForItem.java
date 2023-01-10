@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+/**
+ * @author houchuang
+ */
 @RequiredArgsConstructor
 public class EventRoutersForItem implements EventRouters {
 

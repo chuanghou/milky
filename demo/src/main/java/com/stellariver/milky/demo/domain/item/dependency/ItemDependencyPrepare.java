@@ -8,6 +8,9 @@ import com.stellariver.milky.domain.support.context.DependencyKey;
 import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @author houchuang
+ */
 @RequiredArgsConstructor
 public class ItemDependencyPrepare implements DependencyPrepares {
 

@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.io.Serializable;
 
+/**
+ * @author houchuang
+ */
 @Mapper
 public interface ItemDOMapper extends BaseMapper<ItemDO> {
 

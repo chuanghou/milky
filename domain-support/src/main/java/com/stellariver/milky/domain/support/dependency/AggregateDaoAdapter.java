@@ -14,6 +14,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author houchuang
+ */
 public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
 
     /**
@@ -61,7 +64,7 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
         Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
         Set<Pair<? extends Class<? extends BaseDataObject<?>>, Set<Object>>> params = clazzPrimaryIdMap
                 .entrySet().stream().map(entry -> {
-                    Map<Object, Object> clazzDoMap = doMap.getOrDefault(entry.getKey(), new HashMap<>());
+                    Map<Object, Object> clazzDoMap = doMap.getOrDefault(entry.getKey(), new HashMap<>(16));
                     Set<Object> lostPrimaryIds = Collect.diff(entry.getValue(), clazzDoMap.keySet());
                     return Pair.of(entry.getKey(), lostPrimaryIds);
                 }).filter(pair -> Collect.isNotEmpty(pair.getRight())).collect(Collectors.toSet());
@@ -69,12 +72,12 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
         params.forEach(param -> {
             DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = CommandBus.getDaoWrapper(param.getKey());
             Map<Object, Object> clazzResultMap = daoWrapper.batchGetByPrimaryIdsWrapper(param.getRight());
-            doMap.computeIfAbsent(param.getKey(), c -> new HashMap<>()).putAll(clazzResultMap);
+            doMap.computeIfAbsent(param.getKey(), c -> new HashMap<>(16)).putAll(clazzResultMap);
         });
-        Map<String, Aggregate> resultMap = new HashMap<>();
+        Map<String, Aggregate> resultMap = new HashMap<>(16);
         aggregateIds.forEach(aggregateId -> {
             DataObjectInfo dataObjectInfo = dataObjectInfo(aggregateId);
-            Object dataObject = doMap.getOrDefault(dataObjectInfo.getClazz(), new HashMap<>()).get(dataObjectInfo.getPrimaryId());
+            Object dataObject = doMap.getOrDefault(dataObjectInfo.getClazz(), new HashMap<>(10)).get(dataObjectInfo.getPrimaryId());
             if (dataObject != null) {
                 resultMap.put(aggregateId, toAggregate(dataObject));
             }
