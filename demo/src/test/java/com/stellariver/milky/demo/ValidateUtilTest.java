@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
 import java.lang.reflect.Method;
 
 public class ValidateUtilTest {
@@ -23,6 +24,16 @@ public class ValidateUtilTest {
         Throwable ex = null;
         try {
             ValidateUtil.bizValidate(fool, method, new Object[]{null, new FoolParam()}, true);
+        } catch (Throwable throwable) {
+            ex = throwable;
+        }
+        Assertions.assertNotNull(ex);
+        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertEquals(ex.getMessage(), "id 不能为空");
+
+        ex = null;
+        try {
+            ValidateUtil.bizValidate(fool, method, new Object[]{null, new FoolParam()}, true, Default.class);
         } catch (Throwable throwable) {
             ex = throwable;
         }
@@ -55,6 +66,25 @@ public class ValidateUtilTest {
         ValidateConfig annotation = method.getAnnotation(ValidateConfig.class);
         Assertions.assertEquals(0, annotation.groups().length);
 
+        method = Fool.class.getMethod("myTestDefaultGroup", Long.class, FoolParam.class);
+        try {
+            ValidateUtil.bizValidate(fool, method, new Object[]{null, null}, false, Default.class);
+        } catch (Throwable throwable) {
+            ex = throwable;
+        }
+        Assertions.assertNotNull(ex);
+        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertEquals(ex.getMessage(), "default");
+
+        ex = null;
+        try {
+            ValidateUtil.bizValidate(fool, method, new Object[]{null, null}, false, MyGroup.class);
+        } catch (Throwable throwable) {
+            ex = throwable;
+        }
+        Assertions.assertNotNull(ex);
+        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertEquals(ex.getMessage(), "myGroup");
     }
 
     static private class Fool {
@@ -70,6 +100,13 @@ public class ValidateUtilTest {
 
         @ValidateConfig
         public void myTestWithEmptyGroup(@NotNull Long id, FoolParam foolParam) {
+
+        }
+
+
+        @ValidateConfig
+        public void myTestDefaultGroup(@NotNull(message = "myGroup", groups = MyGroup.class) Long id,
+                                       @NotNull(message = "default", groups = Default.class) FoolParam foolParam) {
 
         }
     }

@@ -19,15 +19,7 @@ import java.util.*;
  */
 public class ValidateUtil {
 
-    enum ExceptionType {
-
-        // business exception
-        BIZ,
-
-        // system exception
-        SYS
-
-    }
+    enum ExceptionType { BIZ, SYS }
 
     static final private Validator FAIL_FAST_VALIDATOR = Validation.byProvider(HibernateValidator.class)
             .configure().failFast(true).buildValidatorFactory().getValidator();
@@ -59,6 +51,11 @@ public class ValidateUtil {
     private static void validate(Object param, ExceptionType type, boolean failFast, Class<?>[] groups) {
         if (param instanceof Collection) {
             ((Collection<?>) param).forEach(p -> validate(p, type, failFast, groups));
+        } else if (param instanceof Map) {
+            ((Map<?, ?>) param).forEach((k, v) -> {
+                validate(k, type, failFast, groups);
+                validate(v, type, failFast, groups);
+            });
         }
         Validator validator = failFast ? FAIL_FAST_VALIDATOR : VALIDATOR;
         Set<ConstraintViolation<Object>> validateResult = validator.validate(param, groups);
