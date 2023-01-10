@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface ValidateConfig {
 
-    Class<?>[] groups();
+    Class<?>[] groups() default {};
 
     boolean failFast() default true;
 

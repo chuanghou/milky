@@ -51,6 +51,10 @@ public class ValidateUtilTest {
         }
         Assertions.assertNull(ex);
 
+        method = Fool.class.getMethod("myTestWithEmptyGroup", Long.class, FoolParam.class);
+        ValidateConfig annotation = method.getAnnotation(ValidateConfig.class);
+        Assertions.assertEquals(0, annotation.groups().length);
+
     }
 
     static private class Fool {
@@ -61,6 +65,11 @@ public class ValidateUtilTest {
 
         @ValidateConfig(groups = MyGroup.class)
         public void myTestWithGroup(@NotNull Long id, FoolParam foolParam) {
+
+        }
+
+        @ValidateConfig
+        public void myTestWithEmptyGroup(@NotNull Long id, FoolParam foolParam) {
 
         }
     }
