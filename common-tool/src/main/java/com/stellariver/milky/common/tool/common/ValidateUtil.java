@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class ValidateUtil {
 
-    enum ExceptionType { BIZ, SYS }
+    public enum ExceptionType { BIZ, SYS }
 
     static final private Validator FAIL_FAST_VALIDATOR = Validation.byProvider(HibernateValidator.class)
             .configure().failFast(true).buildValidatorFactory().getValidator();
@@ -41,14 +41,14 @@ public class ValidateUtil {
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.SYS, failFast, groups));
     }
 
-    private static void validate(Object object, Method method, Object[] params, ExceptionType type, boolean failFast, Class<?>[] groups) {
+    public static void validate(Object object, Method method, Object[] params, ExceptionType type, boolean failFast, Class<?>... groups) {
         ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
         Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params, groups);
         check(validateResult, type);
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
     }
 
-    private static void validate(Object param, ExceptionType type, boolean failFast, Class<?>[] groups) {
+    public static void validate(Object param, ExceptionType type, boolean failFast, Class<?>... groups) {
         if (param instanceof Collection) {
             ((Collection<?>) param).forEach(p -> validate(p, type, failFast, groups));
         } else if (param instanceof Map) {

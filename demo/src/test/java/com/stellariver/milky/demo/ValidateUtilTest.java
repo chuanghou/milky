@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.Range;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.lang.reflect.Method;
@@ -85,6 +86,28 @@ public class ValidateUtilTest {
         Assertions.assertNotNull(ex);
         Assertions.assertTrue(ex instanceof BizException);
         Assertions.assertEquals(ex.getMessage(), "myGroup");
+
+        ValidParam validParam = new ValidParam();
+        validParam.setParam(new NestValidParam());
+        ex = null;
+        try {
+            ValidateUtil.validate(validParam, ValidateUtil.ExceptionType.BIZ, true);
+        } catch (Throwable throwable) {
+            ex = throwable;
+        }
+        Assertions.assertNotNull(ex);
+        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertEquals(ex.getMessage(), "NESTED");
+
+        NotValidParam notValidParam = new NotValidParam();
+        notValidParam.setParam(new NestValidParam());
+        ex = null;
+        try {
+            ValidateUtil.validate(notValidParam, ValidateUtil.ExceptionType.BIZ, true);
+        } catch (Throwable throwable) {
+            ex = throwable;
+        }
+        Assertions.assertNull(ex);
     }
 
     static private class Fool {
@@ -124,5 +147,28 @@ public class ValidateUtilTest {
 
     }
 
+    @Data
+    static private class ValidParam {
+
+        @Valid
+        private NestValidParam param;
+
+    }
+
+    @Data
+    static private class NotValidParam {
+
+        private NestValidParam param;
+
+    }
+
+    @Data
+    static private class NestValidParam {
+
+        @NotNull(message = "NESTED")
+        private String string;
+
+
+    }
 
 }
