@@ -8,19 +8,16 @@ import com.stellariver.milky.common.tool.stable.RlConfig;
 import com.stellariver.milky.common.tool.stable.StableConfig;
 import com.stellariver.milky.common.tool.stable.StableConfigReader;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.demo.basic.UKs;
+import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
@@ -56,16 +53,19 @@ public class SqlRateLimiterTest {
 
         Option<Long, Long> option = Option.<Long, Long>builder()
                 .transfer(Function.identity())
-                .lambdaId(UKs.sqlRateLimiter)
                 .build();
         long now = Clock.currentTimeMillis();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             Runner.checkout(option, () -> idBuilder.build());
         }
         long cost = Clock.currentTimeMillis() - now;
         Assertions.assertTrue((cost > 1850) && (cost < 2050));
 
+    }
 
+    @AfterEach
+    public void reset() {
+        CommandBus.reset();
     }
 
 }

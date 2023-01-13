@@ -6,27 +6,23 @@ import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.stable.*;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.demo.basic.ErrorEnums;
 import com.stellariver.milky.demo.basic.UKs;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Duration;
 
 @CustomLog
 @SpringBootTest
-@DirtiesContext
 public class StableSupportTest {
 
     @Mock
@@ -99,10 +95,12 @@ public class StableSupportTest {
             }
         }
         Assertions.assertEquals(circuitBreaker.getState(), CircuitBreaker.State.CLOSED);
-
-
     }
 
+    @AfterEach
+    public void reset() {
+        Runner.reset();
+    }
 
     static private Result<String> stableTest(int i) {
         if (i > 0) {
