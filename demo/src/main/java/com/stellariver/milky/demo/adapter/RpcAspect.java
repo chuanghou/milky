@@ -7,7 +7,7 @@ import com.stellariver.milky.common.tool.common.ValidateConfig;
 import com.stellariver.milky.common.tool.exception.BaseException;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.common.ValidateUtil;
-import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
+import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.ErrorEnums;
@@ -36,12 +36,12 @@ public class RpcAspect<T extends Result<?>> {
     @Pointcut("execution(public com.stellariver.milky.common.base.Result com.stellariver.milky.demo.adapter.rpc..*(..))")
     private void pageResultPointCut() {}
 
-    final AbstractStableSupport abstractStableSupport;
+    final MilkyStableSupport milkyStableSupport;
 
     @Around("resultPointCut() || pageResultPointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
-        String key = abstractStableSupport.key(pjp);
-        RateLimiterWrapper rateLimiterWrapper = abstractStableSupport.rateLimiter(key);
+        String key = milkyStableSupport.key(pjp);
+        RateLimiterWrapper rateLimiterWrapper = milkyStableSupport.rateLimiter(key);
         if (rateLimiterWrapper != null) {
             rateLimiterWrapper.acquire();
         }

@@ -8,13 +8,15 @@ import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerIntercep
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.ReplacePlaceholderInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
-import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
+import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.demo.basic.UKs;
 import com.stellariver.milky.infrastructure.base.database.BlockDeepPagingInnerInterceptor;
 import com.stellariver.milky.infrastructure.base.database.RateLimiterInnerInterceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -35,9 +37,9 @@ public class MyBatisPlusConfiguration {
 
     static private final Pattern PATTERN = Pattern.compile("id_builder");
 
-    @SuppressWarnings("AliDeprecation")
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, AbstractStableSupport abstractStableSupport) throws Exception {
+    public SqlSessionFactory sqlSessionFactory(
+            DataSource dataSource, @Autowired(required = false) MilkyStableSupport milkyStableSupport) throws Exception {
 
         MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
@@ -67,8 +69,10 @@ public class MyBatisPlusConfiguration {
         mybatisPlusInterceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
         mybatisPlusInterceptor.addInnerInterceptor(new ReplacePlaceholderInnerInterceptor());
         mybatisPlusInterceptor.addInnerInterceptor(new BlockDeepPagingInnerInterceptor(true, 1000L));
-        Map<Pattern, String> patternMap = Collect.asMap(PATTERN, "idBuilder");
-        mybatisPlusInterceptor.addInnerInterceptor(new RateLimiterInnerInterceptor(abstractStableSupport, patternMap));
+        Map<Pattern, String> patternMap = Collect.asMap(PATTERN, UKs.sqlRateLimiter.getKey());
+        if (milkyStableSupport != null) {
+            mybatisPlusInterceptor.addInnerInterceptor(new RateLimiterInnerInterceptor(milkyStableSupport, patternMap));
+        }
         sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor);
 
         return sqlSessionFactoryBean.getObject();

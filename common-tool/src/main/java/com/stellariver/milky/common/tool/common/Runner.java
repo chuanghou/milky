@@ -4,7 +4,7 @@ import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.slambda.SCallable;
 import com.stellariver.milky.common.tool.slambda.SLambda;
-import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
+import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import com.stellariver.milky.common.tool.util.RunnerExtension;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -25,10 +25,10 @@ import java.util.function.Function;
 public class Runner {
 
     /**
-     * need to be instaniate by a AbstractStableSupport Impl
+     * need to be instaniate by a MilkyStableSupport impl
      */
     @Nullable
-    static private AbstractStableSupport abstractStableSupport;
+    static private MilkyStableSupport milkyStableSupport;
 
 
     /**
@@ -37,8 +37,8 @@ public class Runner {
     @Nullable
     static private RunnerExtension runnerExtension;
 
-    static public void setAbstractStableSupport(@NonNull AbstractStableSupport support) {
-        abstractStableSupport = support;
+    static public void setMilkyStableSupport(@NonNull MilkyStableSupport support) {
+        milkyStableSupport = support;
     }
     static public void setFailureExtendable(@NonNull RunnerExtension runnerExtensionImpl) {
         runnerExtension = runnerExtensionImpl;
@@ -49,9 +49,9 @@ public class Runner {
         RateLimiterWrapper rateLimiter = null;
         CircuitBreaker circuitBreaker = null;
         UK lambdaId = option.getLambdaId();
-        if (abstractStableSupport != null && lambdaId != null) {
-            rateLimiter = abstractStableSupport.rateLimiter(lambdaId.getKey());
-            circuitBreaker = abstractStableSupport.circuitBreaker(lambdaId.getKey());
+        if (milkyStableSupport != null && lambdaId != null) {
+            rateLimiter = milkyStableSupport.rateLimiter(lambdaId.getKey());
+            circuitBreaker = milkyStableSupport.circuitBreaker(lambdaId.getKey());
         }
         return checkout(option, sCallable, circuitBreaker, rateLimiter, lambdaId);
     }

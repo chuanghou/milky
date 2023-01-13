@@ -21,11 +21,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@SuppressWarnings("all")
-public abstract class AbstractStableSupport{
+public class MilkyStableSupport {
 
-    private StableConfig stableConfig = new StableConfig();
+    private final StableConfig stableConfig = new StableConfig();
 
     private final StableConfigReader stableConfigReader;
 
@@ -33,44 +33,45 @@ public abstract class AbstractStableSupport{
 
     private final Cache<String, CircuitBreaker> circuitBreakers = CacheBuilder.newBuilder().softValues().build();
 
-    public AbstractStableSupport(StableConfigReader stableConfigReader) {
+    public MilkyStableSupport(StableConfigReader stableConfigReader) {
         this.stableConfigReader = stableConfigReader;
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
             Thread thread = new Thread(runnable, "System Clock");
             thread.setDaemon(true);
             return thread;
         });
-        scheduler.scheduleAtFixedRate(() -> {
-            StableConfig pushedStableConfig = stableConfigReader.read();
-            Map<String, CbConfig> newCbConfigs = pushedStableConfig.getCbConfigs();
-            if (!stableConfig.getCbConfigs().equals(pushedStableConfig.getCbConfigs())) {
-                Map<String, CbConfig> cbConfigs = stableConfig.getCbConfigs();
-                Map<String, CbConfig> pushedCbConfigs = pushedStableConfig.getCbConfigs();
-                Set<String> cbConfigKetSet = cbConfigs.keySet();
-                Set<String> pushedCbConfigKeySet = pushedCbConfigs.keySet();
-                Set<String> deletedKeys = Collect.diff(cbConfigKetSet, pushedCbConfigKeySet);
-                Set<String> interUpdatedKeys = Collect.inter(cbConfigKetSet, pushedCbConfigKeySet).stream()
-                        .filter(k -> cbConfigs.get(k).equals(pushedCbConfigs.get(k))).collect(Collectors.toSet());
-                Set<String> addedKeys = Collect.inter(pushedCbConfigKeySet, cbConfigKetSet);
-                stableConfig.setCbConfigs(pushedCbConfigs);
-                deletedKeys.stream().forEach(rateLimiters::invalidate);
-                Arrays.asList(interUpdatedKeys, addedKeys).stream().flatMap(Collection::stream).forEach(this::buildCircuitBreaker);
-            }
-            if (!stableConfig.getRlConfigs().equals(pushedStableConfig.getRlConfigs())) {
-                Map<String, RlConfig> rlConfigs = stableConfig.getRlConfigs();
-                Map<String, RlConfig> pushedRlConfigs = pushedStableConfig.getRlConfigs();
-                Set<String> rlConfigKetSet = rlConfigs.keySet();
-                Set<String> pushedRlConfigKeySet = pushedRlConfigs.keySet();
-                Set<String> deletedKeys = Collect.diff(rlConfigKetSet, pushedRlConfigKeySet);
-                Set<String> interUpdatedKeys = Collect.inter(rlConfigKetSet, pushedRlConfigKeySet).stream()
-                        .filter(k -> rlConfigs.get(k).equals(pushedRlConfigs.get(k))).collect(Collectors.toSet());
-                Set<String> addedKeys = Collect.inter(pushedRlConfigKeySet, rlConfigKetSet);
-                stableConfig.setRlConfigs(rlConfigs);
-                deletedKeys.stream().forEach(rateLimiters::invalidate);
-                Arrays.asList(interUpdatedKeys, addedKeys).stream().flatMap(Collection::stream).forEach(this::buildRateLimiterWrapper);
-            }
+        updateConfig();
+        scheduler.scheduleAtFixedRate(this::updateConfig, 10, 10, TimeUnit.SECONDS);
+    }
 
-        }, 10, 10, TimeUnit.SECONDS);
+    private void updateConfig() {
+        StableConfig pushedStableConfig = stableConfigReader.read();
+        if (!stableConfig.getCbConfigs().equals(pushedStableConfig.getCbConfigs())) {
+            Map<String, CbConfig> cbConfigs = stableConfig.getCbConfigs();
+            Map<String, CbConfig> pushedCbConfigs = pushedStableConfig.getCbConfigs();
+            Set<String> cbConfigKetSet = cbConfigs.keySet();
+            Set<String> pushedCbConfigKeySet = pushedCbConfigs.keySet();
+            Set<String> deletedKeys = Collect.diff(cbConfigKetSet, pushedCbConfigKeySet);
+            Set<String> interUpdatedKeys = Collect.inter(cbConfigKetSet, pushedCbConfigKeySet).stream()
+                    .filter(k -> cbConfigs.get(k).equals(pushedCbConfigs.get(k))).collect(Collectors.toSet());
+            Set<String> addedKeys = Collect.diff(pushedCbConfigKeySet, cbConfigKetSet);
+            stableConfig.setCbConfigs(pushedCbConfigs);
+            deletedKeys.forEach(rateLimiters::invalidate);
+            Stream.of(interUpdatedKeys, addedKeys).flatMap(Collection::stream).forEach(this::buildCircuitBreaker);
+        }
+        if (!stableConfig.getRlConfigs().equals(pushedStableConfig.getRlConfigs())) {
+            Map<String, RlConfig> rlConfigs = stableConfig.getRlConfigs();
+            Map<String, RlConfig> pushedRlConfigs = pushedStableConfig.getRlConfigs();
+            Set<String> rlConfigKetSet = rlConfigs.keySet();
+            Set<String> pushedRlConfigKeySet = pushedRlConfigs.keySet();
+            Set<String> deletedKeys = Collect.diff(rlConfigKetSet, pushedRlConfigKeySet);
+            Set<String> interUpdatedKeys = Collect.inter(rlConfigKetSet, pushedRlConfigKeySet).stream()
+                    .filter(k -> rlConfigs.get(k).equals(pushedRlConfigs.get(k))).collect(Collectors.toSet());
+            Set<String> addedKeys = Collect.diff(pushedRlConfigKeySet, rlConfigKetSet);
+            stableConfig.setRlConfigs(pushedRlConfigs);
+            deletedKeys.forEach(rateLimiters::invalidate);
+            Stream.of(interUpdatedKeys, addedKeys).flatMap(Collection::stream).forEach(this::buildRateLimiterWrapper);
+        }
     }
 
     public String key(ProceedingJoinPoint pjp) {
@@ -121,7 +122,7 @@ public abstract class AbstractStableSupport{
     @Nullable
     protected CircuitBreaker buildCircuitBreaker(String key) {
         Map<String, CbConfig> cbConfigs = stableConfig.getCbConfigs();
-        if (cbConfigs.containsKey(key)) {
+        if (!cbConfigs.containsKey(key)) {
             return null;
         }
         CbConfig cbConfig = cbConfigs.get(key);

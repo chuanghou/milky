@@ -1,9 +1,8 @@
 package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
+import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.common.BaseQuery;
-import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
@@ -132,9 +131,9 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(AbstractStableSupport.class)
-    public RateLimitSupport rateLimitSupport(AbstractStableSupport abstractStableSupport) {
-        return new RateLimitSupport(abstractStableSupport);
+    @ConditionalOnBean(MilkyStableSupport.class)
+    public RateLimitSupport rateLimitSupport(MilkyStableSupport milkyStableSupport) {
+        return new RateLimitSupport(milkyStableSupport);
     }
 
     @Bean

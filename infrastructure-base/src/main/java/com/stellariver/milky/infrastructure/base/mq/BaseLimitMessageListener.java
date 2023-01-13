@@ -1,6 +1,6 @@
 package com.stellariver.milky.infrastructure.base.mq;
 
-import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
+import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import lombok.CustomLog;
 
@@ -11,12 +11,12 @@ import lombok.CustomLog;
 public abstract class BaseLimitMessageListener {
 
     protected void flowControl() {
-        AbstractStableSupport abstractStableSupport = AbstractStableSupport.abstractStableSupport;
-        if (abstractStableSupport == null) {
+        MilkyStableSupport milkyStableSupport = getMilkyStableSupport();
+        if (milkyStableSupport == null) {
             return;
         }
         String key = this.getClass().getName();
-        RateLimiterWrapper rateLimiterWrapper = abstractStableSupport.rateLimiter(key);
+        RateLimiterWrapper rateLimiterWrapper = milkyStableSupport.rateLimiter(key);
         if (rateLimiterWrapper != null) {
             rateLimiterWrapper.acquire();
         }
@@ -29,5 +29,7 @@ public abstract class BaseLimitMessageListener {
     public void finalWork() {
 
     }
+
+    abstract MilkyStableSupport getMilkyStableSupport();
 
 }

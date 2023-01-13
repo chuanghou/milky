@@ -2,7 +2,7 @@ package com.stellariver.milky.infrastructure.base.database;
 
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.stable.AbstractStableSupport;
+import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.executor.Executor;
@@ -11,12 +11,8 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
-import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -28,7 +24,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class RateLimiterInnerInterceptor implements InnerInterceptor {
 
-    final private AbstractStableSupport abstractStableSupport;
+    final private MilkyStableSupport milkyStableSupport;
 
     final private Map<Pattern, String> patternMap;
 
@@ -49,7 +45,7 @@ public class RateLimiterInnerInterceptor implements InnerInterceptor {
         String key = Kit.op(patternMap).orElseGet(HashMap::new).keySet().stream()
                 .filter(p -> p.matcher(sql).find()).findFirst().map(patternMap::get).orElse(null);
         if (key != null) {
-            RateLimiterWrapper rateLimiterWrapper = abstractStableSupport.rateLimiter(key);
+            RateLimiterWrapper rateLimiterWrapper = milkyStableSupport.rateLimiter(key);
             if (rateLimiterWrapper != null) {
                 rateLimiterWrapper.acquire();
             }

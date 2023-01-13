@@ -16,8 +16,10 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class StableConfig {
 
+    @Builder.Default
     Map<String, CbConfig> cbConfigs = new HashMap<>();
 
+    @Builder.Default
     Map<String, RlConfig> rlConfigs = new HashMap<>();
 
 }
