@@ -3,7 +3,8 @@ package com.stellariver.milky.common.tool.stable;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author houchuang
@@ -15,8 +16,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class StableConfig {
 
-    List<CbConfig> cbConfigs;
+    Map<String, CbConfig> cbConfigs = new HashMap<>();
 
-    List<RlConfig> rlConfigs;
+    Map<String, RlConfig> rlConfigs = new HashMap<>();
 
 }

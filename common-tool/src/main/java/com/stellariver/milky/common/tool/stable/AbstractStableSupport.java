@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.If;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
@@ -16,25 +17,61 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.*;
-import java.util.function.Function;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("all")
 public abstract class AbstractStableSupport{
 
-    static public AbstractStableSupport abstractStableSupport;
+    private StableConfig stableConfig = new StableConfig();
 
-    public void setAbstractStableSupport(AbstractStableSupport support) {
-        abstractStableSupport = support;
-    }
-
-    private Map<String, CbConfig> cbConfigs = new HashMap<>();
-
-    private Map<String, RlConfig> rlConfigs = new HashMap<>();
+    private final StableConfigReader stableConfigReader;
 
     private final Cache<String, RateLimiterWrapper> rateLimiters = CacheBuilder.newBuilder().softValues().build();
 
     private final Cache<String, CircuitBreaker> circuitBreakers = CacheBuilder.newBuilder().softValues().build();
+
+    public AbstractStableSupport(StableConfigReader stableConfigReader) {
+        this.stableConfigReader = stableConfigReader;
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
+            Thread thread = new Thread(runnable, "System Clock");
+            thread.setDaemon(true);
+            return thread;
+        });
+        scheduler.scheduleAtFixedRate(() -> {
+            StableConfig pushedStableConfig = stableConfigReader.read();
+            Map<String, CbConfig> newCbConfigs = pushedStableConfig.getCbConfigs();
+            if (!stableConfig.getCbConfigs().equals(pushedStableConfig.getCbConfigs())) {
+                Map<String, CbConfig> cbConfigs = stableConfig.getCbConfigs();
+                Map<String, CbConfig> pushedCbConfigs = pushedStableConfig.getCbConfigs();
+                Set<String> cbConfigKetSet = cbConfigs.keySet();
+                Set<String> pushedCbConfigKeySet = pushedCbConfigs.keySet();
+                Set<String> deletedKeys = Collect.diff(cbConfigKetSet, pushedCbConfigKeySet);
+                Set<String> interUpdatedKeys = Collect.inter(cbConfigKetSet, pushedCbConfigKeySet).stream()
+                        .filter(k -> cbConfigs.get(k).equals(pushedCbConfigs.get(k))).collect(Collectors.toSet());
+                Set<String> addedKeys = Collect.inter(pushedCbConfigKeySet, cbConfigKetSet);
+                stableConfig.setCbConfigs(pushedCbConfigs);
+                deletedKeys.stream().forEach(rateLimiters::invalidate);
+                Arrays.asList(interUpdatedKeys, addedKeys).stream().flatMap(Collection::stream).forEach(this::buildCircuitBreaker);
+            }
+            if (!stableConfig.getRlConfigs().equals(pushedStableConfig.getRlConfigs())) {
+                Map<String, RlConfig> rlConfigs = stableConfig.getRlConfigs();
+                Map<String, RlConfig> pushedRlConfigs = pushedStableConfig.getRlConfigs();
+                Set<String> rlConfigKetSet = rlConfigs.keySet();
+                Set<String> pushedRlConfigKeySet = pushedRlConfigs.keySet();
+                Set<String> deletedKeys = Collect.diff(rlConfigKetSet, pushedRlConfigKeySet);
+                Set<String> interUpdatedKeys = Collect.inter(rlConfigKetSet, pushedRlConfigKeySet).stream()
+                        .filter(k -> rlConfigs.get(k).equals(pushedRlConfigs.get(k))).collect(Collectors.toSet());
+                Set<String> addedKeys = Collect.inter(pushedRlConfigKeySet, rlConfigKetSet);
+                stableConfig.setRlConfigs(rlConfigs);
+                deletedKeys.stream().forEach(rateLimiters::invalidate);
+                Arrays.asList(interUpdatedKeys, addedKeys).stream().flatMap(Collection::stream).forEach(this::buildRateLimiterWrapper);
+            }
+
+        }, 10, 10, TimeUnit.SECONDS);
+    }
 
     public String key(ProceedingJoinPoint pjp) {
         return pjp.toLongString();
@@ -83,7 +120,8 @@ public abstract class AbstractStableSupport{
 
     @Nullable
     protected CircuitBreaker buildCircuitBreaker(String key) {
-        if (!cbConfigs.containsKey(key)) {
+        Map<String, CbConfig> cbConfigs = stableConfig.getCbConfigs();
+        if (cbConfigs.containsKey(key)) {
             return null;
         }
         CbConfig cbConfig = cbConfigs.get(key);
@@ -106,6 +144,7 @@ public abstract class AbstractStableSupport{
     }
 
     protected RateLimiterWrapper buildRateLimiterWrapper(@NonNull String key) {
+        Map<String, RlConfig> rlConfigs = stableConfig.getRlConfigs();
         if (!rlConfigs.containsKey(key)){
             return null;
         }
@@ -118,19 +157,5 @@ public abstract class AbstractStableSupport{
                 .build();
     }
 
-    protected void update(StableConfig stableConfig) {
-        Map<String, RlConfig> oldRlConfigs = rlConfigs;
-        this.rlConfigs = Kit.op(stableConfig).map(StableConfig::getRlConfigs).orElseGet(ArrayList::new)
-                .stream().collect(Collectors.toMap(RlConfig::getKey, Function.identity()));
-        this.rlConfigs.keySet().stream().filter(k -> Kit.notEq(oldRlConfigs.get(k), this.rlConfigs.get(k)))
-                .forEach(rateLimiters::invalidate);
-
-        Map<String, CbConfig> oldCbConfigs = cbConfigs;
-        this.cbConfigs = Kit.op(stableConfig).map(StableConfig::getCbConfigs).orElseGet(ArrayList::new)
-                .stream().collect(Collectors.toMap(CbConfig::getKey, Function.identity()));
-        this.rlConfigs.keySet().stream().filter(k -> Kit.notEq(oldCbConfigs.get(k), this.cbConfigs.get(k)))
-                .forEach(circuitBreakers::invalidate);
-
-    }
 
 }
