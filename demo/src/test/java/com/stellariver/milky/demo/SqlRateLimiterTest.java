@@ -37,9 +37,9 @@ public class SqlRateLimiterTest {
 
         @Bean
         public MilkyStableSupport milkyStableSupport() {
-            RlConfig rlConfig = RlConfig.builder().key(UKs.sqlRateLimiter.getKey()).qps(10.0).build();
+            RlConfig rlConfig = RlConfig.builder().ruleId(UKs.sqlRateLimiter.getKey()).qps(10.0).build();
             StableConfig stableConfig = StableConfig.builder()
-                    .rlConfigs(Collect.toMap(Collect.asList(rlConfig), RlConfig::getKey))
+                    .rlConfigs(Collect.toMap(Collect.asList(rlConfig), RlConfig::getRuleId))
                     .build();
             StableConfigReader stableConfigReader = () -> stableConfig;
             return new MilkyStableSupport(stableConfigReader);

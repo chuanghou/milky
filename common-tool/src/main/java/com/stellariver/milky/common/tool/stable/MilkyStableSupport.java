@@ -4,9 +4,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
-import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.If;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
@@ -20,12 +17,10 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MilkyStableSupport {
 
-    private final StableConfig stableConfig = new StableConfig();
+    private StableConfig stableConfig = new StableConfig();
 
     private final StableConfigReader stableConfigReader;
 
@@ -45,87 +40,69 @@ public class MilkyStableSupport {
     }
 
     private void updateConfig() {
-        StableConfig pushedStableConfig = stableConfigReader.read();
-        if (!stableConfig.getCbConfigs().equals(pushedStableConfig.getCbConfigs())) {
-            Map<String, CbConfig> cbConfigs = stableConfig.getCbConfigs();
-            Map<String, CbConfig> pushedCbConfigs = pushedStableConfig.getCbConfigs();
-            Set<String> cbConfigKetSet = cbConfigs.keySet();
-            Set<String> pushedCbConfigKeySet = pushedCbConfigs.keySet();
-            Set<String> deletedKeys = Collect.diff(cbConfigKetSet, pushedCbConfigKeySet);
-            Set<String> interUpdatedKeys = Collect.inter(cbConfigKetSet, pushedCbConfigKeySet).stream()
-                    .filter(k -> cbConfigs.get(k).equals(pushedCbConfigs.get(k))).collect(Collectors.toSet());
-            Set<String> addedKeys = Collect.diff(pushedCbConfigKeySet, cbConfigKetSet);
-            stableConfig.setCbConfigs(pushedCbConfigs);
-            deletedKeys.forEach(rateLimiters::invalidate);
-            Stream.of(interUpdatedKeys, addedKeys).flatMap(Collection::stream).forEach(this::buildCircuitBreaker);
-        }
-        if (!stableConfig.getRlConfigs().equals(pushedStableConfig.getRlConfigs())) {
-            Map<String, RlConfig> rlConfigs = stableConfig.getRlConfigs();
-            Map<String, RlConfig> pushedRlConfigs = pushedStableConfig.getRlConfigs();
-            Set<String> rlConfigKetSet = rlConfigs.keySet();
-            Set<String> pushedRlConfigKeySet = pushedRlConfigs.keySet();
-            Set<String> deletedKeys = Collect.diff(rlConfigKetSet, pushedRlConfigKeySet);
-            Set<String> interUpdatedKeys = Collect.inter(rlConfigKetSet, pushedRlConfigKeySet).stream()
-                    .filter(k -> rlConfigs.get(k).equals(pushedRlConfigs.get(k))).collect(Collectors.toSet());
-            Set<String> addedKeys = Collect.diff(pushedRlConfigKeySet, rlConfigKetSet);
-            stableConfig.setRlConfigs(pushedRlConfigs);
-            deletedKeys.forEach(rateLimiters::invalidate);
-            Stream.of(interUpdatedKeys, addedKeys).flatMap(Collection::stream).forEach(this::buildRateLimiterWrapper);
-        }
+        stableConfig = stableConfigReader.read();
     }
 
-    public String key(ProceedingJoinPoint pjp) {
+    public String ruleId(ProceedingJoinPoint pjp) {
         return pjp.toLongString();
     }
 
-    public String key(Method method) {
+    public String ruleId(Method method) {
         return method.toString();
     }
 
     @Nullable
-    public RateLimiterWrapper rateLimiter(@NonNull String key) {
-        RateLimiterWrapper rateLimiterWrapper = rateLimiters.getIfPresent(key);
-        if (rateLimiterWrapper == null) {
-            rateLimiterWrapper = buildRateLimiterWrapper(key);
-            if (rateLimiterWrapper != null) {
-                rateLimiters.put(key, rateLimiterWrapper);
-            }
+    public RateLimiterWrapper rateLimiter(@NonNull String ruleId) {
+        return rateLimiter(ruleId, null);
+    }
+
+    @Nullable
+    @SuppressWarnings("all")
+    public RateLimiterWrapper rateLimiter(@NonNull String ruleId, @Nullable String key) {
+
+        String id = String.format("%s_%s", ruleId, key);
+        RateLimiterWrapper rateLimiterWrapper = rateLimiters.getIfPresent(id);
+        if (rateLimiterWrapper != null) {
+            return rateLimiterWrapper;
         }
+
+        Map<String, RlConfig> rlConfigs = stableConfig.getRlConfigs();
+        boolean contains = rlConfigs.containsKey(ruleId);
+        if (!contains)  {
+            return null;
+        }
+
+        RlConfig rlConfig = rlConfigs.get(ruleId);
+        RateLimiter rateLimiter = RateLimiter.create(rlConfigs.get(ruleId).getQps());
+        rateLimiterWrapper = RateLimiterWrapper.builder().id(id).rateLimiter(rateLimiter)
+                .strategy(Kit.op(rlConfig.getStrategy()).orElse(RlConfig.Strategy.FAIL_WAITING))
+                .timeout(Kit.op(rlConfig.getTimeOut()).orElseGet(() -> Duration.ofSeconds(3)))
+                .warningThreshold(Kit.op(rlConfig.getWarningThreshold()).orElseGet(() -> Duration.ofSeconds(3)))
+                .build();
+        rateLimiters.put(id, rateLimiterWrapper);
         return rateLimiterWrapper;
     }
 
     @Nullable
-    public CircuitBreaker circuitBreaker(@NonNull String key) {
-        CircuitBreaker circuitBreaker = circuitBreakers.getIfPresent(key);
-        if (circuitBreaker == null) {
-            circuitBreaker = buildCircuitBreaker(key);
-            if (circuitBreaker != null) {
-                circuitBreakers.put(key, circuitBreaker);
-            }
-        }
-        return circuitBreaker;
-    }
-
-    protected void adjustCircuitBreakerState(CbConfig config) {
-        CircuitBreaker circuitBreaker = circuitBreaker(config.getKey());
-        if (config.getOperation() == CbConfig.Operation.FORCE_CLOSE) {
-            circuitBreaker.transitionToClosedState();
-        } else if (config.getOperation() == CbConfig.Operation.FORCE_OPEN) {
-            circuitBreaker.transitionToDisabledState();
-        } else if (config.getOperation() == CbConfig.Operation.RESET) {
-            circuitBreaker.reset();
-        } else {
-            throw new SysException(ErrorEnumsBase.UNREACHABLE_CODE);
-        }
+    public CircuitBreaker circuitBreaker(@NonNull String ruleId) {
+        return circuitBreaker(ruleId,null);
     }
 
     @Nullable
-    protected CircuitBreaker buildCircuitBreaker(String key) {
+    public CircuitBreaker circuitBreaker(@NonNull String ruleId, @Nullable String key) {
+
+        String id = String.format(ruleId, key);
+        CircuitBreaker circuitBreaker = circuitBreakers.getIfPresent(id);
+        if (circuitBreaker != null) {
+            return circuitBreaker;
+        }
+
         Map<String, CbConfig> cbConfigs = stableConfig.getCbConfigs();
-        if (!cbConfigs.containsKey(key)) {
+        if (!cbConfigs.containsKey(ruleId)) {
             return null;
         }
-        CbConfig cbConfig = cbConfigs.get(key);
+
+        CbConfig cbConfig = cbConfigs.get(ruleId);
         CircuitBreakerConfig.Builder builder = CircuitBreakerConfig.custom();
         If.isTrue(cbConfig.getSlidingWindowType() != null, () -> builder.slidingWindowType(cbConfig.getSlidingWindowType()));
         If.isTrue(cbConfig.getSlidingWindowSize() != null, () -> builder.slidingWindowSize(cbConfig.getSlidingWindowSize()));
@@ -141,22 +118,9 @@ public class MilkyStableSupport {
         If.isTrue(cbConfig.getAutomaticTransitionFromOpenToHalfOpenEnabled() == null,
                 () -> builder.automaticTransitionFromOpenToHalfOpenEnabled(true));
 
-        return CircuitBreaker.of(cbConfig.getKey(), builder.build());
+        circuitBreaker = CircuitBreaker.of(cbConfig.getRuleId(), builder.build());
+        circuitBreakers.put(id, circuitBreaker);
+        return circuitBreaker;
     }
-
-    protected RateLimiterWrapper buildRateLimiterWrapper(@NonNull String key) {
-        Map<String, RlConfig> rlConfigs = stableConfig.getRlConfigs();
-        if (!rlConfigs.containsKey(key)){
-            return null;
-        }
-        RlConfig rlConfig = rlConfigs.get(key);
-        RateLimiter rateLimiter = RateLimiter.create(rlConfigs.get(key).getQps());
-        return RateLimiterWrapper.builder().rateLimiter(rateLimiter)
-                .strategy(Kit.op(rlConfig.getStrategy()).orElse(RlConfig.Strategy.FAIL_WAITING))
-                .timeout(Kit.op(rlConfig.getTimeOut()).orElseGet(() -> Duration.ofSeconds(3)))
-                .warningThreshold(Kit.op(rlConfig.getWarningThreshold()).orElseGet(() -> Duration.ofSeconds(3)))
-                .build();
-    }
-
 
 }

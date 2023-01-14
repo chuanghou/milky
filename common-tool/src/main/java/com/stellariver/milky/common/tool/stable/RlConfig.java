@@ -15,7 +15,7 @@ import java.time.Duration;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RlConfig {
 
-    String key;
+    String ruleId;
 
     Double qps;
 

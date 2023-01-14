@@ -19,6 +19,8 @@ import java.time.temporal.ChronoUnit;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RateLimiterWrapper {
 
+    String id;
+
     RateLimiter rateLimiter;
 
     RlConfig.Strategy strategy;

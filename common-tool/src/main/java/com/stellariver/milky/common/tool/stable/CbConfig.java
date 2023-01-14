@@ -19,7 +19,7 @@ public class CbConfig {
     /**
      * 对应熔断器名称
      */
-    String key;
+    String ruleId;
 
     /**
      * 熔断器参数，以下参数均有默认值, 参看 CircuitBreakerConfig

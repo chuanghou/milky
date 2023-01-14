@@ -27,7 +27,7 @@ public class RateLimitSupport {
 
     @Around("pointCut()&& @annotation(enableRateLimit)")
     public Object rateLimit(ProceedingJoinPoint pjp, EnableRateLimit enableRateLimit) throws Throwable {
-        String key = milkyStableSupport.key(pjp);
+        String key = milkyStableSupport.ruleId(pjp);
         RateLimiterWrapper rateLimiter = milkyStableSupport.rateLimiter(key);
         if (rateLimiter != null) {
             rateLimiter.acquire();

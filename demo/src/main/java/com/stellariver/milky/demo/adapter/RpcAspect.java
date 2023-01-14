@@ -40,7 +40,7 @@ public class RpcAspect<T extends Result<?>> {
 
     @Around("resultPointCut() || pageResultPointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
-        String key = milkyStableSupport.key(pjp);
+        String key = milkyStableSupport.ruleId(pjp);
         RateLimiterWrapper rateLimiterWrapper = milkyStableSupport.rateLimiter(key);
         if (rateLimiterWrapper != null) {
             rateLimiterWrapper.acquire();

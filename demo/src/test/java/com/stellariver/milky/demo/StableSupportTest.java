@@ -31,15 +31,15 @@ public class StableSupportTest {
     @Test
     @SneakyThrows
     public void test() {
-        RlConfig rlConfig = RlConfig.builder().key(UKs.stableTest.getKey()).qps(10.0).build();
-        CbConfig cbConfig = CbConfig.builder().key(UKs.stableTest.getKey())
+        RlConfig rlConfig = RlConfig.builder().ruleId(UKs.stableTest.getKey()).qps(10.0).build();
+        CbConfig cbConfig = CbConfig.builder().ruleId(UKs.stableTest.getKey())
                 .minimumNumberOfCalls(10)
                 .slidingWindowSize(15)
                 .waitIntervalInOpenState(Duration.ofSeconds(2))
                 .build();
         StableConfig stableConfig = StableConfig.builder()
-                .rlConfigs(Collect.toMap(Collect.asList(rlConfig), RlConfig::getKey))
-                .cbConfigs(Collect.toMap(Collect.asList(cbConfig), CbConfig::getKey))
+                .rlConfigs(Collect.toMap(Collect.asList(rlConfig), RlConfig::getRuleId))
+                .cbConfigs(Collect.toMap(Collect.asList(cbConfig), CbConfig::getRuleId))
                 .build();
         Mockito.when(stableConfigReader.read()).thenReturn(stableConfig);
         MilkyStableSupport milkyStableSupport = new MilkyStableSupport(stableConfigReader);
