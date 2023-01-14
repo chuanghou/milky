@@ -54,7 +54,7 @@ public class NameTypes {
                         Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                         SetNameType<?> tempValue = new SetNameType<>();
                         tempValue.setClazz(Set.class);
-                        tempValue.setClazz(clazz);
+                        tempValue.setVClazz(clazz);
                         value = tempValue;
                     } else if (type == MapNameType.class) {
                         Class<?> kClazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
