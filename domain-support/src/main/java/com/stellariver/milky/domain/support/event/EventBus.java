@@ -164,12 +164,14 @@ public class EventBus {
     }
 
     public void preFinalRoute(List<? extends Event> events, Context context) {
-        finalRouters.stream().filter(finalRouter -> finalRouter.order < 0).sorted(Comparator.comparing(FinalRouter::getOrder))
+        finalRouters.stream().filter(finalRouter -> finalRouter.order < 0)
+                .sorted(Comparator.comparing(FinalRouter::getOrder))
                 .forEach(finalRouter -> finalRouter.route(events, context));
     }
 
     public void postFinalRoute(List<? extends Event> events, Context context) {
-        finalRouters.stream().filter(finalRouter -> finalRouter.order > 0).sorted(Comparator.comparing(FinalRouter::getOrder))
+        finalRouters.stream().filter(finalRouter -> finalRouter.order > 0)
+                .sorted(Comparator.comparing(FinalRouter::getOrder))
                 .forEach(finalRouter -> finalRouter.route(events, context));
     }
 
