@@ -8,6 +8,7 @@ import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
+import com.stellariver.milky.domain.support.base.Typed;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.context.Context;
@@ -273,7 +274,7 @@ public class CommandBus {
         });
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<NameType<?>, Object> parameters,
+    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Typed<?>, Object> parameters,
                                                                        Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         instance.memoryTxTL.set(true);
@@ -287,16 +288,16 @@ public class CommandBus {
     }
 
     @SuppressWarnings("all")
-    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<NameType<?>, Object> parameters) {
+    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Typed<?>, Object> parameters) {
         return acceptMemoryTransactional(command, parameters, null);
     }
 
-    static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters,
+    static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters,
                                                     Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         return instance.doSend(command, parameters, aggregateIdMap);
     }
 
-    static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters) {
+    static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters) {
         return accept(command, parameters, null);
     }
 
@@ -318,7 +319,7 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+    private <T extends Command> Object doSend(T command, Map<Typed<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         Context context = Context.build(parameters, aggregateIdMap);
         THREAD_LOCAL_CONTEXT.set(context);

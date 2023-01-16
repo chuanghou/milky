@@ -37,12 +37,12 @@ public class Context{
     private final Map<Long, Object> mvDataObjects = new HashMap<>();
 
     @Getter
-    private final Map<NameType<?>, Object> parameters = new HashMap<>();
+    private final Map<Typed<?>, Object> parameters = new HashMap<>();
 
     @Getter
-    private final Map<NameType<?>, Object> metaData = new HashMap<>();
+    private final Map<Typed<?>, Object> metaData = new HashMap<>();
 
-    private final Map<NameType<?>, Object> dependencies = new HashMap<>();
+    private final Map<Typed<?>, Object> dependencies = new HashMap<>();
 
     private final List<Event> events = new ArrayList<>();
 
@@ -52,15 +52,15 @@ public class Context{
 
     @Nullable
     @SuppressWarnings("unchecked")
-    public <T> T getDependency(NameType<T> key) {
+    public <T> T getDependency(Typed<T> key) {
         return (T) dependencies.get(key);
     }
 
-    public Map<NameType<?>, Object> getDependencies() {
+    public Map<Typed<?>, Object> getDependencies() {
         return dependencies;
     }
 
-    public void putDependency(NameType<?> key, Object value) {
+    public void putDependency(Typed<?> key, Object value) {
         dependencies.put(key, value);
     }
 
@@ -101,11 +101,11 @@ public class Context{
         return new ArrayList<>(events);
     }
 
-    public static Context build(Map<NameType<?>, Object> parameters) {
+    public static Context build(Map<Typed<?>, Object> parameters) {
         return build(parameters, null);
     }
 
-    public static Context build(Map<NameType<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+    public static Context build(Map<Typed<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Context context = new Context();
         context.invocationId = BeanUtil.getBean(IdBuilder.class).build();
         context.parameters.putAll(parameters);

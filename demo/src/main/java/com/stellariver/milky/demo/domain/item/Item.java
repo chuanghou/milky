@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.domain.item;
 
 import com.stellariver.milky.demo.basic.ChannelEnum;
-import com.stellariver.milky.demo.basic.NameTypes;
+import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
@@ -50,7 +50,7 @@ public class Item extends AggregateRoot {
         this.userId = command.getUserId();
         this.amount = command.getAmount();
         this.storeCode = command.getStoreCode();
-        UserInfo userInfo = NameTypes.userInfo.extractFrom(context.getDependencies());
+        UserInfo userInfo = TypedEnums.userInfo.extractFrom(context.getDependencies());
         this.userName = userInfo.getUserName();
         this.channelEnum = command.getChannelEnum();
         context.publish(ItemCreatedEvent.builder().itemId(itemId).title(title).build());

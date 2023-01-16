@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo.basic;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.common.Kit;
@@ -7,10 +8,10 @@ import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
-import com.stellariver.milky.domain.support.base.ListNameType;
-import com.stellariver.milky.domain.support.base.MapNameType;
-import com.stellariver.milky.domain.support.base.NameType;
-import com.stellariver.milky.domain.support.base.SetNameType;
+import com.stellariver.milky.domain.support.base.ListTyped;
+import com.stellariver.milky.domain.support.base.MapTyped;
+import com.stellariver.milky.domain.support.base.Typed;
+import com.stellariver.milky.domain.support.base.SetTyped;
 import lombok.NonNull;
 
 import java.lang.reflect.ParameterizedType;
@@ -19,47 +20,47 @@ import java.util.*;
 /**
  * @author houchuang
  */
-public class NameTypes {
+public class TypedEnums {
 
-    static public NameType<UserInfo> userInfo;
+    static public Typed<UserInfo> userInfo;
 
-    static public NameType<Employee> employee;
+    static public Typed<Employee> employee;
 
-    static public ListNameType<String> codes;
+    static public ListTyped<String> codes;
 
-    static public SetNameType<Integer> numbers;
+    static public SetTyped<Integer> numbers;
 
-    static public MapNameType<Long, Long> mapNameType;
+    static public MapTyped<Long, Long> mapNameType;
 
-    static Map<String, NameType<?>> nameTypeMap = new HashMap<>();
+    static Map<String, Typed<?>> typedMap = new HashMap<>();
 
     static {
-        Arrays.stream(NameTypes.class.getDeclaredFields())
-                .filter(field -> NameType.class.isAssignableFrom(field.getType()))
+        Arrays.stream(TypedEnums.class.getDeclaredFields())
+                .filter(field -> Typed.class.isAssignableFrom(field.getType()))
                 .forEach(field -> {
                     field.setAccessible(true);
-                    NameType<?> value;
+                    Typed<?> value;
                     Class<?> type = field.getType();
-                    if (type == NameType.class) {
+                    if (type == Typed.class) {
                         Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        value = new NameType<>();
+                        value = new Typed<>();
                         value.setClazz(clazz);
-                    } else if (type == ListNameType.class) {
+                    } else if (type == ListTyped.class) {
                         Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        ListNameType<?> tempValue = new ListNameType<>();
+                        ListTyped<?> tempValue = new ListTyped<>();
                         tempValue.setClazz(List.class);
                         tempValue.setVClazz(clazz);
                         value = tempValue;
-                    } else if (type == SetNameType.class) {
+                    } else if (type == SetTyped.class) {
                         Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        SetNameType<?> tempValue = new SetNameType<>();
+                        SetTyped<?> tempValue = new SetTyped<>();
                         tempValue.setClazz(Set.class);
-                        tempValue.setClazz(clazz);
+                        tempValue.setVClazz(clazz);
                         value = tempValue;
-                    } else if (type == MapNameType.class) {
+                    } else if (type == MapTyped.class) {
                         Class<?> kClazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                         Class<?> vClazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1];
-                        MapNameType<?, ?> tempValue = new MapNameType<>();
+                        MapTyped<?, ?> tempValue = new MapTyped<>();
                         tempValue.setClazz(Map.class);
                         tempValue.setKClazz(kClazz);
                         tempValue.setVClazz(vClazz);
@@ -73,25 +74,28 @@ public class NameTypes {
                     } catch (IllegalAccessException e) {
                         throw new SysException(e);
                     }
-                    boolean b = nameTypeMap.containsKey(value.getName());
+                    boolean b = typedMap.containsKey(value.getName());
                     BizException.trueThrow(b, ErrorEnums.CONFIG_ERROR.message(String.format("同名%sNameType!", value.getName())));
-                    nameTypeMap.put(value.getName(), value);
+                    typedMap.put(value.getName(), value);
                 });
     }
 
-    static public String serialize(Map<NameType<?>, Object> nameTypeMap) {
-        nameTypeMap = Kit.op(nameTypeMap).orElseGet(HashMap::new);
+    static public String serialize(Map<Typed<?>, Object> typedMap) {
+        typedMap = Kit.op(typedMap).orElseGet(HashMap::new);
         StreamMap<String, Object> init = StreamMap.init();
-        nameTypeMap.forEach((k, v) -> init.put(k.getName(), v));
+        typedMap.forEach((k, v) -> init.put(k.getName(), v));
         return Json.toJson(init.getMap());
     }
 
-    static public Map<NameType<?>, Object> deSerialize(@NonNull String value) {
-        Map<String, String> stringMap = Json.parseMap(value, String.class, String.class);
-        Map<NameType<?>, Object> map = new HashMap<>(16);
-        Kit.op(stringMap).orElseGet(HashMap::new).forEach((k, v) -> {
-            NameType<?> nameType = nameTypeMap.get(k);
-            map.put(nameType, nameType.parseJson(v));
+    static public Map<Typed<?>, Object> deSerialize(@NonNull String value) {
+        JsonNode jsonNode = Json.parseJsonNode(value);
+        Map<Typed<?>, Object> map = new HashMap<>(16);
+        typedMap.forEach((k, v) -> {
+            JsonNode typeJsonNode = jsonNode.get(k);
+            if (typeJsonNode != null) {
+                Object o = v.parseJsonNode(typeJsonNode);
+                map.put(v, o);
+            }
         });
         return map;
     }
