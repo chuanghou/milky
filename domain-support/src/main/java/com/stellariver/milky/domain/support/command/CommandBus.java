@@ -401,11 +401,11 @@ public class CommandBus {
             BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
         }
         Object result = doRoute(command, context, commandHandler);
-        THREAD_LOCAL_CONTEXT.get().clearDependencies();
+        context.clearDependencies();
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
             context.recordEvent(EventRecord.builder().message(event).build());
-            eventBus.route(event, THREAD_LOCAL_CONTEXT.get());
+            eventBus.route(event, context);
         });
         return result;
     }
