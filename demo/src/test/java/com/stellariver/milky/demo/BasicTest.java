@@ -2,6 +2,7 @@ package com.stellariver.milky.demo;
 
 
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.common.tool.test.ParameterMatcher;
 import com.stellariver.milky.demo.basic.ChannelEnum;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
@@ -10,6 +11,8 @@ import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
+import com.stellariver.milky.demo.domain.service.ItemCreatedMessage;
+import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.domain.support.base.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -25,6 +28,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+
+import static org.mockito.Mockito.*;
 
 @CustomLog
 @Transactional
@@ -44,6 +49,9 @@ public class BasicTest {
     @SpyBean
     ConcurrentOperate concurrentOperate;
 
+    @SpyBean
+    MqService mqService;
+
     @Test
     public void publishItemDOTest() {
 
@@ -60,6 +68,15 @@ public class BasicTest {
         Assertions.assertNotNull(inventory);
         Assertions.assertEquals(item.getStoreCode(), inventory.getStoreCode());
         Assertions.assertEquals(item.getAmount(), inventory.getAmount());
+        ItemCreatedMessage message = ItemCreatedMessage.builder().itemId(1L).build();
+
+        verify(mqService).sendMessage(argThat(new ParameterMatcher<>(message)));
+
+        // 通过ParameterMeter实现对于null字段的验证过滤
+        ItemCreatedMessage message1 = message.toBuilder().title("测试商品").build();
+        verify(mqService).sendMessage(argThat(new ParameterMatcher<>(message1)));
+
+
         InventoryUpdateCommand command = InventoryUpdateCommand.builder().itemId(1L).updateAmount(100L).build();
         CommandBus.accept(command, parameters);
         item = itemRepository.queryById(1L);

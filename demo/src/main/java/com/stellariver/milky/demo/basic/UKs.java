@@ -7,12 +7,7 @@ import java.lang.reflect.Field;
 /**
  * @author houchuang
  */
-public class UKs extends UK {
-
-    private UKs(String key) {
-        super(key);
-        throw new RuntimeException("should not be used, just for grammar check!");
-    }
+public class UKs {
 
     static public UK stableTest;
 
