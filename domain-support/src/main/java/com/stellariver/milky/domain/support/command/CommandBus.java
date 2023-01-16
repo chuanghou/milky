@@ -208,9 +208,8 @@ public class CommandBus {
                 SysException.falseThrowGet(returnType != method.getClass(),
                         () -> ErrorEnums.CONFIG_ERROR.message("static Command handler must return corresponding aggregate!"));
             }
-            boolean hasReturn = !"void".equals(method.getReturnType().getName());
             Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
-            Handler handler = new Handler(clazz, method, null, handlerType, hasReturn, requiredKeys);
+            Handler handler = new Handler(clazz, method, null, handlerType, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
             SysException.trueThrow(commandHandlers.containsKey(commandType),
                     ErrorEnums.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
@@ -230,7 +229,7 @@ public class CommandBus {
             CommandHandler annotation = constructor.getAnnotation(CommandHandler.class);
             Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) constructor.getDeclaringClass();
-            Handler handler = new Handler(clazz, null, constructor, CONSTRUCTOR_METHOD, true, requiredKeys);
+            Handler handler = new Handler(clazz, null, constructor, CONSTRUCTOR_METHOD, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
             SysException.trueThrow(commandHandlers.containsKey(commandType),
                     ErrorEnums.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
@@ -339,13 +338,21 @@ public class CommandBus {
             if (memoryTx) {
                 doMap.forEach((dataObjectClazz, map) -> {
                     DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
+
+                    // all three group of primary ids
                     Set<Object> doPrimaryIds = map.keySet();
                     Set<Object> created = createdAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
                     Set<Object> changed = changedAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
+
+                    // created and updated primary ids
                     Set<Object> createdPrimaryIds = Collect.inter(doPrimaryIds, created);
                     Set<Object> changedPrimaryIds = Collect.diff(Collect.inter(doPrimaryIds, changed), createdPrimaryIds);
+
+                    // created and updated data object
                     List<Object> createdDataObjects = createdPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
                     List<Object> changedDataObjects = changedPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
+
+                    // persistent layer
                     daoWrapper.batchSaveWrapper(createdDataObjects);
                     daoWrapper.batchUpdateWrapper(changedDataObjects);
                 });
@@ -582,8 +589,6 @@ public class CommandBus {
         private Constructor<?> constructor;
 
         private HandlerType handlerType;
-
-        private boolean hasReturn;
 
         private Set<String> requiredKeys;
 
