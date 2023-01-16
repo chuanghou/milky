@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo.domain.item;
 
+import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.demo.basic.ChannelEnum;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
@@ -56,13 +57,18 @@ public class Item extends AggregateRoot {
         context.publish(ItemCreatedEvent.builder().itemId(itemId).title(title).build());
     }
 
+    // the return type context here is only for test the interceptor
+    @SneakyThrows
     @CommandHandler
-    public void handle(ItemTitleUpdateCommand command, Context context) {
+    public Context handle(ItemTitleUpdateCommand command, Context context) {
         String originalTitle = this.title;
         this.title = command.getUpdateTitle();
         ItemTitleUpdatedEvent event = ItemTitleUpdatedEvent.builder()
                 .itemId(itemId).originalTitle(originalTitle).updatedTitle(title).build();
+        context.getMetaData().put(TypedEnums.markHandle, Clock.currentTimeMillis());
+        Thread.sleep(10L);
         context.publish(event);
+        return context;
     }
 
     @CommandHandler

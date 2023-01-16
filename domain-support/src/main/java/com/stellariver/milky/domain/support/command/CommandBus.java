@@ -122,7 +122,7 @@ public class CommandBus {
         milkySupport.getInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
-                .filter(m -> m.getParameterTypes()[0].isAssignableFrom(Command.class))
+                .filter(m -> Command.class.isAssignableFrom(m.getParameterTypes()[0]))
                 .filter(m -> {
                     boolean test = COMMAND_INTERCEPTOR_FORMAT.test(m.getParameterTypes());
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));

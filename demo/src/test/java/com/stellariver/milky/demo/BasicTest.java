@@ -9,6 +9,7 @@ import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
+import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.domain.service.ItemCreatedMessage;
@@ -16,6 +17,7 @@ import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.domain.support.base.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
+import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import lombok.CustomLog;
 import org.junit.jupiter.api.AfterAll;
@@ -62,6 +64,7 @@ public class BasicTest {
         HashMap<Typed<?>, Object> parameters = new HashMap<>();
         parameters.put(TypedEnums.employee, new Employee("110", "小明"));
         CommandBus.accept(itemCreateCommand, parameters);
+
         Item item = itemRepository.queryById(1L);
         Assertions.assertNotNull(item);
         Inventory inventory = inventoryRepository.queryById(1L);
@@ -85,6 +88,19 @@ public class BasicTest {
         inventory = inventoryRepository.queryById(1L);
         Assertions.assertNotNull(inventory);
         Assertions.assertEquals(100L, (long) inventory.getAmount());
+
+        ItemTitleUpdateCommand updateCommand = ItemTitleUpdateCommand.builder().itemId(1L)
+                .updateTitle("new Title").build();
+        Context context = (Context) CommandBus.accept(updateCommand, parameters);
+        Long before = TypedEnums.markBefore.extractFrom(context.getMetaData());
+        Long handle = TypedEnums.markHandle.extractFrom(context.getMetaData());
+        Long after = TypedEnums.markAfter.extractFrom(context.getMetaData());
+        Assertions.assertNotNull(before);
+        Assertions.assertNotNull(handle);
+        Assertions.assertNotNull(after);
+        Assertions.assertTrue(before < handle);
+        Assertions.assertTrue(handle < after);
+
     }
 
     @AfterAll

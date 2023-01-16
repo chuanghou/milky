@@ -60,7 +60,6 @@ public class EventBus {
 
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {
-
         List<Method> methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
@@ -91,7 +90,7 @@ public class EventBus {
         Kit.op(milkySupport.getInterceptors()).orElseGet(ArrayList::new).stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
-                .filter(m -> m.getParameterTypes()[0].isAssignableFrom(Event.class))
+                .filter(m -> Event.class.isAssignableFrom(m.getParameterTypes()[0]))
                 .filter(m -> {
                     boolean test = FORMAT.test(m);
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));

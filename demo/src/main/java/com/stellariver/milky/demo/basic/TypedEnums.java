@@ -32,6 +32,12 @@ public class TypedEnums {
 
     static public MapTyped<Long, Long> mapNameType;
 
+    static public Typed<Long> markBefore;
+
+    static public Typed<Long> markHandle;
+
+    static public Typed<Long> markAfter;
+
     static Map<String, Typed<?>> typedMap = new HashMap<>();
 
     static {
