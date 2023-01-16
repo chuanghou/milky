@@ -278,7 +278,7 @@ public class CommandBus {
         Object result;
         instance.memoryTxTL.set(true);
         SysException.nullThrowMessage(instance.transactionSupport,
-                "transactionSupport is null, so you can't use memory transactional feature, change to CommandBus.accept!");
+                "transactionSupport is null, so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
         try {
             result = instance.doSend(command, parameters, aggregateIdMap);
         } finally {
