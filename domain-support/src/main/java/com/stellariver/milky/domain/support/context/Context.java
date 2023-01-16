@@ -30,6 +30,7 @@ public class Context{
     @Getter
     private final Map<Class<?>, Set<Object>> createdAggregateIds = new HashMap<>();
 
+    // it is used to store all DO cache
     @Getter
     private final Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = new HashMap<>();
 

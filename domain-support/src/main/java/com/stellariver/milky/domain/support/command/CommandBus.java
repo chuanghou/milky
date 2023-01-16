@@ -378,10 +378,11 @@ public class CommandBus {
 
     private <T extends Command> Object route(T command) {
         SysException.anyNullThrow(command);
-        Handler commandHandler= commandHandlers.get(command.getClass());
-        SysException.nullThrowGet(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
-        Object result;
+        Handler commandHandler = Kit.op(commandHandlers.get(command.getClass()))
+                .orElseThrow(() -> new SysException(HANDLER_NOT_EXIST.message(Json.toJson(command))));
         Context context = THREAD_LOCAL_CONTEXT.get();
+
+        // command bus lock and it will be release finally
         String encryptionKey = UUID.randomUUID().toString();
         UK nameSpace = UK.build(commandHandler.getAggregateClazz());
         String lockKey = command.getAggregateId();
@@ -399,7 +400,7 @@ public class CommandBus {
             locked = concurrentOperate.tryRetryLock(retryParameter);
             BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
         }
-        result = doRoute(command, context, commandHandler);
+        Object result = doRoute(command, context, commandHandler);
         THREAD_LOCAL_CONTEXT.get().clearDependencies();
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
@@ -413,72 +414,114 @@ public class CommandBus {
     @SneakyThrows({InstantiationException.class, IllegalAccessException.class, InvocationTargetException.class})
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         AggregateDaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
-        SysException.anyNullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
+        SysException.nullThrowMessage(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
+
+        // invoke dependencies
         Map<String, DependencyProvider> providerMap = Kit.op(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
         commandHandler.getRequiredKeys().forEach(key -> invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
-        AggregateRoot aggregate;
-        Object result;
+
+        // build command record and record it
         CommandRecord commandRecord = CommandRecord.builder().message(command).dependencies(new HashMap<>(context.getDependencies())).build();
         context.recordCommand(commandRecord);
         String aggregateId = command.getAggregateId();
-        Map<Class<?>, Set<Object>> changedAggregateIds = context.getChangedAggregateIds();
-        Map<Class<?>, Set<Object>> createdAggregateIds = context.getCreatedAggregateIds();
-        DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
-        Class<? extends BaseDataObject<?>> dataObjectClazz = dataObjectInfo.getClazz();
-        Object primaryId = dataObjectInfo.getPrimaryId();
+
+        // real command handle procedure
+        Object result;
+        AggregateRoot aggregate;
         AggregateStatus aggregateStatus = AggregateStatus.KEEP;
         if (commandHandler.handlerType == CONSTRUCTOR_METHOD) {
+
+            // before interceptors run
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
                     .forEach(interceptor -> interceptor.invoke(command, null, context));
+
+            // // run command handlers, it is corresponding to a create command
             aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
+
+            // update aggregate status to CREATE
             aggregateStatus = AggregateStatus.CREATE;
             result = aggregate;
+
         } else if (commandHandler.handlerType == STATIC_METHOD){
-            beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> interceptor.invoke(command, null, context));
+
+            // before interceptors run, it is corresponding to a create command
+            beforeCommandInterceptors.get(command.getClass())
+                    .forEach(interceptor -> interceptor.invoke(command, null, context));
+
+            // // run command handlers
             aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
+
+            // update aggregate status to CREATE
             aggregateStatus = AggregateStatus.CREATE;
             result = aggregate;
         } else if (commandHandler.handlerType == INSTANCE_METHOD){
+
+            // from db or context get aggregate
             aggregate = daoAdapter.getByAggregateId(aggregateId, context);
-            List<Interceptor> interceptors = beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
-            for (Interceptor interceptor : interceptors) { interceptor.invoke(command, aggregate, context); }
+
+            // run command before interceptors, it is corresponding to a common command, an instance method
+            beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
+                    .forEach(interceptor -> interceptor.invoke(command, aggregate, context));
+
+            // run command handlers
             result = commandHandler.invoke(aggregate, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
-            if (present) { aggregateStatus = AggregateStatus.UPDATE; }
+
+            if (present) {
+                aggregateStatus = AggregateStatus.UPDATE;
+            }
         } else {
             throw new SysException("unreached part!");
         }
+
+        // process context cache for aggregate
+        DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
+        Class<? extends BaseDataObject<?>> dataObjectClazz = dataObjectInfo.getClazz();
+        Object primaryId = dataObjectInfo.getPrimaryId();
+        // if aggregateStatus is not KEEP, it means the aggregate has been created or updated
         if (aggregateStatus != AggregateStatus.KEEP) {
+
+            // context DO cache
             Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
+            // according primaryId, find corresponding data object
             Object temp = Kit.op(doMap.get(dataObjectClazz)).map(map -> map.get(primaryId)).orElse(null);
-            context.getMvDataObjects().put(command.getId(), temp);
+
+            // aggregate to data object
             BaseDataObject<?> baseDataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
+
+            // merge new data object to the old one, the old one is null when the command which is handling is a create command
             DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
             BaseDataObject<?> merge = daoWrapper.mergeWrapper(baseDataObject, temp);
+
             Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
             if (memoryTx) {
                 doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>(16)).put(primaryId, merge);
             } else {
                 Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
             }
+             // if memoryTx is true, the created or updated aggregate DO will be saved in cache
+             // or else these DO wil save in DB immediately
             if (aggregateStatus == AggregateStatus.CREATE) {
                 if (memoryTx) {
-                    createdAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+                    context.getCreatedAggregateIds().computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
                 } else {
                     daoWrapper.batchSaveWrapper(Collect.asList(merge));
                 }
             } else {
                 if (memoryTx) {
-                    changedAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+                    context.getChangedAggregateIds().computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
                 } else {
                     daoWrapper.batchUpdateWrapper(Collect.asList(merge));
                 }
             }
         }
+
+        // after interceptors
         List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
         }
+
         return result;
     }
 

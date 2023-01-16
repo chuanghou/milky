@@ -192,6 +192,11 @@
                 <artifactId>druid-spring-boot-starter</artifactId>
                 <version>1.2.15</version>
             </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>3.19.1</version>
+            </dependency>
             <!--infrastructure-base end-->
         </dependencies>
     </dependencyManagement>
