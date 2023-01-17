@@ -8,6 +8,7 @@ import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
+import com.stellariver.milky.domain.support.base.Typed;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.context.Context;
@@ -121,7 +122,7 @@ public class CommandBus {
         milkySupport.getInterceptors().stream()
                 .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
-                .filter(m -> m.getParameterTypes()[0].isAssignableFrom(Command.class))
+                .filter(m -> Command.class.isAssignableFrom(m.getParameterTypes()[0]))
                 .filter(m -> {
                     boolean test = COMMAND_INTERCEPTOR_FORMAT.test(m.getParameterTypes());
                     SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
@@ -207,9 +208,8 @@ public class CommandBus {
                 SysException.falseThrowGet(returnType != method.getClass(),
                         () -> ErrorEnums.CONFIG_ERROR.message("static Command handler must return corresponding aggregate!"));
             }
-            boolean hasReturn = !"void".equals(method.getReturnType().getName());
             Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
-            Handler handler = new Handler(clazz, method, null, handlerType, hasReturn, requiredKeys);
+            Handler handler = new Handler(clazz, method, null, handlerType, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
             SysException.trueThrow(commandHandlers.containsKey(commandType),
                     ErrorEnums.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
@@ -229,7 +229,7 @@ public class CommandBus {
             CommandHandler annotation = constructor.getAnnotation(CommandHandler.class);
             Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
             Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) constructor.getDeclaringClass();
-            Handler handler = new Handler(clazz, null, constructor, CONSTRUCTOR_METHOD, true, requiredKeys);
+            Handler handler = new Handler(clazz, null, constructor, CONSTRUCTOR_METHOD, requiredKeys);
             Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
             SysException.trueThrow(commandHandlers.containsKey(commandType),
                     ErrorEnums.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
@@ -273,11 +273,12 @@ public class CommandBus {
         });
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<NameType<?>, Object> parameters,
+    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Typed<?>, Object> parameters,
                                                                        Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         instance.memoryTxTL.set(true);
-        SysException.nullThrow(instance.transactionSupport);
+        SysException.nullThrowMessage(instance.transactionSupport,
+                "transactionSupport is null, so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
         try {
             result = instance.doSend(command, parameters, aggregateIdMap);
         } finally {
@@ -287,16 +288,16 @@ public class CommandBus {
     }
 
     @SuppressWarnings("all")
-    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<NameType<?>, Object> parameters) {
+    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Typed<?>, Object> parameters) {
         return acceptMemoryTransactional(command, parameters, null);
     }
 
-    static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters,
+    static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters,
                                                     Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         return instance.doSend(command, parameters, aggregateIdMap);
     }
 
-    static public <T extends Command> Object accept(T command, Map<NameType<?>, Object> parameters) {
+    static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters) {
         return accept(command, parameters, null);
     }
 
@@ -318,7 +319,7 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    private <T extends Command> Object doSend(T command, Map<NameType<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+    private <T extends Command> Object doSend(T command, Map<Typed<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         Context context = Context.build(parameters, aggregateIdMap);
         THREAD_LOCAL_CONTEXT.set(context);
@@ -338,13 +339,21 @@ public class CommandBus {
             if (memoryTx) {
                 doMap.forEach((dataObjectClazz, map) -> {
                     DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
+
+                    // all three group of primary ids
                     Set<Object> doPrimaryIds = map.keySet();
                     Set<Object> created = createdAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
                     Set<Object> changed = changedAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
+
+                    // created and updated primary ids
                     Set<Object> createdPrimaryIds = Collect.inter(doPrimaryIds, created);
                     Set<Object> changedPrimaryIds = Collect.diff(Collect.inter(doPrimaryIds, changed), createdPrimaryIds);
+
+                    // created and updated data object
                     List<Object> createdDataObjects = createdPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
                     List<Object> changedDataObjects = changedPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
+
+                    // persistent layer
                     daoWrapper.batchSaveWrapper(createdDataObjects);
                     daoWrapper.batchUpdateWrapper(changedDataObjects);
                 });
@@ -377,10 +386,11 @@ public class CommandBus {
 
     private <T extends Command> Object route(T command) {
         SysException.anyNullThrow(command);
-        Handler commandHandler= commandHandlers.get(command.getClass());
-        SysException.nullThrowGet(commandHandler, () -> HANDLER_NOT_EXIST.message(Json.toJson(command)));
-        Object result;
+        Handler commandHandler = Kit.op(commandHandlers.get(command.getClass()))
+                .orElseThrow(() -> new SysException(HANDLER_NOT_EXIST.message(Json.toJson(command))));
         Context context = THREAD_LOCAL_CONTEXT.get();
+
+        // command bus lock and it will be release finally
         String encryptionKey = UUID.randomUUID().toString();
         UK nameSpace = UK.build(commandHandler.getAggregateClazz());
         String lockKey = command.getAggregateId();
@@ -398,12 +408,12 @@ public class CommandBus {
             locked = concurrentOperate.tryRetryLock(retryParameter);
             BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
         }
-        result = doRoute(command, context, commandHandler);
-        THREAD_LOCAL_CONTEXT.get().clearDependencies();
+        Object result = doRoute(command, context, commandHandler);
+        context.clearDependencies();
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
             context.recordEvent(EventRecord.builder().message(event).build());
-            eventBus.route(event, THREAD_LOCAL_CONTEXT.get());
+            eventBus.route(event, context);
         });
         return result;
     }
@@ -412,72 +422,114 @@ public class CommandBus {
     @SneakyThrows({InstantiationException.class, IllegalAccessException.class, InvocationTargetException.class})
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         AggregateDaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
-        SysException.anyNullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
+        SysException.nullThrowMessage(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
+
+        // invoke dependencies
         Map<String, DependencyProvider> providerMap = Kit.op(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
         commandHandler.getRequiredKeys().forEach(key -> invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
-        AggregateRoot aggregate;
-        Object result;
+
+        // build command record and record it
         CommandRecord commandRecord = CommandRecord.builder().message(command).dependencies(new HashMap<>(context.getDependencies())).build();
         context.recordCommand(commandRecord);
         String aggregateId = command.getAggregateId();
-        Map<Class<?>, Set<Object>> changedAggregateIds = context.getChangedAggregateIds();
-        Map<Class<?>, Set<Object>> createdAggregateIds = context.getCreatedAggregateIds();
-        DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
-        Class<? extends BaseDataObject<?>> dataObjectClazz = dataObjectInfo.getClazz();
-        Object primaryId = dataObjectInfo.getPrimaryId();
+
+        // real command handle procedure
+        Object result;
+        AggregateRoot aggregate;
         AggregateStatus aggregateStatus = AggregateStatus.KEEP;
         if (commandHandler.handlerType == CONSTRUCTOR_METHOD) {
+
+            // before interceptors run
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
                     .forEach(interceptor -> interceptor.invoke(command, null, context));
+
+            // // run command handlers, it is corresponding to a create command
             aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
+
+            // update aggregate status to CREATE
             aggregateStatus = AggregateStatus.CREATE;
             result = aggregate;
+
         } else if (commandHandler.handlerType == STATIC_METHOD){
-            beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> interceptor.invoke(command, null, context));
+
+            // before interceptors run, it is corresponding to a create command
+            beforeCommandInterceptors.get(command.getClass())
+                    .forEach(interceptor -> interceptor.invoke(command, null, context));
+
+            // // run command handlers
             aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
+
+            // update aggregate status to CREATE
             aggregateStatus = AggregateStatus.CREATE;
             result = aggregate;
         } else if (commandHandler.handlerType == INSTANCE_METHOD){
+
+            // from db or context get aggregate
             aggregate = daoAdapter.getByAggregateId(aggregateId, context);
-            List<Interceptor> interceptors = beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
-            for (Interceptor interceptor : interceptors) { interceptor.invoke(command, aggregate, context); }
+
+            // run command before interceptors, it is corresponding to a common command, an instance method
+            beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
+                    .forEach(interceptor -> interceptor.invoke(command, aggregate, context));
+
+            // run command handlers
             result = commandHandler.invoke(aggregate, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
-            if (present) { aggregateStatus = AggregateStatus.UPDATE; }
+
+            if (present) {
+                aggregateStatus = AggregateStatus.UPDATE;
+            }
         } else {
             throw new SysException("unreached part!");
         }
+
+        // process context cache for aggregate
+        DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
+        Class<? extends BaseDataObject<?>> dataObjectClazz = dataObjectInfo.getClazz();
+        Object primaryId = dataObjectInfo.getPrimaryId();
+        // if aggregateStatus is not KEEP, it means the aggregate has been created or updated
         if (aggregateStatus != AggregateStatus.KEEP) {
+
+            // context DO cache
             Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
+            // according primaryId, find corresponding data object
             Object temp = Kit.op(doMap.get(dataObjectClazz)).map(map -> map.get(primaryId)).orElse(null);
-            context.getMvDataObjects().put(command.getId(), temp);
+
+            // aggregate to data object
             BaseDataObject<?> baseDataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
+
+            // merge new data object to the old one, the old one is null when the command which is handling is a create command
             DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
             BaseDataObject<?> merge = daoWrapper.mergeWrapper(baseDataObject, temp);
+
             Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
             if (memoryTx) {
                 doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>(16)).put(primaryId, merge);
             } else {
                 Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
             }
+             // if memoryTx is true, the created or updated aggregate DO will be saved in cache
+             // or else these DO wil save in DB immediately
             if (aggregateStatus == AggregateStatus.CREATE) {
                 if (memoryTx) {
-                    createdAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+                    context.getCreatedAggregateIds().computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
                 } else {
                     daoWrapper.batchSaveWrapper(Collect.asList(merge));
                 }
             } else {
                 if (memoryTx) {
-                    changedAggregateIds.computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+                    context.getChangedAggregateIds().computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
                 } else {
                     daoWrapper.batchUpdateWrapper(Collect.asList(merge));
                 }
             }
         }
+
+        // after interceptors
         List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
         }
+
         return result;
     }
 
@@ -538,8 +590,6 @@ public class CommandBus {
         private Constructor<?> constructor;
 
         private HandlerType handlerType;
-
-        private boolean hasReturn;
 
         private Set<String> requiredKeys;
 

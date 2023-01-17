@@ -2,14 +2,14 @@ package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.demo.basic.ChannelEnum;
-import com.stellariver.milky.demo.basic.NameTypes;
+import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.infrastructure.database.entity.InventoryDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
-import com.stellariver.milky.domain.support.base.NameType;
+import com.stellariver.milky.domain.support.base.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.TransactionSupport;
 import lombok.CustomLog;
@@ -44,8 +44,8 @@ public class MemoryTxTest {
                 .userId(10086L).amount(0L).storeCode("")
                 .channelEnum(ChannelEnum.JD)
                 .build();
-        HashMap<NameType<?>, Object> parameters = new HashMap<>();
-        parameters.put(NameTypes.employee, new Employee("110", "小明"));
+        HashMap<Typed<?>, Object> parameters = new HashMap<>();
+        parameters.put(TypedEnums.employee, new Employee("110", "小明"));
         Throwable throwable = null;
         InventoryDO test = InventoryDO.builder().itemId(1L).amount(30L).storeCode("test").build();
         inventoryDOMapper.insert(test);

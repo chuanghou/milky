@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.base;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.*;
 
@@ -11,13 +12,13 @@ import java.util.Set;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SetNameType<V> extends NameType<Set<V>> {
+public class SetTyped<V> extends Typed<Set<V>> {
 
     private Class<?> vClazz;
 
     @Override
     @SuppressWarnings("unchecked")
-    public Set<V> extractFrom(Map<NameType<?>, Object> map) {
+    public Set<V> extractFrom(Map<Typed<?>, Object> map) {
         return (Set<V>) map.get(this);
     }
 
@@ -25,6 +26,11 @@ public class SetNameType<V> extends NameType<Set<V>> {
     @SuppressWarnings("unchecked")
     public Set<V> parseJson(String json) {
         return (Set<V>) Json.parseSet(json, vClazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<V> parseJsonNode(JsonNode jsonNode) {
+        return (Set<V>) Json.parseSet(jsonNode, vClazz);
     }
 
 }

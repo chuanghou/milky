@@ -19,6 +19,6 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CommandRecord extends MessageRecord{
 
-    Map<NameType<?>, Object> dependencies;
+    Map<Typed<?>, Object> dependencies;
 
 }

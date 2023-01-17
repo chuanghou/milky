@@ -20,7 +20,7 @@ public abstract class AggregateRoot{
 
     long version;
 
-    Map<NameType<?>, Object> metadata;
+    Map<Typed<?>, Object> metadata;
 
     abstract public String getAggregateId();
 

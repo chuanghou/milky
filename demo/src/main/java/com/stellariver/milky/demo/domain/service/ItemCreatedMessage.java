@@ -7,9 +7,9 @@ import lombok.experimental.FieldDefaults;
  * @author houchuang
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemCreatedMessage {
 
