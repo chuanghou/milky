@@ -28,6 +28,7 @@ nbdist/
 
 ## vscode plugin
 .history
+.vscode
 
 ## macos
 .DS_Store
