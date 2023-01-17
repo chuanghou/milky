@@ -1,0 +1,31 @@
+<mxfile host="65bd71144e">
+    <diagram id="aiOSu1bHdqmg0LAB8BKf" name="Page-1">
+        <mxGraphModel dx="873" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="PfqSjI6YGZIhp7NUQh7C-1" value="&lt;h1&gt;@Service&lt;/h1&gt;&lt;div&gt;DomainObject domainObject = xxxRepository.read(id)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;i&gt;domainObject.work(param)&lt;/i&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;xxxRepository.saveOrUpdate(domainObject)&lt;/div&gt;" style="text;html=1;strokeColor=default;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="240" y="79" width="310" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="PfqSjI6YGZIhp7NUQh7C-2" value="&lt;h1&gt;@Repository&lt;/h1&gt;&lt;div&gt;mapper.insert()&lt;/div&gt;" style="text;html=1;strokeColor=default;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="80" width="190" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="PfqSjI6YGZIhp7NUQh7C-3" value="&lt;h1&gt;@Controller&lt;/h1&gt;&lt;div&gt;HttpRequest request = xxx&lt;/div&gt;&lt;div&gt;xxxxx&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;return xxx&lt;/div&gt;" style="text;html=1;strokeColor=default;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="30" y="80" width="160" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="PfqSjI6YGZIhp7NUQh7C-4" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" source="PfqSjI6YGZIhp7NUQh7C-3" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="170" y="300" as="sourcePoint"/>
+                        <mxPoint x="240" y="140" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PfqSjI6YGZIhp7NUQh7C-5" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" edge="1" target="PfqSjI6YGZIhp7NUQh7C-2">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="550" y="140" as="sourcePoint"/>
+                        <mxPoint x="550" y="139.5" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
