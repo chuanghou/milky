@@ -1,16 +1,16 @@
 # milky
 
 ## 项目基本介绍
-本项目定位为一个易用的ddd框架，笔者在无意接触了[Axon](https://www.axoniq.io/)框架，Axon框架本身为一个深度拥抱DDD，CQRS的的Java框架，不过研究过程中发现，其深度封装上手有一定困难，当然还有一些其他原因，导致我决定自己写一个，开发历时已经近一年。本框架已经应用在笔者公司的两个项目中，现在线上运行均已经十分稳定，开发体验也相对不错
+本项目定位为一个易用的ddd框架，笔者在朋友的介绍下接触了[Axon](https://www.axoniq.io/)，Axon本身为一个深度拥抱DDD，CQRS的的Java框架，不过研究过程中发现，推荐使用的JPA在国内也没啥人用，其深度封装上手有一定困难，当然还有一些其他原因。我决定自己写一个，开发历时已经近一年。本框架已经应用在两个项目中，线上运行均已经十分稳定，开发体验也相对不错。
 
 ## 基本思想
-撰写这篇介绍文档的时候，笔者入行两年零2个月，两年前刚开始接触Java时，见到了最常见的代码结构，设计库表结构，构建xml+mapper，然后写service层，最后再搞一个controller或者dubbo之类的provider。典型三层架构。这应该构成了国内业务不太复杂业务的主要开发模式，其实编程的核心是处理数据库，即用户的请求，最终落地为更改数据库，或插入一条新的数据。
+两年前刚开始接触Java时，见到了最常见的代码结构，设计库表结构，构建xml+mapper，然后写service层，最后再搞一个@Controller或者@Dubbo之类的provider。典型三层架构。这应该构成了业务不太复杂业务的主要开发模式，其编程的核心是处理数据库，即用户的请求，最终落地为更改数据库。
 
 ![三层模式](readme-resource/three-level.png)
 
-其实对于一般的业务这种思路足够，Spring本身所提供的@Controller，@Service，@Repository 注解也似乎在暗中鼓励程序员按照这种模式编写相应程序。其实如果我们细细思考这种编程方法，你能意识到，这种编程范式，其实用java或者c语言或者js甚至你用visual basic都可以完成，不需要面向对象的语言，只需要面向过程语言即可。
+其实对于一般的业务这种思路基本够用，Spring本身所提供的@Controller，@Service，@Repository 注解也似乎在暗中鼓励程序员按照这种模式编写相应程序。其实如果我们细细思考这种编程方法，你能意识到，这种编程范式，其实用c语言或者js甚至你用visual basic都可以完成，不需要面向对象的语言，只需要面向过程语言即可。
 
-所谓面向过程就是说，程序中的结构是只是一段一段的代码，相互调用，中间用一些变量传递。这是非常之直观的思路，但是上世纪80年代以C++和Java为代表的面向对象语言大行其道，这说明面向对象才是整个计算机界的共识，也就是OPP->OOP的转变。
+所谓面向过程就是说，程序的组织结构是一段一段的代码，相互调用，中间用一些变量传递。这是非常之直观的思路，也是高级语言一开始开发的主要模式。但是上世纪80年代，以C++和Java为代表的面向对象语言大行其道，这说明面向对象才是整个计算机界的共识，也就是OPP->OOP的转变。
 
 > OPP Oriented Procedure Programming
 > OOP Oriented Object Programming
@@ -19,11 +19,9 @@
 
 >Object-oriented programming (OOP) is a programming paradigm based on the concept of "objects", which can contain ***data*** and ***code***. The data is in the form of fields (often known as ***attributes or properties***), and the code is ***in the form of procedures*** (often known as methods).
 
-通过上述表示也可以看出，其本质要求是一份程序中的主要结构应该一些有成员变量且有实例方法的对象。而此时你再看一份三层结构的代码，你会发现，其实这是典型的面向过程，所有的业务对象只是作为参数传递。
+通过上述表示也可以看出，其本质要求是一份程序中的主要结构应该是一些有成员变量且有实例方法的对象。而此时你再看一份三层结构的代码，你会发现，其实这是典型的面向过程，所有的业务对象只是作为参数传递。
 ![领域服务抽象](readme-resource/domain-service.png)
-针对以上问题，业界有一种比较流行的基于DDD的解决方法，就是把Service层的代码移动到你业务对象里面，抽象出一个业务对象，并将一些service层的方法归属于响应的业务对象，业务对象的实例方法只能修改自己的成员变量，另外由一个领域服务层进行领域对象读取，调用相应的业务对象实例方法，并完成持久化。
-
-对于以上描述，笔者见过很多，这是ddd所推荐的思路，谈起ddd，我深感这玩意属于装逼大法，创造很多新词，但是又不解释其含义，那两本比较知名的书，我没太能坚持看下来，不过抽空还是要阅读一下。针对上面这种模式，我感觉非常不舒服
+针对以上问题，业界有一种比较流行的基于DDD的解决方法，抽象出一个业务对象，并将一些service层的代码移动到业务对象内部，业务对象的实例方法只能修改自己的成员变量，一些不能移动进去的方法（比如数据库读写）构成一个领域服务层，领域服务层进行领域对象读取，调用相应的业务对象实例方法，并完成持久化。
 
 * 不舒服的第一点
 
@@ -219,6 +217,40 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
 ```
 
 ### 观察者模式
+观察者模式是一种很典型的非常好用的设计模式，它所强调的是，通过事件交互，减少耦合，A发出事件，B观察这个事件，但是A并不关心B是否消费这个事件，或者有多少人消费这个事件。
+
+![观察者模式](readme-resource/observer.webp)
+
+回到上述的例子，因为商品的领域对象和库存的领域对象是分开的，所以商品发布的消息，应该触发了库存的对象生成，这种中间商品这个对象并不关心谁消费这个事件。作为用户只需要写一个EventRouter来路由这种事件，如下代码，事件路由器路由商品创建事件，进而驱动一个创建库存的command，然后这个命令直接送上命令总线，那么就直接执行了库存的领域能力
+```java
+@RequiredArgsConstructor
+public class EventRoutersForItem implements EventRouters {
+
+    final MqService mqService;
+
+    @EventRouter
+    public void inventory(ItemCreatedEvent event, Context context) {
+        InventoryCreateCommand command = InventoryCreateCommand.builder()
+                .itemId(event.getItemId()).initAmount(100L).build();
+        CommandBus.driveByEvent(command, event);
+    }
+
+    @FinalEventRouter
+    public void mqCreated(List<ItemCreatedEvent> events, Context context) {
+        events.forEach(event -> {
+            ItemCreatedMessage message = ItemCreatedMessage.builder().itemId(event.getItemId()).title(event.getTitle()).build();
+            mqService.sendMessage(message);
+        });
+    }
+
+}
+```
+
+上述代码还有一个@FinalEventRouter
+这是Milky一个特殊的设计，因为对于普通@EventRouter，当事件发生以后直接路由即可，有些特殊的路由，可能要等这个一整个请求完成再发生路由，比如对外发消息。回到本文的例子，商品创建之后，会继续创建库存，系统消息商品创建之后和库存创建之后都要对外发生一条mq，那么如果商品创建之后，立即发消息，即普通的EventRouter，如果创建库存失败了，那么消息已经发出去了，而创建商品的数据库记录因为库存创建失败而发生回滚了，这样就发生了一致性问题。所以设计了这种@FinalEventRouter，避免这种问题。消息最后统一发送，同时@FinalEventRouter还可以设置Order，且Order不能设置为0，这里事关一些内存事务的问题。后文介绍.
+
+### 内存事务
+TODO
 
 ## Milky 示例
 笔者做电商出身
