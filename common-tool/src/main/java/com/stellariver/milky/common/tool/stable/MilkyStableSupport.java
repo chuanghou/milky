@@ -28,7 +28,7 @@ public class MilkyStableSupport {
 
     private final Cache<String, CircuitBreaker> circuitBreakers = CacheBuilder.newBuilder().softValues().build();
 
-    public MilkyStableSupport(StableConfigReader stableConfigReader) {
+    public MilkyStableSupport(@NonNull StableConfigReader stableConfigReader) {
         this.stableConfigReader = stableConfigReader;
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
             Thread thread = new Thread(runnable, "System Clock");

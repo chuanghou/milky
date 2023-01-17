@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
+import org.redisson.api.RRateLimiter;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +41,10 @@ public class RedissonTest {
         });
         Boolean locked = test1.get();
         Assertions.assertTrue(locked);
+
+        //TODO 全局限流
+        RRateLimiter rateLimiter = redissonClient.getRateLimiter("test-limiter");
+
 
     }
 }
