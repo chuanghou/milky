@@ -48,6 +48,10 @@ public class ValidateUtil {
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
     }
 
+    public static void validate(Object param) {
+        validate(param, ExceptionType.BIZ, true);
+    }
+
     public static void validate(Object param, ExceptionType type, boolean failFast, Class<?>... groups) {
         if (param instanceof Collection) {
             ((Collection<?>) param).forEach(p -> validate(p, type, failFast, groups));

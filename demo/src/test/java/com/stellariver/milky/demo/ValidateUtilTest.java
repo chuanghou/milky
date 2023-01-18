@@ -3,6 +3,9 @@ package com.stellariver.milky.demo;
 import com.stellariver.milky.common.tool.common.ValidateConfig;
 import com.stellariver.milky.common.tool.common.ValidateUtil;
 import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.validate.OfEnum;
+import com.stellariver.milky.demo.basic.ChannelEnum;
+import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.hibernate.validator.constraints.Range;
@@ -170,5 +173,64 @@ public class ValidateUtilTest {
 
 
     }
+
+
+
+    @Test
+    public void enumNameTest() {
+
+        MyParamTestEnumName myParamTestEnumName;
+        Throwable throwable = null;
+        try {
+            myParamTestEnumName = MyParamTestEnumName.builder().code("PDD").build();
+            ValidateUtil.validate(myParamTestEnumName);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        Assertions.assertNotNull(throwable);
+        Assertions.assertTrue(throwable instanceof BizException);
+
+        myParamTestEnumName = MyParamTestEnumName.builder().code("ALI").build();
+        ValidateUtil.validate(myParamTestEnumName);
+
+    }
+
+    @Data
+    @Builder
+    static class MyParamTestEnumName {
+
+        @OfEnum(enumType = ChannelEnum.class)
+        String code;
+
+    }
+
+    @Test
+    public void enumOtherFieldTest() {
+
+        MyParamTestEnumOtherField myParamTestEnumName;
+        Throwable throwable = null;
+        try {
+            myParamTestEnumName = MyParamTestEnumOtherField.builder().code("拼多多").build();
+            ValidateUtil.validate(myParamTestEnumName, ValidateUtil.ExceptionType.BIZ, true);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        Assertions.assertNotNull(throwable);
+        Assertions.assertTrue(throwable instanceof BizException);
+
+        myParamTestEnumName = MyParamTestEnumOtherField.builder().code("京东").build();
+        ValidateUtil.validate(myParamTestEnumName);
+
+    }
+
+    @Data
+    @Builder
+    static class MyParamTestEnumOtherField {
+
+        @OfEnum(enumType = ChannelEnum.class, field = "display")
+        String code;
+
+    }
+
 
 }
