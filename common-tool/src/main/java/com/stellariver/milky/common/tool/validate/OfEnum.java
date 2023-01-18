@@ -18,10 +18,10 @@ public @interface OfEnum {
     String field() default "";
 
     // when the check key is enum name or the field selected is String type
-    // the selected type could be a subset of enum values
+    // the selected values could be a subset code of selected enum values
     String[] selected() default {};
 
-    String message() default "目标值必须是 ${enumType.simpleName} 类型的枚举值";
+    String message() default "${validatedValue}不在允许的${enumKeys}范围之内";
 
     Class<?>[] groups() default {};
 

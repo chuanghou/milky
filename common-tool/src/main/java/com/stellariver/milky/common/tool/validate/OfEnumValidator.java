@@ -3,8 +3,10 @@ package com.stellariver.milky.common.tool.validate;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.Json;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -45,6 +47,13 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
 
     @Override
     public boolean isValid(Object key, ConstraintValidatorContext constraintValidatorContext) {
-        return enumKeys.contains(key);
+        boolean valid = enumKeys.contains(key);
+        if (!valid) {
+            HibernateConstraintValidatorContext hibernateContext = constraintValidatorContext.unwrap(
+                    HibernateConstraintValidatorContext.class
+            );
+            hibernateContext.addExpressionVariable("enumKeys", Json.toJson(enumKeys));
+        }
+        return valid;
     }
 }
