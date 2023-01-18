@@ -233,4 +233,42 @@ public class ValidateUtilTest {
     }
 
 
+    @Test
+    public void enumSelectKeysTest() {
+
+        MyParamTestEnumSelectedKeys myParamTestEnumName;
+        Throwable throwable = null;
+        try {
+            myParamTestEnumName = MyParamTestEnumSelectedKeys.builder().code("拼多多").build();
+            ValidateUtil.validate(myParamTestEnumName, ValidateUtil.ExceptionType.BIZ, true);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        Assertions.assertNotNull(throwable);
+        Assertions.assertTrue(throwable instanceof BizException);
+
+        throwable = null;
+        try {
+            myParamTestEnumName = MyParamTestEnumSelectedKeys.builder().code("京东").build();
+            ValidateUtil.validate(myParamTestEnumName);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        Assertions.assertNotNull(throwable);
+
+        myParamTestEnumName = MyParamTestEnumSelectedKeys.builder().code("阿里").build();
+        ValidateUtil.validate(myParamTestEnumName);
+
+    }
+
+    @Data
+    @Builder
+    static class MyParamTestEnumSelectedKeys {
+
+        @OfEnum(enumType = ChannelEnum.class, field = "display", selected = "阿里")
+        String code;
+
+    }
+
+
 }

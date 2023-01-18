@@ -1,17 +1,20 @@
 package com.stellariver.milky.common.tool.validate;
 
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
+import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.util.Collect;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
 
-    private final Set<Object> enumKeys = new HashSet<>();
+    private Set<Object> enumKeys = new HashSet<>();
 
     // 枚举值初始化
     @Override
@@ -28,6 +31,16 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
             Object key = field != null ? field.get(enumConstant) : enumConstant.name();
             enumKeys.add(key);
         }
+        if (anno.selected().length != 0) {
+            boolean b = field == null || field.getType().equals(String.class);
+            SysException.falseThrow(b, ErrorEnumsBase.CONFIG_ERROR.message("配置的key类型不是字符串"));
+            Set<Object> selectKeys = Arrays.stream(anno.selected()).collect(Collectors.toSet());
+            Set<Object> diff = Collect.diff(selectKeys, enumKeys);
+            SysException.falseThrow(diff.isEmpty(),
+                    ErrorEnumsBase.CONFIG_ERROR.message("selected keys 包含枚举类中未配置keys" + diff));
+            enumKeys = selectKeys;
+        }
+
     }
 
     @Override
