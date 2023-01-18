@@ -3,7 +3,7 @@ package com.stellariver.milky.demo.adapter;
 import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.PageResult;
 import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.tool.validate.ValidateConfig;
+import com.stellariver.milky.common.tool.validate.ValidConfig;
 import com.stellariver.milky.common.tool.exception.BaseException;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
@@ -54,7 +54,7 @@ public class RpcAspect<T extends Result<?>> {
         List<ErrorEnum> errorEnums = Collections.emptyList();
         Throwable t = null;
         try {
-            ValidateConfig annotation = method.getAnnotation(ValidateConfig.class);
+            ValidConfig annotation = method.getAnnotation(ValidConfig.class);
             Class<?>[] groups = annotation.groups();
             boolean failFast = annotation.failFast();
             ValidateUtil.bizValidate(pjp.getTarget(), method, args, failFast, groups);

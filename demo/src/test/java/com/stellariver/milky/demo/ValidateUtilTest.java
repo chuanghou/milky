@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.validate.ValidateConfig;
+import com.stellariver.milky.common.tool.validate.ValidConfig;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.validate.OfEnum;
@@ -67,7 +67,7 @@ public class ValidateUtilTest {
         Assertions.assertNull(ex);
 
         method = Fool.class.getMethod("myTestWithEmptyGroup", Long.class, FoolParam.class);
-        ValidateConfig annotation = method.getAnnotation(ValidateConfig.class);
+        ValidConfig annotation = method.getAnnotation(ValidConfig.class);
         Assertions.assertEquals(0, annotation.groups().length);
 
         method = Fool.class.getMethod("myTestDefaultGroup", Long.class, FoolParam.class);
@@ -119,18 +119,18 @@ public class ValidateUtilTest {
 
         }
 
-        @ValidateConfig(groups = MyGroup.class)
+        @ValidConfig(groups = MyGroup.class)
         public void myTestWithGroup(@NotNull Long id, FoolParam foolParam) {
 
         }
 
-        @ValidateConfig
+        @ValidConfig
         public void myTestWithEmptyGroup(@NotNull Long id, FoolParam foolParam) {
 
         }
 
 
-        @ValidateConfig
+        @ValidConfig
         public void myTestDefaultGroup(@NotNull(message = "myGroup", groups = MyGroup.class) Long id,
                                        @NotNull(message = "default", groups = Default.class) FoolParam foolParam) {
 
