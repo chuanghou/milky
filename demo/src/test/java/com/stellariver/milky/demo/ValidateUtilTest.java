@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.common.ValidateConfig;
-import com.stellariver.milky.common.tool.common.ValidateUtil;
+import com.stellariver.milky.common.tool.validate.ValidateConfig;
+import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.validate.OfEnum;
 import com.stellariver.milky.demo.basic.ChannelEnum;

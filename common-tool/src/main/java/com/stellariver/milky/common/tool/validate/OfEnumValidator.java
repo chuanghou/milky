@@ -18,7 +18,6 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
 
     private Set<Object> enumKeys = new HashSet<>();
 
-    // 枚举值初始化
     @Override
     @SneakyThrows
     public void initialize(OfEnum anno) {
