@@ -17,8 +17,8 @@ public interface ItemDOMapper extends BaseMapper<ItemDO> {
     /**
      * Where is there a SuppressWarnings?
      * Answer: the package configuration couldn't be recognized!
-     * @param id
-     * @return
+     * @param id id
+     * @return itemDO
      */
     @SuppressWarnings("all")
     ItemDO selectByIdIncludeDeleted(Serializable id);
