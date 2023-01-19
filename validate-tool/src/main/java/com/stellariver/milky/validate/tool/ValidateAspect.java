@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 @Aspect
 public class ValidateAspect {
 
-    @Pointcut("@annotation(com.stellariver.milky.validate.tool.Validate)")
+    @Pointcut("execution(@Validate * *(..))")
     private void pointCut() {}
 
     @Before("pointCut()")
