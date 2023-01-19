@@ -13,12 +13,13 @@ import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import lombok.CustomLog;
-import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -28,8 +29,10 @@ import java.util.stream.IntStream;
 /**
  * @author houchuang
  */
+@Aspect
 @CustomLog
-public class RpcAspect<T extends Result<?>> {
+@Component
+public class RpcAspect {
 
     @Pointcut("execution(public com.stellariver.milky.common.base.Result com.stellariver.milky.demo.adapter.rpc..*(..))")
     private void resultPointCut() {}
@@ -63,9 +66,9 @@ public class RpcAspect<T extends Result<?>> {
         Throwable t = null;
         try {
             ValidConfig annotation = method.getAnnotation(ValidConfig.class);
-            Class<?>[] groups = Kit.op(annotation).map(ValidConfig::groups).orElse(new Class<?>[0]);
-            boolean failFast = Kit.op(annotation).map(ValidConfig::failFast).orElse(true);
-            ValidateUtil.bizValidate(pjp.getTarget(), method, args, failFast, groups);
+            if (annotation == null) {
+                ValidateUtil.bizValidate(pjp.getTarget(), method, args, true);
+            }
             result = pjp.proceed();
         } catch (Throwable throwable) {
             if (throwable instanceof BaseException) {
