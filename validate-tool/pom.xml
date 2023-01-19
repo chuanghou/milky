@@ -48,7 +48,7 @@
                     <target>1.8</target>
                     <showWeaveInfo>true</showWeaveInfo>
                     <Xlint>warning</Xlint>
-                    <verbose>false</verbose>
+                    <verbose>true</verbose>
                 </configuration>
                 <executions>
                     <execution>
