@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
  * @author houchuang
  */
 @Aspect
+@SuppressWarnings("all")
 public class ValidateAspect {
 
     @Pointcut("@annotation(com.stellariver.milky.validate.tool.Validate)")
