@@ -21,7 +21,7 @@ public class ValidateAspect {
     private void pointCut() {}
 
     @Before("pointCut()")
-    public void valid(JoinPoint joinPoint) throws Throwable {
+    public void valid(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
