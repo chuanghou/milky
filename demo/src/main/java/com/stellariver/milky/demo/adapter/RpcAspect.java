@@ -3,6 +3,7 @@ package com.stellariver.milky.demo.adapter;
 import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.PageResult;
 import com.stellariver.milky.common.base.Result;
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.validate.ValidConfig;
 import com.stellariver.milky.common.tool.exception.BaseException;
 import com.stellariver.milky.common.tool.common.Clock;
@@ -17,6 +18,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -27,7 +29,6 @@ import java.util.stream.IntStream;
  * @author houchuang
  */
 @CustomLog
-@RequiredArgsConstructor
 public class RpcAspect<T extends Result<?>> {
 
     @Pointcut("execution(public com.stellariver.milky.common.base.Result com.stellariver.milky.demo.adapter.rpc..*(..))")
@@ -38,12 +39,19 @@ public class RpcAspect<T extends Result<?>> {
 
     final MilkyStableSupport milkyStableSupport;
 
+    public RpcAspect(@Autowired(required = false) MilkyStableSupport milkyStableSupport) {
+        this.milkyStableSupport = milkyStableSupport;
+    }
+
+    //TODO 熔断
     @Around("resultPointCut() || pageResultPointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
-        String key = milkyStableSupport.ruleId(pjp);
-        RateLimiterWrapper rateLimiterWrapper = milkyStableSupport.rateLimiter(key);
-        if (rateLimiterWrapper != null) {
-            rateLimiterWrapper.acquire();
+        if (milkyStableSupport != null) {
+            String key = milkyStableSupport.ruleId(pjp);
+            RateLimiterWrapper rateLimiterWrapper = milkyStableSupport.rateLimiter(key);
+            if (rateLimiterWrapper != null) {
+                rateLimiterWrapper.acquire();
+            }
         }
         Object result = null;
         Object[] args = pjp.getArgs();
@@ -55,8 +63,8 @@ public class RpcAspect<T extends Result<?>> {
         Throwable t = null;
         try {
             ValidConfig annotation = method.getAnnotation(ValidConfig.class);
-            Class<?>[] groups = annotation.groups();
-            boolean failFast = annotation.failFast();
+            Class<?>[] groups = Kit.op(annotation).map(ValidConfig::groups).orElse(new Class<?>[0]);
+            boolean failFast = Kit.op(annotation).map(ValidConfig::failFast).orElse(true);
             ValidateUtil.bizValidate(pjp.getTarget(), method, args, failFast, groups);
             result = pjp.proceed();
         } catch (Throwable throwable) {
