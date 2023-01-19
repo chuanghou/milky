@@ -1,9 +1,8 @@
-package com.stellariver.milky.demo.adapter;
+package com.stellariver.milky.validate.tool;
 
-import com.stellariver.milky.common.tool.validate.ValidConfig;
-import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 
@@ -12,9 +11,10 @@ import java.lang.reflect.Method;
 /**
  * @author houchuang
  */
-public class ValidateAspectDemo {
+@Aspect
+public class ValidateAspect {
 
-    @Pointcut("@annotation(com.stellariver.milky.common.tool.validate.ValidConfig)")
+    @Pointcut("@annotation(com.stellariver.milky.validate.tool.ValidConfig)")
     private void pointCut() {}
 
     @Around("pointCut()")
@@ -25,7 +25,8 @@ public class ValidateAspectDemo {
         ValidConfig annotation = method.getAnnotation(ValidConfig.class);
         Class<?>[] groups = annotation.groups();
         boolean failFast = annotation.failFast();
-        ValidateUtil.bizValidate(pjp.getTarget(), method, args, failFast, groups);
+        ValidateUtil.ExceptionType type = annotation.type();
+        ValidateUtil.validate(pjp.getTarget(), method, args, failFast, type, groups);
         return pjp.proceed();
     }
 

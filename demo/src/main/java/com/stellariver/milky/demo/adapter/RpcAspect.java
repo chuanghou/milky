@@ -3,15 +3,15 @@ package com.stellariver.milky.demo.adapter;
 import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.PageResult;
 import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.validate.ValidConfig;
 import com.stellariver.milky.common.tool.exception.BaseException;
 import com.stellariver.milky.common.tool.common.Clock;
-import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.ErrorEnums;
+import com.stellariver.milky.validate.tool.ValidConfig;
+import com.stellariver.milky.validate.tool.ValidateUtil;
+import com.stellariver.milky.validate.tool.ValidateAspect;
 import lombok.CustomLog;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -28,6 +28,10 @@ import java.util.stream.IntStream;
 
 /**
  * @author houchuang
+ *
+ * <p>This aspect will check if the method has been annotated with {@link ValidateAspect},
+ * If the method has been validaed with ValidateAspect, then this aspect will not check the param validation</p>
+ * @see ValidateAspect
  */
 @Aspect
 @CustomLog

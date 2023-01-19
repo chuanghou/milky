@@ -1,10 +1,10 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.validate.ValidConfig;
-import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.common.tool.validate.OfEnum;
 import com.stellariver.milky.demo.basic.ChannelEnum;
+import com.stellariver.milky.validate.tool.OfEnum;
+import com.stellariver.milky.validate.tool.ValidConfig;
+import com.stellariver.milky.validate.tool.ValidateUtil;
 import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;

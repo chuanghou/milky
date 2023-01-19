@@ -1,10 +1,9 @@
-package com.stellariver.milky.common.tool.validate;
+package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
@@ -19,17 +18,25 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
     private Set<Object> enumKeys = new HashSet<>();
 
     @Override
-    @SneakyThrows
     public void initialize(OfEnum anno) {
         Class<? extends Enum<?>> clazz = anno.enumType();
         Enum<?>[] enumConstants = clazz.getEnumConstants();
         Field field = null;
         if (!StringUtils.isBlank(anno.field())) {
-            field = clazz.getDeclaredField(anno.field());
+            try {
+                field = clazz.getDeclaredField(anno.field());
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
             field.setAccessible(true);
         }
         for (Enum<?> enumConstant : enumConstants) {
-            Object key = field != null ? field.get(enumConstant) : enumConstant.name();
+            Object key;
+            try {
+                key = field != null ? field.get(enumConstant) : enumConstant.name();
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
             enumKeys.add(key);
         }
         if (anno.selected().length != 0) {

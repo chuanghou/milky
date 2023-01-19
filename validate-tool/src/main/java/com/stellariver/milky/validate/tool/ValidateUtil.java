@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.validate;
+package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
@@ -31,17 +31,26 @@ public class ValidateUtil {
 
     static final private ExecutableValidator EXECUTABLE_VALIDATOR = VALIDATOR.forExecutables();
 
-    public static void bizValidate(Object object, Method method, Object[] params, boolean failFast, Class<?>... groups) throws BizException {
+    public static void validate(Object object, Method method, Object[] params,
+                                boolean failFast, ExceptionType type, Class<?>... groups) throws BizException {
+        validate(object, method, params, type, failFast, groups);
+        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
+    }
+
+    public static void bizValidate(Object object, Method method, Object[] params,
+                                   boolean failFast, Class<?>... groups) throws BizException {
         validate(object, method, params, ExceptionType.BIZ, failFast, groups);
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.BIZ, failFast, groups));
     }
 
-    public static void sysValidate(Object object, Method method, Object[] params, boolean failFast, Class<?>... groups) throws SysException {
+    public static void sysValidate(Object object, Method method, Object[] params,
+                                   boolean failFast, Class<?>... groups) throws SysException {
         validate(object, method, params, ExceptionType.SYS, failFast, groups);
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.SYS, failFast, groups));
     }
 
-    public static void validate(Object object, Method method, Object[] params, ExceptionType type, boolean failFast, Class<?>... groups) {
+    public static void validate(Object object, Method method, Object[] params,
+                                ExceptionType type, boolean failFast, Class<?>... groups) {
         ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
         Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params, groups);
         check(validateResult, type);

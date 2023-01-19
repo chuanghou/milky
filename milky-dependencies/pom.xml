@@ -36,6 +36,11 @@
             </dependency>
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
+                <artifactId>validate-tool</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
                 <artifactId>common-tool</artifactId>
                 <version>${project.version}</version>
             </dependency>
