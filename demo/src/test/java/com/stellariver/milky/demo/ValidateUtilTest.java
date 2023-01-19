@@ -2,8 +2,9 @@ package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.demo.basic.ChannelEnum;
+import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.validate.tool.OfEnum;
-import com.stellariver.milky.validate.tool.ValidConfig;
+import com.stellariver.milky.validate.tool.Validate;
 import com.stellariver.milky.validate.tool.ValidateUtil;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,6 @@ import org.hibernate.validator.constraints.Range;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.lang.reflect.Method;
@@ -67,7 +67,7 @@ public class ValidateUtilTest {
         Assertions.assertNull(ex);
 
         method = Fool.class.getMethod("myTestWithEmptyGroup", Long.class, FoolParam.class);
-        ValidConfig annotation = method.getAnnotation(ValidConfig.class);
+        Validate annotation = method.getAnnotation(Validate.class);
         Assertions.assertEquals(0, annotation.groups().length);
 
         method = Fool.class.getMethod("myTestDefaultGroup", Long.class, FoolParam.class);
@@ -94,7 +94,7 @@ public class ValidateUtilTest {
         validParam.setParam(new NestValidParam());
         ex = null;
         try {
-            ValidateUtil.validate(validParam, ValidateUtil.ExceptionType.BIZ, true);
+            ValidateUtil.validate(validParam, ExceptionType.BIZ, true);
         } catch (Throwable throwable) {
             ex = throwable;
         }
@@ -106,7 +106,7 @@ public class ValidateUtilTest {
         notValidParam.setParam(new NestValidParam());
         ex = null;
         try {
-            ValidateUtil.validate(notValidParam, ValidateUtil.ExceptionType.BIZ, true);
+            ValidateUtil.validate(notValidParam, ExceptionType.BIZ, true);
         } catch (Throwable throwable) {
             ex = throwable;
         }
@@ -119,18 +119,18 @@ public class ValidateUtilTest {
 
         }
 
-        @ValidConfig(groups = MyGroup.class)
+        @Validate(groups = MyGroup.class)
         public void myTestWithGroup(@NotNull Long id, FoolParam foolParam) {
 
         }
 
-        @ValidConfig
+        @Validate
         public void myTestWithEmptyGroup(@NotNull Long id, FoolParam foolParam) {
 
         }
 
 
-        @ValidConfig
+        @Validate
         public void myTestDefaultGroup(@NotNull(message = "myGroup", groups = MyGroup.class) Long id,
                                        @NotNull(message = "default", groups = Default.class) FoolParam foolParam) {
 
@@ -153,7 +153,7 @@ public class ValidateUtilTest {
     @Data
     static private class ValidParam {
 
-        @Valid
+        @javax.validation.Valid
         private NestValidParam param;
 
     }
@@ -211,7 +211,7 @@ public class ValidateUtilTest {
         Throwable throwable = null;
         try {
             myParamTestEnumName = MyParamTestEnumOtherField.builder().code("拼多多").build();
-            ValidateUtil.validate(myParamTestEnumName, ValidateUtil.ExceptionType.BIZ, true);
+            ValidateUtil.validate(myParamTestEnumName, ExceptionType.BIZ, true);
         } catch (Throwable t) {
             throwable = t;
         }
@@ -240,7 +240,7 @@ public class ValidateUtilTest {
         Throwable throwable = null;
         try {
             myParamTestEnumName = MyParamTestEnumSelectedKeys.builder().code("拼多多").build();
-            ValidateUtil.validate(myParamTestEnumName, ValidateUtil.ExceptionType.BIZ, true);
+            ValidateUtil.validate(myParamTestEnumName, ExceptionType.BIZ, true);
         } catch (Throwable t) {
             throwable = t;
         }

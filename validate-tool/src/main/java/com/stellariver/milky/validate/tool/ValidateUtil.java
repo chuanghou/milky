@@ -1,5 +1,6 @@
 package com.stellariver.milky.validate.tool;
 
+import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
@@ -18,8 +19,6 @@ import java.util.*;
  * @author houchuang
  */
 public class ValidateUtil {
-
-    public enum ExceptionType { BIZ, SYS }
 
     static final private Validator FAIL_FAST_VALIDATOR = Validation.byProvider(HibernateValidator.class)
             .configure().failFast(true).buildValidatorFactory().getValidator();

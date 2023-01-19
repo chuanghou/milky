@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo.adapter.controller;
 
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.demo.application.ItemAbility;
@@ -44,7 +45,7 @@ public class ItemController {
         try {
             itemAbility.changeTitle(itemId, newTitle, jack);
         } catch (BizException bizException) {
-            return Result.error(bizException.getErrors());
+            return Result.error(bizException.getErrors(), ExceptionType.BIZ);
         }
         return Result.success();
     }

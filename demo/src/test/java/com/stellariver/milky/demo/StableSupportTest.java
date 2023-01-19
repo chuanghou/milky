@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo;
 
+import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.common.Option;
 import com.stellariver.milky.common.tool.common.Runner;
@@ -104,7 +105,7 @@ public class StableSupportTest {
 
     static private Result<String> stableTest(int i) {
         if (i > 0) {
-            return Result.error(ErrorEnums.SYSTEM_EXCEPTION);
+            return Result.error(ErrorEnums.SYSTEM_EXCEPTION, ExceptionType.SYS);
         }
         return Result.success();
     }

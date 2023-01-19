@@ -1,6 +1,8 @@
 package com.stellariver.milky.common.base;
 
 
+import lombok.NonNull;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +20,8 @@ public class Result<T> implements Serializable {
     protected String code;
 
     protected String message;
+
+    protected ExceptionType exceptionType;
 
     protected Map<String, Object> extendInfo;
 
@@ -47,6 +51,10 @@ public class Result<T> implements Serializable {
         return this.errorEnums;
     }
 
+    public ExceptionType getExceptionType() {
+        return exceptionType;
+    }
+
     @Override
     public String toString() {
         return "Result{" +
@@ -54,7 +62,9 @@ public class Result<T> implements Serializable {
                 ", data=" + data +
                 ", code='" + code + '\'' +
                 ", message='" + message + '\'' +
-                ", errors=" + errorEnums +
+                ", exceptionType=" + exceptionType +
+                ", extendInfo=" + extendInfo +
+                ", errorEnums=" + errorEnums +
                 '}';
     }
 
@@ -68,21 +78,23 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static <T> Result<T> error(ErrorEnum errorEnum) {
+    public static <T> Result<T> error(@NonNull ErrorEnum errorEnum, @NonNull ExceptionType exceptionType) {
         Result<T> result = new Result<>();
         result.success = false;
         result.code = errorEnum.getCode();
         result.message = errorEnum.getMessage();
         result.errorEnums = Collections.singletonList(errorEnum);
+        result.exceptionType = exceptionType;
         return result;
     }
 
-    public static <T> Result<T> error(List<ErrorEnum> errorEnums) {
+    public static <T> Result<T> error(List<ErrorEnum> errorEnums, @NonNull ExceptionType exceptionType) {
         Result<T> result = new Result<>();
         result.success = false;
         result.code = errorEnums.get(0).getCode();
         result.message = errorEnums.get(0).getMessage();
         result.errorEnums = errorEnums;
+        result.exceptionType = exceptionType;
         return result;
     }
 

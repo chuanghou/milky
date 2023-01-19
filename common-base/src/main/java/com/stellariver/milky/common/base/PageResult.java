@@ -36,16 +36,17 @@ public class PageResult<T> extends Result<List<T>> {
         return success(Collections.emptyList(), 0L, 1, pageSize);
     }
 
-    public static <T> PageResult<T> pageError(ErrorEnum errorEnum) {
-        return pageError(Collections.singletonList(errorEnum));
+    public static <T> PageResult<T> pageError(ErrorEnum errorEnum, ExceptionType type) {
+        return pageError(Collections.singletonList(errorEnum), type);
     }
 
-    public static <T> PageResult<T> pageError(List<ErrorEnum> errorEnums) {
+    public static <T> PageResult<T> pageError(List<ErrorEnum> errorEnums, ExceptionType exceptionType) {
         PageResult<T> result = new PageResult<>();
         result.success = false;
         result.code = errorEnums.get(0).getCode();
         result.message = errorEnums.get(0).getMessage();
         result.errorEnums = errorEnums;
+        result.exceptionType = exceptionType;
         return result;
     }
 
