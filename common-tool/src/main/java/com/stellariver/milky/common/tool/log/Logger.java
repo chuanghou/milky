@@ -118,7 +118,7 @@ public class Logger implements org.slf4j.Logger {
             return this;
         }
         withKeys.get().add(key);
-        MDC.put(key, value.toString());
+        MDC.put(key, value == null ? null : value.toString());
         return this;
     }
 

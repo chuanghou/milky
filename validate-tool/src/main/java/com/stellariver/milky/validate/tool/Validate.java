@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Validate {
 
-    ExceptionType type() default ExceptionType.SYS;
+    ExceptionType type() default ExceptionType.BIZ;
 
     Class<?>[] groups() default {};
 
