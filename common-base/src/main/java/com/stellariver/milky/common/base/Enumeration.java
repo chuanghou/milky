@@ -1,17 +1,20 @@
 package com.stellariver.milky.common.base;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 /**
  * @author houchuang
  */
 @Data
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Enumeration {
 
-    private String code;
+    String code;
 
-    private String name;
+    String name;
 
 }
