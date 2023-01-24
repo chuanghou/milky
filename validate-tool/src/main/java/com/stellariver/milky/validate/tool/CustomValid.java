@@ -4,9 +4,9 @@ import javax.validation.groups.Default;
 import java.lang.annotation.*;
 
 /**
- * {@link ValidateUtil} could recognize method inside a param class with annotation {@link CustomValid}
- * and invoke the method when the param is being checked its validity
- * The method should with void return type, public access and empty parameters
+ * {@link ValidateUtil} could recognize a method with annotation {@link CustomValid} inside a param class
+ * and invoke the method when the param instance is being checked its validity.
+ * The method should be with void return type, public access and empty parameters.
  * if the param is not valid, a runtime exception should be thrown
  *
  *  <pre> {@code
