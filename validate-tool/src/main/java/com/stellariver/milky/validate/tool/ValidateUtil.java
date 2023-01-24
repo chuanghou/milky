@@ -1,10 +1,14 @@
 package com.stellariver.milky.validate.tool;
 
+import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.ExceptionType;
+import com.stellariver.milky.common.tool.exception.BaseException;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.Strings;
 import org.hibernate.validator.HibernateValidator;
 
@@ -12,8 +16,14 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.executable.ExecutableValidator;
+import javax.validation.groups.Default;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 /**
  * @author houchuang
@@ -60,6 +70,10 @@ public class ValidateUtil {
         validate(param, ExceptionType.BIZ, true);
     }
 
+    final static Map<Pair<Class<?>, Class<?>>, Method> methodMap = new ConcurrentHashMap<>();
+
+    final static Set<Class<?>> reflectedClasses = new CopyOnWriteArraySet<>();
+
     public static void validate(Object param, ExceptionType type, boolean failFast, Class<?>... groups) {
         if (param instanceof Collection) {
             ((Collection<?>) param).forEach(p -> validate(p, type, failFast, groups));
@@ -69,9 +83,46 @@ public class ValidateUtil {
                 validate(v, type, failFast, groups);
             });
         }
+
         Validator validator = failFast ? FAIL_FAST_VALIDATOR : VALIDATOR;
         Set<ConstraintViolation<Object>> validateResult = validator.validate(param, groups);
         check(validateResult, type);
+
+        Class<?> clazz = param.getClass();
+        if (!reflectedClasses.contains(clazz)) {
+            List<Method> methods = Arrays.stream(param.getClass().getMethods())
+                    .filter(m -> m.isAnnotationPresent(CustomValid.class)).collect(Collectors.toList());
+            methods.forEach(m -> {
+                Class<?> returnType = m.getReturnType();
+                SysException.trueThrow(!returnType.equals(void.class), ErrorEnumsBase.CONFIG_ERROR.message("return type should void"));
+                int modifiers = m.getModifiers();
+                SysException.trueThrow(!Modifier.isPublic(modifiers), ErrorEnumsBase.CONFIG_ERROR.message("return type should public"));
+            });
+            methods.forEach(m -> {
+                CustomValid anno = m.getAnnotation(CustomValid.class);
+                List<Class<?>> groupList = anno.groups().length == 0 ? Collect.asList(Default.class)
+                        : Arrays.stream(anno.groups()).collect(Collectors.toList());
+                groupList.forEach(group -> methodMap.put(Pair.of(clazz, group), m));
+            });
+            reflectedClasses.add(param.getClass());
+        }
+
+        List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class)
+                : Arrays.stream(groups).collect(Collectors.toList());
+
+        for (Class<?> g : groupList) {
+            Method method = methodMap.get(Pair.of(clazz, g));
+            if (method == null) {
+                continue;
+            }
+            try {
+                method.invoke(param);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                if (e instanceof InvocationTargetException && e.getCause() instanceof RuntimeException) {
+                    throw ((RuntimeException) e.getCause());
+                }
+            }
+        }
     }
 
     private static void check(Set<ConstraintViolation<Object>> validateResult, ExceptionType type) {

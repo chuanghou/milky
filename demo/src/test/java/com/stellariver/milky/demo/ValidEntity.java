@@ -1,5 +1,9 @@
 package com.stellariver.milky.demo;
 
+import com.stellariver.milky.common.base.ErrorEnum;
+import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.demo.basic.ErrorEnums;
+import com.stellariver.milky.validate.tool.CustomValid;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,31 +21,23 @@ import java.lang.annotation.Target;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@ValidEntity.MyTestGroup
 public class ValidEntity {
 
     Long number;
 
-    @Target(ElementType.TYPE)
-    @Constraint(validatedBy = TestGroupValidator.class)
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface MyTestGroup {
-        String message() default "MyTestGroup";
+    String name;
 
-        Class<?>[] groups() default {};
 
-        Class<? extends Payload>[] payload() default {};
+    @CustomValid
+    public void numberTest() {
+        BizException.nullThrow(number, () -> ErrorEnums.PARAM_IS_NULL.message("number不能为空"));
     }
 
-    static public class TestGroupValidator implements ConstraintValidator<MyTestGroup, ValidEntity> {
-
-        @Override
-        public boolean isValid(ValidEntity validEntity, ConstraintValidatorContext context) {
-            return validEntity.getNumber() != null;
-        }
-
+    @CustomValid(groups = NameGroup.class)
+    public void nameTest() {
+        BizException.nullThrow(name, () -> ErrorEnums.PARAM_IS_NULL.message("name不能为空"));
     }
 
-
+    interface NameGroup{}
 
 }
