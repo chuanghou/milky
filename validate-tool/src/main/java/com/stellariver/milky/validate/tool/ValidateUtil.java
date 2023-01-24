@@ -102,7 +102,12 @@ public class ValidateUtil {
                 CustomValid anno = m.getAnnotation(CustomValid.class);
                 List<Class<?>> groupList = anno.groups().length == 0 ? Collect.asList(Default.class)
                         : Arrays.stream(anno.groups()).collect(Collectors.toList());
-                groupList.forEach(group -> methodMap.put(Pair.of(clazz, group), m));
+                groupList.forEach(group -> {
+                    Pair<Class<?>, Class<?>> classGroupKey = Pair.of(clazz, group);
+                    SysException.trueThrow(methodMap.containsKey(classGroupKey),
+                            ErrorEnumsBase.CONFIG_ERROR.message("same group should only has one custom valid method!"));
+                    methodMap.put(classGroupKey, m);
+                });
             });
             reflectedClasses.add(param.getClass());
         }
