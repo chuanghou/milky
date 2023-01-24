@@ -1,14 +1,51 @@
 package com.stellariver.milky.validate.tool;
 
-import javax.validation.Payload;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.validation.groups.Default;
+import java.lang.annotation.*;
 
+/**
+ * {@link ValidateUtil} could recognize method inside a param class with annotation {@link CustomValid}
+ * and invoke the method when the param is being checked its validity
+ * The method should with void return type, public access and empty parameters
+ * if the param is not valid, a runtime exception should be thrown
+ *
+ *  <pre> {@code
+ * class Handler {
+ *   @Validate
+ *   void handle(ValidEntity param) {
+ *     //business work
+ *   }
+ * }
+ *
+ * class ParamToBeValidate {
+ *
+ *   private Long number0;
+ *   private Long number1
+ *
+ *   @CustomValid
+ *   public void customValid() {
+ *     if (number0 == null || number1 == null) {
+ *         throw new BizException("number 0 or number 1 is null")
+ *     }
+ *     if (number0 + number1 > 100) {
+ *         throw new BizException("number 0 plus number 1 is bigger than 100")
+ *     }
+ *   }
+ *
+ * }}</pre>
+ *
+ *
+ * @see ValidateUtil
+ * @author hou chuang
+ */
+@Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CustomValid {
-    Class<?>[] groups() default {};
+
+    /**
+     * JSR 303 group implementation
+     */
+    Class<?>[] groups() default Default.class;
 
 }

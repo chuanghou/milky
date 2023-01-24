@@ -1,13 +1,10 @@
 package com.stellariver.milky.validate.tool;
 
-import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.ExceptionType;
-import com.stellariver.milky.common.tool.exception.BaseException;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.Strings;
 import org.hibernate.validator.HibernateValidator;
@@ -100,14 +97,12 @@ public class ValidateUtil {
             });
             methods.forEach(m -> {
                 CustomValid anno = m.getAnnotation(CustomValid.class);
-                List<Class<?>> groupList = anno.groups().length == 0 ? Collect.asList(Default.class)
-                        : Arrays.stream(anno.groups()).collect(Collectors.toList());
-                groupList.forEach(group -> {
+                for (Class<?> group : anno.groups()) {
                     Pair<Class<?>, Class<?>> classGroupKey = Pair.of(clazz, group);
                     SysException.trueThrow(methodMap.containsKey(classGroupKey),
                             ErrorEnumsBase.CONFIG_ERROR.message("same group should only has one custom valid method!"));
                     methodMap.put(classGroupKey, m);
-                });
+                }
             });
             reflectedClasses.add(param.getClass());
         }
