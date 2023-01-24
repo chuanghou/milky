@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.Payload;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,17 +22,22 @@ public class ValidEntity {
 
     Long number;
 
-
     @Target(ElementType.TYPE)
     @Constraint(validatedBy = TestGroupValidator.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface MyTestGroup {}
+    @interface MyTestGroup {
+        String message() default "MyTestGroup";
 
-    static class TestGroupValidator implements ConstraintValidator<MyTestGroup, ValidEntity> {
+        Class<?>[] groups() default {};
+
+        Class<? extends Payload>[] payload() default {};
+    }
+
+    static public class TestGroupValidator implements ConstraintValidator<MyTestGroup, ValidEntity> {
 
         @Override
         public boolean isValid(ValidEntity validEntity, ConstraintValidatorContext context) {
-            return validEntity.getNumber() == null;
+            return validEntity.getNumber() != null;
         }
 
     }
