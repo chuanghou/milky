@@ -22,6 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
+
 /**
  * @author houchuang
  */
@@ -36,6 +38,10 @@ public class ValidateUtil {
             .configure().buildValidatorFactory().getValidator();
 
     static final private ExecutableValidator EXECUTABLE_VALIDATOR = VALIDATOR.forExecutables();
+
+    final static Map<Pair<Class<?>, Class<?>>, Method> methodMap = new ConcurrentHashMap<>();
+
+    final static Set<Class<?>> reflectedClasses = new CopyOnWriteArraySet<>();
 
     public static void validate(Object object, Method method, Object[] params,
                                 boolean failFast, ExceptionType type, Class<?>... groups) throws BizException {
@@ -67,10 +73,6 @@ public class ValidateUtil {
         validate(param, ExceptionType.BIZ, true);
     }
 
-    final static Map<Pair<Class<?>, Class<?>>, Method> methodMap = new ConcurrentHashMap<>();
-
-    final static Set<Class<?>> reflectedClasses = new CopyOnWriteArraySet<>();
-
     public static void validate(Object param, ExceptionType type, boolean failFast, Class<?>... groups) {
         if (param instanceof Collection) {
             ((Collection<?>) param).forEach(p -> validate(p, type, failFast, groups));
@@ -91,25 +93,23 @@ public class ValidateUtil {
                     .filter(m -> m.isAnnotationPresent(CustomValid.class)).collect(Collectors.toList());
             methods.forEach(m -> {
                 Class<?> returnType = m.getReturnType();
-                SysException.trueThrow(!returnType.equals(void.class), ErrorEnumsBase.CONFIG_ERROR.message("return type should void"));
+                SysException.trueThrow(!returnType.equals(void.class), CONFIG_ERROR.message("return type should void"));
                 int modifiers = m.getModifiers();
-                SysException.trueThrow(!Modifier.isPublic(modifiers), ErrorEnumsBase.CONFIG_ERROR.message("return type should public"));
+                SysException.trueThrow(!Modifier.isPublic(modifiers), CONFIG_ERROR.message("return type should public"));
             });
             methods.forEach(m -> {
                 CustomValid anno = m.getAnnotation(CustomValid.class);
                 for (Class<?> group : anno.groups()) {
                     Pair<Class<?>, Class<?>> classGroupKey = Pair.of(clazz, group);
-                    SysException.trueThrow(methodMap.containsKey(classGroupKey),
-                            ErrorEnumsBase.CONFIG_ERROR.message("same group should only has one custom valid method!"));
+                    boolean hasHad = methodMap.containsKey(classGroupKey);
+                    SysException.trueThrow(hasHad, CONFIG_ERROR.message("same group should only has one custom valid method!"));
                     methodMap.put(classGroupKey, m);
                 }
             });
             reflectedClasses.add(param.getClass());
         }
 
-        List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class)
-                : Arrays.stream(groups).collect(Collectors.toList());
-
+        List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
             Method method = methodMap.get(Pair.of(clazz, g));
             if (method == null) {

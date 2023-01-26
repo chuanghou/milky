@@ -1,6 +1,7 @@
 package com.stellariver.milky.validate.tool;
 
 import javax.validation.groups.Default;
+import com.stellariver.milky.validate.tool.Validate;
 import java.lang.annotation.*;
 
 /**
@@ -9,10 +10,10 @@ import java.lang.annotation.*;
  * The method should be with void return type, public access and empty parameters.
  * if the param is not valid, a runtime exception should be thrown
  *
- *  <pre> {@code
+ *  <pre>
  * class Handler {
- *   @Validate
- *   void handle(ValidEntity param) {
+ *   &#64;Validate
+ *   void handle(ParamToBeValidate param) {
  *     //business work
  *   }
  * }
@@ -22,17 +23,17 @@ import java.lang.annotation.*;
  *   private Long number0;
  *   private Long number1
  *
- *   @CustomValid
+ *   &#64;CustomValid
  *   public void customValid() {
  *     if (number0 == null || number1 == null) {
  *         throw new BizException("number 0 or number 1 is null")
  *     }
- *     if (number0 + number1 > 100) {
+ *     if (number0 + number1 &gt; 100) {
  *         throw new BizException("number 0 plus number 1 is bigger than 100")
  *     }
  *   }
  *
- * }}</pre>
+ * }</pre>
  *
  *
  * @see ValidateUtil
