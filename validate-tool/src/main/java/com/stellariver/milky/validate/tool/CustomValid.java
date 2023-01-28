@@ -1,7 +1,6 @@
 package com.stellariver.milky.validate.tool;
 
 import javax.validation.groups.Default;
-import com.stellariver.milky.validate.tool.Validate;
 import java.lang.annotation.*;
 
 /**

@@ -33,16 +33,16 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum DEEP_PAGING;
 
-    @DefaultMessage("当前流量太大，请稍后再试!")
+    @Message("当前流量太大，请稍后再试!")
     public static ErrorEnum FLOW_CONFIG;
 
-    @DefaultMessage("参数为空")
+    @Message("参数为空")
     public static ErrorEnum PARAM_IS_NULL;
 
-    @DefaultMessage("DO对象成员不允许为NULL，请使用特殊值代替空语义")
+    @Message("DO对象成员不允许为NULL，请使用特殊值代替空语义")
     public static ErrorEnum FIELD_IS_NULL;
 
-    @DefaultMessage("并发操作失败")
+    @Message("并发操作失败")
     public static ErrorEnum CONCURRENCY_VIOLATION;
 
     static {
@@ -55,7 +55,7 @@ public class ErrorEnumsBase {
                 }
             } catch (Throwable ignore) {}
             String code = field.getName();
-            String message = Kit.op(field.getAnnotation(DefaultMessage.class)).map(DefaultMessage::value).orElse("系统繁忙请稍后再试");
+            String message = Kit.op(field.getAnnotation(Message.class)).map(Message::value).orElse("系统繁忙请稍后再试");
             ErrorEnum errorEnum = new ErrorEnum(code, message, null);
             try {
                 field.set(null, errorEnum);

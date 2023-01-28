@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
  * @author houchuang
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DefaultMessage {
+public @interface Message {
 
     String value();
 

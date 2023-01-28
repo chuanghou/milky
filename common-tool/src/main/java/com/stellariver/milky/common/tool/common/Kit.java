@@ -2,10 +2,18 @@ package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.slambda.SLambda;
+import lombok.Getter;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author houchuang
@@ -49,5 +57,23 @@ public class Kit {
     public static String isBlank(String value, String defaultValue) {
         return StringUtils.isBlank(value) ? defaultValue : value;
     }
+
+    @Nullable
+    public static <E extends Enum<E>> E enumOf(@NonNull Class<E> enumClass, @NonNull String enumName) {
+        try {
+            return Enum.valueOf(enumClass, enumName);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    @Nullable
+    public static <E extends Enum<E>, V> E enumOf(@NonNull Class<E> enumClass, @NonNull Function<E, V> getter, @NonNull V value) {
+        E[] enumConstants = enumClass.getEnumConstants();
+        return Arrays.stream(enumConstants).filter(e -> value.equals(getter.apply(e)))
+                .findFirst().orElse(null);
+    }
+
+
 
 }
