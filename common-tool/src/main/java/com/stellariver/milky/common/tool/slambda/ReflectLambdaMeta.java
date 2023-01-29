@@ -49,7 +49,7 @@ public class ReflectLambdaMeta implements LambdaMeta {
     private ClassLoader getCapturingClassClassLoader() {
         // 如果反射失败，使用默认的 classloader
         if (FIELD_CAPTURING_CLASS == null) {
-            return null;
+            return ClassLoader.getSystemClassLoader();
         }
         return ((Class<?>) FIELD_CAPTURING_CLASS.get(lambda)).getClassLoader();
     }
