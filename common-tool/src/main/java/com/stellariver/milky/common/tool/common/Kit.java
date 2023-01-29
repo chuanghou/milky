@@ -67,6 +67,7 @@ public class Kit {
     }
 
     final static private Map<Class<?>, Class<?>> enumMap = new ConcurrentHashMap<>();
+
     @Nullable
     @SuppressWarnings("unchecked")
     public static <E extends Enum<E>, V> E enumOf(@NonNull SFunction<E, V> getter, @NonNull V value) {
