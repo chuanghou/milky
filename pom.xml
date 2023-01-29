@@ -213,14 +213,14 @@
         </dependencies>
     </dependencyManagement>
 
-    <!--    不加这个依赖，mvn test 会失败，但是直接用idea可以过，简直是神奇，肯定是idea干了啥事   -->
-    <dependencies>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>${org.mapstruct.version}</version>
-        </dependency>
-    </dependencies>
+<!--    &lt;!&ndash;    不加这个依赖，mvn test 会失败，但是直接用idea可以过，简直是神奇，肯定是idea干了啥事   &ndash;&gt;-->
+<!--    <dependencies>-->
+<!--        <dependency>-->
+<!--            <groupId>org.mapstruct</groupId>-->
+<!--            <artifactId>mapstruct-processor</artifactId>-->
+<!--            <version>${org.mapstruct.version}</version>-->
+<!--        </dependency>-->
+<!--    </dependencies>-->
 
     <name>milky</name>
     <url>https://github.com/chuanghou/milky</url>
