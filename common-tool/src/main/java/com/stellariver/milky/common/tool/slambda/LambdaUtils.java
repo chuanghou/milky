@@ -1,8 +1,5 @@
 package com.stellariver.milky.common.tool.slambda;
 
-
-import com.stellariver.milky.common.tool.slambda.*;
-
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
