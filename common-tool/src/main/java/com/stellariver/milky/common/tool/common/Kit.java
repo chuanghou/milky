@@ -76,4 +76,5 @@ public class Kit {
         E[] enumConstants = enumClass.getEnumConstants();
         return Arrays.stream(enumConstants).filter(e -> value.equals(getter.apply(e))).findFirst().orElse(null);
     }
+
 }

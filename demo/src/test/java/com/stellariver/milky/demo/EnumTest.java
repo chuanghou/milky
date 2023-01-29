@@ -9,7 +9,8 @@ public class EnumTest {
 
     @Test
     public void enumOfTest() {
-        ChannelEnum channelEnum = Kit.enumOf(ChannelEnum::getDisplay, "阿里");
+        ChannelEnum channelEnum = Kit.enumOf(ChannelEnum::name, "ALI");
+
         Assertions.assertEquals(channelEnum, ChannelEnum.ALI);
     }
 
