@@ -1,5 +1,9 @@
 package com.stellariver.milky.common.tool.util;
 
+import com.stellariver.milky.common.tool.slambda.SetAccessibleAction;
+
+import java.lang.reflect.AccessibleObject;
+import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +25,10 @@ public class Reflect {
         classes.add((Class<? extends T>) superClazz);
         Collections.reverse(classes);
         return classes;
+    }
+
+    public static <T extends AccessibleObject> T setAccessible(T object) {
+        return AccessController.doPrivileged(new SetAccessibleAction<>(object));
     }
 
 }

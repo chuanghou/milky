@@ -1,14 +1,12 @@
 package com.stellariver.milky.common.tool.slambda;
 
+import com.stellariver.milky.common.tool.util.Reflect;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 
-/**
- * Created by hcl at 2021/5/14
- */
 @Slf4j
 public class ReflectLambdaMeta implements LambdaMeta {
     private static final Field FIELD_CAPTURING_CLASS;
@@ -17,7 +15,7 @@ public class ReflectLambdaMeta implements LambdaMeta {
         Field fieldCapturingClass;
         try {
             Class<SerializedLambda> aClass = SerializedLambda.class;
-            fieldCapturingClass = Reflection.setAccessible(aClass.getDeclaredField("capturingClass"));
+            fieldCapturingClass = Reflect.setAccessible(aClass.getDeclaredField("capturingClass"));
         } catch (Throwable e) {
             // 解决高版本 jdk 的问题 gitee: https://gitee.com/baomidou/mybatis-plus/issues/I4A7I5
             log.warn(e.getMessage());

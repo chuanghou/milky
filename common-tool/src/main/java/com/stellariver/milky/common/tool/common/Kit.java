@@ -1,9 +1,9 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.tool.slambda.LambdaUtils;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.slambda.SFunction;
+import com.stellariver.milky.common.tool.slambda.SLambda;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
@@ -72,7 +72,7 @@ public class Kit {
     @SuppressWarnings("unchecked")
     public static <E extends Enum<E>, V> E enumOf(@NonNull SFunction<E, V> getter, @NonNull V value) {
         Class<E> enumClass = (Class<E>) enumMap.computeIfAbsent(
-                getter.getClass(), c -> LambdaUtils.extract(getter).getInstantiatedClass());
+                getter.getClass(), c -> SLambda.extract(getter).getInstantiatedClass());
         E[] enumConstants = enumClass.getEnumConstants();
         return Arrays.stream(enumConstants).filter(e -> value.equals(getter.apply(e))).findFirst().orElse(null);
     }
