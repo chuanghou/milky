@@ -1,9 +1,11 @@
 package com.stellariver.milky.domain.support.util;
 
+import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import net.sf.cglib.beans.BeanMap;
 
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,24 +21,28 @@ public class BeanUtil {
     }
 
     public static List<Object> getBeansForAnnotation(Class<? extends Annotation> annotationType) {
+        SysException.nullThrowMessage(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBeansForAnnotation(annotationType);
     }
 
     public static <T> List<T> getBeansOfType(Class<T> type) {
+        SysException.nullThrowMessage(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBeansOfType(type);
     }
 
     public static <T> T getBean(Class<T> requiredType) {
+        SysException.nullThrowMessage(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBean(requiredType);
     }
 
     public static Object getBean(String beanName) {
+        SysException.nullThrowMessage(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBean(beanName);
     }
 
     @SuppressWarnings("unchecked")
     public static Map<String, Object> beanToMap(Object bean) {
-        return null == bean ? null : BeanMap.create(bean);
+        return null == bean ? new HashMap<>() : BeanMap.create(bean);
     }
 
 }

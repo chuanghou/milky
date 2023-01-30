@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.CustomLog;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * @author houchuang
  */
-@Slf4j
+@CustomLog
 public class Json {
 
     private static final JsonMapper MAPPER = JsonMapper.builder()
@@ -35,12 +35,14 @@ public class Json {
         return MAPPER.writeValueAsString(target);
     }
 
+    @SuppressWarnings("unused")
     @SneakyThrows(JsonProcessingException.class)
     public static String toJson(Object... objects) {
         return MAPPER.writeValueAsString(objects);
     }
 
     @Nullable
+    @SuppressWarnings("unused")
     @SneakyThrows(JsonProcessingException.class)
     public static <T> T parse(String json, Class<T> clazz) {
         if (json == null) {
@@ -84,6 +86,7 @@ public class Json {
     }
 
 
+    @SuppressWarnings("unused")
     public static JsonNode toJsonNode(Object object) {
         return MAPPER.valueToTree(object);
     }
@@ -125,6 +128,5 @@ public class Json {
         }
         return MAPPER.treeToValue(jsonNode, TypeFactory.defaultInstance().constructMapType(Map.class, keyClazz, valueClazz));
     }
-
 
 }

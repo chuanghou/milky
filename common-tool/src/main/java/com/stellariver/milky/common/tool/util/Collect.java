@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 /**
  * @author houchuang
  */
+@SuppressWarnings("unused")
 public class Collect {
 
     @SafeVarargs

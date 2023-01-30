@@ -5,8 +5,8 @@ import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.util.Strings;
 import org.hibernate.validator.HibernateValidator;
 
 import javax.validation.ConstraintViolation;
@@ -29,11 +29,13 @@ import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_
  */
 public class ValidateUtil {
 
+    @SuppressWarnings("resource")
     static final private Validator FAIL_FAST_VALIDATOR = Validation.byProvider(HibernateValidator.class)
             .configure().failFast(true).buildValidatorFactory().getValidator();
 
     static final private ExecutableValidator EXECUTABLE_FAIL_FAST_VALIDATOR = FAIL_FAST_VALIDATOR.forExecutables();
 
+    @SuppressWarnings("resource")
     static final private Validator VALIDATOR = Validation.byProvider(HibernateValidator.class)
             .configure().buildValidatorFactory().getValidator();
 
@@ -55,6 +57,7 @@ public class ValidateUtil {
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.BIZ, failFast, groups));
     }
 
+    @SuppressWarnings("unused")
     public static void sysValidate(Object object, Method method, Object[] params,
                                    boolean failFast, Class<?>... groups) throws SysException {
         validate(object, method, params, ExceptionType.SYS, failFast, groups);
@@ -128,7 +131,7 @@ public class ValidateUtil {
     private static void check(Set<ConstraintViolation<Object>> validateResult, ExceptionType type) {
         if (Collect.isNotEmpty(validateResult)) {
             List<String> messages = Collect.transfer(validateResult, ConstraintViolation::getMessage);
-            String message = Strings.join(messages, ';');
+            String message = StringUtils.join(messages, ';');
             if (type == ExceptionType.BIZ) {
                 throw new BizException(ErrorEnumsBase.PARAM_FORMAT_WRONG.message(message));
             } else {
