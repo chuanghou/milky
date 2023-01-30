@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.infrastructure.database.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.stellariver.milky.demo.basic.ChannelEnum;
+import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import com.stellariver.milky.infrastructure.base.database.AbstractMpDO;
 import lombok.*;

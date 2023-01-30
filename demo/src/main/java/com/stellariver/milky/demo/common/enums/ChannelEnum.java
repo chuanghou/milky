@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.basic;
+package com.stellariver.milky.demo.common.enums;
 
 import lombok.Getter;
 

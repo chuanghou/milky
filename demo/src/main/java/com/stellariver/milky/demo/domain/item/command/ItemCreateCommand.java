@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo.domain.item.command;
 
-import com.stellariver.milky.demo.basic.ChannelEnum;
+import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.domain.support.command.Command;
 import lombok.AccessLevel;
 import lombok.Data;

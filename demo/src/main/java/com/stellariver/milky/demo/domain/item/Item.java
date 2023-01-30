@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.domain.item;
 
 import com.stellariver.milky.common.tool.common.Clock;
-import com.stellariver.milky.demo.basic.ChannelEnum;
+import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;

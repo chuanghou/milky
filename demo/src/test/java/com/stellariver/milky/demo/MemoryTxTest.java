@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.Employee;
-import com.stellariver.milky.demo.basic.ChannelEnum;
+import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;

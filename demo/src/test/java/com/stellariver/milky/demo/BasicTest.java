@@ -3,7 +3,7 @@ package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
-import com.stellariver.milky.demo.basic.ChannelEnum;
+import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
@@ -56,6 +56,8 @@ public class BasicTest {
 
     @Test
     public void publishItemDOTest() {
+
+        log.error("myTest");
 
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
