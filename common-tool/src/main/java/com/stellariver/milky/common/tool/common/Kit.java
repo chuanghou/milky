@@ -57,24 +57,22 @@ public class Kit {
         return StringUtils.isBlank(value) ? defaultValue : value;
     }
 
-    @Nullable
-    public static <E extends Enum<E>> E enumOf(@NonNull Class<E> enumClass, @NonNull String enumName) {
+    public static <E extends Enum<E>> Optional<E> enumOf(@NonNull Class<E> enumClass, @NonNull String enumName) {
         try {
-            return Enum.valueOf(enumClass, enumName);
+            return Optional.of(Enum.valueOf(enumClass, enumName));
         } catch (IllegalArgumentException ex) {
-            return null;
+            return Optional.empty();
         }
     }
 
     final static private Map<Class<?>, Class<?>> enumMap = new ConcurrentHashMap<>();
 
-    @Nullable
     @SuppressWarnings("unchecked")
-    public static <E extends Enum<E>, V> E enumOf(@NonNull SFunction<E, V> getter, @NonNull V value) {
+    public static <E extends Enum<E>, V> Optional<E> enumOf(@NonNull SFunction<E, V> getter, @NonNull V value) {
         Class<E> enumClass = (Class<E>) enumMap.computeIfAbsent(
                 getter.getClass(), c -> SLambda.extract(getter).getInstantiatedClass());
         E[] enumConstants = enumClass.getEnumConstants();
-        return Arrays.stream(enumConstants).filter(e -> value.equals(getter.apply(e))).findFirst().orElse(null);
+        return Arrays.stream(enumConstants).filter(e -> value.equals(getter.apply(e))).findFirst();
     }
 
 }
