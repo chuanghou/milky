@@ -7,7 +7,7 @@
 
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t-%-5level] %logger{36}:%-4L [msg:%msg] [milky_class:%X{milky_class}] [milky_method:%X{milky_method}] [milky_line:%X{milky_line}]%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t-%-5level] %logger{36}:%-4L\n    msg: %msg\n    milky_info: [class:%X{milky_class}] [method:%X{milky_method}] [line:%X{milky_line}]%n%n"/>
         </Console>
 
         <RollingRandomAccessFile name="Application" immediateFlush="true"
