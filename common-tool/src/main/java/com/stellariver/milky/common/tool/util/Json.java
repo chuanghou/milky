@@ -1,14 +1,18 @@
 package com.stellariver.milky.common.tool.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.CustomLog;
-import lombok.SneakyThrows;
+import com.stellariver.milky.common.base.Result;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.reflect.TypeUtils;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,6 +131,16 @@ public class Json {
             return null;
         }
         return MAPPER.treeToValue(jsonNode, TypeFactory.defaultInstance().constructMapType(Map.class, keyClazz, valueClazz));
+    }
+
+    @Nullable
+    @SneakyThrows(JsonProcessingException.class)
+    public static <T> Result<T> parseResult(String json, Class<T> clazz) {
+        if (json == null) {
+            return null;
+        }
+        JavaType type = MAPPER.getTypeFactory().constructParametricType(Result.class, clazz);
+        return MAPPER.readValue(json,type);
     }
 
 }
