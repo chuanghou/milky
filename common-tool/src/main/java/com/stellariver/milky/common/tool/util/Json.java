@@ -143,4 +143,14 @@ public class Json {
         return MAPPER.readValue(json,type);
     }
 
+    @Nullable
+    @SneakyThrows(JsonProcessingException.class)
+    public static <T> Result<T> parseResult(JsonNode jsonNode, Class<T> clazz) {
+        if (jsonNode == null) {
+            return null;
+        }
+        JavaType type = MAPPER.getTypeFactory().constructParametricType(Result.class, clazz);
+        return MAPPER.treeToValue(jsonNode, type);
+    }
+
 }

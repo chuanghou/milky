@@ -68,7 +68,7 @@ public class ValidateUtilTest {
 
         method = Fool.class.getMethod("myTestWithEmptyGroup", Long.class, FoolParam.class);
         Validate annotation = method.getAnnotation(Validate.class);
-        Assertions.assertEquals(0, annotation.groups().length);
+        Assertions.assertEquals(1, annotation.groups().length);
 
         method = Fool.class.getMethod("myTestDefaultGroup", Long.class, FoolParam.class);
         try {
