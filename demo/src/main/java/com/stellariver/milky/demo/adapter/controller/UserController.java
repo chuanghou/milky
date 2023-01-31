@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserController {
 
-
-
     @PostMapping("postForBook")
     public Result<Book> postForBook() {
         Book book = Book.builder().number(34L).price("0.04").name("xiyouji").build();
