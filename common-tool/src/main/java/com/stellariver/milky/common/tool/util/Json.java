@@ -35,120 +35,75 @@ public class Json {
     }
 
     @SneakyThrows(JsonProcessingException.class)
-    public static String toJson(Object target) {
+    public static String toJson(@NonNull Object target) {
         return MAPPER.writeValueAsString(target);
     }
 
     @SuppressWarnings("unused")
     @SneakyThrows(JsonProcessingException.class)
-    public static String toJson(Object... objects) {
-        return MAPPER.writeValueAsString(objects);
-    }
-
-    @Nullable
-    @SuppressWarnings("unused")
-    @SneakyThrows(JsonProcessingException.class)
-    public static <T> T parse(String json, Class<T> clazz) {
-        if (json == null) {
-            return null;
-        }
+    public static <T> T parse(@NonNull String json, @NonNull Class<T> clazz) {
         return MAPPER.readValue(json, clazz);
     }
 
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static <T> List<T> parseList(String json, Class<T> clazz) {
-        if (json == null) {
-            return null;
-        }
+    public static <T> List<T> parseList(@NonNull String json, @NonNull Class<T> clazz) {
         JavaType type = MAPPER.getTypeFactory().constructParametricType(List.class, clazz);
         return MAPPER.readValue(json,type);
     }
 
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static <T> Set<T> parseSet(String json, Class<T> clazz) {
-        if (json == null) {
-            return null;
-        }
+    public static <T> Set<T> parseSet(@NonNull String json, @NonNull Class<T> clazz) {
+
         JavaType type = MAPPER.getTypeFactory().constructParametricType(Set.class, clazz);
         return MAPPER.readValue(json,type);
     }
 
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static <K, V> Map<K, V> parseMap(String json, Class<K> keyClazz, Class<V> valueClazz) {
-        if (json == null) {
-            return null;
-        }
+    public static <K, V> Map<K, V> parseMap(@NonNull String json, @NonNull Class<K> keyClazz, @NonNull Class<V> valueClazz) {
         return MAPPER.readValue(json, TypeFactory.defaultInstance().constructMapType(Map.class, keyClazz, valueClazz));
     }
 
     @SneakyThrows(JsonProcessingException.class)
-    public static JsonNode parseJsonNode(String json) {
+    public static JsonNode parseJsonNode(@NonNull String json) {
         return MAPPER.readTree(json);
     }
 
 
     @SuppressWarnings("unused")
-    public static JsonNode toJsonNode(Object object) {
+    public static JsonNode toJsonNode(@NonNull Object object) {
         return MAPPER.valueToTree(object);
     }
 
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static <T> T parse(JsonNode jsonNode, Class<T> clazz) {
-        if (jsonNode == null) {
-            return null;
-        }
+    public static <T> T parse(@NonNull JsonNode jsonNode, @NonNull Class<T> clazz) {
         return MAPPER.treeToValue(jsonNode, clazz);
     }
 
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static <T> List<T> parseList(JsonNode jsonNode, Class<T> clazz) {
-        if (jsonNode == null) {
-            return null;
-        }
+    public static <T> List<T> parseList(@NonNull JsonNode jsonNode, @NonNull Class<T> clazz) {
         JavaType type = MAPPER.getTypeFactory().constructParametricType(List.class, clazz);
         return MAPPER.treeToValue(jsonNode, type);
     }
 
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static <T> Set<T> parseSet(JsonNode jsonNode, Class<T> clazz) {
-        if (jsonNode == null) {
-            return null;
-        }
+    public static <T> Set<T> parseSet(@NonNull JsonNode jsonNode, @NonNull Class<T> clazz) {
         JavaType type = MAPPER.getTypeFactory().constructParametricType(Set.class, clazz);
         return MAPPER.treeToValue(jsonNode, type);
     }
 
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static <K, V> Map<K, V> parseMap(JsonNode jsonNode, Class<K> keyClazz, Class<V> valueClazz) {
-        if (jsonNode == null) {
-            return null;
-        }
+    public static <K, V> Map<K, V> parseMap(@NonNull JsonNode jsonNode, @NonNull Class<K> keyClazz, @NonNull Class<V> valueClazz) {
         return MAPPER.treeToValue(jsonNode, TypeFactory.defaultInstance().constructMapType(Map.class, keyClazz, valueClazz));
     }
 
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static <T> Result<T> parseResult(String json, Class<T> clazz) {
-        if (json == null) {
-            return null;
-        }
+    public static <T> Result<T> parseResult(@NonNull String json, @NonNull Class<T> clazz) {
         JavaType type = MAPPER.getTypeFactory().constructParametricType(Result.class, clazz);
         return MAPPER.readValue(json,type);
     }
 
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static <T> Result<T> parseResult(JsonNode jsonNode, Class<T> clazz) {
-        if (jsonNode == null) {
-            return null;
-        }
+    public static <T> Result<T> parseResult(@NonNull JsonNode jsonNode, @NonNull Class<T> clazz) {
         JavaType type = MAPPER.getTypeFactory().constructParametricType(Result.class, clazz);
         return MAPPER.treeToValue(jsonNode, type);
     }
