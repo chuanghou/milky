@@ -2,6 +2,7 @@ package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.base.ExceptionType;
 
+import javax.validation.groups.Default;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -16,7 +17,7 @@ public @interface Validate {
 
     ExceptionType type() default ExceptionType.BIZ;
 
-    Class<?>[] groups() default {};
+    Class<?>[] groups() default Default.class;
 
     boolean failFast() default true;
 
