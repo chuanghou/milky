@@ -13,6 +13,12 @@ import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,6 +27,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Duration;
+import java.util.Map;
 
 @CustomLog
 @SpringBootTest
@@ -32,6 +39,7 @@ public class StableSupportTest {
     @Test
     @SneakyThrows
     public void test() {
+        LogUtil.setLogLevel(Runner.class, Level.OFF);
         RlConfig rlConfig = RlConfig.builder().ruleId(UKs.stableTest.getKey()).qps(10.0).build();
         CbConfig cbConfig = CbConfig.builder().ruleId(UKs.stableTest.getKey())
                 .minimumNumberOfCalls(10)
@@ -96,6 +104,7 @@ public class StableSupportTest {
             }
         }
         Assertions.assertEquals(circuitBreaker.getState(), CircuitBreaker.State.CLOSED);
+        LogUtil.setLogLevel(Runner.class, Level.WARN);
     }
 
     @AfterEach
@@ -109,4 +118,5 @@ public class StableSupportTest {
         }
         return Result.success();
     }
+
 }

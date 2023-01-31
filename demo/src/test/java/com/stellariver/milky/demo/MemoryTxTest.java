@@ -13,6 +13,7 @@ import com.stellariver.milky.domain.support.base.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.TransactionSupport;
 import lombok.CustomLog;
+import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ public class MemoryTxTest {
 
     @Test
     public void transactionTest() {
+        LogUtil.setLogLevel(MemoryTxTest.class, Level.OFF);
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
                 .channelEnum(ChannelEnum.JD)
@@ -60,7 +62,7 @@ public class MemoryTxTest {
         Optional<Item> item = itemRepository.queryByIdOptional(1L);
 
         Assertions.assertFalse(item.isPresent());
-
+        LogUtil.setLogLevel(MemoryTxTest.class, Level.WARN);
     }
 
 }
