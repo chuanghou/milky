@@ -8,6 +8,7 @@ import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -73,6 +74,27 @@ public class Kit {
                 getter.getClass(), c -> SLambda.extract(getter).getInstantiatedClass());
         E[] enumConstants = enumClass.getEnumConstants();
         return Arrays.stream(enumConstants).filter(e -> value.equals(getter.apply(e))).findFirst();
+    }
+
+
+    static public boolean eq(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+        return left.compareTo(right) == 0;
+    }
+
+    static public boolean greater(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+        return left.compareTo(right) > 0;
+    }
+
+    static public boolean greaterOrEq(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+        return left.compareTo(right) >= 0;
+    }
+
+    static public boolean less(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+        return left.compareTo(right) < 0;
+    }
+
+    static public boolean lessOrEq(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+        return left.compareTo(right) <= 0;
     }
 
 }
