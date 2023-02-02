@@ -1,18 +1,14 @@
 package com.stellariver.milky.common.tool.util;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.stellariver.milky.common.base.Result;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.apache.commons.lang3.reflect.TypeUtils;
 
-import javax.annotation.Nullable;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +24,10 @@ public class Json {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(MapperFeature.AUTO_DETECT_FIELDS, true)
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false)
+            .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
             .build();
+
+
 
     static {
         MAPPER.registerModule(new JavaTimeModule());
@@ -39,7 +38,6 @@ public class Json {
         return MAPPER.writeValueAsString(target);
     }
 
-    @SuppressWarnings("unused")
     @SneakyThrows(JsonProcessingException.class)
     public static <T> T parse(@NonNull String json, @NonNull Class<T> clazz) {
         return MAPPER.readValue(json, clazz);
@@ -69,7 +67,6 @@ public class Json {
     }
 
 
-    @SuppressWarnings("unused")
     public static JsonNode toJsonNode(@NonNull Object object) {
         return MAPPER.valueToTree(object);
     }
