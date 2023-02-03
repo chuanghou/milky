@@ -1,9 +1,10 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
+import com.stellariver.milky.demo.domain.item.CombineItem;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
-import com.stellariver.milky.domain.support.dependency.DataObjectInfo;
 import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
+import com.stellariver.milky.domain.support.dependency.DataObjectInfo;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -16,16 +17,16 @@ import org.mapstruct.factory.Mappers;
  */
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ItemDAOAdapter implements AggregateDaoAdapter<Item> {
+public class CombineItemDAOAdapter implements AggregateDaoAdapter<CombineItem> {
 
     @Override
-    public Item toAggregate(@NonNull Object dataObject) {
+    public CombineItem toAggregate(@NonNull Object dataObject) {
         ItemDO itemDO = (ItemDO) dataObject;
         return Convertor.INST.to(itemDO);
     }
 
     @Override
-    public Object toDataObject(Item item, DataObjectInfo dataObjectInfo) {
+    public Object toDataObject(CombineItem item, DataObjectInfo dataObjectInfo) {
         return Convertor.INST.to(item);
     }
 
@@ -35,6 +36,7 @@ public class ItemDAOAdapter implements AggregateDaoAdapter<Item> {
         return DataObjectInfo.builder().clazz(ItemDO.class).primaryId(primaryId).build();
     }
 
+
     @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
             nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public interface Convertor {
@@ -42,14 +44,12 @@ public class ItemDAOAdapter implements AggregateDaoAdapter<Item> {
         Convertor INST = Mappers.getMapper(Convertor.class);
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
-        Item to(ItemDO itemDO);
-        @AfterMapping
-        default void setRatioNotValid(Item item, @MappingTarget ItemDO itemDO) {
-            itemDO.setRatio(-1L);
-        }
+        CombineItem to(ItemDO itemDO);
+
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
-        ItemDO to(Item item);
+        ItemDO to(CombineItem item);
+
 
     }
 }

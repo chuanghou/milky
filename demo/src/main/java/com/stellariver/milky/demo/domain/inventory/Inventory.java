@@ -33,15 +33,20 @@ public class Inventory extends AggregateRoot {
         return itemId.toString();
     }
 
-    @CommandHandler
-    public Inventory(InventoryCreateCommand command, Context context) {
+    protected Inventory(InventoryCreateCommand command, Context context) {
         this.itemId = command.getItemId();
         this.amount = command.getInitAmount();
         this.storeCode = "jd";
+    }
+
+    @CommandHandler
+    public static Inventory build(InventoryCreateCommand command, Context context) {
+        Inventory inventory = new Inventory(command, context);
         InventoryCreatedEvent event = InventoryCreatedEvent.builder()
-                .itemId(itemId).initAmount(amount).storeCode(storeCode)
+                .itemId(inventory.getItemId()).initAmount(inventory.getAmount()).storeCode(inventory.getStoreCode())
                 .build();
         context.publish(event);
+        return inventory;
     }
 
     @CommandHandler

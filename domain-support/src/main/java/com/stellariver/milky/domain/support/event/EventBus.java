@@ -7,7 +7,9 @@ import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
+import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.base.MilkySupport;
+import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
@@ -20,6 +22,7 @@ import lombok.SneakyThrows;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -32,12 +35,11 @@ import java.util.stream.Collectors;
  */
 public class EventBus {
 
-    static final private Predicate<Method> FORMAT = method -> {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return parameterTypes.length == 2
-                && Event.class.isAssignableFrom(parameterTypes[0])
-                && parameterTypes[1] == Context.class;
-    };
+    static final private Predicate<Method> FORMAT =
+            method -> Modifier.isPublic(method.getModifiers())
+                    && method.getParameterTypes().length == 2
+                    && Event.class.isAssignableFrom(method.getParameterTypes()[0])
+                    && method.getParameterTypes()[1] == Context.class;
 
     static final private Predicate<Method> FINAL_EVENT_ROUTER_FORMAT = method -> {
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -61,14 +63,13 @@ public class EventBus {
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {
         List<Method> methods = milkySupport.getEventRouters().stream()
-                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .filter(m -> {
-                    boolean test = FORMAT.test(m);
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
-                    return test;
-                })
-                .collect(Collectors.toList());
+                    SysException.falseThrow(FORMAT.test(m),
+                            ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                    return true;
+                }).collect(Collectors.toList());
         Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
         methods.forEach(method -> {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
@@ -88,13 +89,12 @@ public class EventBus {
         HashMap<Class<? extends Event>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
 
         Kit.op(milkySupport.getInterceptors()).orElseGet(ArrayList::new).stream()
-                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
                 .filter(m -> Event.class.isAssignableFrom(m.getParameterTypes()[0]))
                 .filter(m -> {
-                    boolean test = FORMAT.test(m);
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
-                    return test;
+                    SysException.falseThrow(FORMAT.test(m), ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                    return true;
                 }).filter(method -> method.getParameterTypes()[0].isAssignableFrom(Event.class))
                 .collect(Collectors.toList())
                 .forEach(method -> {
@@ -124,12 +124,11 @@ public class EventBus {
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
 
         methods = milkySupport.getEventRouters().stream()
-                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(FinalEventRouter.class))
                 .filter(m -> {
-                    boolean test = FINAL_EVENT_ROUTER_FORMAT.test(m);
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
-                    return test;
+                    SysException.falseThrow(FINAL_EVENT_ROUTER_FORMAT.test(m), ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
+                    return true;
                 }).collect(Collectors.toList());
 
         List<FinalRouter<Class<? extends Event>>> tempFinalRouters = methods.stream().map(method -> {

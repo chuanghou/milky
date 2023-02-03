@@ -27,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.Data;
 import lombok.SneakyThrows;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
 import java.lang.reflect.*;
@@ -36,7 +37,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONCURRENCY_VIOLATION;
-import static com.stellariver.milky.domain.support.ErrorEnums.*;
 import static com.stellariver.milky.domain.support.command.HandlerType.*;
 
 /**
@@ -45,22 +45,23 @@ import static com.stellariver.milky.domain.support.command.HandlerType.*;
 @CustomLog
 public class CommandBus {
 
-    private static final Predicate<Class<?>[]> FORMAT =
-            parameterTypes -> (parameterTypes.length == 2
-                    && Command.class.isAssignableFrom(parameterTypes[0])
-                    && parameterTypes[1] == Context.class);
-
-    private static final Predicate<Class<?>[]> COMMAND_INTERCEPTOR_FORMAT =
-            parameterTypes -> (parameterTypes.length == 3
-                    && Command.class.isAssignableFrom(parameterTypes[0])
-                    && AggregateRoot.class.isAssignableFrom(parameterTypes[1])
-                    && parameterTypes[2] == Context.class);
+    private static final Predicate<Method> METHOD_FORMAT =
+            method -> Modifier.isPublic(method.getModifiers())
+                    && method.getParameterTypes().length == 2
+                    && Command.class.isAssignableFrom(method.getParameterTypes()[0])
+                    && method.getParameterTypes()[1] == Context.class;
+    private static final Predicate<Method> COMMAND_INTERCEPTOR_FORMAT =
+            method -> Modifier.isPublic(method.getModifiers())
+                    && method.getParameterTypes().length == 3
+                    && Command.class.isAssignableFrom(method.getParameterTypes()[0])
+                    && AggregateRoot.class.isAssignableFrom(method.getParameterTypes()[1])
+                    && method.getParameterTypes()[2] == Context.class;
 
     volatile private static CommandBus instance;
 
-    private static final ThreadLocal<Context> THREAD_LOCAL_CONTEXT = ThreadLocal.withInitial(Context::new);
+    private static final ThreadLocal<Context> THREAD_LOCAL_CONTEXT = new ThreadLocal<>();
 
-    private final Map<Class<? extends Command>, Handler> commandHandlers = new HashMap<>();
+    private final Map<Class<? extends Command>, Map<Class<? extends AggregateRoot>, Handler>> commandHandlers = new HashMap<>();
 
     private final Map<Class<? extends Command>, Map<String, DependencyProvider>> contextValueProviders = new HashMap<>();
 
@@ -120,13 +121,13 @@ public class CommandBus {
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
         milkySupport.getInterceptors().stream()
-                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
                 .filter(m -> Command.class.isAssignableFrom(m.getParameterTypes()[0]))
                 .filter(m -> {
-                    boolean test = COMMAND_INTERCEPTOR_FORMAT.test(m.getParameterTypes());
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
-                    return test;
+                    SysException.falseThrow(COMMAND_INTERCEPTOR_FORMAT.test(m),
+                            ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                    return true;
                 }).collect(Collectors.toList())
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
@@ -188,52 +189,31 @@ public class CommandBus {
     @SuppressWarnings("unchecked")
     private void prepareCommandHandlers() {
         Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);
-        boolean secondInherited = classes.stream().map(Reflect::ancestorClasses).anyMatch(list -> list.size() > 3);
-        SysException.trueThrow(secondInherited, AGGREGATE_INHERITED);
-        List<Method> methods = classes.stream().map(Class::getMethods).flatMap(Stream::of)
-                .filter(m -> m.isAnnotationPresent(CommandHandler.class))
-                .filter(m -> {
-                    boolean test = FORMAT.test(m.getParameterTypes());
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
-                    return test;
-                }).collect(Collectors.toList());
+        classes.forEach(clazz -> {
+            List<Method> methods = Arrays.stream(clazz.getDeclaredMethods())
+                    .filter(m -> m.isAnnotationPresent(CommandHandler.class))
+                    .filter(m -> {
+                        SysException.falseThrow(METHOD_FORMAT.test(m),
+                                ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                        return true;
+                    }).collect(Collectors.toList());
+            methods.forEach(method -> {
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                CommandHandler annotation = method.getAnnotation(CommandHandler.class);
+                HandlerType handlerType = Modifier.isStatic(method.getModifiers()) ? STATIC_METHOD : INSTANCE_METHOD;
+                if (handlerType == STATIC_METHOD) {
+                    SysException.falseThrowGet( method.getReturnType() != method.getClass(),
+                            () -> ErrorEnums.CONFIG_ERROR.message(method.toGenericString() + " static Command handler must return corresponding aggregate!"));
+                }
+                Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
+                Handler handler = new Handler(clazz, method, handlerType, requiredKeys);
+                Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
 
-        methods.forEach(method -> {
-            Class<?>[] parameterTypes = method.getParameterTypes();
-            CommandHandler annotation = method.getAnnotation(CommandHandler.class);
-            Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) method.getDeclaringClass();
-            HandlerType handlerType = Modifier.isStatic(method.getModifiers()) ? STATIC_METHOD : INSTANCE_METHOD;
-            if (handlerType == STATIC_METHOD) {
-                Class<?> returnType = method.getReturnType();
-                SysException.falseThrowGet(returnType != method.getClass(),
-                        () -> ErrorEnums.CONFIG_ERROR.message("static Command handler must return corresponding aggregate!"));
-            }
-            Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
-            Handler handler = new Handler(clazz, method, null, handlerType, requiredKeys);
-            Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
-            SysException.trueThrow(commandHandlers.containsKey(commandType),
-                    ErrorEnums.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
-            commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
-        });
-
-        List<Constructor<?>> constructors = classes.stream().map(Class::getDeclaredConstructors).flatMap(Stream::of)
-                .filter(m -> m.isAnnotationPresent(CommandHandler.class))
-                .filter(m -> {
-                    boolean test = FORMAT.test(m.getParameterTypes());
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
-                    return test;
-                }).collect(Collectors.toList());
-
-        constructors.forEach(constructor -> {
-            Class<?>[] parameterTypes = constructor.getParameterTypes();
-            CommandHandler annotation = constructor.getAnnotation(CommandHandler.class);
-            Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
-            Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>) constructor.getDeclaringClass();
-            Handler handler = new Handler(clazz, null, constructor, CONSTRUCTOR_METHOD, requiredKeys);
-            Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
-            SysException.trueThrow(commandHandlers.containsKey(commandType),
-                    ErrorEnums.CONFIG_ERROR.message(commandType.getName() + "has two command handlers"));
-            commandHandlers.put((Class<? extends Command>) parameterTypes[0], handler);
+                Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
+                SysException.trueThrow(handlerMap.containsKey(clazz),
+                        ErrorEnums.CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
+                handlerMap.put(clazz, handler);
+            });
         });
     }
 
@@ -243,12 +223,12 @@ public class CommandBus {
 
         List<Method> methods = milkySupport.getDependencyPrepares()
                 .stream().map(Object::getClass)
-                .flatMap(clazz -> Arrays.stream(clazz.getMethods()))
+                .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
                 .filter(method -> method.isAnnotationPresent(DependencyKey.class))
                 .filter(method -> {
-                    boolean test = FORMAT.test(method.getParameterTypes());
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(method.toGenericString()));
-                    return test;
+                    SysException.falseThrow(METHOD_FORMAT.test(method),
+                            ErrorEnums.CONFIG_ERROR.message(method.toGenericString() + " signature not valid"));
+                    return true;
                 }).collect(Collectors.toList());
 
         methods.forEach(method -> {
@@ -280,7 +260,7 @@ public class CommandBus {
         SysException.nullThrowMessage(instance.transactionSupport,
                 "transactionSupport is null, so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
         try {
-            result = instance.doSend(command, parameters, aggregateIdMap);
+            result = instance.doSend(command, parameters, null, aggregateIdMap);
         } finally {
             instance.memoryTxTL.set(false);
         }
@@ -293,12 +273,20 @@ public class CommandBus {
     }
 
     static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters,
-                                                    Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
-        return instance.doSend(command, parameters, aggregateIdMap);
+                                                    @Nullable Class<? extends AggregateRoot> clazz,
+                                                    @Nullable Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+        return instance.doSend(command, parameters, clazz, aggregateIdMap);
     }
 
+    @SuppressWarnings("unused")
+    static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters,
+                                                    Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+        return accept(command, parameters, null, aggregateIdMap);
+    }
+
+
     static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters) {
-        return accept(command, parameters, null);
+        return accept(command, parameters, null, null);
     }
 
     static public AggregateDaoAdapter<? extends AggregateRoot> getDaoAdapter(Class<? extends AggregateRoot> clazz) {
@@ -319,8 +307,13 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    private <T extends Command> Object doSend(T command, Map<Typed<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+    private <T extends Command> Object doSend(T command, Map<Typed<?>, Object> parameters,
+                                              @Nullable Class<? extends AggregateRoot> clazz,
+                                              @Nullable Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
+        Context shouldNull = THREAD_LOCAL_CONTEXT.get();
+        SysException.trueThrowGet(shouldNull != null, () -> ErrorEnums.CONFIG_ERROR
+                .message("Inside a event router, you should use CommandBus.send() or CommandBus.acceptMemoryTransactional()"));
         Context context = Context.build(parameters, aggregateIdMap);
         THREAD_LOCAL_CONTEXT.set(context);
         Long invocationId = context.getInvocationId();
@@ -328,7 +321,7 @@ public class CommandBus {
         command.setInvokeTrace(invokeTrace);
         Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
         try {
-            result = route(command);
+            result = route(command, clazz);
             eventBus.preFinalRoute(context.getFinalRouteEvents(), context);
             if (memoryTx) {
                 transactionSupport.begin();
@@ -379,17 +372,30 @@ public class CommandBus {
         return result;
     }
 
-    static public <T extends Command> void driveByEvent(T command, Event sourceEvent) {
+    static public <T extends Command> void driveByEvent(T command, Event sourceEvent,
+                                                        @Nullable Class<? extends AggregateRoot> clazz) {
         command.setInvokeTrace(InvokeTrace.build(sourceEvent));
-        instance.route(command);
+        instance.route(command, clazz);
     }
 
-    private <T extends Command> Object route(T command) {
-        SysException.anyNullThrow(command);
-        Handler commandHandler = Kit.op(commandHandlers.get(command.getClass()))
-                .orElseThrow(() -> new SysException(HANDLER_NOT_EXIST.message(Json.toJson(command))));
-        Context context = THREAD_LOCAL_CONTEXT.get();
+    static public <T extends Command> void driveByEvent(T command, Event sourceEvent) {
+        driveByEvent(command, sourceEvent, null);
+    }
 
+    private <T extends Command> Object route(T command, @Nullable Class<? extends AggregateRoot> aggregateClazz) {
+        SysException.anyNullThrow(command);
+        Handler commandHandler;
+        Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.get(command.getClass());
+        SysException.nullThrowMessage(handlerMap, command.getClass().getSimpleName() + "could not found its handler!");
+        if (aggregateClazz == null) {
+            boolean eq = Kit.eq(handlerMap.size(), 1);
+            SysException.falseThrow(eq, ErrorEnums.CONFIG_ERROR.message(
+                    command.getClass().getName() + " has at least 2 handlers implementations, please assign aggregate class"));
+            commandHandler = handlerMap.values().stream().findFirst().orElseThrow(() -> new SysException(ErrorEnums.UNREACHABLE_CODE));
+        } else {
+            commandHandler = handlerMap.get(aggregateClazz);
+        }
+        Context context = THREAD_LOCAL_CONTEXT.get();
         // command bus lock and it will be release finally
         String encryptionKey = UUID.randomUUID().toString();
         UK nameSpace = UK.build(commandHandler.getAggregateClazz());
@@ -418,8 +424,6 @@ public class CommandBus {
         return result;
     }
 
-
-    @SneakyThrows({InstantiationException.class, IllegalAccessException.class, InvocationTargetException.class})
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         AggregateDaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
         SysException.nullThrowMessage(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
@@ -437,20 +441,7 @@ public class CommandBus {
         Object result;
         AggregateRoot aggregate;
         AggregateStatus aggregateStatus = AggregateStatus.KEEP;
-        if (commandHandler.handlerType == CONSTRUCTOR_METHOD) {
-
-            // before interceptors run
-            beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
-                    .forEach(interceptor -> interceptor.invoke(command, null, context));
-
-            // // run command handlers, it is corresponding to a create command
-            aggregate = (AggregateRoot) commandHandler.constructor.newInstance(command, context);
-
-            // update aggregate status to CREATE
-            aggregateStatus = AggregateStatus.CREATE;
-            result = aggregate;
-
-        } else if (commandHandler.handlerType == STATIC_METHOD){
+        if (commandHandler.handlerType == STATIC_METHOD){
 
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.get(command.getClass())
@@ -586,8 +577,6 @@ public class CommandBus {
         private Class<? extends AggregateRoot> aggregateClazz;
 
         private Method method;
-
-        private Constructor<?> constructor;
 
         private HandlerType handlerType;
 

@@ -8,10 +8,12 @@ import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.Item;
+import com.stellariver.milky.demo.domain.item.command.CombineItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
+import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.demo.domain.service.ItemCreatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
@@ -48,6 +50,9 @@ public class BasicTest {
     @Autowired
     InventoryDOMapper inventoryDOMapper;
 
+    @Autowired
+    UserInfoRepository userInfoRepository;
+
     @SpyBean
     ConcurrentOperate concurrentOperate;
 
@@ -61,6 +66,7 @@ public class BasicTest {
 
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
+                .userInfo(userInfoRepository.getUserInfo(10086L))
                 .channelEnum(ChannelEnum.ALI)
                 .build();
         HashMap<Typed<?>, Object> parameters = new HashMap<>();
@@ -102,6 +108,62 @@ public class BasicTest {
         Assertions.assertNotNull(after);
         Assertions.assertTrue(before < handle);
         Assertions.assertTrue(handle < after);
+
+    }
+
+    @Test
+    public void combineItenTest() {
+
+        log.error("myTest");
+
+        CombineItemCreateCommand combineItemCreateCommand = CombineItemCreateCommand.builder().itemId(1L).title("测试商品")
+                .userId(10086L).amount(0L).storeCode("")
+                .userInfo(userInfoRepository.getUserInfo(10086L))
+                .channelEnum(ChannelEnum.ALI)
+                .ratio(1025L)
+                .build();
+        HashMap<Typed<?>, Object> parameters = new HashMap<>();
+        parameters.put(TypedEnums.employee, new Employee("110", "小明"));
+        CommandBus.accept(combineItemCreateCommand, parameters);
+
+
+
+
+//        Item item = itemRepository.queryById(1L);
+//        Assertions.assertNotNull(item);
+//        Inventory inventory = inventoryRepository.queryById(1L);
+//        Assertions.assertNotNull(inventory);
+//        Assertions.assertEquals(item.getStoreCode(), inventory.getStoreCode());
+//        Assertions.assertEquals(item.getAmount(), inventory.getAmount());
+//        ItemCreatedMessage message = ItemCreatedMessage.builder().itemId(1L).build();
+//
+//        verify(mqService).sendMessage(argThat(new ParameterMatcher<>(message)));
+//
+//        // 通过ParameterMeter实现对于null字段的验证过滤
+//        ItemCreatedMessage message1 = message.toBuilder().title("测试商品").build();
+//        verify(mqService).sendMessage(argThat(new ParameterMatcher<>(message1)));
+//
+//
+//        InventoryUpdateCommand command = InventoryUpdateCommand.builder().itemId(1L).updateAmount(100L).build();
+//        CommandBus.accept(command, parameters);
+//        item = itemRepository.queryById(1L);
+//        Assertions.assertNotNull(item);
+//        Assertions.assertEquals(100L, (long) item.getAmount());
+//        inventory = inventoryRepository.queryById(1L);
+//        Assertions.assertNotNull(inventory);
+//        Assertions.assertEquals(100L, (long) inventory.getAmount());
+//
+//        ItemTitleUpdateCommand updateCommand = ItemTitleUpdateCommand.builder().itemId(1L)
+//                .updateTitle("new Title").build();
+//        Context context = (Context) CommandBus.accept(updateCommand, parameters);
+//        Long before = TypedEnums.markBefore.extractFrom(context.getMetaData());
+//        Long handle = TypedEnums.markHandle.extractFrom(context.getMetaData());
+//        Long after = TypedEnums.markAfter.extractFrom(context.getMetaData());
+//        Assertions.assertNotNull(before);
+//        Assertions.assertNotNull(handle);
+//        Assertions.assertNotNull(after);
+//        Assertions.assertTrue(before < handle);
+//        Assertions.assertTrue(handle < after);
 
     }
 
