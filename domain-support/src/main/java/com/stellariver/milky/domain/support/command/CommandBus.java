@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.command;
 
+import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.common.*;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.SysException;
@@ -563,24 +564,32 @@ public class CommandBus {
     }
 
     @Data
-    @AllArgsConstructor
     static private class DependencyProvider {
 
         private String key;
-
         private String[] requiredKeys;
-
         private Object bean;
-
         private Method method;
-
         private boolean alwaysLog;
+        private MethodAccess methodAccess;
+        private int methodIndex;
+
+        public DependencyProvider(String key, String[] requiredKeys, Object bean, Method method, boolean alwaysLog) {
+            this.key = key;
+            this.requiredKeys = requiredKeys;
+            this.bean = bean;
+            this.method = method;
+            this.alwaysLog = alwaysLog;
+            this.methodAccess = MethodAccess.get(bean.getClass());
+            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
+        }
 
         @SneakyThrows(Throwable.class)
         public void invoke(Object object, Context context) {
             Throwable throwable;
             try {
-                Runner.invoke(bean, method, object, context);
+                methodAccess.invoke(bean, methodIndex, object, context);
+//                Runner.invoke(bean, method, object, context);
             } catch (Throwable t) {
                 throwable = t;
                 if (alwaysLog) {
@@ -594,19 +603,27 @@ public class CommandBus {
     }
 
     @Data
-    @AllArgsConstructor
     static private class Handler {
 
+        public Handler(Class<? extends AggregateRoot> aggregateClazz,
+                       Method method, HandlerType handlerType, Set<String> requiredKeys) {
+            this.aggregateClazz = aggregateClazz;
+            this.method = method;
+            this.handlerType = handlerType;
+            this.requiredKeys = requiredKeys;
+            this.methodAccess = MethodAccess.get(aggregateClazz);
+            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
+        }
+
         private Class<? extends AggregateRoot> aggregateClazz;
-
         private Method method;
-
         private HandlerType handlerType;
-
         private Set<String> requiredKeys;
+        private MethodAccess methodAccess;
+        private int methodIndex;
 
-        public Object invoke(AggregateRoot aggregate, Object object, Context context) {
-            return Runner.invoke(aggregate, method, object, context);
+        public Object invoke(AggregateRoot aggregate, Object... params) {
+            return methodAccess.invoke(aggregate, methodIndex, params);
         }
 
     }

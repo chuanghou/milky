@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.event;
 
+import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.Runner;
@@ -178,32 +179,49 @@ public class EventBus {
     @AllArgsConstructor
     static public class Router {
 
-        private final Object bean;
+        public Router(Object bean, Method method) {
+            this.bean = bean;
+            this.method = method;
+            this.methodAccess = MethodAccess.get(bean.getClass());
+            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
+        }
 
+        private final Object bean;
         private final Method method;
+        private MethodAccess methodAccess;
+        private int methodIndex;
 
         @SneakyThrows(Throwable.class)
         public void route(Event event, Context context) {
-            Runner.invoke(bean, method, event, context);
+            methodAccess.invoke(bean, methodIndex, event, context);
+//            Runner.invoke(bean, method, event, context);
         }
     }
 
     @Data
     @Builder
-    @AllArgsConstructor
     static public class FinalRouter<T extends Class<? extends Event>> {
 
         private T eventClass;
-
         private final Object bean;
-
         private final Method method;
-
         private boolean asyncable;
-
         private double order;
-
         private ExecutorService executorService;
+        private MethodAccess methodAccess;
+        private int methodIndex;
+
+
+        public FinalRouter(T eventClass, Object bean, Method method, boolean asyncable, double order, ExecutorService executorService) {
+            this.eventClass = eventClass;
+            this.bean = bean;
+            this.method = method;
+            this.asyncable = asyncable;
+            this.order = order;
+            this.executorService = executorService;
+            this.methodAccess = MethodAccess.get(bean.getClass());
+            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
+        }
 
         public void route(List<? extends Event> events, Context context) {
             events = events.stream().filter(event -> eventClass.isAssignableFrom(event.getClass())).collect(Collectors.toList());
@@ -212,9 +230,10 @@ public class EventBus {
             }
             if (asyncable) {
                 List<? extends Event> finalEvents = events;
-                executorService.submit(() -> method.invoke(bean, finalEvents, context));
+                executorService.submit(() -> methodAccess.invoke(bean, methodIndex, finalEvents, context));
             } else {
-                Runner.invoke(bean, method, events, context);
+                methodAccess.invoke(bean, methodIndex, events, context);
+//                Runner.invoke(bean, method, events, context);
             }
         }
     }
