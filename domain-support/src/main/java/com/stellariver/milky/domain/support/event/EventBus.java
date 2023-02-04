@@ -138,12 +138,8 @@ public class EventBus {
             Type typeArgument = ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Class<? extends Event> eventClass = (Class<? extends Event>) typeArgument;
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
-            return FinalRouter.builder().bean(bean).method(method)
-                    .eventClass(eventClass)
-                    .order(annotation.order())
-                    .executorService(milkySupport.getAsyncExecutor())
-                    .asyncable(annotation.asyncable())
-                    .build();
+            return new FinalRouter<Class<? extends Event>>(eventClass,
+                    bean, method, annotation.asyncable(), annotation.order(), milkySupport.getAsyncExecutor());
         }).collect(Collectors.toList());
         List<FinalRouter<Class<? extends Event>>> notDefaultOrderRouters = tempFinalRouters.stream()
                 .filter(fR -> !Kit.eq(fR.getOrder(), Double.MAX_VALUE)).collect(Collectors.toList());
@@ -199,7 +195,6 @@ public class EventBus {
     }
 
     @Data
-    @Builder
     static public class FinalRouter<T extends Class<? extends Event>> {
 
         private T eventClass;
