@@ -15,13 +15,15 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CombineItemCreatedEvent extends ItemCreatedEvent {
+public class CombineItemCreatedEvent extends Event {
 
-    Long ration;
+    Long itemId;
+
+    String title;
 
     @Override
     public String getAggregateId() {
-        return super.getAggregateId();
+        return itemId.toString();
     }
 
 }

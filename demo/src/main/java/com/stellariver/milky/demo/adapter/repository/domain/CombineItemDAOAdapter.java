@@ -26,8 +26,8 @@ public class CombineItemDAOAdapter implements AggregateDaoAdapter<CombineItem> {
     }
 
     @Override
-    public Object toDataObject(CombineItem item, DataObjectInfo dataObjectInfo) {
-        return Convertor.INST.to(item);
+    public Object toDataObject(CombineItem combineItem, DataObjectInfo dataObjectInfo) {
+        return Convertor.INST.to(combineItem);
     }
 
     @Override

@@ -6,8 +6,8 @@ package com.stellariver.milky.domain.support.command;
 
 public enum HandlerType {
 
-    INSTANCE_METHOD,
+    INSTANCE_HANDLER,
 
-    STATIC_METHOD
+    CONSTRUCTOR_HANDLER
 
 }

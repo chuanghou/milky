@@ -8,6 +8,7 @@ import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
 import com.stellariver.milky.demo.domain.item.event.*;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.command.CommandHandler;
+import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.context.Context;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,13 +32,12 @@ public class CombineItem extends Item {
         this.ratio = command.getRatio();
     }
 
-    @CommandHandler
+    @ConstructorHandler
     static public CombineItem build(CombineItemCreateCommand command, Context context) {
         CombineItem combineItem = new CombineItem(command);
         CombineItemCreatedEvent event = CombineItemCreatedEvent.builder()
                 .itemId(combineItem.getItemId())
                 .title(combineItem.getTitle())
-                .ration(command.getRatio())
                 .build();
         context.publish(event);
         return combineItem;
