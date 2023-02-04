@@ -75,7 +75,7 @@ public class EventBus {
         methods.forEach(method -> {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
-            Router router = Router.builder().bean(bean).method(method).build();
+            Router router = new Router(bean, method);
             tempRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).add(router);
         });
 
@@ -102,8 +102,7 @@ public class EventBus {
                     Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
                     Object bean = BeanUtil.getBean(method.getDeclaringClass());
-                    Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
-                            .order(annotation.order()).posEnum(annotation.pos()).build();
+                    Interceptor interceptor = new Interceptor(bean, method, annotation.pos(), annotation.order());
                     Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
                             .forEach(eC -> tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor));
                 });
@@ -171,8 +170,6 @@ public class EventBus {
     }
 
     @Data
-    @Builder
-    @AllArgsConstructor
     static public class Router {
 
         public Router(Object bean, Method method) {
@@ -187,10 +184,8 @@ public class EventBus {
         private MethodAccess methodAccess;
         private int methodIndex;
 
-        @SneakyThrows(Throwable.class)
         public void route(Event event, Context context) {
             methodAccess.invoke(bean, methodIndex, event, context);
-//            Runner.invoke(bean, method, event, context);
         }
     }
 
@@ -228,7 +223,6 @@ public class EventBus {
                 executorService.submit(() -> methodAccess.invoke(bean, methodIndex, finalEvents, context));
             } else {
                 methodAccess.invoke(bean, methodIndex, events, context);
-//                Runner.invoke(bean, method, events, context);
             }
         }
     }

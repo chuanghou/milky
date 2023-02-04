@@ -142,8 +142,7 @@ public class CommandBus {
                     Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
                     Object bean = BeanUtil.getBean(method.getDeclaringClass());
-                    Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
-                            .order(annotation.order()).posEnum(annotation.pos()).build();
+                    Interceptor interceptor = new Interceptor(bean, method, annotation.pos(), annotation.order());
                     tempInterceptorsMap.computeIfAbsent(commandClass, cC -> new ArrayList<>()).add(interceptor);
                 });
 
@@ -589,7 +588,6 @@ public class CommandBus {
             Throwable throwable;
             try {
                 methodAccess.invoke(bean, methodIndex, object, context);
-//                Runner.invoke(bean, method, object, context);
             } catch (Throwable t) {
                 throwable = t;
                 if (alwaysLog) {

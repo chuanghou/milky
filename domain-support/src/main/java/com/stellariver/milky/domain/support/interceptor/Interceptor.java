@@ -15,8 +15,6 @@ import java.lang.reflect.Method;
  * @author houchuang
  */
 @Data
-@Builder
-@AllArgsConstructor
 public class Interceptor {
 
     private Object bean;
@@ -36,7 +34,6 @@ public class Interceptor {
     }
 
     public void invoke(Object object, AggregateRoot aggregateRoot, Context context) {
-//        Runner.invoke(bean, method, object, aggregateRoot, context);
         methodAccess.invoke(bean, methodIndex, object, aggregateRoot, context);
     }
 }
