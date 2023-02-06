@@ -33,12 +33,12 @@ public class RedissionConcurrentOperateImpl extends ConcurrentOperate {
 
     @Override
     @SneakyThrows
-    protected Map<String, Result<?>> batchTryLock(List<Pair<String, Duration>> lockParams) {
+    protected Map<String, Result<Void>> batchTryLock(List<Pair<String, Duration>> lockParams) {
         return lockParams.stream().collect(Collectors.toMap(Pair::getKey, p -> Result.success()));
     }
 
     @Override
-    protected Map<String, Result<?>> batchUnLock(Set<String> unlockIds) {
+    protected Map<String, Result<Void>> batchUnLock(Set<String> unlockIds) {
         return unlockIds.stream().collect(Collectors.toMap(Function.identity(), lockId -> Result.success()));
     }
 

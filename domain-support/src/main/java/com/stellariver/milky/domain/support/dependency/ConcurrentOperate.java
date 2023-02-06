@@ -35,20 +35,20 @@ public abstract class ConcurrentOperate {
     }
 
     public boolean unLockAll() {
-        Map<String, Result<?>> unLockResult = batchUnLock(lockedIds.get());
+        Map<String, Result<Void>> unLockResult = batchUnLock(lockedIds.get());
         return unLockResult.values().stream().map(Result::isSuccess).reduce((b0, b1) -> b0 && b1).orElse(false);
     }
 
     protected boolean tryLock(String lockId, int milsToExpire) {
         Pair<String, Duration> lockParam = Pair.of(lockId, Duration.of(milsToExpire, ChronoUnit.MILLIS));
-        Map<String, Result<?>> lockResult = batchTryLock(Collect.asList(lockParam));
+        Map<String, Result<Void>> lockResult = batchTryLock(Collect.asList(lockParam));
         Result<?> result = lockResult.get(lockId);
         return result.isSuccess();
     }
 
-    abstract protected Map<String, Result<?>> batchTryLock(List<Pair<String, Duration>> lockParams);
+    abstract protected Map<String, Result<Void>> batchTryLock(List<Pair<String, Duration>> lockParams);
 
-    abstract protected Map<String, Result<?>> batchUnLock(Set<String> unlockIds);
+    abstract protected Map<String, Result<Void>> batchUnLock(Set<String> unlockIds);
 
     @SneakyThrows(InterruptedException.class)
     public boolean tryRetryLock(RetryParameter retryParameter) {
