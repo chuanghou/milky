@@ -370,8 +370,12 @@ public class CommandBus {
                     List<Object> changedDataObjects = changedPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
 
                     // persistent layer
-                    daoWrapper.batchSaveWrapper(createdDataObjects);
-                    daoWrapper.batchUpdateWrapper(changedDataObjects);
+                    if (Collect.isNotEmpty(createdDataObjects)) {
+                        daoWrapper.batchSaveWrapper(createdDataObjects);
+                    }
+                    if (Collect.isNotEmpty(changedDataObjects)) {
+                        daoWrapper.batchUpdateWrapper(changedDataObjects);
+                    }
                 });
             }
             eventBus.postFinalRoute(context.getFinalRouteEvents(), context);
