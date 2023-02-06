@@ -424,16 +424,14 @@ public class CommandBus {
         }
         Context context = THREAD_LOCAL_CONTEXT.get();
         // command bus lock and it will be release finally
-        String encryptionKey = UUID.randomUUID().toString();
         UK nameSpace = UK.build(commandHandler.getAggregateClazz());
         String lockKey = command.getAggregateId();
-        boolean locked = concurrentOperate.tryReentrantLock(nameSpace, lockKey, encryptionKey, command.lockExpireMils());
+        boolean locked = concurrentOperate.tryReentrantLock(nameSpace, lockKey, command.lockExpireMils());
         if (!locked) {
             long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
             RetryParameter retryParameter = RetryParameter.builder()
                     .nameSpace(nameSpace)
                     .lockKey(lockKey)
-                    .encryptionKey(encryptionKey)
                     .milsToExpire(command.lockExpireMils())
                     .times(command.retryTimes())
                     .sleepTimeMils(sleepTimeMs)

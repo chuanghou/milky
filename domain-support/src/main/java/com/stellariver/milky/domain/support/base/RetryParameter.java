@@ -18,8 +18,6 @@ public class RetryParameter {
 
     String lockKey;
 
-    String encryptionKey;
-
     int milsToExpire;
 
     int times;

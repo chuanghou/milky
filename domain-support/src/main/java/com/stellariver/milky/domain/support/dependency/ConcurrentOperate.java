@@ -1,14 +1,17 @@
 package com.stellariver.milky.domain.support.dependency;
 
+import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.common.UK;
+import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.base.RetryParameter;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 /**
  * @author houchuang
@@ -16,38 +19,36 @@ import java.util.Map;
 @CustomLog
 public abstract class ConcurrentOperate {
 
-    private final ThreadLocal<Map<Pair<UK, String>, String>> lockedKeys = ThreadLocal.withInitial(HashMap::new);
+    private final ThreadLocal<Set<String>> lockedIds = ThreadLocal.withInitial(HashSet::new);
 
-    public boolean tryReentrantLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire) {
-        boolean contains = lockedKeys.get().containsKey(Pair.of(nameSpace, lockKey));
+    public boolean tryReentrantLock(UK nameSpace, String lockKey, int milsToExpire) {
+        String lockId = nameSpace.preFix(lockKey);
+        boolean contains = lockedIds.get().contains(lockId);
         if (!contains) {
-            boolean locked = tryLock(nameSpace, lockKey, encryptionKey, milsToExpire);
+            boolean locked = tryLock(nameSpace.preFix(lockKey), milsToExpire);
             if (!locked) {
                 return false;
             }
-            lockedKeys.get().put(Pair.of(nameSpace, lockKey), encryptionKey);
+            lockedIds.get().add(lockId);
         }
         return true;
     }
 
     public boolean unLockAll() {
-        boolean result = true;
-        for (Map.Entry<Pair<UK, String>, String> e: lockedKeys.get().entrySet()) {
-            UK nameSpace = e.getKey().getKey();
-            String lockKey = e.getKey().getValue();
-            String value = e.getValue();
-            boolean b = unLockFallbackable(nameSpace, lockKey, value);
-            if (!b) {
-                log.arg0(nameSpace).arg1(lockKey).arg2(value).error("UNLOCK_FAILURE");
-            }
-            result = result && unLockFallbackable(nameSpace, lockKey, value);
-        }
-        return result;
+        Map<String, Result<?>> unLockResult = batchUnLock(lockedIds.get());
+        return unLockResult.values().stream().map(Result::isSuccess).reduce((b0, b1) -> b0 && b1).orElse(false);
     }
 
-    abstract protected boolean tryLock(UK nameSpace, String lockKey, String encryptionKey, int milsToExpire);
+    protected boolean tryLock(String lockId, int milsToExpire) {
+        Pair<String, Duration> lockParam = Pair.of(lockId, Duration.of(milsToExpire, ChronoUnit.MILLIS));
+        Map<String, Result<?>> lockResult = batchTryLock(Collect.asList(lockParam));
+        Result<?> result = lockResult.get(lockId);
+        return result.isSuccess();
+    }
 
-    abstract protected boolean unLockFallbackable(UK nameSpace, String lockKey, String encryptionKey);
+    abstract protected Map<String, Result<?>> batchTryLock(List<Pair<String, Duration>> lockParams);
+
+    abstract protected Map<String, Result<?>> batchUnLock(Set<String> unlockIds);
 
     @SneakyThrows(InterruptedException.class)
     public boolean tryRetryLock(RetryParameter retryParameter) {
@@ -56,11 +57,10 @@ public abstract class ConcurrentOperate {
         SysException.trueThrow(retryParameter.getSleepTimeMils() > 5000, "sleep time is too long");
         int times = retryParameter.getTimes();
         String lockKey = retryParameter.getLockKey();
-        String encryptionKey = retryParameter.getEncryptionKey();
         int milsToExpire = retryParameter.getMilsToExpire();
         while (times-- > 0) {
             Thread.sleep(retryParameter.getSleepTimeMils());
-            if (tryReentrantLock(retryParameter.getNameSpace(), lockKey, encryptionKey, milsToExpire)) {
+            if (tryReentrantLock(retryParameter.getNameSpace(), lockKey, milsToExpire)) {
                 return true;
             }
         }
