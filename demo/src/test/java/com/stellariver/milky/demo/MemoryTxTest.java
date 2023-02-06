@@ -7,6 +7,7 @@ import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
+import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.demo.infrastructure.database.entity.InventoryDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.domain.support.base.Typed;
@@ -39,11 +40,14 @@ public class MemoryTxTest {
     @Autowired
     TransactionSupport transactionSupport;
 
+    @Autowired
+    UserInfoRepository userInfoRepository;
     @Test
     public void transactionTest() {
         LogUtil.setLogLevel(MemoryTxTest.class, Level.OFF);
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
+                .userInfo(userInfoRepository.getUserInfo(10086L))
                 .channelEnum(ChannelEnum.JD)
                 .build();
         HashMap<Typed<?>, Object> parameters = new HashMap<>();

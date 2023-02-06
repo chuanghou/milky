@@ -14,6 +14,7 @@ import com.stellariver.milky.demo.domain.item.event.ItemInventoryInitEvent;
 import com.stellariver.milky.demo.domain.item.event.ItemTitleUpdatedEvent;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.command.CommandHandler;
+import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.context.Context;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,33 +32,30 @@ import lombok.experimental.SuperBuilder;
 public class Item extends AggregateRoot {
 
     Long itemId;
-
     String title;
-
     Long userId;
-
     String userName;
-
     Long amount;
-
     String storeCode;
-
     ChannelEnum channelEnum;
 
-    @CommandHandler(dependencies = "userInfo")
-    public Item(ItemCreateCommand command, Context context) {
+    protected Item(ItemCreateCommand command) {
         this.itemId = command.getItemId();
         this.title = command.getTitle();
         this.userId = command.getUserId();
         this.amount = command.getAmount();
         this.storeCode = command.getStoreCode();
-        UserInfo userInfo = TypedEnums.userInfo.extractFrom(context.getDependencies());
-        this.userName = userInfo.getUserName();
+        this.userName = command.getUserInfo().getUserName();
         this.channelEnum = command.getChannelEnum();
-        context.publish(ItemCreatedEvent.builder().itemId(itemId).title(title).build());
     }
 
-    // the return type context here is only for test the interceptor
+    @ConstructorHandler
+    static public Item build(ItemCreateCommand command, Context context) {
+        Item item = new Item(command);
+        context.publish(ItemCreatedEvent.builder().itemId(item.getItemId()).title(item.getTitle()).build());
+        return item;
+    }
+
     @SneakyThrows
     @CommandHandler
     public Context handle(ItemTitleUpdateCommand command, Context context) {

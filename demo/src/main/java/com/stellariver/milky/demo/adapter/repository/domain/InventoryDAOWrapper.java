@@ -25,12 +25,12 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
     final InventoryDOMapper inventoryDOMapper;
 
     @Override
-    public int batchSave(@NonNull List<InventoryDO> inventoryDOs) {
+    public int batchSave(List<InventoryDO> inventoryDOs) {
         return inventoryDOs.stream().map(inventoryDOMapper::insert).reduce(0, Integer::sum);
     }
 
     @Override
-    public int batchUpdate(@NonNull List<InventoryDO> inventoryDOs) {
+    public int batchUpdate(List<InventoryDO> inventoryDOs) {
         return inventoryDOs.stream().map(inventoryDOMapper::updateById).reduce(0, Integer::sum);
     }
 

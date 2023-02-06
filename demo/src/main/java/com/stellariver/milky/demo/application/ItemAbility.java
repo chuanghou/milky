@@ -7,7 +7,9 @@ import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
+import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
+import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.domain.support.base.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
@@ -34,11 +36,15 @@ public class ItemAbility {
 
     IdBuilder idBuilder;
 
+    UserInfoRepository userInfoRepository;
+
     @Transactional(rollbackFor = Throwable.class)
     public Item publishItem(Long userId, String title) {
         Long itemId = idBuilder.build();
         ItemCreateCommand command = ItemCreateCommand.builder().userId(userId)
-                .itemId(itemId).title(title).amount(0L).storeCode("").build();
+                .userInfo(userInfoRepository.getUserInfo(userId))
+                .itemId(itemId).title(title).amount(0L).storeCode("")
+                .build();
         Map<Typed<?>, Object> parameters = StreamMap.<Typed<?>, Object>init()
                 .put(TypedEnums.employee, new Employee("110", "tom"))
                 .getMap();

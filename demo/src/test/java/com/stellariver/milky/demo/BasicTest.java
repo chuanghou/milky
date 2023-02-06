@@ -7,19 +7,30 @@ import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
+import com.stellariver.milky.demo.domain.item.CombineItem;
 import com.stellariver.milky.demo.domain.item.Item;
+import com.stellariver.milky.demo.domain.item.command.CombineItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
+import com.stellariver.milky.demo.domain.item.repository.CombineItemRepository;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
+import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.demo.domain.service.ItemCreatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;
+import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
+import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
 import com.stellariver.milky.domain.support.base.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import lombok.CustomLog;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,6 +41,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -48,19 +60,27 @@ public class BasicTest {
     @Autowired
     InventoryDOMapper inventoryDOMapper;
 
+    @Autowired
+    UserInfoRepository userInfoRepository;
+
     @SpyBean
     ConcurrentOperate concurrentOperate;
 
     @SpyBean
     MqService mqService;
 
+    @Autowired
+    CombineItemRepository combineItemRepository;
+
+    @Autowired
+    ItemDOMapper itemDOMapper;
+
     @Test
     public void publishItemDOTest() {
 
-        log.error("myTest");
-
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
+                .userInfo(userInfoRepository.getUserInfo(10086L))
                 .channelEnum(ChannelEnum.ALI)
                 .build();
         HashMap<Typed<?>, Object> parameters = new HashMap<>();
@@ -103,6 +123,35 @@ public class BasicTest {
         Assertions.assertTrue(before < handle);
         Assertions.assertTrue(handle < after);
 
+        List<ItemDO> itemDOS = itemDOMapper.selectList(null);
+        System.out.println("");
+        System.out.println("publishItemDOTest");
+        System.out.println(itemDOS);
+
+    }
+
+    @Test
+    public void combineItemTest() {
+        CombineItemCreateCommand combineItemCreateCommand = CombineItemCreateCommand.builder().itemId(1L).title("测试商品")
+                .userId(10086L).amount(0L).storeCode("")
+                .userInfo(userInfoRepository.getUserInfo(10086L))
+                .channelEnum(ChannelEnum.ALI)
+                .ratio(1025L)
+                .build();
+        HashMap<Typed<?>, Object> parameters = new HashMap<>();
+        parameters.put(TypedEnums.employee, new Employee("110", "小明"));
+        CommandBus.accept(combineItemCreateCommand, parameters);
+
+        CombineItem combineItem = combineItemRepository.queryById(1L);
+        Assertions.assertNotNull(combineItem);
+        Assertions.assertEquals(combineItem.getRatio(), 1025L);
+
+        ItemTitleUpdateCommand updateCommand = ItemTitleUpdateCommand.builder().itemId(1L)
+                .updateTitle("new Title").build();
+        CommandBus.accept(updateCommand, parameters);
+        combineItem = combineItemRepository.queryById(1L);
+        Assertions.assertNotNull(combineItem);
+        Assertions.assertEquals(combineItem.getTitle(), "new Title");
     }
 
     @AfterAll

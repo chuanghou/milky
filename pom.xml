@@ -328,6 +328,9 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <dataFile>target/jacoco.exec</dataFile>
+                    <excludes>
+                        <exclude>**/*MethodAccess*</exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>

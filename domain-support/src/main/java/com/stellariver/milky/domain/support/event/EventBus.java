@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.event;
 
+import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.Runner;
@@ -7,7 +8,9 @@ import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
+import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.base.MilkySupport;
+import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
@@ -20,6 +23,7 @@ import lombok.SneakyThrows;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -32,12 +36,11 @@ import java.util.stream.Collectors;
  */
 public class EventBus {
 
-    static final private Predicate<Method> FORMAT = method -> {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return parameterTypes.length == 2
-                && Event.class.isAssignableFrom(parameterTypes[0])
-                && parameterTypes[1] == Context.class;
-    };
+    static final private Predicate<Method> FORMAT =
+            method -> Modifier.isPublic(method.getModifiers())
+                    && method.getParameterTypes().length == 2
+                    && Event.class.isAssignableFrom(method.getParameterTypes()[0])
+                    && method.getParameterTypes()[1] == Context.class;
 
     static final private Predicate<Method> FINAL_EVENT_ROUTER_FORMAT = method -> {
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -61,19 +64,18 @@ public class EventBus {
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {
         List<Method> methods = milkySupport.getEventRouters().stream()
-                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .filter(m -> {
-                    boolean test = FORMAT.test(m);
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
-                    return test;
-                })
-                .collect(Collectors.toList());
+                    SysException.falseThrow(FORMAT.test(m),
+                            ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                    return true;
+                }).collect(Collectors.toList());
         Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
         methods.forEach(method -> {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
-            Router router = Router.builder().bean(bean).method(method).build();
+            Router router = new Router(bean, method);
             tempRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).add(router);
         });
 
@@ -88,21 +90,19 @@ public class EventBus {
         HashMap<Class<? extends Event>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
 
         Kit.op(milkySupport.getInterceptors()).orElseGet(ArrayList::new).stream()
-                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
                 .filter(m -> Event.class.isAssignableFrom(m.getParameterTypes()[0]))
                 .filter(m -> {
-                    boolean test = FORMAT.test(m);
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
-                    return test;
+                    SysException.falseThrow(FORMAT.test(m), ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                    return true;
                 }).filter(method -> method.getParameterTypes()[0].isAssignableFrom(Event.class))
                 .collect(Collectors.toList())
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
                     Object bean = BeanUtil.getBean(method.getDeclaringClass());
-                    Interceptor interceptor = Interceptor.builder().bean(bean).method(method)
-                            .order(annotation.order()).posEnum(annotation.pos()).build();
+                    Interceptor interceptor = new Interceptor(bean, method, annotation.pos(), annotation.order());
                     Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
                             .forEach(eC -> tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor));
                 });
@@ -124,12 +124,11 @@ public class EventBus {
                 v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
 
         methods = milkySupport.getEventRouters().stream()
-                .map(Object::getClass).map(Class::getMethods).flatMap(Arrays::stream)
+                .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(FinalEventRouter.class))
                 .filter(m -> {
-                    boolean test = FINAL_EVENT_ROUTER_FORMAT.test(m);
-                    SysException.falseThrow(test, ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
-                    return test;
+                    SysException.falseThrow(FINAL_EVENT_ROUTER_FORMAT.test(m), ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
+                    return true;
                 }).collect(Collectors.toList());
 
         List<FinalRouter<Class<? extends Event>>> tempFinalRouters = methods.stream().map(method -> {
@@ -138,12 +137,8 @@ public class EventBus {
             Type typeArgument = ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Class<? extends Event> eventClass = (Class<? extends Event>) typeArgument;
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
-            return FinalRouter.builder().bean(bean).method(method)
-                    .eventClass(eventClass)
-                    .order(annotation.order())
-                    .executorService(milkySupport.getAsyncExecutor())
-                    .asyncable(annotation.asyncable())
-                    .build();
+            return new FinalRouter<Class<? extends Event>>(eventClass,
+                    bean, method, annotation.asyncable(), annotation.order(), milkySupport.getAsyncExecutor());
         }).collect(Collectors.toList());
         List<FinalRouter<Class<? extends Event>>> notDefaultOrderRouters = tempFinalRouters.stream()
                 .filter(fR -> !Kit.eq(fR.getOrder(), Double.MAX_VALUE)).collect(Collectors.toList());
@@ -175,36 +170,48 @@ public class EventBus {
     }
 
     @Data
-    @Builder
-    @AllArgsConstructor
     static public class Router {
 
+        public Router(Object bean, Method method) {
+            this.bean = bean;
+            this.method = method;
+            this.methodAccess = MethodAccess.get(bean.getClass());
+            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
+        }
+
         private final Object bean;
-
         private final Method method;
+        private MethodAccess methodAccess;
+        private int methodIndex;
 
-        @SneakyThrows(Throwable.class)
         public void route(Event event, Context context) {
-            Runner.invoke(bean, method, event, context);
+            methodAccess.invoke(bean, methodIndex, event, context);
         }
     }
 
     @Data
-    @Builder
-    @AllArgsConstructor
     static public class FinalRouter<T extends Class<? extends Event>> {
 
         private T eventClass;
-
         private final Object bean;
-
         private final Method method;
-
         private boolean asyncable;
-
         private double order;
-
         private ExecutorService executorService;
+        private MethodAccess methodAccess;
+        private int methodIndex;
+
+
+        public FinalRouter(T eventClass, Object bean, Method method, boolean asyncable, double order, ExecutorService executorService) {
+            this.eventClass = eventClass;
+            this.bean = bean;
+            this.method = method;
+            this.asyncable = asyncable;
+            this.order = order;
+            this.executorService = executorService;
+            this.methodAccess = MethodAccess.get(bean.getClass());
+            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
+        }
 
         public void route(List<? extends Event> events, Context context) {
             events = events.stream().filter(event -> eventClass.isAssignableFrom(event.getClass())).collect(Collectors.toList());
@@ -213,9 +220,9 @@ public class EventBus {
             }
             if (asyncable) {
                 List<? extends Event> finalEvents = events;
-                executorService.submit(() -> method.invoke(bean, finalEvents, context));
+                executorService.submit(() -> methodAccess.invoke(bean, methodIndex, finalEvents, context));
             } else {
-                Runner.invoke(bean, method, events, context);
+                methodAccess.invoke(bean, methodIndex, events, context);
             }
         }
     }

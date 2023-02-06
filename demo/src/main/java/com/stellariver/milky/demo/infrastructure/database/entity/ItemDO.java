@@ -35,6 +35,8 @@ public class ItemDO extends AbstractMpDO implements BaseDataObject<Long> {
 
     ChannelEnum channelEnum;
 
+    Long ratio;
+
     @Override
     public Long getPrimaryId() {
         return itemId;
