@@ -43,12 +43,12 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
                 gettersMap.put(clazz, getters);
             }
             for (Object object : objects) {
-                getters.forEach(getter -> {
+                for (Pair<MethodAccess, Integer> getter : getters) {
                     MethodAccess methodAccess = getter.getLeft();
                     Integer index = getter.getRight();
                     Object value = methodAccess.invoke(object, index);
                     SysException.nullThrowGet(value, () -> ErrorEnums.FIELD_IS_NULL.message(object));
-                });
+                }
             }
         }
 
@@ -56,23 +56,23 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
 
     @SuppressWarnings("unchecked")
     default void batchSaveWrapper(List<Object> dataObjects) {
-        if (Collect.isEmpty(dataObjects)) { return; }
+        SysException.trueThrowGet(Collect.isEmpty(dataObjects), () -> ErrorEnums.CONFIG_ERROR);
         CheckNull.checkNullField(dataObjects);
         int count = batchSave(Collect.transfer(dataObjects, doj -> (DataObject) doj));
         SysException.trueThrow(Kit.notEq(count, dataObjects.size()), ErrorEnums.PERSISTENCE_ERROR);
     }
 
-    int batchSave(@NonNull List<DataObject> dataObjects);
+    int batchSave(List<DataObject> dataObjects);
 
     @SuppressWarnings("unchecked")
     default void batchUpdateWrapper(List<Object> dataObjects) {
-        if (Collect.isEmpty(dataObjects)) { return; }
+        SysException.trueThrowGet(Collect.isEmpty(dataObjects), () -> ErrorEnums.CONFIG_ERROR);
         CheckNull.checkNullField(dataObjects);
         int count = batchUpdate(Collect.transfer(dataObjects, doj -> (DataObject) doj));
         SysException.trueThrow(Kit.notEq(count, dataObjects.size()), ErrorEnums.PERSISTENCE_ERROR);
     }
 
-    int batchUpdate(@NonNull List<DataObject> dataObjects);
+    int batchUpdate(List<DataObject> dataObjects);
 
     @SuppressWarnings("unchecked")
     default Map<Object, Object> batchGetByPrimaryIdsWrapper(@NonNull Set<Object> primaryIds) {
