@@ -1,5 +1,6 @@
 package com.stellariver.milky.validate.tool;
 
+import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
@@ -92,21 +93,21 @@ public class ValidateUtil {
 
         Class<?> clazz = param.getClass();
         if (!reflectedClasses.contains(clazz)) {
+
+            Arrays.stream(param.getClass().getDeclaredMethods())
+                    .filter(method -> method.isAnnotationPresent(CustomValid.class))
+                    .filter(m -> !Modifier.isPublic(m.getModifiers()) || m.getReturnType().equals(void.class))
+                    .findFirst().ifPresent(m -> {throw new SysException(CONFIG_ERROR.message(m.toGenericString()));});
+
             List<Method> methods = Arrays.stream(param.getClass().getMethods())
                     .filter(m -> m.isAnnotationPresent(CustomValid.class)).collect(Collectors.toList());
-            methods.forEach(m -> {
-                Class<?> returnType = m.getReturnType();
-                SysException.trueThrow(!returnType.equals(void.class), CONFIG_ERROR.message("return type should void"));
-                int modifiers = m.getModifiers();
-                SysException.trueThrow(!Modifier.isPublic(modifiers), CONFIG_ERROR.message("return type should public"));
-            });
+
             methods.forEach(m -> {
                 CustomValid anno = m.getAnnotation(CustomValid.class);
                 for (Class<?> group : anno.groups()) {
                     Pair<Class<?>, Class<?>> classGroupKey = Pair.of(clazz, group);
-                    boolean hasHad = methodMap.containsKey(classGroupKey);
-                    SysException.trueThrow(hasHad, CONFIG_ERROR.message("same group should only has one custom valid method!"));
-                    methodMap.put(classGroupKey, m);
+                    Method put = methodMap.put(classGroupKey, m);
+                    SysException.trueThrow(put != null, CONFIG_ERROR.message("same group should only has one custom valid method!"));
                 }
             });
             reflectedClasses.add(param.getClass());
