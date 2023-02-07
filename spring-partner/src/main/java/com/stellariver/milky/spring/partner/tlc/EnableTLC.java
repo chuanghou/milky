@@ -12,6 +12,6 @@ import java.lang.annotation.*;
 @Inherited
 public @interface EnableTLC {
 
-    Class<? extends BaseQuery<?, ?>>[] disableBaseQueries() default {};
+    Class<? extends BaseQuery<?, ?>>[] enableBaseQueries() default {};
 
 }

@@ -5,7 +5,7 @@ import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
-import com.stellariver.milky.domain.support.util.AsyncExecutor;
+import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -27,7 +27,7 @@ public class MilkySupport {
 
     TraceRepository traceRepository;
 
-    AsyncExecutor asyncExecutor;
+    ThreadLocalTransferableExecutor threadLocalTransferableExecutor;
 
     List<DependencyPrepares> dependencyPrepares;
 
@@ -47,7 +47,7 @@ public class MilkySupport {
 
     public MilkySupport(ConcurrentOperate concurrentOperate,
                         TraceRepository traceRepository,
-                        AsyncExecutor asyncExecutor,
+                        ThreadLocalTransferableExecutor threadLocalTransferableExecutor,
                         List<DependencyPrepares> dependencyPrepares,
                         List<Interceptors> interceptors,
                         List<EventRouters> eventRouters,
@@ -58,7 +58,7 @@ public class MilkySupport {
                         TransactionSupport transactionSupport) {
         this.concurrentOperate = concurrentOperate;
         this.traceRepository = traceRepository;
-        this.asyncExecutor = asyncExecutor;
+        this.threadLocalTransferableExecutor = threadLocalTransferableExecutor;
         this.dependencyPrepares = Kit.op(dependencyPrepares).orElseGet(ArrayList::new);
         this.interceptors = Kit.op(interceptors).orElseGet(ArrayList::new);
         this.eventRouters = Kit.op(eventRouters).orElseGet(ArrayList::new);

@@ -135,7 +135,7 @@ public abstract class BaseQuery<ID, T> {
 
     public T queryById(ID id) {
         Optional<T> optional = queryByIdOptional(id);
-        return optional.orElseThrow(() -> new SysException(ErrorEnumsBase.ENTITY_NOT_FOUND.message("id:" + Json.toJson(id))));
+        return optional.orElseThrow(() -> new SysException(ErrorEnumsBase.ENTITY_NOT_FOUND.message("id:" + id.toString())));
     }
 
     public Iterator<List<T>> buildIterator(Integer pageSize) {

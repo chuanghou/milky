@@ -21,6 +21,8 @@ public class Result<T> implements Serializable {
 
     protected String message;
 
+    protected String detailMessage;
+
     protected ExceptionType exceptionType;
 
     protected Map<String, Object> extendInfo;
@@ -62,6 +64,7 @@ public class Result<T> implements Serializable {
                 ", data=" + data +
                 ", code='" + code + '\'' +
                 ", message='" + message + '\'' +
+                ", detailMessage='" + detailMessage + '\'' +
                 ", exceptionType=" + exceptionType +
                 ", extendInfo=" + extendInfo +
                 ", errorEnums=" + errorEnums +
@@ -79,22 +82,17 @@ public class Result<T> implements Serializable {
     }
 
     public static <T> Result<T> error(@NonNull ErrorEnum errorEnum, @NonNull ExceptionType exceptionType) {
-        Result<T> result = new Result<>();
-        result.success = false;
-        result.code = errorEnum.getCode();
-        result.message = errorEnum.getMessage();
-        result.errorEnums = Collections.singletonList(errorEnum);
-        result.exceptionType = exceptionType;
-        return result;
+        return error(Collections.singletonList(errorEnum), exceptionType);
     }
 
     public static <T> Result<T> error(List<ErrorEnum> errorEnums, @NonNull ExceptionType exceptionType) {
         Result<T> result = new Result<>();
         result.success = false;
         result.code = errorEnums.get(0).getCode();
-        result.message = errorEnums.get(0).getMessage();
+        result.detailMessage = errorEnums.get(0).getMessage();
         result.errorEnums = errorEnums;
         result.exceptionType = exceptionType;
+        result.message = exceptionType == ExceptionType.BIZ ? result.detailMessage : "系统繁忙，请稍后再试！";
         return result;
     }
 

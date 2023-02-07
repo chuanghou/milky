@@ -16,7 +16,7 @@ public class SysException extends BaseException {
     }
 
     public SysException(Object object) {
-        super(Collections.singletonList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(Json.toJson(object))));
+        super(Collections.singletonList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(object)));
     }
 
     public SysException(Throwable throwable) {

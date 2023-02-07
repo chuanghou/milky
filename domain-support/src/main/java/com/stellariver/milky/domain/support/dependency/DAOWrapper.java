@@ -51,12 +51,10 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
                 }
             }
         }
-
     }
 
     @SuppressWarnings("unchecked")
     default void batchSaveWrapper(List<Object> dataObjects) {
-        SysException.trueThrowGet(Collect.isEmpty(dataObjects), () -> ErrorEnums.CONFIG_ERROR);
         CheckNull.checkNullField(dataObjects);
         int count = batchSave(Collect.transfer(dataObjects, doj -> (DataObject) doj));
         SysException.trueThrow(Kit.notEq(count, dataObjects.size()), ErrorEnums.PERSISTENCE_ERROR);
@@ -66,7 +64,6 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
 
     @SuppressWarnings("unchecked")
     default void batchUpdateWrapper(List<Object> dataObjects) {
-        SysException.trueThrowGet(Collect.isEmpty(dataObjects), () -> ErrorEnums.CONFIG_ERROR);
         CheckNull.checkNullField(dataObjects);
         int count = batchUpdate(Collect.transfer(dataObjects, doj -> (DataObject) doj));
         SysException.trueThrow(Kit.notEq(count, dataObjects.size()), ErrorEnums.PERSISTENCE_ERROR);

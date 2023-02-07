@@ -15,7 +15,7 @@ import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.context.DependencyKey;
 import com.stellariver.milky.domain.support.dependency.*;
-import com.stellariver.milky.domain.support.util.AsyncExecutor;
+import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
@@ -24,10 +24,7 @@ import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.util.BeanUtil;
-import lombok.AllArgsConstructor;
-import lombok.CustomLog;
-import lombok.Data;
-import lombok.SneakyThrows;
+import lombok.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
@@ -88,7 +85,7 @@ public class CommandBus {
 
     private final TraceRepository traceRepository;
 
-    private final AsyncExecutor asyncExecutor;
+    private final ThreadLocalTransferableExecutor threadLocalTransferableExecutor;
 
     private final Reflections reflections;
 
@@ -102,7 +99,7 @@ public class CommandBus {
         this.concurrentOperate = milkySupport.getConcurrentOperate();
         this.traceRepository = milkySupport.getTraceRepository();
         this.transactionSupport = milkySupport.getTransactionSupport();
-        this.asyncExecutor = milkySupport.getAsyncExecutor();
+        this.threadLocalTransferableExecutor = milkySupport.getThreadLocalTransferableExecutor();
         this.eventBus = eventBus;
         this.reflections = milkySupport.getReflections();
 
@@ -379,9 +376,9 @@ public class CommandBus {
                 });
             }
             eventBus.postFinalRoute(context.getFinalRouteEvents(), context);
-            asyncExecutor.submit(() -> traceRepository.record(context, true));
+            threadLocalTransferableExecutor.submit(() -> traceRepository.record(context, true));
         } catch (Throwable throwable) {
-            asyncExecutor.submit(() -> traceRepository.record(context, false));
+            threadLocalTransferableExecutor.submit(() -> traceRepository.record(context, false));
             if (memoryTx) {
                 transactionSupport.rollback();
             }
@@ -409,8 +406,7 @@ public class CommandBus {
         driveByEvent(command, sourceEvent, null);
     }
 
-    private <T extends Command> Object route(T command, @Nullable Class<? extends AggregateRoot> aggregateClazz) {
-        SysException.anyNullThrow(command);
+    private <T extends Command> Object route(@NonNull T command, @Nullable Class<? extends AggregateRoot> aggregateClazz) {
         Handler commandHandler;
         Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.get(command.getClass());
         SysException.nullThrowMessage(handlerMap, command.getClass().getSimpleName() + "could not found its handler!");
@@ -437,7 +433,7 @@ public class CommandBus {
                     .sleepTimeMils(sleepTimeMs)
                     .build();
             locked = concurrentOperate.tryRetryLock(retryParameter);
-            BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(Json.toJson(command)));
+            BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(command));
         }
         Object result = doRoute(command, context, commandHandler);
         context.clearDependencies();
@@ -555,7 +551,7 @@ public class CommandBus {
         SysException.trueThrow(referKeys.contains(key), "required key:" + key + "circular reference!");
         referKeys.add(key);
         DependencyProvider valueProvider = providers.get(key);
-        SysException.nullThrowMessage(valueProvider, "command:" + Json.toJson(command) + ", key:" + key);
+        SysException.nullThrowMessage(valueProvider, "command:" + command + ", key:" + key);
         Map<String, Object> stringKeyDependencies = new HashMap<>(16);
         context.getDependencies().forEach((k, v) -> stringKeyDependencies.put(k.getName(), v));
         Arrays.stream(valueProvider.getRequiredKeys())

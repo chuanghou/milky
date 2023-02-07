@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 
 /**
  * @author houchuang
+ * Unique Key is used to delare some unique key
  */
 public class UKs {
 

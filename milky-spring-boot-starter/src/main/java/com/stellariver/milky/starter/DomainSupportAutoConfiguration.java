@@ -12,7 +12,7 @@ import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
-import com.stellariver.milky.domain.support.util.AsyncExecutor;
+import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.BeanUtil;
@@ -59,7 +59,7 @@ public class DomainSupportAutoConfiguration {
                                      TraceRepository traceRepository,
                                      @Autowired(required = false)
                                      TransactionSupport transactionSupport,
-                                     AsyncExecutor asyncExecutor,
+                                     ThreadLocalTransferableExecutor threadLocalTransferableExecutor,
                                      @Autowired(required = false)
                                      List<DependencyPrepares> dependencyPrepares,
                                      @Autowired(required = false)
@@ -78,7 +78,7 @@ public class DomainSupportAutoConfiguration {
         Reflections reflections = new Reflections(configuration);
         return new MilkySupport(concurrentOperate,
                 traceRepository,
-                asyncExecutor,
+                threadLocalTransferableExecutor,
                 dependencyPrepares,
                 interceptors,
                 eventRouters,
@@ -108,7 +108,7 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AsyncExecutor asyncExecutor(@Autowired(required = false) List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
+    public ThreadLocalTransferableExecutor asyncExecutor(@Autowired(required = false) List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error(e.getMessage(), e))
                 .setNameFormat("async-thread-%d")
@@ -121,7 +121,7 @@ public class DomainSupportAutoConfiguration {
                 .blockingQueueCapacity(properties.getBlockingQueueCapacity())
                 .build();
 
-        return new AsyncExecutor(configuration, threadFactory, threadLocalPassers);
+        return new ThreadLocalTransferableExecutor(configuration, threadFactory, threadLocalPassers);
     }
 
     @Bean

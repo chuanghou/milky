@@ -3,23 +3,17 @@ package com.stellariver.milky.domain.support.event;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
-import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.base.MilkySupport;
-import com.stellariver.milky.domain.support.command.Command;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.util.BeanUtil;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.SneakyThrows;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
@@ -138,7 +132,7 @@ public class EventBus {
             Class<? extends Event> eventClass = (Class<? extends Event>) typeArgument;
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
             return new FinalRouter<Class<? extends Event>>(eventClass,
-                    bean, method, annotation.asyncable(), annotation.order(), milkySupport.getAsyncExecutor());
+                    bean, method, annotation.asyncable(), annotation.order(), milkySupport.getThreadLocalTransferableExecutor());
         }).collect(Collectors.toList());
         List<FinalRouter<Class<? extends Event>>> notDefaultOrderRouters = tempFinalRouters.stream()
                 .filter(fR -> !Kit.eq(fR.getOrder(), Double.MAX_VALUE)).collect(Collectors.toList());

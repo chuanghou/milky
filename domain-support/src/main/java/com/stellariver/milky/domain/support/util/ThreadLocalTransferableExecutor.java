@@ -11,14 +11,14 @@ import java.util.concurrent.*;
 /**
  * @author houchuang
  */
-public class AsyncExecutor extends ThreadPoolExecutor {
+public class ThreadLocalTransferableExecutor extends ThreadPoolExecutor {
 
     private final List<ThreadLocalPasser<?>> threadLocalPassers;
 
-    public AsyncExecutor(AsyncExecutorConfiguration configuration,
-                         ThreadFactory threadFactory,
-                         CallerRunsPolicy callerRunsPolicy,
-                         List<ThreadLocalPasser<?>> threadLocalPassers) {
+    public ThreadLocalTransferableExecutor(AsyncExecutorConfiguration configuration,
+                                           ThreadFactory threadFactory,
+                                           CallerRunsPolicy callerRunsPolicy,
+                                           List<ThreadLocalPasser<?>> threadLocalPassers) {
         super(configuration.getCorePoolSize(),
                 configuration.getMaximumPoolSize(),
                 configuration.getKeepAliveTimeMinutes(),
@@ -28,9 +28,9 @@ public class AsyncExecutor extends ThreadPoolExecutor {
         this.threadLocalPassers = Kit.op(threadLocalPassers).orElseGet(ArrayList::new);
     }
 
-    public AsyncExecutor(AsyncExecutorConfiguration configuration,
-                         ThreadFactory threadFactory,
-                         List<ThreadLocalPasser<?>> threadLocalPassers) {
+    public ThreadLocalTransferableExecutor(AsyncExecutorConfiguration configuration,
+                                           ThreadFactory threadFactory,
+                                           List<ThreadLocalPasser<?>> threadLocalPassers) {
         this(configuration, threadFactory, new ThreadPoolExecutor.CallerRunsPolicy(), threadLocalPassers);
     }
 

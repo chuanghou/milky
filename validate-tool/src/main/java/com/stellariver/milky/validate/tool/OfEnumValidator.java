@@ -58,8 +58,9 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
             HibernateConstraintValidatorContext hibernateContext = constraintValidatorContext.unwrap(
                     HibernateConstraintValidatorContext.class
             );
-            hibernateContext.addExpressionVariable("enumKeys", Json.toJson(enumKeys));
+            hibernateContext.addExpressionVariable("enumKeys", enumKeys.toString());
         }
         return valid;
     }
+
 }

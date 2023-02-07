@@ -44,9 +44,10 @@ public class PageResult<T> extends Result<List<T>> {
         PageResult<T> result = new PageResult<>();
         result.success = false;
         result.code = errorEnums.get(0).getCode();
-        result.message = errorEnums.get(0).getMessage();
+        result.detailMessage = errorEnums.get(0).getMessage();
         result.errorEnums = errorEnums;
         result.exceptionType = exceptionType;
+        result.message = exceptionType == ExceptionType.BIZ ? result.detailMessage : "系统繁忙，请稍后再试！";
         return result;
     }
 
