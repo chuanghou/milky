@@ -95,7 +95,7 @@ public class ValidateUtil {
 
             Arrays.stream(param.getClass().getDeclaredMethods())
                     .filter(method -> method.isAnnotationPresent(CustomValid.class))
-                    .filter(m -> !Modifier.isPublic(m.getModifiers()) || m.getReturnType().equals(void.class))
+                    .filter(m -> !Modifier.isPublic(m.getModifiers()) || !m.getReturnType().equals(void.class))
                     .findFirst().ifPresent(m -> {throw new SysException(CONFIG_ERROR.message(m.toGenericString()));});
 
             List<Method> methods = Arrays.stream(param.getClass().getMethods())

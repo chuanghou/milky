@@ -55,12 +55,6 @@ public class SysException extends BaseException {
         }
     }
 
-    static public void trueThrowGet(boolean test, Supplier<ErrorEnum> supplier, boolean fillStackTrace) {
-        if (test) {
-            throw new SysException(supplier.get());
-        }
-    }
-
     static public void trueThrow(boolean test, ErrorEnum errorEnum) {
         if (test) {
             throw new SysException(errorEnum);
