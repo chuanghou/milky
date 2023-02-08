@@ -25,7 +25,7 @@ public class Kit {
     }
 
     public static boolean notEq(Object a, Object b) {
-        return !Kit.eq(a, b);
+        return !Objects.equals(a, b);
     }
 
     public static <T> Optional<T> op(T value) {

@@ -16,6 +16,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.PERSISTENCE_ERROR;
+
 /**
  * @author houchuang
  */
@@ -57,7 +59,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     default void batchSaveWrapper(List<Object> dataObjects) {
         CheckNull.checkNullField(dataObjects);
         int count = batchSave(Collect.transfer(dataObjects, doj -> (DataObject) doj));
-        SysException.trueThrow(Kit.notEq(count, dataObjects.size()), ErrorEnums.PERSISTENCE_ERROR);
+        SysException.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
     }
 
     int batchSave(List<DataObject> dataObjects);
@@ -66,7 +68,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     default void batchUpdateWrapper(List<Object> dataObjects) {
         CheckNull.checkNullField(dataObjects);
         int count = batchUpdate(Collect.transfer(dataObjects, doj -> (DataObject) doj));
-        SysException.trueThrow(Kit.notEq(count, dataObjects.size()), ErrorEnums.PERSISTENCE_ERROR);
+        SysException.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
     }
 
     int batchUpdate(List<DataObject> dataObjects);
