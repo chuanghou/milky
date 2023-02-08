@@ -22,7 +22,7 @@ import java.util.Date;
 public abstract class Message {
 
     @Builder.Default
-    protected Long id = BeanUtil.getBean(IdBuilder.class).build();
+    protected Long id = BeanUtil.getBean(IdBuilder.class).get();
 
     @Builder.Default
     protected Date gmtCreate = Clock.now();

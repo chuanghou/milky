@@ -6,12 +6,12 @@ package com.stellariver.milky.domain.support.dependency;
  */
 public interface IdBuilder {
 
-    Long build(String nameSpace);
+    Long get(String nameSpace);
 
     void reset(String nameSpace);
 
-    default Long build() {
-        return build("default");
+    default Long get() {
+        return get("default");
     }
 
 }

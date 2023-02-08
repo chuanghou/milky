@@ -8,7 +8,7 @@ create table id_builder
     start bigint not null,
     unique_id bigint not null,
     step int not null,
-    duty,
+    duty int not null,
     version int not null,
     deleted int not null,
     gmt_create datetime not null,

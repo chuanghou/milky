@@ -7,7 +7,6 @@ import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
-import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.domain.support.base.Typed;
@@ -40,7 +39,7 @@ public class ItemAbility {
 
     @Transactional(rollbackFor = Throwable.class)
     public Item publishItem(Long userId, String title) {
-        Long itemId = idBuilder.build();
+        Long itemId = idBuilder.get();
         ItemCreateCommand command = ItemCreateCommand.builder().userId(userId)
                 .userInfo(userInfoRepository.getUserInfo(userId))
                 .itemId(itemId).title(title).amount(0L).storeCode("")

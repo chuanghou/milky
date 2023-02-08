@@ -1,7 +1,6 @@
 package com.stellariver.milky.demo.adapter.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
@@ -40,9 +39,9 @@ public class IdBuilderImpl implements IdBuilder {
     Pair<AtomicLong, Long> section;
 
     @Override
-    public Long build(String nameSpace) {
+    public Long get(String nameSpace) {
         if (section == null) {
-            section = buildSection(nameSpace);
+            section = loadSectionFromDB(nameSpace);
         }
         int times = 0;
         do {
@@ -50,7 +49,7 @@ public class IdBuilderImpl implements IdBuilder {
             if (value < section.getRight()) {
                 return value;
             }
-            section = buildSection(nameSpace);
+            section = loadSectionFromDB(nameSpace);
             SysException.trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
@@ -69,7 +68,7 @@ public class IdBuilderImpl implements IdBuilder {
         }while (count < 1);
     }
 
-    private Pair<AtomicLong, Long> buildSection(String namespace) {
+    private Pair<AtomicLong, Long> loadSectionFromDB(String namespace) {
         int count;
         Pair<AtomicLong, Long> section;
         int times = 0;
@@ -78,7 +77,7 @@ public class IdBuilderImpl implements IdBuilder {
             wrapper.eq(IdBuilderDO::getNameSpace, namespace);
             IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
 
-            if (resetQuestion(idBuilderDO)) {
+            if (autoResetQuestion(idBuilderDO)) {
                 idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
             }
             Long start = idBuilderDO.getUniqueId();
@@ -95,7 +94,7 @@ public class IdBuilderImpl implements IdBuilder {
         return section;
     }
 
-    private boolean resetQuestion(IdBuilderDO idBuilderDO) {
+    private boolean autoResetQuestion(IdBuilderDO idBuilderDO) {
         if (!SUPPORTABLE_DUTIES.contains(idBuilderDO.getDuty())) {
             return false;
         }
