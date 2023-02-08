@@ -26,15 +26,11 @@ import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.OPTIMIS
 public class IdBuilderImpl implements IdBuilder {
 
     static final int maxTimes = 10;
-
     static final long NULL_HOLDER_OF_LONG = -1L;
-
     static final int NULL_PLACE_HOLDER_OF_INTEGER = -1;
 
     static final Integer MONTH = 1;
-
     static final Integer WEEK = 2;
-
     static final Integer DAY = 3;
 
     static final Set<Integer> SUPPORTABLE_DUTIES = new HashSet<>(Arrays.asList(MONTH, WEEK, DAY));
