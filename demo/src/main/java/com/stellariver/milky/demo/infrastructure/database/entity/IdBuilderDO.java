@@ -23,4 +23,10 @@ public class IdBuilderDO extends AbstractMpDO {
 
     String nameSpace;
 
+    Long start;
+
+    Long uniqueId;
+
+    Integer step;
+
 }

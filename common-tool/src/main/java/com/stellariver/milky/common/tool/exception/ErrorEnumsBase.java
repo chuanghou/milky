@@ -15,7 +15,8 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum NOT_ALLOW_LOST ;
 
-    public static ErrorEnum NOT_SUPPORT_DIFFERENT_TYPE_COMPARE;
+    @Message("系统累瘫了请稍后再试")
+    public static ErrorEnum OPTIMISTIC_COMPETITION;
 
     public static ErrorEnum PARAM_FORMAT_WRONG;
 
