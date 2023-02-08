@@ -22,7 +22,6 @@ import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
-import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
@@ -90,6 +89,8 @@ public class CommandBus {
 
     private final TransactionSupport transactionSupport;
 
+    private final BeanLoader beanLoader;
+
     private final ThreadLocal<Boolean> memoryTxTL = ThreadLocal.withInitial(() -> false);
 
     @SuppressWarnings("unused")
@@ -101,7 +102,7 @@ public class CommandBus {
         this.threadLocalTransferableExecutor = milkySupport.getThreadLocalTransferableExecutor();
         this.eventBus = eventBus;
         this.reflections = milkySupport.getReflections();
-
+        this.beanLoader = milkySupport.getBeanLoader();
         prepareCommandHandlers();
         prepareContextValueProviders(milkySupport);
         prepareRepositories(milkySupport);
@@ -137,7 +138,7 @@ public class CommandBus {
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
-                    Object bean = BeanUtil.getBean(method.getDeclaringClass());
+                    Object bean = beanLoader.getBean(method.getDeclaringClass());
                     Interceptor interceptor = new Interceptor(bean, method, annotation.pos(), annotation.order());
                     tempInterceptorsMap.computeIfAbsent(commandClass, cC -> new ArrayList<>()).add(interceptor);
                 });
@@ -256,7 +257,7 @@ public class CommandBus {
             String key = annotation.value();
             String[] requiredKeys = annotation.requiredKeys();
             boolean alwaysLog = annotation.alwaysLog();
-            Object bean = BeanUtil.getBean(method.getDeclaringClass());
+            Object bean = beanLoader.getBean(method.getDeclaringClass());
             DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method, alwaysLog);
             Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>(16));
             SysException.trueThrow(valueProviderMap.containsKey(key),

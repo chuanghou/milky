@@ -37,6 +37,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.*;
 
 /**
@@ -154,9 +155,9 @@ public class DomainSupportAutoConfiguration {
                                                  @Autowired(required = false)
                                                  TraceIdGetter traceIdGetter,
                                                  BeanLoader beanLoader) {
-        Runner.setMilkyStableSupport(milkyStableSupport);
-        Runner.setFailureExtendable(runnerExtension);
-        Result.setTraceIdGetter(traceIdGetter);
+        Optional.ofNullable(milkyStableSupport).ifPresent(Runner::setMilkyStableSupport);
+        Optional.ofNullable(runnerExtension).ifPresent(Runner::setFailureExtendable);
+        Optional.ofNullable(traceIdGetter).ifPresent(Result::setTraceIdGetter);
         BeanUtil.setBeanLoader(beanLoader);
         return new DummyStaticSupport();
 

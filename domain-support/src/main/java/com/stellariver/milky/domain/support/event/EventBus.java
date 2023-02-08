@@ -8,10 +8,10 @@ import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.context.Context;
+import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
-import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.Data;
 import org.reflections.Reflections;
 
@@ -58,6 +58,7 @@ public class EventBus {
 
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {
+        BeanLoader beanLoader = milkySupport.getBeanLoader();
         List<Method> methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
@@ -69,7 +70,7 @@ public class EventBus {
         Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
         methods.forEach(method -> {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
-            Object bean = BeanUtil.getBean(method.getDeclaringClass());
+            Object bean = beanLoader.getBean(method.getDeclaringClass());
             Router router = new Router(bean, method);
             tempRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).add(router);
         });
@@ -96,7 +97,7 @@ public class EventBus {
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
-                    Object bean = BeanUtil.getBean(method.getDeclaringClass());
+                    Object bean = beanLoader.getBean(method.getDeclaringClass());
                     Interceptor interceptor = new Interceptor(bean, method, annotation.pos(), annotation.order());
                     Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
                             .forEach(eC -> tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor));
@@ -131,7 +132,7 @@ public class EventBus {
             BizException.trueThrow(Kit.eq(annotation.order(), 0.0), CONFIG_ERROR.message("final event router order must not 0!"));
             Type typeArgument = ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Class<? extends Event> eventClass = (Class<? extends Event>) typeArgument;
-            Object bean = BeanUtil.getBean(method.getDeclaringClass());
+            Object bean = beanLoader.getBean(method.getDeclaringClass());
             return new FinalRouter<Class<? extends Event>>(eventClass,
                     bean, method, annotation.asyncable(), annotation.order(), milkySupport.getThreadLocalTransferableExecutor());
         }).collect(Collectors.toList());
