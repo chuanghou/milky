@@ -1,8 +1,12 @@
 package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.stellariver.milky.common.base.Result;
+import com.stellariver.milky.common.base.TraceIdGetter;
+import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.common.BaseQuery;
+import com.stellariver.milky.common.tool.util.RunnerExtension;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
@@ -101,9 +105,7 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     BeanLoader beanLoader(ApplicationContext applicationContext) {
-        BeanLoaderImpl beanLoader = new BeanLoaderImpl(applicationContext);
-        BeanUtil.setBeanLoader(beanLoader);
-        return beanLoader;
+        return new BeanLoaderImpl(applicationContext);
     }
 
     @Bean
@@ -139,6 +141,25 @@ public class DomainSupportAutoConfiguration {
     @Bean
     public TLCSupport tlcSupport(List<BaseQuery<?, ?>> baseQueries) {
         return new TLCSupport(baseQueries);
+    }
+
+
+    static class DummyStaticSupport {}
+
+    @Bean
+    public DummyStaticSupport dummyStaticSupport(@Autowired(required = false)
+                                                 MilkyStableSupport milkyStableSupport,
+                                                 @Autowired(required = false)
+                                                 RunnerExtension runnerExtension,
+                                                 @Autowired(required = false)
+                                                 TraceIdGetter traceIdGetter,
+                                                 BeanLoader beanLoader) {
+        Runner.setMilkyStableSupport(milkyStableSupport);
+        Runner.setFailureExtendable(runnerExtension);
+        Result.setTraceIdGetter(traceIdGetter);
+        BeanUtil.setBeanLoader(beanLoader);
+        return new DummyStaticSupport();
+
     }
 
 }

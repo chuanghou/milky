@@ -6,6 +6,7 @@ import lombok.NonNull;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,14 @@ import java.util.Map;
 @Data
 public class Result<T> implements Serializable {
 
+    static private TraceIdGetter traceIdGetter;
+
+    static public void setTraceIdGetter(TraceIdGetter traceIdGetterImpl) {
+        traceIdGetter = traceIdGetterImpl;
+    }
+
     protected Boolean success = true;
+
     protected T data;
     protected String code;
     /**
@@ -35,6 +43,10 @@ public class Result<T> implements Serializable {
      * on some circumstance, you may need a set of error info
      */
     protected List<ErrorEnum> errorEnums;
+
+    protected String traceId;
+
+    protected Date date = new Date();
     /**
      * extend info may include some extent info
      */
@@ -44,6 +56,12 @@ public class Result<T> implements Serializable {
     public Result<T> extendInfo(Map<String, Object> extendInfo) {
         this.extendInfo = extendInfo;
         return this;
+    }
+
+    public Result() {
+        if (traceIdGetter != null) {
+            this.traceId = traceIdGetter.getTraceId();
+        }
     }
 
     public static <T> Result<T> success() {

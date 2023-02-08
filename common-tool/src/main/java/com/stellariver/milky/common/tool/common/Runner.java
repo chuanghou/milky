@@ -37,8 +37,8 @@ public class Runner {
     @Nullable
     static private RunnerExtension runnerExtension;
 
-    static public void setMilkyStableSupport(@NonNull MilkyStableSupport support) {
-        milkyStableSupport = support;
+    static public void setMilkyStableSupport(@NonNull MilkyStableSupport milkyStableSupportImpl) {
+        milkyStableSupport = milkyStableSupportImpl;
     }
 
     static public void reset() {
