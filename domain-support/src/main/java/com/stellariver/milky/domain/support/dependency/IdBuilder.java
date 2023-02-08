@@ -8,6 +8,8 @@ public interface IdBuilder {
 
     Long build(String nameSpace);
 
+    void reset(String nameSpace);
+
     default Long build() {
         return build("default");
     }

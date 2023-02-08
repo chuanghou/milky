@@ -29,4 +29,6 @@ public class IdBuilderDO extends AbstractMpDO {
 
     Integer step;
 
+    Integer duty;
+
 }
