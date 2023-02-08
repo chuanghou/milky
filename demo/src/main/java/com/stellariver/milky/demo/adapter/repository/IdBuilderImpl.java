@@ -73,7 +73,7 @@ public class IdBuilderImpl implements IdBuilder {
             wrapper.eq(IdBuilderDO::getNameSpace, namespace);
             IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
 
-            if (reset(idBuilderDO)) {
+            if (resetQuestion(idBuilderDO)) {
                 idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
             }
             Long start = idBuilderDO.getUniqueId();
@@ -90,7 +90,7 @@ public class IdBuilderImpl implements IdBuilder {
         return section;
     }
 
-    private boolean reset(IdBuilderDO idBuilderDO) {
+    private boolean resetQuestion(IdBuilderDO idBuilderDO) {
         if (!SUPPORTABLE_DUTIES.contains(idBuilderDO.getDuty())) {
             return false;
         }
