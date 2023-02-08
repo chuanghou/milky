@@ -21,8 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Kit {
 
     public static boolean eq(Object a, Object b) {
-//        boolean notNull = notNull(a) && notNull(b);
-//        SysException.trueThrowGet(notNull && (a.getClass() != b.getClass()), () -> ErrorEnumsBase.NOT_SUPPORT_DIFFERENT_TYPE_COMPARE);
         return Objects.equals(a, b);
     }
 
