@@ -1,20 +1,11 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.demo.basic.ErrorEnums;
 import com.stellariver.milky.validate.tool.CustomValid;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.Constraint;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-import javax.validation.Payload;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.PARAM_IS_NULL;
 
 @Data
 @Builder
@@ -30,12 +21,13 @@ public class ValidEntity {
 
     @CustomValid
     public void numberTest() {
-        BizException.nullThrow(number, "number不能为空");
+        BizException.trueThrow(number == null, PARAM_IS_NULL.message("number"), false);
+
     }
 
     @CustomValid(groups = NameGroup.class)
     public void nameTest() {
-        BizException.nullThrow(name,"name不能为空");
+        BizException.trueThrow(name == null, PARAM_IS_NULL.message("name不能为空"), false);
     }
 
     interface NameGroup{}
