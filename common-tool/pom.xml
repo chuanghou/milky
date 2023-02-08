@@ -23,6 +23,10 @@
             <artifactId>common-base</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>validate-tool</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>

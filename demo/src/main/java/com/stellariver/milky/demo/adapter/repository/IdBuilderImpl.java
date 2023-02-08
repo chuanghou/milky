@@ -5,6 +5,8 @@ import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
+import com.stellariver.milky.domain.support.dependency.NameSpaceParam;
+import com.stellariver.milky.validate.tool.Validate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.OPTIMISTIC_COMPETITION;
 
 /**
@@ -26,17 +29,24 @@ public class IdBuilderImpl implements IdBuilder {
 
     static final int maxTimes = 10;
     static final long NULL_HOLDER_OF_LONG = -1L;
-    static final int NULL_PLACE_HOLDER_OF_INTEGER = -1;
 
-    static final Integer MONTH = 1;
-    static final Integer WEEK = 2;
-    static final Integer DAY = 3;
-
-    static final Set<Integer> SUPPORTABLE_DUTIES = new HashSet<>(Arrays.asList(MONTH, WEEK, DAY));
+    static final Set<Integer> SUPPORTABLE_DUTIES =
+            new HashSet<>(Arrays.asList(Duty.MONTH.getCode(), Duty.WEEK.getCode(), Duty.DAY.getCode()));
 
     final IdBuilderMapper idBuilderMapper;
 
     Pair<AtomicLong, Long> section;
+
+    @Override
+    @Validate
+    public void initNameSpace(NameSpaceParam param) {
+        IdBuilderDO builderDO = IdBuilderDO.builder().nameSpace(param.getNameSpace())
+                .start(param.getStart())
+                .step(param.getStep())
+                .duty(param.getDuty().getCode())
+                .build();
+        idBuilderMapper.insert(builderDO);
+    }
 
     @Override
     public Long get(String nameSpace) {
@@ -76,7 +86,7 @@ public class IdBuilderImpl implements IdBuilder {
             LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(IdBuilderDO::getNameSpace, namespace);
             IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
-
+            SysException.nullThrow(idBuilderDO, CONFIG_ERROR.message("you haven't config you namespace " + namespace));
             if (autoResetQuestion(idBuilderDO)) {
                 idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
             }
@@ -105,11 +115,11 @@ public class IdBuilderImpl implements IdBuilder {
         Calendar now = Calendar.getInstance();
         now.setTime(new Date());
 
-        if (Objects.equals(idBuilderDO.getDuty(), MONTH)) {
+        if (Objects.equals(idBuilderDO.getDuty(), Duty.MONTH.getCode())) {
             return modified.get(Calendar.MONTH) != now.get(Calendar.MONTH);
-        } else if (Objects.equals(idBuilderDO.getDuty(), WEEK)) {
+        } else if (Objects.equals(idBuilderDO.getDuty(), Duty.WEEK.getCode())) {
             return modified.get(Calendar.WEEK_OF_YEAR) != now.get(Calendar.WEEK_OF_YEAR);
-        } else if (Objects.equals(idBuilderDO.getDuty(), DAY)) {
+        } else if (Objects.equals(idBuilderDO.getDuty(), Duty.DAY.getCode())) {
             return modified.get(Calendar.DAY_OF_YEAR) != now.get(Calendar.DAY_OF_YEAR);
         } else {
             return false;

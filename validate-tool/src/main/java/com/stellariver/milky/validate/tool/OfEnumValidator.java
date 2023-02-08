@@ -52,8 +52,8 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
     }
 
     @Override
-    public boolean isValid(Object key, ConstraintValidatorContext constraintValidatorContext) {
-        boolean valid = enumKeys.contains(key);
+    public boolean isValid(Object value, ConstraintValidatorContext constraintValidatorContext) {
+        boolean valid = enumKeys.contains(value);
         if (!valid) {
             HibernateConstraintValidatorContext hibernateContext = constraintValidatorContext.unwrap(
                     HibernateConstraintValidatorContext.class
