@@ -5,7 +5,6 @@ import com.stellariver.milky.common.tool.common.*;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
@@ -277,7 +276,7 @@ public class CommandBus {
                                                                        Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         instance.memoryTxTL.set(true);
-        SysException.nullThrowMessage(instance.transactionSupport,
+        SysException.nullThrow(instance.transactionSupport,
                 "transactionSupport is null, so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
         try {
             result = instance.doSend(command, parameters, null, aggregateIdMap);
@@ -409,7 +408,7 @@ public class CommandBus {
     private <T extends Command> Object route(@NonNull T command, @Nullable Class<? extends AggregateRoot> aggregateClazz) {
         Handler commandHandler;
         Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.get(command.getClass());
-        SysException.nullThrowMessage(handlerMap, command.getClass().getSimpleName() + "could not found its handler!");
+        SysException.nullThrow(handlerMap, command.getClass().getSimpleName() + "could not found its handler!");
         if (aggregateClazz == null) {
             boolean eq = Kit.eq(handlerMap.size(), 1);
             SysException.falseThrow(eq, ErrorEnums.CONFIG_ERROR.message(
@@ -447,7 +446,7 @@ public class CommandBus {
 
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         AggregateDaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
-        SysException.nullThrowMessage(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
+        SysException.nullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
 
         // invoke dependencies
         Map<String, DependencyProvider> providerMap = Kit.op(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
@@ -551,7 +550,7 @@ public class CommandBus {
         SysException.trueThrow(referKeys.contains(key), "required key:" + key + "circular reference!");
         referKeys.add(key);
         DependencyProvider valueProvider = providers.get(key);
-        SysException.nullThrowMessage(valueProvider, "command:" + command + ", key:" + key);
+        SysException.nullThrow(valueProvider, "command:" + command + ", key:" + key);
         Map<String, Object> stringKeyDependencies = new HashMap<>(16);
         context.getDependencies().forEach((k, v) -> stringKeyDependencies.put(k.getName(), v));
         Arrays.stream(valueProvider.getRequiredKeys())

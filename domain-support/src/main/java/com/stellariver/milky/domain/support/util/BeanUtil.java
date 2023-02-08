@@ -21,22 +21,22 @@ public class BeanUtil {
     }
 
     public static List<Object> getBeansForAnnotation(Class<? extends Annotation> annotationType) {
-        SysException.nullThrowMessage(beanLoader, "beanLoader need to be set by container");
+        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBeansForAnnotation(annotationType);
     }
 
     public static <T> List<T> getBeansOfType(Class<T> type) {
-        SysException.nullThrowMessage(beanLoader, "beanLoader need to be set by container");
+        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBeansOfType(type);
     }
 
     public static <T> T getBean(Class<T> requiredType) {
-        SysException.nullThrowMessage(beanLoader, "beanLoader need to be set by container");
+        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBean(requiredType);
     }
 
     public static Object getBean(String beanName) {
-        SysException.nullThrowMessage(beanLoader, "beanLoader need to be set by container");
+        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBean(beanName);
     }
 

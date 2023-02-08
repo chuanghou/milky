@@ -1,7 +1,6 @@
 package com.stellariver.milky.common.tool.exception;
 
 import com.stellariver.milky.common.base.ErrorEnum;
-import com.stellariver.milky.common.tool.util.Json;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -10,10 +9,6 @@ import java.util.function.Supplier;
  * @author houchuang
  */
 public class SysException extends BaseException {
-
-    public SysException(String message) {
-        super(Collections.singletonList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(message)));
-    }
 
     public SysException(Object object) {
         super(Collections.singletonList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(object)));
@@ -48,19 +43,19 @@ public class SysException extends BaseException {
         }
     }
 
-    static public void nullThrowGet(Object param, Supplier<ErrorEnum> supplier) {
+    static public void nullThrow(Object param, Object message) {
         if (param == null) {
-            throw new SysException(supplier.get());
-        }
-    }
-
-    static public void nullThrowMessage(Object param, Object messageObject) {
-        if (param == null) {
-            throw new SysException(ErrorEnumsBase.PARAM_IS_NULL.message(messageObject));
+            throw new SysException(ErrorEnumsBase.PARAM_IS_NULL.message(message));
         }
     }
 
     static public void trueThrowGet(boolean test, Supplier<ErrorEnum> supplier) {
+        if (test) {
+            throw new SysException(supplier.get());
+        }
+    }
+
+    static public void trueThrowGet(boolean test, Supplier<ErrorEnum> supplier, boolean fillStackTrace) {
         if (test) {
             throw new SysException(supplier.get());
         }
@@ -78,12 +73,12 @@ public class SysException extends BaseException {
         }
     }
 
-    static public void falseThrowGet(boolean test, Supplier<ErrorEnum> supplier) {
-        trueThrowGet(!test, supplier);
-    }
-
     static public void falseThrow(boolean test, ErrorEnum errorEnum) {
         trueThrow(!test, errorEnum);
+    }
+
+    static public void falseThrowGet(boolean test, Supplier<ErrorEnum> supplier) {
+        trueThrowGet(!test, supplier);
     }
 
     static public void falseThrow(boolean test,  Object object) {

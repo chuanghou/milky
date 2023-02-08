@@ -30,12 +30,12 @@ public class ValidEntity {
 
     @CustomValid
     public void numberTest() {
-        BizException.nullThrow(number, () -> ErrorEnums.PARAM_IS_NULL.message("number不能为空"));
+        BizException.nullThrow(number, "number不能为空");
     }
 
     @CustomValid(groups = NameGroup.class)
     public void nameTest() {
-        BizException.nullThrow(name, () -> ErrorEnums.PARAM_IS_NULL.message("name不能为空"));
+        BizException.nullThrow(name,"name不能为空");
     }
 
     interface NameGroup{}

@@ -17,13 +17,28 @@ public abstract class BaseException extends RuntimeException {
         this.errorEnums = Collect.asList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(t.getMessage()));
     }
 
+    public BaseException(Throwable t, boolean fillStackTrace) {
+        super(null, t, true, fillStackTrace);
+        this.errorEnums = Collect.asList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(t.getMessage()));
+    }
+
     public BaseException(List<ErrorEnum> errorEnums) {
         super(errorEnums.get(0).getMessage());
         this.errorEnums = errorEnums;
     }
 
+    public BaseException(List<ErrorEnum> errorEnums, boolean fillStackTrace) {
+        super(errorEnums.get(0).getMessage(), null, true, fillStackTrace);
+        this.errorEnums = errorEnums;
+    }
+
     public BaseException(List<ErrorEnum> errorEnums, Throwable t) {
         super(errorEnums.get(0).getMessage(), t);
+        this.errorEnums = errorEnums;
+    }
+
+    public BaseException(List<ErrorEnum> errorEnums, Throwable t, boolean fillStackTrace) {
+        super(errorEnums.get(0).getMessage(), t, true, fillStackTrace);
         this.errorEnums = errorEnums;
     }
 

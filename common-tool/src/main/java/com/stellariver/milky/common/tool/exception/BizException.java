@@ -14,12 +14,24 @@ public class BizException extends BaseException {
         super(Collections.singletonList(errorEnum), throwable);
     }
 
+    public BizException(ErrorEnum errorEnum, Throwable throwable, boolean fillStackTrace) {
+        super(Collections.singletonList(errorEnum), throwable, fillStackTrace);
+    }
+
     public BizException(ErrorEnum errorEnum) {
         super(Collections.singletonList(errorEnum));
     }
 
+    public BizException(ErrorEnum errorEnum, boolean fillStackTrace) {
+        super(Collections.singletonList(errorEnum), fillStackTrace);
+    }
+
     public BizException(List<ErrorEnum> errorEnums) {
         super(errorEnums);
+    }
+
+    public BizException(List<ErrorEnum> errorEnums, boolean fillStackTrace) {
+        super(errorEnums, fillStackTrace);
     }
 
     static public void anyNullThrow(Object... params) {
@@ -29,15 +41,28 @@ public class BizException extends BaseException {
         }
     }
 
-    static public void nullThrow(Object param, Supplier<ErrorEnum> supplier) {
+    static public void nullThrow(Object param) {
         if (param == null) {
-            throw new BizException(supplier.get());
+            throw new BizException(ErrorEnumsBase.PARAM_IS_NULL);
         }
     }
+
+    static public void nullThrow(Object param, Object message) {
+        if (param == null) {
+            throw new BizException(ErrorEnumsBase.PARAM_IS_NULL.message(message));
+        }
+    }
+
 
     static public void trueThrowGet(boolean test, Supplier<ErrorEnum> supplier) {
         if (test) {
             throw new BizException(supplier.get());
+        }
+    }
+
+    static public void trueThrowGet(boolean test, Supplier<ErrorEnum> supplier, boolean fillStackTrace) {
+        if (test) {
+            throw new BizException(supplier.get(), fillStackTrace);
         }
     }
 
@@ -47,12 +72,26 @@ public class BizException extends BaseException {
         }
     }
 
+    static public void trueThrow(boolean test, ErrorEnum errorEnum, boolean fillStackTrace) {
+        if (test) {
+            throw new BizException(errorEnum, fillStackTrace);
+        }
+    }
+
     static public void falseThrowGet(boolean test, Supplier<ErrorEnum> supplier) {
         trueThrowGet(!test, supplier);
     }
 
+    static public void falseThrowGet(boolean test, Supplier<ErrorEnum> supplier, boolean fillStackTrace) {
+        trueThrowGet(!test, supplier, fillStackTrace);
+    }
+
     static public void falseThrow(boolean test, ErrorEnum errorEnum) {
         trueThrow(!test, errorEnum);
+    }
+
+    static public void falseThrow(boolean test, ErrorEnum errorEnum, boolean fillStackTrace) {
+        trueThrow(!test, errorEnum, fillStackTrace);
     }
 
 }

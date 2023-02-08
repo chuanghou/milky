@@ -47,7 +47,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
                     MethodAccess methodAccess = getter.getLeft();
                     Integer index = getter.getRight();
                     Object value = methodAccess.invoke(object, index);
-                    SysException.nullThrowGet(value, () -> ErrorEnums.FIELD_IS_NULL.message(object));
+                    SysException.nullThrow(value, object);
                 }
             }
         }
