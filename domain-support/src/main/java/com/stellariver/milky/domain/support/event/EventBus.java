@@ -6,7 +6,6 @@ import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
@@ -25,6 +24,8 @@ import java.util.concurrent.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
+
 /**
  * @author houchuang
  */
@@ -40,7 +41,7 @@ public class EventBus {
         Class<?>[] parameterTypes = method.getParameterTypes();
         boolean parametersMatch = parameterTypes.length == 2 &&
                 List.class.isAssignableFrom(parameterTypes[0]) && Context.class.isAssignableFrom(parameterTypes[1]);
-        SysException.falseThrow(parametersMatch, ErrorEnums.CONFIG_ERROR.message("FinalEventRouter format wrong! "
+        SysException.falseThrow(parametersMatch, CONFIG_ERROR.message("FinalEventRouter format wrong! "
                 + method.getDeclaringClass().getName() + "#" + method.getName()));
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Type actualTypeArgument = ((ParameterizedType) genericParameterTypes[0]).getActualTypeArguments()[0];
@@ -62,7 +63,7 @@ public class EventBus {
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
                 .filter(m -> {
                     SysException.falseThrow(FORMAT.test(m),
-                            ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                            CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
                     return true;
                 }).collect(Collectors.toList());
         Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
@@ -88,7 +89,7 @@ public class EventBus {
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
                 .filter(m -> Event.class.isAssignableFrom(m.getParameterTypes()[0]))
                 .filter(m -> {
-                    SysException.falseThrow(FORMAT.test(m), ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                    SysException.falseThrow(FORMAT.test(m), CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
                     return true;
                 }).filter(method -> method.getParameterTypes()[0].isAssignableFrom(Event.class))
                 .collect(Collectors.toList())
@@ -121,13 +122,13 @@ public class EventBus {
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(FinalEventRouter.class))
                 .filter(m -> {
-                    SysException.falseThrow(FINAL_EVENT_ROUTER_FORMAT.test(m), ErrorEnums.CONFIG_ERROR.message(m.toGenericString()));
+                    SysException.falseThrow(FINAL_EVENT_ROUTER_FORMAT.test(m), CONFIG_ERROR.message(m.toGenericString()));
                     return true;
                 }).collect(Collectors.toList());
 
         List<FinalRouter<Class<? extends Event>>> tempFinalRouters = methods.stream().map(method -> {
             FinalEventRouter annotation = method.getAnnotation(FinalEventRouter.class);
-            BizException.trueThrow(Kit.eq(annotation.order(), 0.0), ErrorEnums.CONFIG_ERROR.message("final event router order must not 0!"));
+            BizException.trueThrow(Kit.eq(annotation.order(), 0.0), CONFIG_ERROR.message("final event router order must not 0!"));
             Type typeArgument = ((ParameterizedType) method.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
             Class<? extends Event> eventClass = (Class<? extends Event>) typeArgument;
             Object bean = BeanUtil.getBean(method.getDeclaringClass());
@@ -138,7 +139,7 @@ public class EventBus {
                 .filter(fR -> !Kit.eq(fR.getOrder(), Double.MAX_VALUE)).collect(Collectors.toList());
         Set<Double> orders = Collect.transfer(notDefaultOrderRouters, FinalRouter::getOrder, HashSet::new);
         SysException.falseThrow(Kit.eq(orders.size(), notDefaultOrderRouters.size()),
-                ErrorEnums.CONFIG_ERROR.message("exists finalEventRouters share same order!"));
+                CONFIG_ERROR.message("exists finalEventRouters share same order!"));
         finalRouters.addAll(tempFinalRouters);
     }
 

@@ -21,7 +21,7 @@ public class ValidEntity {
 
     @CustomValid
     public void numberTest() {
-        BizException.trueThrow(number == null, PARAM_IS_NULL.message("number"), false);
+        BizException.trueThrow(number == null, PARAM_IS_NULL.message("number不能为空"), false);
 
     }
 
