@@ -55,7 +55,6 @@ public class RpcAspect {
         this.milkyStableSupport = milkyStableSupport;
     }
 
-    //TODO 熔断
     @Around("resultPointCut() || pageResultPointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
         if (milkyStableSupport != null) {
@@ -75,7 +74,7 @@ public class RpcAspect {
         Throwable t = null;
         try {
             Validate annotation = method.getAnnotation(Validate.class);
-            if (annotation == null) {
+            if (annotation != null) {
                 ValidateUtil.bizValidate(pjp.getTarget(), method, args, true);
             }
             result = pjp.proceed();

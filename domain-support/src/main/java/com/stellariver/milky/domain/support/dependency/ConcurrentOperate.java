@@ -36,14 +36,14 @@ public abstract class ConcurrentOperate {
 
     public boolean unLockAll() {
         Map<String, Result<Void>> unLockResult = batchUnLock(lockedIds.get());
-        return unLockResult.values().stream().map(Result::isSuccess).reduce((b0, b1) -> b0 && b1).orElse(false);
+        return unLockResult.values().stream().map(Result::getSuccess).reduce((b0, b1) -> b0 && b1).orElse(false);
     }
 
     protected boolean tryLock(String lockId, int milsToExpire) {
         Pair<String, Duration> lockParam = Pair.of(lockId, Duration.of(milsToExpire, ChronoUnit.MILLIS));
         Map<String, Result<Void>> lockResult = batchTryLock(Collect.asList(lockParam));
         Result<?> result = lockResult.get(lockId);
-        return result.isSuccess();
+        return result.getSuccess();
     }
 
     abstract protected Map<String, Result<Void>> batchTryLock(List<Pair<String, Duration>> lockParams);

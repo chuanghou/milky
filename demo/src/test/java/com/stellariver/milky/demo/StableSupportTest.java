@@ -53,7 +53,7 @@ public class StableSupportTest {
         Mockito.when(stableConfigReader.read()).thenReturn(stableConfig);
         MilkyStableSupport milkyStableSupport = new MilkyStableSupport(stableConfigReader);
         Runner.setMilkyStableSupport(milkyStableSupport);
-        Option<Result<String>, String> option = Option.<Result<String>, String>builder().check(Result::isSuccess)
+        Option<Result<String>, String> option = Option.<Result<String>, String>builder().check(Result::getSuccess)
                 .lambdaId(UKs.stableTest)
                 .transfer(Result::getData)
                 .build();

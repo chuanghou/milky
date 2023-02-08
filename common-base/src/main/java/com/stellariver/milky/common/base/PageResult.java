@@ -1,11 +1,16 @@
 package com.stellariver.milky.common.base;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.util.Collections;
 import java.util.List;
 
 /**
  * @author houchuang
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class PageResult<T> extends Result<List<T>> {
 
     private final Paginator paginator = new Paginator();
@@ -15,7 +20,6 @@ public class PageResult<T> extends Result<List<T>> {
     }
 
     private PageResult(List<T> data, long total, long pageNo, long pageSize) {
-        super();
         this.success = true;
         this.data = data;
         paginator.setPageNo(pageNo);

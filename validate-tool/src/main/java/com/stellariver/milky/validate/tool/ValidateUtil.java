@@ -1,6 +1,5 @@
 package com.stellariver.milky.validate.tool;
 
-import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;

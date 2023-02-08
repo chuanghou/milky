@@ -1,6 +1,7 @@
 package com.stellariver.milky.common.base;
 
 
+import lombok.Data;
 import lombok.NonNull;
 
 import java.io.Serializable;
@@ -10,65 +11,39 @@ import java.util.Map;
 
 /**
  * @author houchuang
+ *
  */
+@Data
 public class Result<T> implements Serializable {
 
     protected Boolean success = true;
-
     protected T data;
-
     protected String code;
-
+    /**
+     * the message that can be shown to customer
+     */
     protected String message;
-
+    /**
+     * the detail message may come from exception
+     */
     protected String detailMessage;
-
+    /**
+     * exception type, {@link ExceptionType} may business exception or system exception
+     */
     protected ExceptionType exceptionType;
-
+    /**
+     * on some circumstance, you may need a set of error info
+     */
+    protected List<ErrorEnum> errorEnums;
+    /**
+     * extend info may include some extent info
+     */
     protected Map<String, Object> extendInfo;
 
-    protected List<ErrorEnum> errorEnums;
 
-    public Boolean isSuccess() {
-        return success;
-    }
-
-    public T getData() {
-        return this.data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public String getCode() {
-        return this.code;
-    }
-
-    public String getMessage() {
-        return this.message;
-    }
-
-    public List<ErrorEnum> getErrors() {
-        return this.errorEnums;
-    }
-
-    public ExceptionType getExceptionType() {
-        return exceptionType;
-    }
-
-    @Override
-    public String toString() {
-        return "Result{" +
-                "success=" + success +
-                ", data=" + data +
-                ", code='" + code + '\'' +
-                ", message='" + message + '\'' +
-                ", detailMessage='" + detailMessage + '\'' +
-                ", exceptionType=" + exceptionType +
-                ", extendInfo=" + extendInfo +
-                ", errorEnums=" + errorEnums +
-                '}';
+    public Result<T> extendInfo(Map<String, Object> extendInfo) {
+        this.extendInfo = extendInfo;
+        return this;
     }
 
     public static <T> Result<T> success() {
@@ -94,11 +69,6 @@ public class Result<T> implements Serializable {
         result.exceptionType = exceptionType;
         result.message = exceptionType == ExceptionType.BIZ ? result.detailMessage : "系统繁忙，请稍后再试！";
         return result;
-    }
-
-    public Result<T> extendInfo(Map<String, Object> extendInfo) {
-        this.extendInfo = extendInfo;
-        return this;
     }
 
 }
