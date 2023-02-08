@@ -23,6 +23,10 @@
             <artifactId>common-tool</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>validate-tool</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
         </dependency>
