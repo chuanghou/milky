@@ -55,7 +55,7 @@ public class SqlRateLimiterTest {
                 .transfer(Function.identity())
                 .build();
         long now = Clock.currentTimeMillis();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1000; i++) {
             Runner.checkout(option, () -> idBuilder.get());
         }
         long cost = Clock.currentTimeMillis() - now;
