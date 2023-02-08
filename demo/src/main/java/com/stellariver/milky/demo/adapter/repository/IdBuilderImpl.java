@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo.adapter.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
@@ -44,10 +45,18 @@ public class IdBuilderImpl implements IdBuilder {
 
     @Override
     public Long build(String nameSpace) {
-        if (section == null || section.getLeft().get() >= section.getRight()) {
+        if (section == null) {
             section = buildSection(nameSpace);
         }
-        return section.getLeft().getAndIncrement();
+        int times = 0;
+        do {
+            long value = section.getLeft().getAndIncrement();
+            if (value < section.getRight()) {
+                return value;
+            }
+            section = buildSection(nameSpace);
+            SysException.trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
+        }while (true);
     }
 
     @Override
