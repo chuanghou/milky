@@ -52,10 +52,16 @@ public class IdBuilderImpl implements IdBuilder {
 
     @Override
     public void reset(String nameSpace) {
-        LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(IdBuilderDO::getNameSpace, nameSpace);
-        IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
-        idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
+        int count;
+        int times = 0;
+        do {
+            LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(IdBuilderDO::getNameSpace, nameSpace);
+            IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
+            idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
+            count = idBuilderMapper.updateById(idBuilderDO);
+            SysException.trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
+        }while (count < 1);
     }
 
     private Pair<AtomicLong, Long> buildSection(String namespace) {
