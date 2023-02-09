@@ -1,16 +1,19 @@
 package com.stellariver.milky.demo.adapter.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
-import com.stellariver.milky.domain.support.dependency.NameSpaceParam;
+import com.stellariver.milky.domain.support.dependency.NSParam;
 import com.stellariver.milky.validate.tool.Validate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -28,7 +31,6 @@ import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.OPTIMIS
 public class IdBuilderImpl implements IdBuilder {
 
     static final int maxTimes = 10;
-    static final long NULL_HOLDER_OF_LONG = -1L;
 
     static final Set<Integer> SUPPORTABLE_DUTIES =
             new HashSet<>(Arrays.asList(Duty.MONTH.getCode(), Duty.WEEK.getCode(), Duty.DAY.getCode()));
@@ -38,14 +40,22 @@ public class IdBuilderImpl implements IdBuilder {
     Pair<AtomicLong, Long> section;
 
     @Override
-    @Validate
-    public void initNameSpace(NameSpaceParam param) {
+    public void initNameSpace(NSParam param) {
         IdBuilderDO builderDO = IdBuilderDO.builder().nameSpace(param.getNameSpace())
                 .start(param.getStart())
+                .uniqueId(NULL_HOLDER_OF_LONG)
                 .step(param.getStep())
                 .duty(param.getDuty().getCode())
                 .build();
-        idBuilderMapper.insert(builderDO);
+        int insert;
+        try {
+            insert = idBuilderMapper.insert(builderDO);
+        } catch (DuplicateKeyException duplicateKeyException) {
+            throw new BizException(CONFIG_ERROR.message("重复命名空间: " + param.getNameSpace()));
+        } catch (Throwable throwable) {
+            throw new SysException(ErrorEnumsBase.SYSTEM_EXCEPTION, throwable);
+        }
+        SysException.trueThrow(insert != 1, ErrorEnumsBase.SYSTEM_EXCEPTION);
     }
 
     @Override

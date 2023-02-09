@@ -1,16 +1,16 @@
 package com.stellariver.milky.domain.support.dependency;
 
-
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.validate.tool.OfEnum;
+import lombok.Builder;
 import lombok.Data;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.*;
 
 @Data
-public class NameSpaceParam {
+@Builder
+public class NSParam {
 
     @NotBlank
     String nameSpace;

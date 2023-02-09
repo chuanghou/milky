@@ -1,9 +1,7 @@
 package com.stellariver.milky.validate.tool;
 
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.common.tool.util.Json;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
@@ -12,6 +10,8 @@ import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
 
 public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
 
@@ -35,17 +35,17 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
             try {
                 key = field != null ? field.get(enumConstant) : enumConstant.name();
             } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+                throw new SysException(e);
             }
-            enumKeys.add(key);
+            boolean add = enumKeys.add(key);
+            SysException.falseThrow(add, CONFIG_ERROR.message(clazz.getSimpleName() + " field: " + key + " duplicated"));
         }
         if (anno.selected().length != 0) {
             boolean b = field == null || field.getType().equals(String.class);
-            SysException.falseThrow(b, ErrorEnumsBase.CONFIG_ERROR.message("配置的key类型不是字符串"));
+            SysException.falseThrow(b, CONFIG_ERROR.message("配置的key类型不是字符串"));
             Set<Object> selectKeys = Arrays.stream(anno.selected()).collect(Collectors.toSet());
             Set<Object> diff = Collect.diff(selectKeys, enumKeys);
-            SysException.falseThrow(diff.isEmpty(),
-                    ErrorEnumsBase.CONFIG_ERROR.message("selected keys 包含枚举类中未配置keys" + diff));
+            SysException.falseThrow(diff.isEmpty(), CONFIG_ERROR.message("selected keys 包含枚举类中未配置keys" + diff));
             enumKeys = selectKeys;
         }
 
@@ -53,6 +53,9 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext constraintValidatorContext) {
+        if (value == null) {
+            return true;
+        }
         boolean valid = enumKeys.contains(value);
         if (!valid) {
             HibernateConstraintValidatorContext hibernateContext = constraintValidatorContext.unwrap(
