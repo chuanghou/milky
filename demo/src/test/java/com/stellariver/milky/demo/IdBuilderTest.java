@@ -23,7 +23,7 @@ public class IdBuilderTest {
 
     @Test
     public void testIdBuilder() {
-        NSParam nsParam = NSParam.builder().nameSpace("default")
+        NSParam nsParam = NSParam.builder().nameSpace("my_test")
                 .duty(IdBuilder.Duty.NOT_WORK.name())
                 .step(100)
                 .start(1L)
@@ -31,7 +31,7 @@ public class IdBuilderTest {
         idBuilder.initNameSpace(nsParam);
 
 
-        nsParam = NSParam.builder().nameSpace("default")
+        nsParam = NSParam.builder().nameSpace("my_test")
                 .duty(IdBuilder.Duty.NOT_WORK.name())
                 .step(100)
                 .start(1L)

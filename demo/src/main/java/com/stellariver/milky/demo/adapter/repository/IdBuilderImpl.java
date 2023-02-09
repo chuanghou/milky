@@ -8,7 +8,6 @@ import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.dependency.NSParam;
-import com.stellariver.milky.validate.tool.Validate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
+import static com.stellariver.milky.common.tool.exception.SysException.*;
 
 /**
  * @author houchuang
@@ -54,7 +54,7 @@ public class IdBuilderImpl implements IdBuilder {
         } catch (Throwable throwable) {
             throw new SysException(ErrorEnumsBase.SYSTEM_EXCEPTION, throwable);
         }
-        SysException.trueThrow(insert != 1, ErrorEnumsBase.SYSTEM_EXCEPTION);
+        trueThrow(insert != 1, ErrorEnumsBase.SYSTEM_EXCEPTION);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class IdBuilderImpl implements IdBuilder {
                 return value;
             }
             section = loadSectionFromDB(nameSpace);
-            SysException.trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
+            trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
 
@@ -83,7 +83,7 @@ public class IdBuilderImpl implements IdBuilder {
             IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
             idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
             count = idBuilderMapper.updateById(idBuilderDO);
-            SysException.trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
+            trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (count < 1);
     }
 
@@ -95,7 +95,7 @@ public class IdBuilderImpl implements IdBuilder {
             LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(IdBuilderDO::getNameSpace, namespace);
             IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
-            SysException.nullThrow(idBuilderDO, CONFIG_ERROR.message("you haven't config you namespace " + namespace));
+            nullThrow(idBuilderDO, CONFIG_ERROR.message("you haven't config you namespace " + namespace));
             if (autoResetQuestion(idBuilderDO)) {
                 idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
             }
@@ -108,7 +108,7 @@ public class IdBuilderImpl implements IdBuilder {
             section = Pair.of(atomicStart, end);
             idBuilderDO.setUniqueId(idBuilderDO.getUniqueId() + idBuilderDO.getStep());
             count = idBuilderMapper.updateById(idBuilderDO);
-            SysException.trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
+            trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         } while (count < 1);
         return section;
     }
