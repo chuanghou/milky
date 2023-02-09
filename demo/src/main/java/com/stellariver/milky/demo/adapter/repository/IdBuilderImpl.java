@@ -19,8 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.OPTIMISTIC_COMPETITION;
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
 
 /**
  * @author houchuang
@@ -51,7 +50,7 @@ public class IdBuilderImpl implements IdBuilder {
         try {
             insert = idBuilderMapper.insert(builderDO);
         } catch (DuplicateKeyException duplicateKeyException) {
-            throw new BizException(CONFIG_ERROR.message("重复命名空间: " + param.getNameSpace()));
+            throw new BizException(DUPLICATE_NAME_SPACE);
         } catch (Throwable throwable) {
             throw new SysException(ErrorEnumsBase.SYSTEM_EXCEPTION, throwable);
         }

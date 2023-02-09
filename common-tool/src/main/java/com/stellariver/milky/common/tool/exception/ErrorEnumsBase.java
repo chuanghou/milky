@@ -22,6 +22,9 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum CONFIG_ERROR;
 
+    @Message("重复命名空间")
+    public static ErrorEnum DUPLICATE_NAME_SPACE;
+
     public static ErrorEnum ENTITY_NOT_FOUND;
 
     public static ErrorEnum SYSTEM_EXCEPTION;

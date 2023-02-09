@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.dependency.NSParam;
@@ -9,9 +9,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.Assert;
-
-import java.util.List;
 
 @SpringBootTest
 public class IdBuilderTest {
@@ -46,6 +43,8 @@ public class IdBuilderTest {
             backUp = throwable;
         }
         Assertions.assertTrue(backUp instanceof BizException);
+        String code = ((BizException) backUp).getFirstError().getCode();
+        Assertions.assertEquals(code, ErrorEnumsBase.DUPLICATE_NAME_SPACE.getCode());
     }
 
 
