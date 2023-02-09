@@ -36,7 +36,7 @@ public class IdBuilderImpl implements IdBuilder {
 
     final IdBuilderMapper idBuilderMapper;
 
-    Pair<AtomicLong, Long> section;
+    volatile Pair<AtomicLong, Long> section;
 
     @Override
     public void initNameSpace(NSParam param) {
@@ -60,7 +60,7 @@ public class IdBuilderImpl implements IdBuilder {
     @Override
     public Long get(String nameSpace) {
         if (section == null) {
-            section = loadSectionFromDB(nameSpace);
+            loadSectionFromDB(nameSpace);
         }
         int times = 0;
         do {
@@ -68,10 +68,12 @@ public class IdBuilderImpl implements IdBuilder {
             if (value < section.getRight()) {
                 return value;
             }
-            section = loadSectionFromDB(nameSpace);
+            section = null;
+            loadSectionFromDB(nameSpace);
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
+
 
     @Override
     public void reset(String nameSpace) {
@@ -87,7 +89,17 @@ public class IdBuilderImpl implements IdBuilder {
         }while (count < 1);
     }
 
-    private Pair<AtomicLong, Long> loadSectionFromDB(String namespace) {
+    private void loadSectionFromDB(String namespace) {
+        if (null == section) {
+            synchronized (this) {
+                if (null == section) {
+                    section = doLoadSectionFromDB(namespace);
+                }
+            }
+        }
+    }
+
+    private Pair<AtomicLong, Long> doLoadSectionFromDB(String namespace) {
         int count;
         Pair<AtomicLong, Long> section;
         int times = 0;
