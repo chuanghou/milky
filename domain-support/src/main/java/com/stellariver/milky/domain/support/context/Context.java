@@ -105,7 +105,7 @@ public class Context{
 
     public static Context build(Map<Typed<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Context context = new Context();
-        context.invocationId = BeanUtil.getBean(IdBuilder.class).get();
+        context.invocationId = BeanUtil.getBean(IdBuilder.class).get("default");
         context.parameters.putAll(parameters);
         context.metaData.putAll(parameters);
         Kit.op(aggregateIdMap).orElseGet(HashMap::new).forEach((aggregateClazz, aggregateIdSet) -> {

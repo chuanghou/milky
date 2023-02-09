@@ -15,11 +15,6 @@ public interface IdBuilder {
 
     void reset(String nameSpace);
 
-    default Long get() {
-        return get("default");
-    }
-
-
     enum Duty {
         NOT_WORK(-1),
         MONTH(1),

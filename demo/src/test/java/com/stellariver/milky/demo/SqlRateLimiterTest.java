@@ -56,7 +56,7 @@ public class SqlRateLimiterTest {
                 .build();
         long now = Clock.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
-            Runner.checkout(option, () -> idBuilder.get());
+            Runner.checkout(option, () -> idBuilder.get("default"));
         }
         long cost = Clock.currentTimeMillis() - now;
         Assertions.assertTrue((cost > 1800) && (cost < 2100));

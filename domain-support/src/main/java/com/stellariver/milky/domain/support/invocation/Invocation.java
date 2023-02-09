@@ -19,7 +19,7 @@ public class Invocation {
 
     private Invocation(Map<String, Object> parameters) {
         this.parameters = parameters;
-        this.invocationId = BeanUtil.getBean(IdBuilder.class).get();
+        this.invocationId = BeanUtil.getBean(IdBuilder.class).get("default");
     }
 
     static public Invocation build(Map<String, Object> parameters) {

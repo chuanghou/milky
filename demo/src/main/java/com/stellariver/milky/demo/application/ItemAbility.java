@@ -39,7 +39,7 @@ public class ItemAbility {
 
     @Transactional(rollbackFor = Throwable.class)
     public Item publishItem(Long userId, String title) {
-        Long itemId = idBuilder.get();
+        Long itemId = idBuilder.get("default");
         ItemCreateCommand command = ItemCreateCommand.builder().userId(userId)
                 .userInfo(userInfoRepository.getUserInfo(userId))
                 .itemId(itemId).title(title).amount(0L).storeCode("")
