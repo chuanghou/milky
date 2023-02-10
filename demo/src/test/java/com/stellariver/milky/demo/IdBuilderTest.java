@@ -29,6 +29,8 @@ public class IdBuilderTest {
                 .start(1L)
                 .build();
         idBuilder.initNameSpace(nsParam);
+        Long id = idBuilder.get("default");
+        Assertions.assertEquals(id, 1L);
 
 
         nsParam = NSParam.builder().nameSpace("my_test")

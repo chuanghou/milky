@@ -48,6 +48,10 @@ public class IdBuilderImpl implements IdBuilder {
                 .build();
         int insert;
         try {
+            /**
+             * INSERT INTO id_builder (name_space, start, unique_id, step, duty, version, deleted, gmt_create, gmt_modified)
+             * VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+             */
             insert = idBuilderMapper.insert(builderDO);
         } catch (DuplicateKeyException duplicateKeyException) {
             throw new BizException(DUPLICATE_NAME_SPACE);
@@ -106,6 +110,21 @@ public class IdBuilderImpl implements IdBuilder {
         do {
             LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(IdBuilderDO::getNameSpace, namespace);
+            /**
+             * SELECT id,
+             *        name_space,
+             *        start,
+             *        unique_id,
+             *        step,
+             *        duty,
+             *        version,
+             *        deleted,
+             *        gmt_create,
+             *        gmt_modified
+             * FROM id_builder
+             * WHERE deleted = 0
+             *   AND (name_space = ?)
+             */
             IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
             nullThrow(idBuilderDO, CONFIG_ERROR.message("you haven't config you namespace " + namespace));
             if (autoResetQuestion(idBuilderDO)) {
@@ -119,6 +138,20 @@ public class IdBuilderImpl implements IdBuilder {
             long end = idBuilderDO.getUniqueId() + idBuilderDO.getStep();
             section = Pair.of(atomicStart, end);
             idBuilderDO.setUniqueId(idBuilderDO.getUniqueId() + idBuilderDO.getStep());
+            /**
+             * UPDATE id_builder
+             * SET name_space=?,
+             *     start=?,
+             *     unique_id=?,
+             *     step=?,
+             *     duty=?,
+             *     version=?,
+             *     gmt_create=?,
+             *     gmt_modified=?
+             * WHERE id = ?
+             *   AND version = ?
+             *   AND deleted = 0
+             */
             count = idBuilderMapper.updateById(idBuilderDO);
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         } while (count < 1);
