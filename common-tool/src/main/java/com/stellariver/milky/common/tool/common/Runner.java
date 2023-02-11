@@ -129,13 +129,4 @@ public class Runner {
         throw new SysException("unreached part!");
     }
 
-    @SneakyThrows(Throwable.class)
-    public static Object invoke(Object bean, Method method, Object... args) {
-        try {
-            return method.invoke(bean, args);
-        } catch (InvocationTargetException e) {
-            throw e.getTargetException();
-        }
-    }
-
 }
