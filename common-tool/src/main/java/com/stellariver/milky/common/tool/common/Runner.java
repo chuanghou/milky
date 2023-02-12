@@ -15,7 +15,6 @@ import lombok.SneakyThrows;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -104,17 +103,26 @@ public class Runner {
                 }
             } finally {
                 String logTag = Kit.op(lambdaId).map(UK::getKey).orElse("NOT_SET");
-                Map<String, Object> args = null;
+                List<Object> args = null;
                 if (throwableBackup == null && option.isAlwaysLog()) {
                     args = SLambda.resolveArgs(sCallable);
                     Function<R, String> printer = Kit.op(option.getRSelector()).orElse(Objects::toString);
-                    log.with(args).result(printer.apply(result)).cost(Clock.currentTimeMillis() - now).info(lambdaId.getKey());
+                    for (int i = 1; i < args.size(); i++) {
+                        log.with("arg" + i, args.get(i));
+                    }
+                    log.result(printer.apply(result)).cost(Clock.currentTimeMillis() - now).info(lambdaId.getKey());
                 } else if (throwableBackup != null){
                     args = SLambda.resolveArgs(sCallable);
                     if (retryTimes == 0) {
-                        log.with(args).cost(Clock.currentTimeMillis() - now).error(logTag, throwableBackup);
+                        for (int i = 1; i < args.size(); i++) {
+                            log.with("arg" + i, args.get(i));
+                        }
+                        log.cost(Clock.currentTimeMillis() - now).error(logTag, throwableBackup);
                     } else {
-                        log.with(args).cost(Clock.currentTimeMillis() - now).warn(logTag, throwableBackup);
+                        for (int i = 1; i < args.size(); i++) {
+                            log.with("arg" + i, args.get(i));
+                        }
+                        log.cost(Clock.currentTimeMillis() - now).warn(logTag, throwableBackup);
                     }
                 }
                 if (runnerExtension != null) {

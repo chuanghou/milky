@@ -10,7 +10,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author houchuang
@@ -18,19 +21,11 @@ import java.util.Map;
 public class SLambda {
 
     @SneakyThrows({InvocationTargetException.class, IllegalAccessException.class, NoSuchMethodException.class})
-    public static <T extends Serializable> Map<String, Object> resolveArgs(T lambda) {
+    public static <T extends Serializable> List<Object> resolveArgs(T lambda) {
         Method method = lambda.getClass().getDeclaredMethod("writeReplace");
         method.setAccessible(true);
         SerializedLambda sLambda = (SerializedLambda) method.invoke(lambda);
-        Map<String, Object> result = new HashMap<>(8);
-        if (sLambda.getCapturedArgCount() == 0) {
-            return result;
-        }
-        SysException.trueThrow(sLambda.getCapturedArgCount() > 6, "too much parameters!");
-        for (int i = 1; i < sLambda.getCapturedArgCount(); i++) {
-            result.put("arg" + (i - 1), sLambda.getCapturedArg(i));
-        }
-        return result;
+        return IntStream.range(0, sLambda.getCapturedArgCount()).mapToObj(sLambda::getCapturedArg).collect(Collectors.toList());
     }
 
     public static <T> LambdaMeta extract(SFunction<T, ?> func) {
