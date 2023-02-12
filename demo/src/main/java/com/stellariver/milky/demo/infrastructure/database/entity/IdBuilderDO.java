@@ -27,7 +27,11 @@ public class IdBuilderDO extends AbstractMpDO {
 
     Long uniqueId;
 
+    Long ceiling;
+
     Integer step;
+
+    Long alarmThreshold;
 
     Integer duty;
 

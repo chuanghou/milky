@@ -9,6 +9,7 @@ import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.dependency.NSParam;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,6 +25,7 @@ import static com.stellariver.milky.common.tool.exception.SysException.*;
 /**
  * @author houchuang
  */
+@CustomLog
 @Repository
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -40,18 +42,18 @@ public class IdBuilderImpl implements IdBuilder {
 
     @Override
     public void initNameSpace(NSParam param) {
+        long end = param.getEnd() == null ? Long.MAX_VALUE : param.getEnd();
+        double alarmRatio = param.getAlarmRatio() == null ? 0.8 : param.getAlarmRatio();
         IdBuilderDO builderDO = IdBuilderDO.builder().nameSpace(param.getNameSpace())
                 .start(param.getStart())
                 .uniqueId(NULL_HOLDER_OF_LONG)
                 .step(param.getStep())
+                .ceiling(end)
+                .alarmThreshold((long) (end * alarmRatio))
                 .duty(param.getDuty().getCode())
                 .build();
         int insert;
         try {
-            /**
-             * INSERT INTO id_builder (name_space, start, unique_id, step, duty, version, deleted, gmt_create, gmt_modified)
-             * VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-             */
             insert = idBuilderMapper.insert(builderDO);
         } catch (DuplicateKeyException duplicateKeyException) {
             throw new BizException(DUPLICATE_NAME_SPACE);
@@ -110,21 +112,6 @@ public class IdBuilderImpl implements IdBuilder {
         do {
             LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(IdBuilderDO::getNameSpace, namespace);
-            /**
-             * SELECT id,
-             *        name_space,
-             *        start,
-             *        unique_id,
-             *        step,
-             *        duty,
-             *        version,
-             *        deleted,
-             *        gmt_create,
-             *        gmt_modified
-             * FROM id_builder
-             * WHERE deleted = 0
-             *   AND (name_space = ?)
-             */
             IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
             nullThrow(idBuilderDO, CONFIG_ERROR.message("you haven't config you namespace " + namespace));
             if (autoResetQuestion(idBuilderDO)) {
@@ -135,23 +122,13 @@ public class IdBuilderImpl implements IdBuilder {
                 idBuilderDO.setUniqueId(start);
             }
             AtomicLong atomicStart = new AtomicLong(idBuilderDO.getUniqueId());
-            long end = idBuilderDO.getUniqueId() + idBuilderDO.getStep();
-            section = Pair.of(atomicStart, end);
+            long tail = idBuilderDO.getUniqueId() + idBuilderDO.getStep();
+            section = Pair.of(atomicStart, tail);
+            if (tail > idBuilderDO.getAlarmThreshold()) {
+                log.arg0(idBuilderDO).error("LOAD_NEXT_SECTION_ALARM");
+                trueThrow(tail > idBuilderDO.getCeiling(), LOAD_NEXT_SECTION_LIMIT);
+            }
             idBuilderDO.setUniqueId(idBuilderDO.getUniqueId() + idBuilderDO.getStep());
-            /**
-             * UPDATE id_builder
-             * SET name_space=?,
-             *     start=?,
-             *     unique_id=?,
-             *     step=?,
-             *     duty=?,
-             *     version=?,
-             *     gmt_create=?,
-             *     gmt_modified=?
-             * WHERE id = ?
-             *   AND version = ?
-             *   AND deleted = 0
-             */
             count = idBuilderMapper.updateById(idBuilderDO);
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         } while (count < 1);

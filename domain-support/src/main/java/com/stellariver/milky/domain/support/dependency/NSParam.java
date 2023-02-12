@@ -23,6 +23,12 @@ public class NSParam {
     @Min(value = 100)
     Integer step;
 
+    @Positive
+    Double alarmRatio;
+
+    @Positive
+    Long end;
+
     @OfEnum(enumType = IdBuilder.Duty.class)
     String duty;
 
