@@ -91,4 +91,9 @@ public class Kit {
     static public boolean lessOrEq(@NonNull BigDecimal left, @NonNull BigDecimal right) {
         return left.compareTo(right) <= 0;
     }
+
+    static public <T> T whenNull(T t, T defaultValue) {
+        return t == null ? defaultValue : t;
+    }
+
 }

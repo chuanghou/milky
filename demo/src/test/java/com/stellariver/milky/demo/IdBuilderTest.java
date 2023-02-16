@@ -4,7 +4,7 @@ import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
-import com.stellariver.milky.domain.support.dependency.NSParam;
+import com.stellariver.milky.domain.support.dependency.Sequence;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,22 +23,22 @@ public class IdBuilderTest {
 
     @Test
     public void testIdBuilder() {
-        NSParam nsParam = NSParam.builder().nameSpace("my_test")
+        Sequence sequence = Sequence.builder().nameSpace("my_test")
                 .duty(IdBuilder.Duty.NOT_WORK.name())
                 .step(100)
                 .start(1L)
                 .build();
-        idBuilder.initNameSpace(nsParam);
+        idBuilder.initNameSpace(sequence);
 
 
-        nsParam = NSParam.builder().nameSpace("my_test")
+        sequence = Sequence.builder().nameSpace("my_test")
                 .duty(IdBuilder.Duty.NOT_WORK.name())
                 .step(100)
                 .start(1L)
                 .build();
         Throwable backUp = null;
         try {
-            idBuilder.initNameSpace(nsParam);
+            idBuilder.initNameSpace(sequence);
         } catch (Throwable throwable) {
             backUp = throwable;
         }

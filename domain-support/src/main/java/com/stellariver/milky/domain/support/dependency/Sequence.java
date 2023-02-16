@@ -10,7 +10,7 @@ import javax.validation.constraints.*;
 
 @Data
 @Builder
-public class NSParam {
+public class Sequence {
 
     @NotBlank
     String nameSpace;

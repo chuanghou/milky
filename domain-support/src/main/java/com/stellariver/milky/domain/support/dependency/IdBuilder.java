@@ -9,7 +9,7 @@ import lombok.Getter;
 public interface IdBuilder {
     long NULL_HOLDER_OF_LONG = -1L;
 
-    void initNameSpace(NSParam param);
+    void initNameSpace(Sequence param);
 
     Long get(String nameSpace);
 

@@ -7,7 +7,7 @@ import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
-import com.stellariver.milky.domain.support.dependency.NSParam;
+import com.stellariver.milky.domain.support.dependency.Sequence;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class IdBuilderImpl implements IdBuilder {
     volatile Pair<AtomicLong, Long> section;
 
     @Override
-    public void initNameSpace(NSParam param) {
+    public void initNameSpace(Sequence param) {
         long end = param.getEnd() == null ? Long.MAX_VALUE : param.getEnd();
         double alarmRatio = param.getAlarmRatio() == null ? 0.8 : param.getAlarmRatio();
         IdBuilderDO builderDO = IdBuilderDO.builder().nameSpace(param.getNameSpace())
