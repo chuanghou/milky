@@ -27,7 +27,7 @@ public class Sequence {
     Double alarmRatio;
 
     @Positive
-    Long end;
+    Long ceiling;
 
     @OfEnum(enumType = IdBuilder.Duty.class)
     String duty;

@@ -33,6 +33,6 @@ public class IdBuilderDO extends AbstractMpDO {
 
     Long alarmThreshold;
 
-    Integer duty;
+    String duty;
 
 }

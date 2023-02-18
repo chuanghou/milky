@@ -16,17 +16,10 @@ public interface IdBuilder {
     void reset(String nameSpace);
 
     enum Duty {
-        NOT_WORK(-1),
-        MONTH(1),
-        WEEK(2),
-        DAY(3);
-
-        @Getter
-        final Integer code;
-
-        Duty(Integer code) {
-            this.code = code;
-        }
+        NOT_WORK,
+        MONTH,
+        WEEK,
+        DAY
     }
 
 }

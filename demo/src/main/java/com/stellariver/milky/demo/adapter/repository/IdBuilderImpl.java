@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo.adapter.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
@@ -33,8 +34,7 @@ public class IdBuilderImpl implements IdBuilder {
 
     static final int maxTimes = 10;
 
-    static final Set<Integer> SUPPORTABLE_DUTIES =
-            new HashSet<>(Arrays.asList(Duty.MONTH.getCode(), Duty.WEEK.getCode(), Duty.DAY.getCode()));
+    static final Set<String> SUPPORTABLE_DUTIES = new HashSet<>(Arrays.asList(Duty.MONTH.name(), Duty.WEEK.name(), Duty.DAY.name()));
 
     final IdBuilderMapper idBuilderMapper;
 
@@ -42,15 +42,15 @@ public class IdBuilderImpl implements IdBuilder {
 
     @Override
     public void initNameSpace(Sequence param) {
-        long end = param.getEnd() == null ? Long.MAX_VALUE : param.getEnd();
-        double alarmRatio = param.getAlarmRatio() == null ? 0.8 : param.getAlarmRatio();
+        long ceiling = param.getCeiling() == null ? Long.MAX_VALUE : param.getCeiling();
+        double alarmRatio = Kit.whenNull(param.getAlarmRatio(), 0.8);
         IdBuilderDO builderDO = IdBuilderDO.builder().nameSpace(param.getNameSpace())
                 .start(param.getStart())
                 .uniqueId(NULL_HOLDER_OF_LONG)
                 .step(param.getStep())
-                .ceiling(end)
-                .alarmThreshold((long) (end * alarmRatio))
-                .duty(param.getDuty().getCode())
+                .ceiling(ceiling)
+                .alarmThreshold((long) (ceiling * alarmRatio))
+                .duty(param.getDuty().name())
                 .build();
         int insert;
         try {
@@ -114,7 +114,7 @@ public class IdBuilderImpl implements IdBuilder {
             wrapper.eq(IdBuilderDO::getNameSpace, namespace);
             IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
             nullThrow(idBuilderDO, CONFIG_ERROR.message("you haven't config you namespace " + namespace));
-            if (autoResetQuestion(idBuilderDO)) {
+            if (autoReset(idBuilderDO)) {
                 idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
             }
             Long start = idBuilderDO.getUniqueId();
@@ -135,7 +135,7 @@ public class IdBuilderImpl implements IdBuilder {
         return section;
     }
 
-    private boolean autoResetQuestion(IdBuilderDO idBuilderDO) {
+    private boolean autoReset(IdBuilderDO idBuilderDO) {
         if (!SUPPORTABLE_DUTIES.contains(idBuilderDO.getDuty())) {
             return false;
         }
@@ -146,11 +146,11 @@ public class IdBuilderImpl implements IdBuilder {
         Calendar now = Calendar.getInstance();
         now.setTime(new Date());
 
-        if (Objects.equals(idBuilderDO.getDuty(), Duty.MONTH.getCode())) {
+        if (Kit.eq(idBuilderDO.getDuty(), Duty.MONTH.name())) {
             return modified.get(Calendar.MONTH) != now.get(Calendar.MONTH);
-        } else if (Objects.equals(idBuilderDO.getDuty(), Duty.WEEK.getCode())) {
+        } else if (Kit.eq(idBuilderDO.getDuty(), Duty.WEEK.name())) {
             return modified.get(Calendar.WEEK_OF_YEAR) != now.get(Calendar.WEEK_OF_YEAR);
-        } else if (Objects.equals(idBuilderDO.getDuty(), Duty.DAY.getCode())) {
+        } else if (Kit.eq(idBuilderDO.getDuty(), Duty.DAY.name())) {
             return modified.get(Calendar.DAY_OF_YEAR) != now.get(Calendar.DAY_OF_YEAR);
         } else {
             return false;

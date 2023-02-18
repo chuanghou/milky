@@ -64,7 +64,7 @@ public class Kit {
     final static private Map<Class<?>, Class<?>> enumMap = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
-    public static <E extends Enum<E>, V> Optional<E> enumOf(@NonNull SFunction<E, V> getter, @NonNull V value) {
+    public static <E extends Enum<E>, V> Optional<E> enumOf(SFunction<E, V> getter, V value) {
         Class<E> enumClass = (Class<E>) enumMap.computeIfAbsent(
                 getter.getClass(), c -> SLambda.extract(getter).getInstantiatedClass());
         E[] enumConstants = enumClass.getEnumConstants();
@@ -72,23 +72,23 @@ public class Kit {
     }
 
 
-    static public boolean eq(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean same(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) == 0;
     }
 
-    static public boolean greater(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean greater(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) > 0;
     }
 
-    static public boolean greaterOrEq(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean greaterOrSame(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) >= 0;
     }
 
-    static public boolean less(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean less(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) < 0;
     }
 
-    static public boolean lessOrEq(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean lessOrSame(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) <= 0;
     }
 
