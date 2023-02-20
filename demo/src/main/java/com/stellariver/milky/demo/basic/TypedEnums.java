@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.StreamMap;
@@ -15,92 +16,40 @@ import com.stellariver.milky.domain.support.base.SetTyped;
 import lombok.NonNull;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
  * @author houchuang
  */
+@SuppressWarnings("unchecked")
 public class TypedEnums {
 
-    static public Typed<UserInfo> userInfo;
+    static public class USER_INFO extends Typed<UserInfo> {}
+    static public class CODES extends ListTyped<String> {}
+    static public class EMPLOYEE extends Typed<Employee> {}
+    static public class NUMBERS extends SetTyped<Integer> {}
+    static public class MAP_NAME_TYPE extends MapTyped<Long, Long> {}
+    static public class MARK_BEFORE extends Typed<Long> {}
+    static public class MARK_HANDLE extends Typed<Long> {}
+    static public class MARK_AFTER extends Typed<Long> {}
 
-    static public Typed<Employee> employee;
-
-    static public ListTyped<String> codes;
-
-    static public SetTyped<Integer> numbers;
-
-    static public MapTyped<Long, Long> mapNameType;
-
-    static public Typed<Long> markBefore;
-
-    static public Typed<Long> markHandle;
-
-    static public Typed<Long> markAfter;
-
-    static Map<String, Typed<?>> typedMap = new HashMap<>();
-
-    static {
-        Arrays.stream(TypedEnums.class.getDeclaredFields())
-                .filter(field -> Typed.class.isAssignableFrom(field.getType()))
-                .forEach(field -> {
-                    field.setAccessible(true);
-                    Typed<?> value;
-                    Class<?> type = field.getType();
-                    if (type == Typed.class) {
-                        Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        value = new Typed<>();
-                        value.setClazz(clazz);
-                    } else if (type == ListTyped.class) {
-                        Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        ListTyped<?> tempValue = new ListTyped<>();
-                        tempValue.setClazz(List.class);
-                        tempValue.setVClazz(clazz);
-                        value = tempValue;
-                    } else if (type == SetTyped.class) {
-                        Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        SetTyped<?> tempValue = new SetTyped<>();
-                        tempValue.setClazz(Set.class);
-                        tempValue.setVClazz(clazz);
-                        value = tempValue;
-                    } else if (type == MapTyped.class) {
-                        Class<?> kClazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        Class<?> vClazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1];
-                        MapTyped<?, ?> tempValue = new MapTyped<>();
-                        tempValue.setClazz(Map.class);
-                        tempValue.setKClazz(kClazz);
-                        tempValue.setVClazz(vClazz);
-                        value = tempValue;
-                    } else {
-                        throw new SysException("unreached part!");
-                    }
-                    value.setName(field.getName());
-                    try {
-                        field.set(null, value);
-                    } catch (IllegalAccessException e) {
-                        throw new SysException(e);
-                    }
-                    boolean b = typedMap.containsKey(value.getName());
-                    BizException.trueThrow(b, ErrorEnums.CONFIG_ERROR.message(String.format("同名%sNameType!", value.getName())));
-                    typedMap.put(value.getName(), value);
-                });
-    }
-
-    static public String serialize(Map<Typed<?>, Object> typedMap) {
-        typedMap = Kit.op(typedMap).orElseGet(HashMap::new);
+    static public String serialize(Map<Class<? extends Typed<?>>, Object> typedMap) {
         StreamMap<String, Object> init = StreamMap.init();
-        typedMap.forEach((k, v) -> init.put(k.getName(), v));
+        typedMap.forEach((k, v) -> init.put(k.getSimpleName(), v));
         return Json.toJson(init.getMap());
     }
 
-    static public Map<Typed<?>, Object> deSerialize(@NonNull String value) {
+    static public Map<Class<? extends Typed<?>>, Object> deSerialize(@NonNull String value) {
         JsonNode jsonNode = Json.parseJsonNode(value);
-        Map<Typed<?>, Object> map = new HashMap<>(16);
-        typedMap.forEach((k, v) -> {
-            JsonNode typeJsonNode = jsonNode.get(k);
+        Map<Class<? extends Typed<?>>, Object> map = new HashMap<>(16);
+        Arrays.stream(TypedEnums.class.getClasses()).filter(Typed.class::isAssignableFrom).forEach(typeEnum -> {
+            Class<? extends Typed<?>> clazz = (Class<? extends Typed<?>>) typeEnum;
+            JsonNode typeJsonNode = jsonNode.get(typeEnum.getSimpleName());
             if (typeJsonNode != null) {
-                Object o = v.parseJsonNode(typeJsonNode);
-                map.put(v, o);
+                Typed<?> typed = Typed.transfer(clazz);
+                Object o = typed.parseJsonNode(typeJsonNode);
+                map.put(clazz, o);
             }
         });
         return map;

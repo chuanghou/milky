@@ -11,15 +11,15 @@ import java.util.Set;
  * @author houchuang
  */
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class SetTyped<V> extends Typed<Set<V>> {
 
     private Class<?> vClazz;
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Set<V> extractFrom(Map<Typed<?>, Object> map) {
-        return (Set<V>) map.get(this);
+    public SetTyped(String name, Class<?> vClazz) {
+        super(name, Set.class);
+        this.vClazz = vClazz;
     }
 
     @Override

@@ -8,7 +8,7 @@ import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
-import lombok.NonNull;
+import lombok.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -26,11 +26,7 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
      */
     Aggregate toAggregate(@NonNull Object dataObject);
 
-    /**
-     * 聚合根对象转换为数据库对象
-     * @param aggregate 聚合根对象
-     * @return 数据库对象
-     */
+
     @SuppressWarnings("unchecked")
     default Object toDataObjectWrapper(Object aggregate) {
         Aggregate aggregateRoot = (Aggregate) aggregate;

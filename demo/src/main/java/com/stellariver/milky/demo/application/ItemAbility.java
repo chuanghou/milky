@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.stellariver.milky.demo.basic.ErrorEnums.ITEM_NOT_EXIST;
+import static com.stellariver.milky.demo.basic.TypedEnums.*;
 
 /**
  * @author houchuang
@@ -41,11 +42,10 @@ public class ItemAbility {
     public Item publishItem(Long userId, String title) {
         Long itemId = idBuilder.get("default");
         ItemCreateCommand command = ItemCreateCommand.builder().userId(userId)
-                .userInfo(userInfoRepository.getUserInfo(userId))
                 .itemId(itemId).title(title).amount(0L).storeCode("")
                 .build();
-        Map<Typed<?>, Object> parameters = StreamMap.<Typed<?>, Object>init()
-                .put(TypedEnums.employee, new Employee("110", "tom"))
+        Map<Class<? extends Typed<?>>, Object> parameters = StreamMap.<Class<? extends Typed<?>>, Object>init()
+                .put(EMPLOYEE.class, new Employee("110", "tom"))
                 .getMap();
         return (Item) CommandBus.accept(command, parameters);
     }
@@ -56,8 +56,8 @@ public class ItemAbility {
         Optional<Item> itemOptional = itemRepository.queryByIdOptional(itemId);
         BizException.trueThrow(!itemOptional.isPresent(), ITEM_NOT_EXIST.message("找不到相应item，itemId:" + itemId));
         ItemTitleUpdateCommand command = ItemTitleUpdateCommand.builder().itemId(itemId).updateTitle(newTitle).build();
-        Map<Typed<?>, Object> parameters = StreamMap.<Typed<?>, Object>init()
-                .put(TypedEnums.employee, operator)
+        Map<Class<? extends Typed<?>>, Object> parameters = StreamMap.<Class<? extends Typed<?>>, Object>init()
+                .put(EMPLOYEE.class, operator)
                 .getMap();
         CommandBus.accept(command, parameters);
     }

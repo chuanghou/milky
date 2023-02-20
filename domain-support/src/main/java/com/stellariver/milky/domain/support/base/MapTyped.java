@@ -10,6 +10,7 @@ import java.util.Map;
  * @author houchuang
  */
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class MapTyped<K, V> extends Typed<Map<K, V>> {
 
@@ -17,10 +18,10 @@ public class MapTyped<K, V> extends Typed<Map<K, V>> {
 
     private Class<?> vClazz;
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Map<K, V> extractFrom(Map<Typed<?>, Object> map) {
-        return (Map<K, V>) map.get(this);
+    public MapTyped(String name, Class<?> kClazz, Class<?> vClazz) {
+        super(name, Map.class);
+        this.kClazz = kClazz;
+        this.vClazz = vClazz;
     }
 
     @Override

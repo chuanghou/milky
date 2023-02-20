@@ -1,5 +1,7 @@
 package com.stellariver.milky.domain.support.context;
 
+import com.stellariver.milky.domain.support.base.Typed;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -13,10 +15,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 public @interface DependencyKey {
 
-    String value();
+    Class<? extends Typed<?>> value();
 
     boolean alwaysLog() default false;
 
-    String[] requiredKeys() default {};
+    Class<? extends Typed<?>>[] requiredKeys() default {};
 
 }

@@ -30,6 +30,6 @@ public class ItemRepositoryImpl extends ItemRepository {
     public Map<Long, Item> queryMapByIdsFilterEmptyIdsAfterCache(Set<Long> itemIds) {
         List<ItemDO> itemDOs = itemDOMapper.selectBatchIds(itemIds);
         return Collect.toMap(itemDOs, ItemDO::getItemId,
-                itemDO -> Item.builder().itemId(itemDO.getItemId()).title(itemDO.getTitle()).amount(itemDO.getAmount()).build());
+                itemDO -> Item.builder().itemId(itemDO.getItemId()).title(itemDO.getTitle()).amount(itemDO.getAmount()).userName(itemDO.getUserName()).build());
     }
 }

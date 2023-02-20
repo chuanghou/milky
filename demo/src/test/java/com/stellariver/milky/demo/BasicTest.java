@@ -4,7 +4,6 @@ package com.stellariver.milky.demo;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
-import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.CombineItem;
@@ -26,11 +25,6 @@ import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import lombok.CustomLog;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -44,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static com.stellariver.milky.demo.basic.TypedEnums.*;
 
 @CustomLog
 @Transactional
@@ -80,11 +75,10 @@ public class BasicTest {
 
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
-                .userInfo(userInfoRepository.getUserInfo(10086L))
                 .channelEnum(ChannelEnum.ALI)
                 .build();
-        HashMap<Typed<?>, Object> parameters = new HashMap<>();
-        parameters.put(TypedEnums.employee, new Employee("110", "小明"));
+        HashMap<Class<? extends Typed<?>>, Object> parameters = new HashMap<>();
+        parameters.put(EMPLOYEE.class, new Employee("110", "小明"));
         CommandBus.accept(itemCreateCommand, parameters);
 
         Item item = itemRepository.queryById(1L);
@@ -93,6 +87,7 @@ public class BasicTest {
         Assertions.assertNotNull(inventory);
         Assertions.assertEquals(item.getStoreCode(), inventory.getStoreCode());
         Assertions.assertEquals(item.getAmount(), inventory.getAmount());
+        Assertions.assertEquals(item.getUserName(), "Tom");
         ItemCreatedMessage message = ItemCreatedMessage.builder().itemId(1L).build();
 
         verify(mqService).sendMessage(argThat(new ParameterMatcher<>(message)));
@@ -100,7 +95,6 @@ public class BasicTest {
         // 通过ParameterMeter实现对于null字段的验证过滤
         ItemCreatedMessage message1 = message.toBuilder().title("测试商品").build();
         verify(mqService).sendMessage(argThat(new ParameterMatcher<>(message1)));
-
 
         InventoryUpdateCommand command = InventoryUpdateCommand.builder().itemId(1L).updateAmount(100L).build();
         CommandBus.accept(command, parameters);
@@ -114,9 +108,9 @@ public class BasicTest {
         ItemTitleUpdateCommand updateCommand = ItemTitleUpdateCommand.builder().itemId(1L)
                 .updateTitle("new Title").build();
         Context context = (Context) CommandBus.accept(updateCommand, parameters);
-        Long before = TypedEnums.markBefore.extractFrom(context.getMetaData());
-        Long handle = TypedEnums.markHandle.extractFrom(context.getMetaData());
-        Long after = TypedEnums.markAfter.extractFrom(context.getMetaData());
+        Long before = (Long) context.getMetaData().get(MARK_BEFORE.class);
+        Long handle = (Long) context.getMetaData().get(MARK_HANDLE.class);
+        Long after = (Long) context.getMetaData().get(MARK_AFTER.class);
         Assertions.assertNotNull(before);
         Assertions.assertNotNull(handle);
         Assertions.assertNotNull(after);
@@ -124,7 +118,6 @@ public class BasicTest {
         Assertions.assertTrue(handle < after);
 
         List<ItemDO> itemDOS = itemDOMapper.selectList(null);
-        System.out.println("");
         System.out.println("publishItemDOTest");
         System.out.println(itemDOS);
 
@@ -134,12 +127,11 @@ public class BasicTest {
     public void combineItemTest() {
         CombineItemCreateCommand combineItemCreateCommand = CombineItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
-                .userInfo(userInfoRepository.getUserInfo(10086L))
                 .channelEnum(ChannelEnum.ALI)
                 .ratio(1025L)
                 .build();
-        HashMap<Typed<?>, Object> parameters = new HashMap<>();
-        parameters.put(TypedEnums.employee, new Employee("110", "小明"));
+        HashMap<Class<? extends Typed<?>>, Object> parameters = new HashMap<>();
+        parameters.put(EMPLOYEE.class, new Employee("110", "小明"));
         CommandBus.accept(combineItemCreateCommand, parameters);
 
         CombineItem combineItem = combineItemRepository.queryById(1L);

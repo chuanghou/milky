@@ -28,10 +28,12 @@ import org.reflections.Reflections;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONCURRENCY_VIOLATION;
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
 import static com.stellariver.milky.domain.support.command.HandlerType.*;
 
 /**
@@ -61,13 +63,20 @@ public class CommandBus {
                     && AggregateRoot.class.isAssignableFrom(method.getParameterTypes()[1])
                     && method.getParameterTypes()[2] == Context.class;
 
+    private static final BiPredicate<Method, Class<? extends Typed<?>>> DEPENDENCY_PROVIDER_FORMAT =
+            (method, clazz) -> Modifier.isPublic(method.getModifiers())
+                    && method.getParameterTypes().length == 2
+                    && Command.class.isAssignableFrom(method.getParameterTypes()[0])
+                    && method.getParameterTypes()[1] == Context.class
+                    && method.getReturnType().equals(Typed.transfer(clazz).getClazz());
+
     volatile private static CommandBus instance;
 
     private static final ThreadLocal<Context> THREAD_LOCAL_CONTEXT = new ThreadLocal<>();
 
     private final Map<Class<? extends Command>, Map<Class<? extends AggregateRoot>, Handler>> commandHandlers = new HashMap<>();
 
-    private final Map<Class<? extends Command>, Map<String, DependencyProvider>> contextValueProviders = new HashMap<>();
+    private final Map<Class<? extends Command>, Map<Class<? extends Typed<?>>, DependencyProvider>> contextValueProviders = new HashMap<>();
 
     private final Map<Class<? extends AggregateRoot>, AggregateDaoAdapter<?>> daoAdapterMap = new HashMap<>();
 
@@ -104,7 +113,7 @@ public class CommandBus {
         this.reflections = milkySupport.getReflections();
         this.beanLoader = milkySupport.getBeanLoader();
         prepareCommandHandlers();
-        prepareContextValueProviders(milkySupport);
+        prepareDependencyProviders(milkySupport);
         prepareRepositories(milkySupport);
         prepareDAOWrappers(milkySupport);
         prepareCommandInterceptors(milkySupport);
@@ -132,7 +141,7 @@ public class CommandBus {
                 .filter(m -> Command.class.isAssignableFrom(m.getParameterTypes()[0]))
                 .filter(m -> {
                     SysException.falseThrow(COMMAND_INTERCEPTOR_FORMAT.test(m),
-                            ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                            CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
                     return true;
                 }).collect(Collectors.toList())
                 .forEach(method -> {
@@ -174,7 +183,7 @@ public class CommandBus {
                     .map(i -> (ParameterizedType) i)
                     .filter(t -> Objects.equals(t.getRawType(), AggregateDaoAdapter.class))
                     .map(ParameterizedType::getActualTypeArguments).findFirst()
-                    .orElseThrow(() -> new SysException(ErrorEnums.CONFIG_ERROR));
+                    .orElseThrow(() -> new SysException(CONFIG_ERROR));
             daoAdapterMap.put((Class<? extends AggregateRoot>) types[0], bean);
         });
     }
@@ -186,7 +195,7 @@ public class CommandBus {
                     .map(i -> (ParameterizedType) i)
                     .filter(t -> Objects.equals(t.getRawType(), DAOWrapper.class))
                     .map(ParameterizedType::getActualTypeArguments).findFirst()
-                    .orElseThrow(() -> new SysException(ErrorEnums.CONFIG_ERROR));
+                    .orElseThrow(() -> new SysException(CONFIG_ERROR));
             daoWrappersMap.put((Class<? extends BaseDataObject<?>>) types[0], bean);
         });
     }
@@ -196,22 +205,21 @@ public class CommandBus {
         Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);
         classes.forEach(clazz -> {
             List<Method> methods = Arrays.stream(clazz.getDeclaredMethods())
-                    .filter(m -> m.isAnnotationPresent(CommandHandler.class))
+                    .filter(m -> m.isAnnotationPresent(MethodHandler.class))
                     .filter(m -> {
                         SysException.falseThrow(COMMAND_HANDLER_FORMAT.test(m),
-                                ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                                CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
                         return true;
                     }).collect(Collectors.toList());
             methods.forEach(method -> {
                 Class<?>[] parameterTypes = method.getParameterTypes();
-                CommandHandler annotation = method.getAnnotation(CommandHandler.class);
-                Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
+                MethodHandler annotation = method.getAnnotation(MethodHandler.class);
+                Set<Class<? extends Typed<?>>> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
                 Handler handler = new Handler(clazz, method, INSTANCE_HANDLER, requiredKeys);
                 Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
-
                 Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
                 SysException.trueThrow(handlerMap.containsKey(clazz),
-                        ErrorEnums.CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
+                        CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
                 handlerMap.put(clazz, handler);
             });
 
@@ -219,18 +227,18 @@ public class CommandBus {
                     .filter(m -> m.isAnnotationPresent(ConstructorHandler.class))
                     .filter(m -> {
                         SysException.falseThrow(CONSTRUCTOR_HANDLER_FORMAT.test(m),
-                                ErrorEnums.CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                                CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
                         return true;
                     }).collect(Collectors.toList());
             methods.forEach(method -> {
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 ConstructorHandler annotation = method.getAnnotation(ConstructorHandler.class);
-                Set<String> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
+                Set<Class<? extends Typed<?>>> requiredKeys = new HashSet<>(Arrays.asList(annotation.dependencies()));
                 Handler handler = new Handler(clazz, method, CONSTRUCTOR_HANDLER, requiredKeys);
                 Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
                 Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
                 SysException.trueThrow(handlerMap.containsKey(clazz),
-                        ErrorEnums.CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
+                        CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
                 handlerMap.put(clazz, handler);
             });
 
@@ -238,42 +246,44 @@ public class CommandBus {
     }
 
     @SuppressWarnings("unchecked")
-    private void prepareContextValueProviders(MilkySupport milkySupport) {
-        Map<Class<? extends Command>, Map<String, DependencyProvider>> tempProviders = new HashMap<>(16);
+    private void prepareDependencyProviders(MilkySupport milkySupport) {
+        Map<Class<? extends Command>, Map<Class<? extends Typed<?>>, DependencyProvider>> tempProviders = new HashMap<>(16);
 
         List<Method> methods = milkySupport.getDependencyPrepares()
                 .stream().map(Object::getClass)
                 .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
                 .filter(method -> method.isAnnotationPresent(DependencyKey.class))
                 .filter(method -> {
-                    SysException.falseThrow(CONSTRUCTOR_HANDLER_FORMAT.test(method),
-                            ErrorEnums.CONFIG_ERROR.message(method.toGenericString() + " signature not valid"));
+                    Class<? extends Typed<?>> clazz = method.getAnnotation(DependencyKey.class).value();
+                    boolean test = DEPENDENCY_PROVIDER_FORMAT.test(method, clazz);
+                    SysException.falseThrow(test, CONFIG_ERROR.message(method.toGenericString() + " signature not valid"));
                     return true;
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
 
         methods.forEach(method -> {
             Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
             DependencyKey annotation = method.getAnnotation(DependencyKey.class);
-            String key = annotation.value();
-            String[] requiredKeys = annotation.requiredKeys();
+            Class<? extends Typed<?>> key = annotation.value();
+            Class<? extends Typed<?>>[] requiredKeys = annotation.requiredKeys();
             boolean alwaysLog = annotation.alwaysLog();
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             DependencyProvider dependencyProvider = new DependencyProvider(key, requiredKeys, bean, method, alwaysLog);
-            Map<String, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>(16));
+            Map<Class<? extends Typed<?>>, DependencyProvider> valueProviderMap = tempProviders.computeIfAbsent(commandClass, cC -> new HashMap<>(16));
             SysException.trueThrow(valueProviderMap.containsKey(key),
                     "对于" + commandClass.getName() + "对于" + key + "提供了两个dependencyProvider");
             valueProviderMap.put(key, dependencyProvider);
         });
 
         reflections.getSubTypesOf(Command.class).forEach(commandClass -> {
-            Map<String, DependencyProvider> map = new HashMap<>(16);
+            Map<Class<? extends Typed<?>>, DependencyProvider> map = new HashMap<>(16);
             List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass);
             ancestorClasses.forEach(c -> map.putAll(Optional.ofNullable(tempProviders.get(c)).orElseGet(HashMap::new)));
             contextValueProviders.put(commandClass, map);
         });
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Typed<?>, Object> parameters,
+    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Class<? extends Typed<?>>, Object> parameters,
                                                                        Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         instance.memoryTxTL.set(true);
@@ -288,24 +298,24 @@ public class CommandBus {
     }
 
     @SuppressWarnings("all")
-    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Typed<?>, Object> parameters) {
+    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Class<? extends Typed<?>>, Object> parameters) {
         return acceptMemoryTransactional(command, parameters, null);
     }
 
-    static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters,
+    static public <T extends Command> Object accept(T command, Map<Class<? extends Typed<?>>, Object> parameters,
                                                     @Nullable Class<? extends AggregateRoot> clazz,
                                                     @Nullable Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         return instance.doSend(command, parameters, clazz, aggregateIdMap);
     }
 
     @SuppressWarnings("unused")
-    static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters,
+    static public <T extends Command> Object accept(T command, Map<Class<? extends Typed<?>>, Object> parameters,
                                                     Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         return accept(command, parameters, null, aggregateIdMap);
     }
 
 
-    static public <T extends Command> Object accept(T command, Map<Typed<?>, Object> parameters) {
+    static public <T extends Command> Object accept(T command, Map<Class<? extends Typed<?>>, Object> parameters) {
         return accept(command, parameters, null, null);
     }
 
@@ -327,12 +337,12 @@ public class CommandBus {
      * @param <T> 命令泛型
      * @return 总结结果
      */
-    private <T extends Command> Object doSend(T command, Map<Typed<?>, Object> parameters,
+    private <T extends Command> Object doSend(T command, Map<Class<? extends Typed<?>>, Object> parameters,
                                               @Nullable Class<? extends AggregateRoot> clazz,
                                               @Nullable Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         Context shouldNull = THREAD_LOCAL_CONTEXT.get();
-        SysException.trueThrowGet(shouldNull != null, () -> ErrorEnums.CONFIG_ERROR
+        SysException.trueThrowGet(shouldNull != null, () -> CONFIG_ERROR
                 .message("Inside a event router, you should use CommandBus.send() or CommandBus.acceptMemoryTransactional()"));
         Context context = Context.build(parameters, aggregateIdMap);
         THREAD_LOCAL_CONTEXT.set(context);
@@ -412,7 +422,7 @@ public class CommandBus {
         SysException.nullThrow(handlerMap, command.getClass().getSimpleName() + "could not found its handler!");
         if (aggregateClazz == null) {
             boolean eq = Kit.eq(handlerMap.size(), 1);
-            SysException.falseThrow(eq, ErrorEnums.CONFIG_ERROR.message(
+            SysException.falseThrow(eq, CONFIG_ERROR.message(
                     command.getClass().getName() + " has at least 2 handlers implementations, please assign aggregate class"));
             commandHandler = handlerMap.values().stream().findFirst().orElseThrow(() -> new SysException(ErrorEnums.UNREACHABLE_CODE));
         } else {
@@ -450,7 +460,7 @@ public class CommandBus {
         SysException.nullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
 
         // invoke dependencies
-        Map<String, DependencyProvider> providerMap = Kit.op(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
+        Map<Class<? extends Typed<?>>, DependencyProvider> providerMap = Kit.op(contextValueProviders.get(command.getClass())).orElseGet(HashMap::new);
         commandHandler.getRequiredKeys().forEach(key -> invokeDependencyProvider(command, key, context, providerMap, new HashSet<>()));
 
         // build command record and record it
@@ -545,33 +555,34 @@ public class CommandBus {
         return result;
     }
 
-    private <T extends Command> void invokeDependencyProvider(T command, String key, Context context,
-                                                              Map<String, DependencyProvider> providers,
-                                                              Set<String> referKeys) {
+    private <T extends Command> void invokeDependencyProvider(T command, Class<? extends Typed<?>> key, Context context,
+                                                              Map<Class<? extends Typed<?>>, DependencyProvider> providers,
+                                                              Set<Class<? extends Typed<?>>> referKeys) {
         SysException.trueThrow(referKeys.contains(key), "required key:" + key + "circular reference!");
         referKeys.add(key);
         DependencyProvider valueProvider = providers.get(key);
         SysException.nullThrow(valueProvider, "command:" + command + ", key:" + key);
-        Map<String, Object> stringKeyDependencies = new HashMap<>(16);
-        context.getDependencies().forEach((k, v) -> stringKeyDependencies.put(k.getName(), v));
-        Arrays.stream(valueProvider.getRequiredKeys())
-                .filter(requiredKey -> Objects.equals(null, stringKeyDependencies.get(requiredKey)))
+        Map<Class<? extends Typed<?>>, Object> keyDependencies = new HashMap<>(16);
+        keyDependencies.putAll(context.getDependencies());
+        Arrays.stream(valueProvider.getRequiredKeys()).filter(requiredKey -> Kit.eq(null, keyDependencies.get(requiredKey)))
                 .forEach(k -> invokeDependencyProvider(command, k, context, providers, referKeys));
-        valueProvider.invoke(command, context);
+        Object dependency = valueProvider.invoke(command, context);
+        context.putDependency(key, dependency);
     }
 
     @Data
     static private class DependencyProvider {
 
-        private String key;
-        private String[] requiredKeys;
+        private Class<? extends Typed<?>> key;
+        private Class<? extends Typed<?>>[] requiredKeys;
         private Object bean;
         private Method method;
         private boolean alwaysLog;
         private MethodAccess methodAccess;
         private int methodIndex;
 
-        public DependencyProvider(String key, String[] requiredKeys, Object bean, Method method, boolean alwaysLog) {
+        public DependencyProvider(Class<? extends Typed<?>> key,
+                                  Class<? extends Typed<?>>[] requiredKeys, Object bean, Method method, boolean alwaysLog) {
             this.key = key;
             this.requiredKeys = requiredKeys;
             this.bean = bean;
@@ -582,10 +593,10 @@ public class CommandBus {
         }
 
         @SneakyThrows(Throwable.class)
-        public void invoke(Object object, Context context) {
+        public Object invoke(Object object, Context context) {
             Throwable throwable;
             try {
-                methodAccess.invoke(bean, methodIndex, object, context);
+                return methodAccess.invoke(bean, methodIndex, object, context);
             } catch (Throwable t) {
                 throwable = t;
                 if (alwaysLog) {
@@ -602,7 +613,7 @@ public class CommandBus {
     static private class Handler {
 
         public Handler(Class<? extends AggregateRoot> aggregateClazz,
-                       Method method, HandlerType handlerType, Set<String> requiredKeys) {
+                       Method method, HandlerType handlerType, Set<Class<? extends Typed<?>>> requiredKeys) {
             this.aggregateClazz = aggregateClazz;
             this.method = method;
             this.handlerType = handlerType;
@@ -614,7 +625,7 @@ public class CommandBus {
         private Class<? extends AggregateRoot> aggregateClazz;
         private Method method;
         private HandlerType handlerType;
-        private Set<String> requiredKeys;
+        private Set<Class<? extends Typed<?>>> requiredKeys;
         private MethodAccess methodAccess;
         private int methodIndex;
 

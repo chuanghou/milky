@@ -1,17 +1,13 @@
 package com.stellariver.milky.domain.support.dependency;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -57,7 +53,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
 
     @SuppressWarnings("unchecked")
     default void batchSaveWrapper(List<Object> dataObjects) {
-        CheckNull.checkNullField(dataObjects);
+        dataObjects = dataObjects.stream().map(FieldAccessor::replaceNullFieldByStrategy).collect(Collectors.toList());
         int count = batchSave(Collect.transfer(dataObjects, doj -> (DataObject) doj));
         SysException.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
     }
@@ -77,6 +73,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     default Map<Object, Object> batchGetByPrimaryIdsWrapper(@NonNull Set<Object> primaryIds) {
         Set<PrimaryId> tempPrimaryIds = Collect.transfer(primaryIds, primaryId -> (PrimaryId) primaryId, HashSet::new);
         Map<PrimaryId, DataObject> map = batchGetByPrimaryIds(tempPrimaryIds);
+        map.forEach((k, v) -> map.put(k, (DataObject) FieldAccessor.recoverNullFieldByStrategy(v)));
         return new HashMap<>(map);
     }
 

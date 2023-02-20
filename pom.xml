@@ -138,6 +138,13 @@
                 <artifactId>resilience4j-circuitbreaker</artifactId>
                 <version>1.3.1</version>
             </dependency>
+            <dependency>
+                <groupId>io.atlassian.util.concurrent</groupId>
+                <artifactId>atlassian-util-concurrent</artifactId>
+                <version>4.0.1</version>
+                <scope>provided</scope>
+            </dependency>
+
             <!--utils end-->
 
             <!-- code generation start-->

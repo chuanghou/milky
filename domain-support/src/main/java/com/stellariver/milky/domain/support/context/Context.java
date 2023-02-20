@@ -35,12 +35,12 @@ public class Context{
     private final Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = new HashMap<>();
 
     @Getter
-    private final Map<Typed<?>, Object> parameters = new HashMap<>();
+    private final Map<Class<? extends Typed<?>>, Object> parameters = new HashMap<>();
 
     @Getter
-    private final Map<Typed<?>, Object> metaData = new HashMap<>();
+    private final Map<Class<? extends Typed<?>>, Object> metaData = new HashMap<>();
 
-    private final Map<Typed<?>, Object> dependencies = new HashMap<>();
+    private final Map<Class<? extends Typed<?>>, Object> dependencies = new HashMap<>();
 
     private final List<Event> events = new ArrayList<>();
 
@@ -48,17 +48,16 @@ public class Context{
 
     private final List<MessageRecord> messageRecords = new ArrayList<>();
 
-    @Nullable
     @SuppressWarnings("unchecked")
-    public <T> T getDependency(Typed<T> key) {
+    public <T> T getDependency(Class<? extends Typed<T>> key) {
         return (T) dependencies.get(key);
     }
 
-    public Map<Typed<?>, Object> getDependencies() {
+    public Map<Class<? extends Typed<?>>, Object> getDependencies() {
         return dependencies;
     }
 
-    public void putDependency(Typed<?> key, Object value) {
+    public void putDependency(Class<? extends Typed<?>> key, Object value) {
         dependencies.put(key, value);
     }
 
@@ -71,12 +70,10 @@ public class Context{
     }
 
     public void recordCommand(@NonNull CommandRecord commandRecord) {
-        SysException.anyNullThrow(commandRecord);
         messageRecords.add(commandRecord);
     }
 
     public void recordEvent(@NonNull EventRecord eventRecord) {
-        SysException.anyNullThrow(eventRecord);
         messageRecords.add(eventRecord);
     }
 
@@ -99,11 +96,11 @@ public class Context{
         return new ArrayList<>(events);
     }
 
-    public static Context build(Map<Typed<?>, Object> parameters) {
+    public static Context build(Map<Class<? extends Typed<?>>, Object> parameters) {
         return build(parameters, null);
     }
 
-    public static Context build(Map<Typed<?>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+    public static Context build(Map<Class<? extends Typed<?>>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Context context = new Context();
         context.invocationId = BeanUtil.getBean(IdBuilder.class).get("default");
         context.parameters.putAll(parameters);

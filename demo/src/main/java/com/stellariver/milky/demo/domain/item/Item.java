@@ -2,7 +2,6 @@ package com.stellariver.milky.demo.domain.item;
 
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
-import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
@@ -13,12 +12,15 @@ import com.stellariver.milky.demo.domain.item.event.ItemCreatedEvent;
 import com.stellariver.milky.demo.domain.item.event.ItemInventoryInitEvent;
 import com.stellariver.milky.demo.domain.item.event.ItemTitleUpdatedEvent;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
-import com.stellariver.milky.domain.support.command.CommandHandler;
+import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.context.Context;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+
+
+import static com.stellariver.milky.demo.basic.TypedEnums.*;
 
 /**
  * @author houchuang
@@ -27,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@SuppressWarnings("unused")
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Item extends AggregateRoot {
@@ -45,31 +48,32 @@ public class Item extends AggregateRoot {
         this.userId = command.getUserId();
         this.amount = command.getAmount();
         this.storeCode = command.getStoreCode();
-        this.userName = command.getUserInfo().getUserName();
         this.channelEnum = command.getChannelEnum();
     }
 
-    @ConstructorHandler
+    @ConstructorHandler(dependencies = USER_INFO.class)
     static public Item build(ItemCreateCommand command, Context context) {
         Item item = new Item(command);
         context.publish(ItemCreatedEvent.builder().itemId(item.getItemId()).title(item.getTitle()).build());
+        UserInfo userInfo = context.getDependency(USER_INFO.class);
+        item.setUserName(userInfo.getUserName());
         return item;
     }
 
     @SneakyThrows
-    @CommandHandler
+    @MethodHandler
     public Context handle(ItemTitleUpdateCommand command, Context context) {
         String originalTitle = this.title;
         this.title = command.getUpdateTitle();
         ItemTitleUpdatedEvent event = ItemTitleUpdatedEvent.builder()
                 .itemId(itemId).originalTitle(originalTitle).updatedTitle(title).build();
-        context.getMetaData().put(TypedEnums.markHandle, Clock.currentTimeMillis());
+        context.getMetaData().put(MARK_HANDLE.class, Clock.currentTimeMillis());
         Thread.sleep(10L);
         context.publish(event);
         return context;
     }
 
-    @CommandHandler
+    @MethodHandler
     public void handle(ItemInventoryUpdateCommand command, Context context) {
         Long originalAmount = this.amount;
         this.amount = command.getAmount();
@@ -78,7 +82,7 @@ public class Item extends AggregateRoot {
         context.publish(event);
     }
 
-    @CommandHandler
+    @MethodHandler
     public void handle(ItemInventoryInitCommand command, Context context) {
         ItemInventoryInitEvent event = ItemInventoryInitEvent.builder()
                 .itemId(itemId).initStoreCode(this.storeCode).initAmount(command.getInitAmount()).build();

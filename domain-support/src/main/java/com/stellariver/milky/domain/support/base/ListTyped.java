@@ -11,15 +11,15 @@ import java.util.Map;
  * @author houchuang
  */
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ListTyped<V> extends Typed<List<V>> {
 
     private Class<?> vClazz;
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<V> extractFrom(Map<Typed<?>, Object> map) {
-        return (List<V>) map.get(this);
+    public ListTyped(String name, Class<?> vClazz) {
+        super(name, List.class);
+        this.vClazz = vClazz;
     }
 
     @Override

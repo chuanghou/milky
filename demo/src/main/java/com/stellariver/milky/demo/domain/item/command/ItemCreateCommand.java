@@ -1,7 +1,6 @@
 package com.stellariver.milky.demo.domain.item.command;
 
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
-import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
 import com.stellariver.milky.domain.support.command.Command;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -29,8 +28,6 @@ public class ItemCreateCommand extends Command {
     String storeCode;
 
     ChannelEnum channelEnum;
-
-    UserInfo userInfo;
 
     @Override
     public String getAggregateId() {

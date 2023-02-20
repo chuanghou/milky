@@ -2,7 +2,6 @@ package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
-import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
@@ -23,6 +22,8 @@ import org.springframework.dao.DuplicateKeyException;
 
 import java.util.HashMap;
 import java.util.Optional;
+
+import static com.stellariver.milky.demo.basic.TypedEnums.*;
 
 @CustomLog
 @SpringBootTest
@@ -47,11 +48,10 @@ public class MemoryTxTest {
         LogUtil.setLogLevel(MemoryTxTest.class, Level.OFF);
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
-                .userInfo(userInfoRepository.getUserInfo(10086L))
                 .channelEnum(ChannelEnum.JD)
                 .build();
-        HashMap<Typed<?>, Object> parameters = new HashMap<>();
-        parameters.put(TypedEnums.employee, new Employee("110", "小明"));
+        HashMap<Class<? extends Typed<?>>, Object> parameters = new HashMap<>();
+        parameters.put(EMPLOYEE.class, new Employee("110", "小明"));
         Throwable throwable = null;
         InventoryDO test = InventoryDO.builder().itemId(1L).amount(30L).storeCode("test").build();
         inventoryDOMapper.insert(test);
