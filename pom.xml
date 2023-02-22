@@ -142,7 +142,6 @@
                 <groupId>io.atlassian.util.concurrent</groupId>
                 <artifactId>atlassian-util-concurrent</artifactId>
                 <version>4.0.1</version>
-                <scope>provided</scope>
             </dependency>
 
             <!--utils end-->

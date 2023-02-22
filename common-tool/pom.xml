@@ -97,6 +97,10 @@
             <groupId>com.esotericsoftware</groupId>
             <artifactId>reflectasm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.atlassian.util.concurrent</groupId>
+            <artifactId>atlassian-util-concurrent</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

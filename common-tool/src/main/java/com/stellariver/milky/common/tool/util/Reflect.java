@@ -1,13 +1,14 @@
 package com.stellariver.milky.common.tool.util;
 
+import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.slambda.SetAccessibleAction;
+import io.atlassian.util.concurrent.CopyOnWriteMap;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Method;
 import java.security.AccessController;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author houchuang
@@ -29,6 +30,25 @@ public class Reflect {
 
     public static <T extends AccessibleObject> T setAccessible(T object) {
         return AccessController.doPrivileged(new SetAccessibleAction<>(object));
+    }
+
+    static private final Map<Method, Pair<MethodAccess, Integer>> map = CopyOnWriteMap.newHashMap();
+
+    /**
+     * use reflect asm to invoke reflect, not support private method
+     */
+    public Object invoke(Method method, Object bean, Object... parameters) {
+        Pair<MethodAccess, Integer> pair = map.get(method);
+        if (pair == null) {
+            Class<?> clazz = method.getDeclaringClass();
+            MethodAccess methodAccess = MethodAccess.get(clazz);
+            int index = methodAccess.getIndex(method.getName());
+            pair = Pair.of(methodAccess, index);
+            map.put(method, pair);
+        }
+        MethodAccess methodAccess = pair.getKey();
+        Integer index = pair.getRight();
+        return methodAccess.invoke(bean, index, parameters);
     }
 
 }
