@@ -22,8 +22,7 @@ public class ValidateAspect {
     @Before("pointCut()")
     public void valid(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = signature.getMethod();
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         Validate annotation = method.getAnnotation(Validate.class);
         Class<?>[] groups = annotation.groups();
         boolean failFast = annotation.failFast();
