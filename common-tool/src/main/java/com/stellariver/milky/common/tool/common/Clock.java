@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 高并发场景下System.currentTimeMillis()的性能问题的优化
@@ -25,66 +24,52 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Clock {
 
     private final long period;
-    private final AtomicLong now;
+    volatile private long now;
+    volatile int today;
 
     private Clock(long period) {
         this.period = period;
-        this.now = new AtomicLong(System.currentTimeMillis());
+        this.now = System.currentTimeMillis();
         scheduleClockUpdating();
     }
 
     private void scheduleClockUpdating() {
+
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
             Thread thread = new Thread(runnable, "System Clock");
             thread.setDaemon(true);
             return thread;
         });
-        scheduler.scheduleAtFixedRate(() -> now.set(System.currentTimeMillis()), period, period, TimeUnit.MILLISECONDS);
+
+        scheduler.scheduleAtFixedRate(() -> {
+            now = System.currentTimeMillis();
+            today = Integer.parseInt(DateFormatUtils.format(new Date(now), "yyyyMMdd"));
+        }, period, period, TimeUnit.MILLISECONDS);
+
     }
 
     private static class InstanceHolder {
         public static final Clock INSTANCE = new Clock(1);
     }
 
-
     public static long currentTimeMillis() {
-        return InstanceHolder.INSTANCE.now.get();
+        return InstanceHolder.INSTANCE.now;
+    }
+
+    public static Date now() {
+        return new Date(InstanceHolder.INSTANCE.now);
     }
 
     public static Date beforeNow(int days) {
         return new Date(currentTimeMillis() - 1000L * 3600 * 24 * days);
     }
 
-    public static Date now() {
-        return beforeNow(0);
+    public static int today() {
+        return InstanceHolder.INSTANCE.today;
     }
 
-    public static Date yesterdayNow() {
-        return beforeNow(1);
-    }
-
-    public static String beforeNowDs(int days) {
-        return DateFormatUtils.format(new Date(currentTimeMillis() - 1000L * 3600 * 24 * days), "yyyyMMdd");
-    }
-
-    public static String nowDs() {
-        return beforeNowDs(0);
-    }
-
-    public static String yesterdayDs() {
-        return beforeNowDs(1);
-    }
-
-    public static Integer beforeNowDi(int days) {
-        return Integer.parseInt(DateFormatUtils.format(new Date(currentTimeMillis() - 1000L * 3600 * 24 * days), "yyyyMMdd"));
-    }
-
-    public static Integer nowDi() {
-        return beforeNowDi(0);
-    }
-
-    public static Integer yesterdayDi() {
-        return beforeNowDi(1);
+    public static int beforeToday(int days) {
+        return InstanceHolder.INSTANCE.today - days;
     }
 
 }

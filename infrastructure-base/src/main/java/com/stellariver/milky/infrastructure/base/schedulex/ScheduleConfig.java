@@ -27,7 +27,7 @@ public class ScheduleConfig {
     Long pageSize;
 
     @Builder.Default
-    String ds = Clock.yesterdayDs();
+    String ds = String.valueOf(Clock.beforeNow(1));
 
     Map<String, String> metadata;
 
