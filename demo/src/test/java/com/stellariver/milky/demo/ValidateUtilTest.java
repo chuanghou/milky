@@ -13,6 +13,7 @@ import org.hibernate.validator.constraints.Range;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.lang.reflect.Method;
@@ -153,7 +154,7 @@ public class ValidateUtilTest {
     @Data
     static private class ValidParam {
 
-        @javax.validation.Valid
+        @Valid
         private NestValidParam param;
 
     }

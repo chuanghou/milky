@@ -1,6 +1,5 @@
 package com.stellariver.milky.validate.tool;
 
-import javax.validation.groups.Default;
 import java.lang.annotation.*;
 
 /**
@@ -46,6 +45,6 @@ public @interface CustomValid {
     /**
      * JSR 303 group implementation
      */
-    Class<?>[] groups() default Default.class;
+    Class<?>[] groups() default {};
 
 }

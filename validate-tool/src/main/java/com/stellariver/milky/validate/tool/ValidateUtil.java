@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
@@ -77,6 +78,14 @@ public class ValidateUtil {
     }
 
 
+    static private Consumer<Method> CUSTOM_VALID_FORMAT = m -> {
+        boolean stat = Modifier.isStatic(m.getModifiers());
+        boolean zeroParams = m.getParameterTypes().length == 0;
+        boolean voidReturn = m.getReturnType().equals(void.class);
+        boolean pub = Modifier.isPublic(m.getModifiers());
+        boolean b = stat && zeroParams && voidReturn && pub;
+        SysException.falseThrow(b, CONFIG_ERROR.message(m.toGenericString()));
+    };
 
     public static void validate(Object param, ExceptionType type, boolean failFast, Class<?>... groups) {
         if (param instanceof Collection) {
@@ -94,25 +103,21 @@ public class ValidateUtil {
         Class<?> clazz = param.getClass();
 
         if (!reflectedClasses.contains(clazz)) {
-            MethodAccess methodAccess = MethodAccess.get(clazz);
-
-            Arrays.stream(param.getClass().getDeclaredMethods())
-                    .filter(method -> method.isAnnotationPresent(CustomValid.class))
-                    .filter(m -> !Modifier.isPublic(m.getModifiers()) || !m.getReturnType().equals(void.class))
-                    .filter(m -> m.getParameterTypes().length == 0)
-                    .findFirst().ifPresent(m -> {throw new SysException(CONFIG_ERROR.message(m.toGenericString()));});
 
             List<Method> methods = Arrays.stream(param.getClass().getMethods())
-                    .filter(m -> m.isAnnotationPresent(CustomValid.class)).collect(Collectors.toList());
+                    .filter(m -> m.isAnnotationPresent(CustomValid.class))
+                    .peek(CUSTOM_VALID_FORMAT)
+                    .collect(Collectors.toList());
 
+            MethodAccess methodAccess = MethodAccess.get(clazz);
             methods.forEach(m -> {
                 CustomValid anno = m.getAnnotation(CustomValid.class);
                 int index = methodAccess.getIndex(m.getName());
                 for (Class<?> group : anno.groups()) {
                     Pair<Class<?>, Class<?>> key = Pair.of(clazz, group);
                     Pair<MethodAccess, Integer> methodIndex = Pair.of(methodAccess, index);
-                    Pair<MethodAccess, Integer> put = accessorMap.put(key, methodIndex);
-                    SysException.trueThrow(put != null, CONFIG_ERROR.message(m.toGenericString()));
+                    Pair<MethodAccess, Integer> oldValue = accessorMap.put(key, methodIndex);
+                    SysException.trueThrow(oldValue != null, CONFIG_ERROR.message(m.toGenericString()));
                 }
             });
             reflectedClasses.add(clazz);
