@@ -1,5 +1,6 @@
 package com.stellariver.milky.validate.tool;
 
+import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
@@ -14,7 +15,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.executable.ExecutableValidator;
 import javax.validation.groups.Default;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -41,7 +41,7 @@ public class ValidateUtil {
 
     static final private ExecutableValidator EXECUTABLE_VALIDATOR = VALIDATOR.forExecutables();
 
-    final static Map<Pair<Class<?>, Class<?>>, Method> methodMap = new ConcurrentHashMap<>();
+    final static Map<Pair<Class<?>, Class<?>>, Pair<MethodAccess, Integer>> accessorMap = new ConcurrentHashMap<>();
 
     final static Set<Class<?>> reflectedClasses = new CopyOnWriteArraySet<>();
 
@@ -76,6 +76,8 @@ public class ValidateUtil {
         validate(param, ExceptionType.BIZ, true);
     }
 
+
+
     public static void validate(Object param, ExceptionType type, boolean failFast, Class<?>... groups) {
         if (param instanceof Collection) {
             ((Collection<?>) param).forEach(p -> validate(p, type, failFast, groups));
@@ -89,13 +91,15 @@ public class ValidateUtil {
         Validator validator = failFast ? FAIL_FAST_VALIDATOR : VALIDATOR;
         Set<ConstraintViolation<Object>> validateResult = validator.validate(param, groups);
         check(validateResult, type);
-
         Class<?> clazz = param.getClass();
+
         if (!reflectedClasses.contains(clazz)) {
+            MethodAccess methodAccess = MethodAccess.get(clazz);
 
             Arrays.stream(param.getClass().getDeclaredMethods())
                     .filter(method -> method.isAnnotationPresent(CustomValid.class))
                     .filter(m -> !Modifier.isPublic(m.getModifiers()) || !m.getReturnType().equals(void.class))
+                    .filter(m -> m.getParameterTypes().length == 0)
                     .findFirst().ifPresent(m -> {throw new SysException(CONFIG_ERROR.message(m.toGenericString()));});
 
             List<Method> methods = Arrays.stream(param.getClass().getMethods())
@@ -103,29 +107,28 @@ public class ValidateUtil {
 
             methods.forEach(m -> {
                 CustomValid anno = m.getAnnotation(CustomValid.class);
+                int index = methodAccess.getIndex(m.getName());
                 for (Class<?> group : anno.groups()) {
-                    Pair<Class<?>, Class<?>> classGroupKey = Pair.of(clazz, group);
-                    Method put = methodMap.put(classGroupKey, m);
-                    SysException.trueThrow(put != null, CONFIG_ERROR.message("same group should only has one custom valid method!"));
+                    Pair<Class<?>, Class<?>> key = Pair.of(clazz, group);
+                    Pair<MethodAccess, Integer> methodIndex = Pair.of(methodAccess, index);
+                    Pair<MethodAccess, Integer> put = accessorMap.put(key, methodIndex);
+                    SysException.trueThrow(put != null, CONFIG_ERROR.message(m.toGenericString()));
                 }
             });
-            reflectedClasses.add(param.getClass());
+            reflectedClasses.add(clazz);
         }
 
         List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
-            Method method = methodMap.get(Pair.of(clazz, g));
-            if (method == null) {
+            Pair<MethodAccess, Integer> accessor = accessorMap.get(Pair.of(clazz, g));
+            if (accessor == null) {
                 continue;
             }
-            try {
-                method.invoke(param);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                if (e instanceof InvocationTargetException && e.getCause() instanceof RuntimeException) {
-                    throw ((RuntimeException) e.getCause());
-                }
-            }
+            MethodAccess methodAccess = accessor.getKey();
+            Integer index = accessor.getValue();
+            methodAccess.invoke(param, index);
         }
+
     }
 
     private static void check(Set<ConstraintViolation<Object>> validateResult, ExceptionType type) {

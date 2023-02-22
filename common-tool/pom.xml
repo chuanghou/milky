@@ -93,6 +93,10 @@
             <artifactId>disruptor</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>reflectasm</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
