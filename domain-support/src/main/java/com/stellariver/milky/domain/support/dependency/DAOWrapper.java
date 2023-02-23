@@ -1,17 +1,15 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.NonNull;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.PERSISTENCE_ERROR;
 
 /**
@@ -19,41 +17,8 @@ import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.PERSIST
  */
 public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
 
-    class CheckNull {
-
-        private static final Map<Class<?>, List<Pair<MethodAccess, Integer>>> gettersMap = new ConcurrentHashMap<>();
-
-        public static boolean isGetter(String name) {
-            return (name.startsWith("get") && name.length() > 3) || (name.startsWith("is") && name.length() > 2);
-        }
-
-        public static void checkNullField(List<Object> objects) throws SysException {
-            Class<?> clazz = objects.get(0).getClass();
-            List<Pair<MethodAccess, Integer>> getters = gettersMap.get(clazz);
-            if (getters == null) {
-                getters = Arrays.stream(clazz.getDeclaredMethods())
-                        .filter(m -> m.getParameterTypes().length == 0 && isGetter(m.getName()))
-                        .map(method -> {
-                            MethodAccess methodAccess = MethodAccess.get(clazz);
-                            int methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
-                            return Pair.of(methodAccess, methodIndex);
-                        }).collect(Collectors.toList());
-                gettersMap.put(clazz, getters);
-            }
-            for (Object object : objects) {
-                for (Pair<MethodAccess, Integer> getter : getters) {
-                    MethodAccess methodAccess = getter.getLeft();
-                    Integer index = getter.getRight();
-                    Object value = methodAccess.invoke(object, index);
-                    SysException.nullThrow(value, object);
-                }
-            }
-        }
-    }
-
     @SuppressWarnings("unchecked")
     default void batchSaveWrapper(List<Object> dataObjects) {
-        dataObjects = dataObjects.stream().map(FieldAccessor::replaceNullFieldByStrategy).collect(Collectors.toList());
         int count = batchSave(Collect.transfer(dataObjects, doj -> (DataObject) doj));
         SysException.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
     }
@@ -62,7 +27,6 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
 
     @SuppressWarnings("unchecked")
     default void batchUpdateWrapper(List<Object> dataObjects) {
-        CheckNull.checkNullField(dataObjects);
         int count = batchUpdate(Collect.transfer(dataObjects, doj -> (DataObject) doj));
         SysException.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
     }
@@ -73,7 +37,6 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     default Map<Object, Object> batchGetByPrimaryIdsWrapper(@NonNull Set<Object> primaryIds) {
         Set<PrimaryId> tempPrimaryIds = Collect.transfer(primaryIds, primaryId -> (PrimaryId) primaryId, HashSet::new);
         Map<PrimaryId, DataObject> map = batchGetByPrimaryIds(tempPrimaryIds);
-        map.forEach((k, v) -> map.put(k, (DataObject) FieldAccessor.recoverNullFieldByStrategy(v)));
         return new HashMap<>(map);
     }
 
@@ -85,14 +48,18 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     }
 
     @SuppressWarnings("unchecked")
-    default BaseDataObject<?> mergeWrapper(@NonNull Object priority, Object general) {
-        if (general == null) {
-            return (BaseDataObject<?>) priority;
-        } else {
-            return merge((DataObject) priority, (DataObject) general);
+    default BaseDataObject<?> mergeWrapper(Object priority, Object original) {
+        BaseDataObject<?> mergeResult = original == null ? (BaseDataObject<?>) priority : merge((DataObject) priority, (DataObject) original);
+        List<FieldAccessor> fieldAccessors = FieldAccessor.get(mergeResult.getClass());
+        for (FieldAccessor fA : fieldAccessors) {
+            Object o = fA.get(mergeResult);
+            if (o == null) {
+                throw new SysException(CONFIG_ERROR.message(" persistence object is not allowed null field!"));
+            }
         }
+        return mergeResult;
     }
 
-    DataObject merge(@NonNull DataObject priority, @NonNull DataObject general);
+    DataObject merge(DataObject priority, @NonNull DataObject original);
 
 }

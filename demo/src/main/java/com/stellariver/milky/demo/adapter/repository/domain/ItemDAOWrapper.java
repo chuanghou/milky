@@ -41,8 +41,8 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
     }
 
     @Override
-    public ItemDO merge(@NonNull ItemDO priority, @NonNull ItemDO general) {
-        return Merger.INST.merge(priority, general);
+    public ItemDO merge(@NonNull ItemDO priority, @NonNull ItemDO original) {
+        return Merger.INST.merge(priority, original);
     }
 
     @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -52,7 +52,7 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
         Merger INST = Mappers.getMapper(Merger.class);
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
-        ItemDO merge(ItemDO priority, @MappingTarget ItemDO general);
+        ItemDO merge(ItemDO priority, @MappingTarget ItemDO original);
 
     }
 }

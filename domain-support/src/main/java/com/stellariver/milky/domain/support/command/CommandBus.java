@@ -3,6 +3,7 @@ package com.stellariver.milky.domain.support.command;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.common.*;
 import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Random;
@@ -514,18 +515,18 @@ public class CommandBus {
             // context DO cache
             Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
             // according primaryId, find corresponding data object
-            Object temp = Kit.op(doMap.get(dataObjectClazz)).map(map -> map.get(primaryId)).orElse(null);
+            Object original = Kit.op(doMap.get(dataObjectClazz)).map(map -> map.get(primaryId)).orElse(null);
 
             // aggregate to data object
-            BaseDataObject<?> baseDataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
+            BaseDataObject<?> dataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
 
             // merge new data object to the old one, the old one is null when the command which is handling is a create command
             DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
-            BaseDataObject<?> merge = daoWrapper.mergeWrapper(baseDataObject, temp);
+            BaseDataObject<?> mergeResult = daoWrapper.mergeWrapper(dataObject, original);
 
             Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
             if (memoryTx) {
-                doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>(16)).put(primaryId, merge);
+                doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>(16)).put(primaryId, mergeResult);
             } else {
                 Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
             }
@@ -535,13 +536,13 @@ public class CommandBus {
                 if (memoryTx) {
                     context.getCreatedAggregateIds().computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
                 } else {
-                    daoWrapper.batchSaveWrapper(Collect.asList(merge));
+                    daoWrapper.batchSaveWrapper(Collect.asList(mergeResult));
                 }
             } else {
                 if (memoryTx) {
                     context.getChangedAggregateIds().computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
                 } else {
-                    daoWrapper.batchUpdateWrapper(Collect.asList(merge));
+                    daoWrapper.batchUpdateWrapper(Collect.asList(mergeResult));
                 }
             }
         }

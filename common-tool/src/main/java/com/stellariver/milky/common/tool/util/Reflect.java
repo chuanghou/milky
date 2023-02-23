@@ -9,6 +9,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author houchuang
@@ -32,7 +33,7 @@ public class Reflect {
         return AccessController.doPrivileged(new SetAccessibleAction<>(object));
     }
 
-    static private final Map<Method, Pair<MethodAccess, Integer>> map = CopyOnWriteMap.newHashMap();
+    static private final Map<Method, Pair<MethodAccess, Integer>> map = new ConcurrentHashMap<>();
 
     /**
      * use reflect asm to invoke reflect, not support private method

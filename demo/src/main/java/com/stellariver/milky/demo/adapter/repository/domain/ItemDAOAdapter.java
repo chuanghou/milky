@@ -43,10 +43,6 @@ public class ItemDAOAdapter implements AggregateDaoAdapter<Item> {
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
         Item to(ItemDO itemDO);
-        @AfterMapping
-        default void setRatioNotValid(Item item, @MappingTarget ItemDO itemDO) {
-            itemDO.setRatio(-1L);
-        }
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
         ItemDO to(Item item);

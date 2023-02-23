@@ -14,11 +14,26 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
+
 /**
  * @author houchuang
  */
 public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
 
+    default Aggregate toAggregateWrapper(Object dataObject) {
+        Aggregate aggregate = toAggregate(dataObject);
+        List<FieldAccessor> fieldAccessors = FieldAccessor.get(aggregate.getClass());
+        for (FieldAccessor fA: fieldAccessors) {
+            Object value = fA.get(aggregate);
+            if (fA.getStrategy() != null) {
+                if (Kit.eq(fA.getReplacer(), value)) {
+                    fA.set(aggregate, null);
+                }
+            }
+        }
+        return aggregate;
+    }
     /**
      * 实现数据库对象到聚合根转化
      * @param dataObject 数据库对象
@@ -30,6 +45,23 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
     @SuppressWarnings("unchecked")
     default Object toDataObjectWrapper(Object aggregate) {
         Aggregate aggregateRoot = (Aggregate) aggregate;
+        List<FieldAccessor> fieldAccessors = FieldAccessor.get(aggregateRoot.getClass());
+        for (FieldAccessor fA : fieldAccessors) {
+            Object value = fA.get(aggregate);
+            if (value != null) {
+                if (fA.getStrategy() != null && Kit.eq(fA.getReplacer(), value)) {
+                    String message = String.format("%s in %s equal null holder value", fA.getFieldName(), fA.getClassName());
+                    throw new SysException(CONFIG_ERROR.message(message));
+                }
+            } else {
+                if (fA.getStrategy() == null) {
+                    String message = String.format("%s in %s is null, consider an annotation ", fA.getFieldName(), fA.getClassName());
+                    throw new SysException(CONFIG_ERROR.message(message));
+                } else {
+                    fA.set(aggregate, fA.getReplacer());
+                }
+            }
+        }
         return toDataObject(aggregateRoot, dataObjectInfo(aggregateRoot.getAggregateId()));
     }
 
@@ -75,7 +107,7 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
             DataObjectInfo dataObjectInfo = dataObjectInfo(aggregateId);
             Object dataObject = doMap.getOrDefault(dataObjectInfo.getClazz(), new HashMap<>(10)).get(dataObjectInfo.getPrimaryId());
             if (dataObject != null) {
-                resultMap.put(aggregateId, toAggregate(dataObject));
+                resultMap.put(aggregateId, toAggregateWrapper(dataObject));
             }
         });
         return resultMap;

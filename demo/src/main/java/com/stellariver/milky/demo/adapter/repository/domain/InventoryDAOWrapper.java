@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,8 +42,8 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
     }
 
     @Override
-    public InventoryDO merge(@NonNull InventoryDO priority, @NonNull InventoryDO general) {
-        return Merger.INST.merge(priority, general);
+    public InventoryDO merge(@NonNull InventoryDO priority, @Nullable InventoryDO original) {
+        return Merger.INST.merge(priority, original);
     }
 
     @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -52,7 +53,7 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
         Merger INST = Mappers.getMapper(Merger.class);
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
-        InventoryDO merge(InventoryDO priority, @MappingTarget InventoryDO general);
+        InventoryDO merge(InventoryDO priority, @MappingTarget InventoryDO original);
 
     }
 }

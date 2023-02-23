@@ -78,7 +78,7 @@ public class ValidateUtil {
     }
 
 
-    static private Consumer<Method> CUSTOM_VALID_FORMAT = m -> {
+    static private final Consumer<Method> CUSTOM_VALID_FORMAT = m -> {
         boolean stat = Modifier.isStatic(m.getModifiers());
         boolean zeroParams = m.getParameterTypes().length == 0;
         boolean voidReturn = m.getReturnType().equals(void.class);
@@ -88,6 +88,7 @@ public class ValidateUtil {
     };
 
     public static void validate(Object param, ExceptionType type, boolean failFast, Class<?>... groups) {
+        // when the param is collection or map, check its java bean
         if (param instanceof Collection) {
             ((Collection<?>) param).forEach(p -> validate(p, type, failFast, groups));
         } else if (param instanceof Map) {
