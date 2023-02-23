@@ -55,9 +55,9 @@ public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
                 }
             } else {
                 if (fA.getStrategy() == null) {
-                    String message = String.format("%s in %s is null, " +
+                    String message = String.format("%s in %s is null of class %s, " +
                             "consider an annotation NullReplacer at corresponding field to assign a non null value stand null in database ",
-                            fA.getFieldName(), fA.getClassName());
+                            fA.getFieldName(), fA.getClassName(), aggregate.getClass());
                     throw new SysException(CONFIG_ERROR.message(message));
                 } else {
                     fA.set(aggregate, fA.getReplacer());
