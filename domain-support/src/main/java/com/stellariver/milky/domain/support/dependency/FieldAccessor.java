@@ -70,7 +70,7 @@ public class FieldAccessor {
             NullReplacer annotation = f.getAnnotation(NullReplacer.class);
             if (annotation != null) {
                 strategy = annotation.value();
-                replacer = annotation.value().holderValue;
+                replacer = annotation.value().replacer;
                 if (strategy == Strategy.CUSTOM) {
                     Supplier<Object> supplier;
                     try {

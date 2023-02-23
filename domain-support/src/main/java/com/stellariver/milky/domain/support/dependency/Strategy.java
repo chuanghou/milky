@@ -15,6 +15,6 @@ public enum Strategy {
     CUSTOM(null);
 
     @Getter
-    final Object holderValue;
+    final Object replacer;
 
 }
