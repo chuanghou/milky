@@ -38,7 +38,7 @@ public class Reflect {
     /**
      * use reflect asm to invoke reflect, not support private method
      */
-    public Object invoke(Method method, Object bean, Object... parameters) {
+    public static Object invoke(Method method, Object bean, Object... parameters) {
         Pair<MethodAccess, Integer> pair = map.get(method);
         if (pair == null) {
             Class<?> clazz = method.getDeclaringClass();

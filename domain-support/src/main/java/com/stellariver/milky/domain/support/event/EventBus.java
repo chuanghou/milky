@@ -1,6 +1,5 @@
 package com.stellariver.milky.domain.support.event;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
@@ -168,20 +167,16 @@ public class EventBus {
     @Data
     static public class Router {
 
+        private final Object bean;
+        private final Method method;
+
         public Router(Object bean, Method method) {
             this.bean = bean;
             this.method = method;
-            this.methodAccess = MethodAccess.get(bean.getClass());
-            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
         }
 
-        private final Object bean;
-        private final Method method;
-        private MethodAccess methodAccess;
-        private int methodIndex;
-
         public void route(Event event, Context context) {
-            methodAccess.invoke(bean, methodIndex, event, context);
+            Reflect.invoke(method, bean, event, context);
         }
     }
 
@@ -194,9 +189,6 @@ public class EventBus {
         private boolean asyncable;
         private double order;
         private ExecutorService executorService;
-        private MethodAccess methodAccess;
-        private int methodIndex;
-
 
         public FinalRouter(T eventClass, Object bean, Method method, boolean asyncable, double order, ExecutorService executorService) {
             this.eventClass = eventClass;
@@ -205,8 +197,6 @@ public class EventBus {
             this.asyncable = asyncable;
             this.order = order;
             this.executorService = executorService;
-            this.methodAccess = MethodAccess.get(bean.getClass());
-            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
         }
 
         public void route(List<? extends Event> events, Context context) {
@@ -216,9 +206,9 @@ public class EventBus {
             }
             if (asyncable) {
                 List<? extends Event> finalEvents = events;
-                executorService.submit(() -> methodAccess.invoke(bean, methodIndex, finalEvents, context));
+                executorService.submit(() -> Reflect.invoke(method, bean, finalEvents, context));
             } else {
-                methodAccess.invoke(bean, methodIndex, events, context);
+                Reflect.invoke(method, bean, events, context);
             }
         }
     }

@@ -6,6 +6,7 @@ import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.Reflect;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.validator.HibernateValidator;
@@ -42,9 +43,7 @@ public class ValidateUtil {
 
     static final private ExecutableValidator EXECUTABLE_VALIDATOR = VALIDATOR.forExecutables();
 
-    final static Map<Pair<Class<?>, Class<?>>, Pair<MethodAccess, Integer>> accessorMap = new ConcurrentHashMap<>();
-
-    final static Set<Class<?>> reflectedClasses = new CopyOnWriteArraySet<>();
+    final static Map<Class<?>, Map<Class<?>, Method>> customValidMap = new ConcurrentHashMap<>();
 
     public static void validate(Object object, Method method, Object[] params,
                                 boolean failFast, ExceptionType type, Class<?>... groups) throws BizException {
@@ -102,37 +101,30 @@ public class ValidateUtil {
         Set<ConstraintViolation<Object>> validateResult = validator.validate(param, groups);
         check(validateResult, type);
         Class<?> clazz = param.getClass();
+        Map<Class<?>, Method> customValidations = customValidMap.get(clazz);
 
-        if (!reflectedClasses.contains(clazz)) {
-
+        if (customValidations == null){
             List<Method> methods = Arrays.stream(param.getClass().getMethods())
                     .filter(m -> m.isAnnotationPresent(CustomValid.class))
                     .peek(CUSTOM_VALID_FORMAT)
                     .collect(Collectors.toList());
 
-            MethodAccess methodAccess = MethodAccess.get(clazz);
-            methods.forEach(m -> {
-                CustomValid anno = m.getAnnotation(CustomValid.class);
-                int index = methodAccess.getIndex(m.getName());
+            customValidations = new HashMap<>();
+            for (Method method : methods) {
+                CustomValid anno = method.getAnnotation(CustomValid.class);
                 for (Class<?> group : anno.groups()) {
-                    Pair<Class<?>, Class<?>> key = Pair.of(clazz, group);
-                    Pair<MethodAccess, Integer> methodIndex = Pair.of(methodAccess, index);
-                    Pair<MethodAccess, Integer> oldValue = accessorMap.put(key, methodIndex);
-                    SysException.trueThrow(oldValue != null, CONFIG_ERROR.message(m.toGenericString()));
+                    Method oldValue = customValidations.put(group, method);
+                    SysException.trueThrow(oldValue != null, CONFIG_ERROR.message(method.toGenericString()));
                 }
-            });
-            reflectedClasses.add(clazz);
+            }
         }
 
         List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
-            Pair<MethodAccess, Integer> accessor = accessorMap.get(Pair.of(clazz, g));
-            if (accessor == null) {
-                continue;
-            }
-            MethodAccess methodAccess = accessor.getKey();
-            Integer index = accessor.getValue();
-            methodAccess.invoke(param, index);
+            Method method = customValidations.get(g);
+            SysException.nullThrow(method, CONFIG_ERROR
+                    .message(String.format("%s validate method didn't exist", method.toGenericString())));
+            Reflect.invoke(method, param);
         }
 
     }

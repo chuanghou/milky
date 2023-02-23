@@ -2,11 +2,13 @@ package com.stellariver.milky.domain.support.dependency;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.util.Reflect;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -24,18 +26,17 @@ public class FieldAccessor {
     String className;
     @Nullable
     Strategy strategy;
-    MethodAccess methodAccess;
-    int getterIndex;
-    int setterIndex;
+    Method getMethod;
+    Method setMethod;
     @Nullable
     Object replacer;
 
     public Object get(Object bean) {
-        return methodAccess.invoke(bean, getterIndex);
+        return Reflect.invoke(getMethod, bean);
     }
 
     public void set(Object bean, Object value) {
-        methodAccess.invoke(bean, setterIndex, value);
+        Reflect.invoke(setMethod, bean, value);
     }
 
     static Set<Class<?>> primitives = new HashSet<>(Arrays.asList(byte.class, short.class, int.class, long.class));
@@ -47,23 +48,15 @@ public class FieldAccessor {
         if (fieldAccessors != null) {
             return fieldAccessors;
         }
-        List<Field> fields = Arrays.stream(clazz.getFields()).collect(Collectors.toList());
+        fieldAccessors = new ArrayList<>();
+        List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
         fields.forEach(f -> SysException.trueThrow(primitives.contains(f.getType()), CONFIG_ERROR));
-        MethodAccess methodAccess = MethodAccess.get(clazz);
-        fieldAccessors = fields.stream().map(f -> {
-
+        for (Field f: fields) {
             String name = f.getName();
-            String getter = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
-            String setter = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
-
-            int getterIndex, setterIndex;
-            try {
-                getterIndex = methodAccess.getIndex(getter);
-                setterIndex = methodAccess.getIndex(setter, f.getType());
-            } catch (IllegalArgumentException exception) {
-                String message = String.format("could not find method %s, or %s", getter, setter);
-                throw new SysException(CONFIG_ERROR.message(message));
-            }
+            String get = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            String set = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            Method getMethod = clazz.getMethod(get);
+            Method setMethod = clazz.getMethod(set, f.getType());
 
             Strategy strategy = null;
             Object replacer = null;
@@ -72,20 +65,16 @@ public class FieldAccessor {
                 strategy = annotation.value();
                 replacer = annotation.value().replacer;
                 if (strategy == Strategy.CUSTOM) {
-                    Supplier<Object> supplier;
-                    try {
-                        supplier = annotation.holderSupplier().newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                    replacer = supplier.get();
+                    replacer = annotation.holderSupplier().newInstance().get();
                 }
                 boolean assignableFrom = f.getType().isAssignableFrom(replacer.getClass());
                 SysException.falseThrow(assignableFrom, CONFIG_ERROR.message("the class of replacer is not appropriate!"));
             }
 
-            return new FieldAccessor(name, clazz.getName(), strategy, methodAccess, getterIndex, setterIndex, replacer);
-        }).collect(Collectors.toList());
+            FieldAccessor fieldAccessor = new FieldAccessor(name, clazz.getName(), strategy, getMethod, setMethod, replacer);
+            fieldAccessors.add(fieldAccessor);
+        }
+
         map.put(clazz, fieldAccessors);
         return fieldAccessors;
     }

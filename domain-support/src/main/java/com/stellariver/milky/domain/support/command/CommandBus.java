@@ -1,9 +1,7 @@
 package com.stellariver.milky.domain.support.command;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.common.*;
 import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Random;
@@ -24,6 +22,7 @@ import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import lombok.*;
+import org.aspectj.util.Reflection;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
@@ -579,8 +578,6 @@ public class CommandBus {
         private Object bean;
         private Method method;
         private boolean alwaysLog;
-        private MethodAccess methodAccess;
-        private int methodIndex;
 
         public DependencyProvider(Class<? extends Typed<?>> key,
                                   Class<? extends Typed<?>>[] requiredKeys, Object bean, Method method, boolean alwaysLog) {
@@ -589,15 +586,13 @@ public class CommandBus {
             this.bean = bean;
             this.method = method;
             this.alwaysLog = alwaysLog;
-            this.methodAccess = MethodAccess.get(bean.getClass());
-            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
         }
 
         @SneakyThrows(Throwable.class)
         public Object invoke(Object object, Context context) {
             Throwable throwable;
             try {
-                return methodAccess.invoke(bean, methodIndex, object, context);
+                return Reflect.invoke(method, bean, object, context);
             } catch (Throwable t) {
                 throwable = t;
                 if (alwaysLog) {
@@ -619,19 +614,15 @@ public class CommandBus {
             this.method = method;
             this.handlerType = handlerType;
             this.requiredKeys = requiredKeys;
-            this.methodAccess = MethodAccess.get(aggregateClazz);
-            this.methodIndex = methodAccess.getIndex(method.getName(), method.getParameterTypes());
         }
 
         private Class<? extends AggregateRoot> aggregateClazz;
         private Method method;
         private HandlerType handlerType;
         private Set<Class<? extends Typed<?>>> requiredKeys;
-        private MethodAccess methodAccess;
-        private int methodIndex;
 
         public Object invoke(AggregateRoot aggregate, Object... params) {
-            return methodAccess.invoke(aggregate, methodIndex, params);
+            return Reflect.invoke(method, aggregate, params);
         }
 
     }
