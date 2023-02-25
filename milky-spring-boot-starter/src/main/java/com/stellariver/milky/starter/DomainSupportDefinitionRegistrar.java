@@ -7,7 +7,7 @@ import com.stellariver.milky.domain.support.dependency.DAOWrapper;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
-import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
+import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import lombok.NonNull;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -51,7 +51,7 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         scanner.setResourceLoader(resourceLoader);
         scanner.addIncludeFilter(new AssignableTypeFilter(DependencyPrepares.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(EventRouters.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(AggregateDaoAdapter.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(DaoAdapter.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(DAOWrapper.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Interceptors.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(TraceRepository.class));

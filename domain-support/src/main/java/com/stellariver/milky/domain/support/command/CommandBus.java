@@ -19,10 +19,9 @@ import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
-import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
+import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import lombok.*;
-import org.aspectj.util.Reflection;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
@@ -78,7 +77,7 @@ public class CommandBus {
 
     private final Map<Class<? extends Command>, Map<Class<? extends Typed<?>>, DependencyProvider>> contextValueProviders = new HashMap<>();
 
-    private final Map<Class<? extends AggregateRoot>, AggregateDaoAdapter<?>> daoAdapterMap = new HashMap<>();
+    private final Map<Class<? extends AggregateRoot>, DaoAdapter<?>> daoAdapterMap = new HashMap<>();
 
     private final Map<Class<? extends BaseDataObject<?>>, DAOWrapper<? extends BaseDataObject<?>, ?>> daoWrappersMap = new HashMap<>();
 
@@ -181,7 +180,7 @@ public class CommandBus {
         milkySupport.getDaoAdapters().forEach(bean -> {
             Type[] types = Arrays.stream(bean.getClass().getGenericInterfaces())
                     .map(i -> (ParameterizedType) i)
-                    .filter(t -> Objects.equals(t.getRawType(), AggregateDaoAdapter.class))
+                    .filter(t -> Objects.equals(t.getRawType(), DaoAdapter.class))
                     .map(ParameterizedType::getActualTypeArguments).findFirst()
                     .orElseThrow(() -> new SysException(CONFIG_ERROR));
             daoAdapterMap.put((Class<? extends AggregateRoot>) types[0], bean);
@@ -319,7 +318,7 @@ public class CommandBus {
         return accept(command, parameters, null, null);
     }
 
-    static public AggregateDaoAdapter<? extends AggregateRoot> getDaoAdapter(Class<? extends AggregateRoot> clazz) {
+    static public DaoAdapter<? extends AggregateRoot> getDaoAdapter(Class<? extends AggregateRoot> clazz) {
         return instance.daoAdapterMap.get(clazz);
     }
 
@@ -456,7 +455,7 @@ public class CommandBus {
     }
 
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
-        AggregateDaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
+        DaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
         SysException.nullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
 
         // invoke dependencies

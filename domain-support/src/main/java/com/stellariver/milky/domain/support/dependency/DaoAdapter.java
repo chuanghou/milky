@@ -19,7 +19,7 @@ import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_
 /**
  * @author houchuang
  */
-public interface AggregateDaoAdapter<Aggregate extends AggregateRoot> {
+public interface DaoAdapter<Aggregate extends AggregateRoot> {
 
     default Aggregate toAggregateWrapper(Object dataObject) {
         Aggregate aggregate = toAggregate(dataObject);

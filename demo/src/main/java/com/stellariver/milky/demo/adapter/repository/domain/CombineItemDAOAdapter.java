@@ -1,9 +1,8 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
 import com.stellariver.milky.demo.domain.item.CombineItem;
-import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
-import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
+import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.dependency.DataObjectInfo;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -17,7 +16,7 @@ import org.mapstruct.factory.Mappers;
  */
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class CombineItemDAOAdapter implements AggregateDaoAdapter<CombineItem> {
+public class CombineItemDAOAdapter implements DaoAdapter<CombineItem> {
 
     @Override
     public CombineItem toAggregate(@NonNull Object dataObject) {

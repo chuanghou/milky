@@ -35,7 +35,7 @@ public class MilkySupport {
 
     List<EventRouters> eventRouters;
 
-    List<AggregateDaoAdapter<?>> daoAdapters;
+    List<DaoAdapter<?>> daoAdapters;
 
     List<DAOWrapper<? extends BaseDataObject<?>, ?>> daoWrappers;
 
@@ -51,7 +51,7 @@ public class MilkySupport {
                         List<DependencyPrepares> dependencyPrepares,
                         List<Interceptors> interceptors,
                         List<EventRouters> eventRouters,
-                        List<AggregateDaoAdapter<?>> daoAdapters,
+                        List<DaoAdapter<?>> daoAdapters,
                         List<DAOWrapper<? extends BaseDataObject<?>, ?>> daoWrappers,
                         Reflections reflections,
                         BeanLoader beanLoader,

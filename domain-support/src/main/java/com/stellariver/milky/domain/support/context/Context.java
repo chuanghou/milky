@@ -7,14 +7,13 @@ import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.command.CommandBus;
-import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
+import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.Getter;
 import lombok.NonNull;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -106,7 +105,7 @@ public class Context{
         context.parameters.putAll(parameters);
         context.metaData.putAll(parameters);
         Kit.op(aggregateIdMap).orElseGet(HashMap::new).forEach((aggregateClazz, aggregateIdSet) -> {
-            AggregateDaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(aggregateClazz);
+            DaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(aggregateClazz);
             daoAdapter.batchGetByAggregateIds(aggregateIdSet, context);
         });
         return context;
@@ -128,7 +127,7 @@ public class Context{
 
     @SuppressWarnings("unchecked")
     public <Aggregate extends AggregateRoot> Map<String, Aggregate> batchGetByAggregateIds(Class<Aggregate> clazz, Set<String> aggregateIds) {
-        AggregateDaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(clazz);
+        DaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(clazz);
         return (Map<String, Aggregate>) daoAdapter.batchGetByAggregateIds(aggregateIds, this);
     }
 

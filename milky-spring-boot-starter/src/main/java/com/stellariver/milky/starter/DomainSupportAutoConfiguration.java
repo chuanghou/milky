@@ -72,7 +72,7 @@ public class DomainSupportAutoConfiguration {
                                      @Autowired(required = false)
                                      List<EventRouters> eventRouters,
                                      @Autowired(required = false)
-                                     List<AggregateDaoAdapter<?>> daoAdapters,
+                                     List<DaoAdapter<?>> daoAdapters,
                                      @Autowired(required = false)
                                      List<DAOWrapper<?, ?>> daoWrappers,
                                      BeanLoader beanLoader,

@@ -2,7 +2,7 @@ package com.stellariver.milky.demo.adapter.repository.domain;
 
 import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.infrastructure.database.entity.InventoryDO;
-import com.stellariver.milky.domain.support.dependency.AggregateDaoAdapter;
+import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.dependency.DataObjectInfo;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
  */
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class InventoryDAOAdapter implements AggregateDaoAdapter<Inventory> {
+public class InventoryDAOAdapter implements DaoAdapter<Inventory> {
     @Override
     public Inventory toAggregate(@NonNull Object dataObject) {
         InventoryDO inventoryDO = (InventoryDO) dataObject;
