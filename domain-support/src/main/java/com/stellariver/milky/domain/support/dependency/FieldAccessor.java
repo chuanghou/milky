@@ -1,6 +1,5 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Reflect;
 import lombok.*;
@@ -11,7 +10,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
@@ -43,7 +41,7 @@ public class FieldAccessor {
     static Map<Class<?>, List<FieldAccessor>> map = new ConcurrentHashMap<>();
 
     @SneakyThrows
-    static public List<FieldAccessor> get(Class<?> clazz) {
+    static public List<FieldAccessor> resolveAccessors(Class<?> clazz) {
         List<FieldAccessor> fieldAccessors = map.get(clazz);
         if (fieldAccessors != null) {
             return fieldAccessors;
@@ -52,6 +50,9 @@ public class FieldAccessor {
         List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
         fields.forEach(f -> SysException.trueThrow(primitives.contains(f.getType()), CONFIG_ERROR));
         for (Field f: fields) {
+            if (f.isSynthetic()) {
+                continue;
+            }
             String name = f.getName();
             String get = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
             String set = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);

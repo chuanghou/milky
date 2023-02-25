@@ -23,7 +23,7 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
 
     default Aggregate toAggregateWrapper(Object dataObject) {
         Aggregate aggregate = toAggregate(dataObject);
-        List<FieldAccessor> fieldAccessors = FieldAccessor.get(aggregate.getClass());
+        List<FieldAccessor> fieldAccessors = FieldAccessor.resolveAccessors(aggregate.getClass());
         for (FieldAccessor fA: fieldAccessors) {
             Object value = fA.get(aggregate);
             if (fA.getStrategy() != null) {
@@ -45,7 +45,7 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
     @SuppressWarnings("unchecked")
     default Object toDataObjectWrapper(Object aggregate) {
         Aggregate aggregateRoot = (Aggregate) aggregate;
-        List<FieldAccessor> fieldAccessors = FieldAccessor.get(aggregateRoot.getClass());
+        List<FieldAccessor> fieldAccessors = FieldAccessor.resolveAccessors(aggregateRoot.getClass());
         for (FieldAccessor fA : fieldAccessors) {
             Object value = fA.get(aggregate);
             if (value != null) {
