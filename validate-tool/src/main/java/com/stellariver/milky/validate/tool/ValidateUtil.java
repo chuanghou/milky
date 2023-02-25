@@ -76,11 +76,11 @@ public class ValidateUtil {
 
 
     static private final Consumer<Method> CUSTOM_VALID_FORMAT = m -> {
-        boolean stat = Modifier.isStatic(m.getModifiers());
+        boolean instanceMethod = !Modifier.isStatic(m.getModifiers());
         boolean zeroParams = m.getParameterTypes().length == 0;
         boolean voidReturn = m.getReturnType().equals(void.class);
         boolean pub = Modifier.isPublic(m.getModifiers());
-        boolean b = stat && zeroParams && voidReturn && pub;
+        boolean b = instanceMethod && zeroParams && voidReturn && pub;
         SysException.falseThrow(b, CONFIG_ERROR.message(m.toGenericString()));
     };
 
@@ -98,11 +98,12 @@ public class ValidateUtil {
         Validator validator = failFast ? FAIL_FAST_VALIDATOR : VALIDATOR;
         Set<ConstraintViolation<Object>> validateResult = validator.validate(param, groups);
         check(validateResult, type);
+
+
         Class<?> clazz = param.getClass();
         Map<Class<?>, Method> customValidations = customValidMap.get(clazz);
-
         if (customValidations == null){
-            List<Method> methods = Arrays.stream(param.getClass().getMethods())
+            List<Method> methods = Arrays.stream(param.getClass().getDeclaredMethods())
                     .filter(m -> m.isAnnotationPresent(CustomValid.class))
                     .peek(CUSTOM_VALID_FORMAT)
                     .collect(Collectors.toList());
@@ -110,19 +111,21 @@ public class ValidateUtil {
             customValidations = new HashMap<>();
             for (Method method : methods) {
                 CustomValid anno = method.getAnnotation(CustomValid.class);
-                for (Class<?> group : anno.groups()) {
+                List<Class<?>> groupList =  anno.groups().length == 0 ? Collect.asList(Default.class) : Collect.asList(anno.groups());
+                for (Class<?> group : groupList) {
                     Method oldValue = customValidations.put(group, method);
                     SysException.trueThrow(oldValue != null, CONFIG_ERROR.message(method.toGenericString()));
                 }
             }
+            customValidMap.put(clazz, customValidations);
         }
 
         List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
             Method method = customValidations.get(g);
-            SysException.nullThrow(method, CONFIG_ERROR
-                    .message(String.format("%s validate method didn't exist", method.toGenericString())));
-            Reflect.invoke(method, param);
+            if (method != null) {
+                Reflect.invoke(method, param);
+            }
         }
 
     }
