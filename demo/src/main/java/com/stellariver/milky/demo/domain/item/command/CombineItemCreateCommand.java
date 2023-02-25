@@ -17,12 +17,11 @@ import lombok.experimental.SuperBuilder;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CombineItemCreateCommand extends ItemCreateCommand {
 
-    Long itemId;
 
     Long ratio;
 
     @Override
     public String getAggregateId() {
-        return itemId.toString();
+        return super.getItemId().toString();
     }
 }

@@ -3,6 +3,8 @@ package com.stellariver.milky.demo.infrastructure.database.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
+import com.stellariver.milky.domain.support.dependency.NullReplacer;
+import com.stellariver.milky.domain.support.dependency.Strategy;
 import com.stellariver.milky.infrastructure.base.database.AbstractMpDO;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -34,7 +36,6 @@ public class ItemDO extends AbstractMpDO implements BaseDataObject<Long> {
     String storeCode;
 
     ChannelEnum channelEnum;
-
 
     Long ratio;
 

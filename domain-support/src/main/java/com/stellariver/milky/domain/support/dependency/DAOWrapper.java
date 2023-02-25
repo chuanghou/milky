@@ -49,15 +49,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
 
     @SuppressWarnings("unchecked")
     default BaseDataObject<?> mergeWrapper(Object priority, Object original) {
-        BaseDataObject<?> mergeResult = original == null ? (BaseDataObject<?>) priority : merge((DataObject) priority, (DataObject) original);
-        List<FieldAccessor> fieldAccessors = FieldAccessor.get(mergeResult.getClass());
-        for (FieldAccessor fA : fieldAccessors) {
-            Object o = fA.get(mergeResult);
-            if (o == null) {
-                throw new SysException(CONFIG_ERROR.message(" persistence object is not allowed null field!"));
-            }
-        }
-        return mergeResult;
+        return original == null ? (BaseDataObject<?>) priority : merge((DataObject) priority, (DataObject) original);
     }
 
     DataObject merge(DataObject priority, @NonNull DataObject original);

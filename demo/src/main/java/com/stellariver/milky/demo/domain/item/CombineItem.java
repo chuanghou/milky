@@ -1,12 +1,15 @@
 package com.stellariver.milky.demo.domain.item;
 
 import com.stellariver.milky.demo.domain.item.command.*;
+import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
 import com.stellariver.milky.demo.domain.item.event.*;
 import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.context.Context;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+
+import static com.stellariver.milky.demo.basic.TypedEnums.*;
 
 /**
  * @author houchuang
@@ -26,9 +29,11 @@ public class CombineItem extends Item {
         this.ratio = command.getRatio();
     }
 
-    @ConstructorHandler
+    @ConstructorHandler(dependencies = USER_INFO.class)
     static public CombineItem build(CombineItemCreateCommand command, Context context) {
         CombineItem combineItem = new CombineItem(command);
+        UserInfo userInfo = context.getDependency(USER_INFO.class);
+        combineItem.setUserName(userInfo.getUserName());
         CombineItemCreatedEvent event = CombineItemCreatedEvent.builder()
                 .itemId(combineItem.getItemId())
                 .title(combineItem.getTitle())

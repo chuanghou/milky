@@ -43,7 +43,7 @@ public class Reflect {
         if (pair == null) {
             Class<?> clazz = method.getDeclaringClass();
             MethodAccess methodAccess = MethodAccess.get(clazz);
-            int index = methodAccess.getIndex(method.getName());
+            int index = methodAccess.getIndex(method.getName(), method.getParameterTypes());
             pair = Pair.of(methodAccess, index);
             map.put(method, pair);
         }
