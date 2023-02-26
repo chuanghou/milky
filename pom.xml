@@ -21,6 +21,7 @@
         <module>milky-dependencies</module>
         <module>demo</module>
         <module>infrastructure-base</module>
+        <module>financial-base</module>
     </modules>
 
     <properties>
@@ -74,6 +75,11 @@
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
                 <artifactId>infrastructure-base</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
+                <artifactId>financial-base</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>

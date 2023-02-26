@@ -71,27 +71,6 @@ public class Kit {
         return Arrays.stream(enumConstants).filter(e -> value.equals(getter.apply(e))).findFirst();
     }
 
-
-    static public boolean same(BigDecimal left, BigDecimal right) {
-        return left.compareTo(right) == 0;
-    }
-
-    static public boolean greater(BigDecimal left, BigDecimal right) {
-        return left.compareTo(right) > 0;
-    }
-
-    static public boolean greaterOrSame(BigDecimal left, BigDecimal right) {
-        return left.compareTo(right) >= 0;
-    }
-
-    static public boolean less(BigDecimal left, BigDecimal right) {
-        return left.compareTo(right) < 0;
-    }
-
-    static public boolean lessOrSame(BigDecimal left, BigDecimal right) {
-        return left.compareTo(right) <= 0;
-    }
-
     static public <T> T whenNull(T t, T defaultValue) {
         return t == null ? defaultValue : t;
     }

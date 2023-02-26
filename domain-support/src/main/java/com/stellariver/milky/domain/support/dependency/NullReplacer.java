@@ -19,7 +19,7 @@ public @interface NullReplacer {
     class DefaultCustomSupplier implements Supplier<Object> {
         @Override
         public Object get() {
-            throw new SysException(CONFIG_ERROR.message("When you strategy is custom, " +
+            throw new SysException(CONFIG_ERROR.message("When you choose custom strategy, " +
                     "you need to implement a supplier by yourself"));
         }
     }
