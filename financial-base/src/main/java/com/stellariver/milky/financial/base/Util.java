@@ -7,7 +7,7 @@ import lombok.NonNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Utils {
+public class Util {
 
     static public final BigDecimal PERCENT = new BigDecimal("100");
 

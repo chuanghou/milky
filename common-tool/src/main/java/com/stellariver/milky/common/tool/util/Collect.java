@@ -23,7 +23,6 @@ public class Collect {
     public static <T, A, R> R collect(Collection<T> collection, Collector<T, A, R> collector) {
         return stream(collection).collect(collector);
     }
-
     @SafeVarargs
     public static <T> List<T> asList(T... t) {
         return Arrays.stream(t).collect(Collectors.toList());

@@ -23,4 +23,5 @@
             <artifactId>common-tool</artifactId>
         </dependency>
     </dependencies>
+
 </project>

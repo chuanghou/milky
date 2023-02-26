@@ -10,9 +10,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TransElem {
-
-    Integer term;
+public class TradeElement {
 
     Long quantity;
 
