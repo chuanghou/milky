@@ -29,6 +29,7 @@ import static com.stellariver.milky.domain.support.ErrorEnums.REPEAT_DEPENDENCY_
  */
 public class Context{
 
+    @Getter
     private Long invocationId;
 
     @Getter
@@ -50,8 +51,10 @@ public class Context{
 
     private final List<Event> events = new ArrayList<>();
 
+    @Getter
     private final List<Event> finalEvents = new ArrayList<>();
 
+    @Getter
     private final List<Record> records = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
@@ -67,16 +70,15 @@ public class Context{
         dependencies.clear();
     }
 
-
-    public void addMetaData(Class<? extends Typed<?>> key, Object value) {
+    public <T> void addMetaData(Class<? extends Typed<T>> key, T value) {
         boolean contains = metaData.containsKey(key);
-        SysException.trueThrow(contains, ErrorEnums.CONFIG_ERROR);
+        SysException.trueThrow(contains, ErrorEnums.CONFIG_ERROR.message(key));
         metaData.put(key, value);
     }
 
-    public void replaceMetaData(Class<? extends Typed<?>> key, Object value) {
+    public <T> void replaceMetaData(Class<? extends Typed<T>> key, T value) {
         boolean contains = metaData.containsKey(key);
-        SysException.falseThrow(contains, ErrorEnums.CONFIG_ERROR);
+        SysException.falseThrow(contains, ErrorEnums.CONFIG_ERROR.message(key));
         metaData.put(key, value);
     }
 
@@ -109,19 +111,11 @@ public class Context{
         records.add(record);
     }
 
-    public List<Record> getRecords() {
-        return records;
-    }
-
     public List<Event> popEvents() {
         finalEvents.addAll(events);
         List<Event> popEvents = new ArrayList<>(events);
         events.clear();
         return popEvents;
-    }
-
-    public List<Event> getFinalEvents() {
-        return finalEvents;
     }
 
     public List<Event> peekEvents() {
@@ -142,10 +136,6 @@ public class Context{
             daoAdapter.batchGetByAggregateIds(aggregateIdSet, context);
         });
         return context;
-    }
-
-    public Long getInvocationId() {
-        return invocationId;
     }
 
     public <Aggregate extends AggregateRoot> Optional<Aggregate> getByAggregateIdOptional(Class<Aggregate> clazz, String aggregateId) {
