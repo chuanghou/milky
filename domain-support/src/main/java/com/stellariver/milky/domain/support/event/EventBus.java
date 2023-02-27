@@ -108,7 +108,7 @@ public class EventBus {
             Record record = Record.builder()
                     .beanName(router.getClass().getSimpleName())
                     .message(event)
-                    .dependencies(new HashMap<>(context.getDependencies()))
+                    .dependencies(context.getDependencies())
                     .build();
             context.record(record);
             context.clearDependencies();
@@ -179,7 +179,7 @@ public class EventBus {
             }
             Record record = Record.builder()
                     .beanName(this.getClass().getSimpleName()).messages((List<Message>) events)
-                    .dependencies(new HashMap<>(context.getDependencies()))
+                    .dependencies(context.getDependencies())
                     .build();
             context.record(record);
             context.clearDependencies();

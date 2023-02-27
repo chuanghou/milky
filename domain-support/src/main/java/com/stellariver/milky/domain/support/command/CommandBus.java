@@ -415,7 +415,7 @@ public class CommandBus {
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
                 Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
-                        .message(command).dependencies(new HashMap<>(context.getDependencies()))
+                        .message(command).dependencies(context.getDependencies())
                         .build();
                 context.record(record);
                 context.clearDependencies();
@@ -437,7 +437,7 @@ public class CommandBus {
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
                 interceptor.invoke(command, aggregate, context);
                 Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
-                        .message(command).dependencies(new HashMap<>(context.getDependencies()))
+                        .message(command).dependencies(context.getDependencies())
                         .build();
                 context.record(record);
                 context.clearDependencies();
@@ -454,9 +454,8 @@ public class CommandBus {
             throw new SysException("unreached part!");
         }
 
-        Record record = Record.builder()
-                .beanName(aggregate.getClass().getSimpleName()).message(command)
-                .dependencies(new HashMap<>(context.getDependencies()))
+        Record record = Record.builder().beanName(aggregate.getClass().getSimpleName()).message(command)
+                .dependencies(context.getDependencies())
                 .build();
         context.record(record);
 
@@ -506,10 +505,8 @@ public class CommandBus {
         List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
-            record = Record.builder()
-                    .beanName(interceptor.getClass().getSimpleName())
-                    .message(command)
-                    .dependencies(new HashMap<>(context.getDependencies()))
+            record = Record.builder().beanName(interceptor.getClass().getSimpleName()).message(command)
+                    .dependencies(context.getDependencies())
                     .build();
             context.record(record);
             context.clearDependencies();

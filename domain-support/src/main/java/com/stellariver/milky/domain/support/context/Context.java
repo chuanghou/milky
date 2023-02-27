@@ -42,7 +42,6 @@ public class Context{
     @Getter
     private final Map<Class<? extends Typed<?>>, Object> parameters = new HashMap<>();
 
-    @Getter
     private final Map<Class<? extends Typed<?>>, Object> metaData = new HashMap<>();
 
     private final Map<Class<? extends Typed<?>>, Object> dependencies = new HashMap<>();
@@ -59,15 +58,24 @@ public class Context{
     }
 
     public Map<Class<? extends Typed<?>>, Object> getDependencies() {
-        return dependencies;
-    }
-
-    public void putDependency(Class<? extends Typed<?>> key, Object value) {
-        dependencies.put(key, value);
+        return new HashMap<>(dependencies);
     }
 
     public void clearDependencies() {
         dependencies.clear();
+    }
+
+
+    public void addMetaData(Class<? extends Typed<?>> key, Object value) {
+        boolean contains = metaData.containsKey(key);
+        SysException.trueThrow(contains, ErrorEnums.CONFIG_ERROR);
+        metaData.put(key, value);
+    }
+
+    public void replaceMetaData(Class<? extends Typed<?>> key, Object value) {
+        boolean contains = metaData.containsKey(key);
+        SysException.falseThrow(contains, ErrorEnums.CONFIG_ERROR);
+        metaData.put(key, value);
     }
 
     static private final Map<Pair<Object, Class<? extends Typed<?>>>, Object> proxies = new ConcurrentHashMap<>();
@@ -79,8 +87,8 @@ public class Context{
             proxyInstance = Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(),
                     (proxy, method, args) -> {
                         Object result = Reflect.invoke(method, t, args);
-                        Object oldValue = dependencies.put(key, result);
-                        SysException.trueThrow(oldValue != null, REPEAT_DEPENDENCY_KEY.message(key));
+                        SysException.trueThrow(dependencies.containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
+                        dependencies.put(key, result);
                         return result;
                     });
             proxies.put(pair, proxyInstance);
