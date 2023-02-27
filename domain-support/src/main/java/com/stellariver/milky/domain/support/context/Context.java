@@ -79,6 +79,7 @@ public class Context{
     }
 
     static private final Map<Pair<Object, Class<? extends Typed<?>>>, Object> proxies = new ConcurrentHashMap<>();
+
     @SuppressWarnings("unchecked")
     public <T> T proxy(T t, Class<? extends Typed<?>> key) {
         Pair<Object, Class<? extends Typed<?>>> pair = Pair.of(t, key);
@@ -94,6 +95,12 @@ public class Context{
             proxies.put(pair, proxyInstance);
         }
         return (T) proxyInstance;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T proxyBean(Class<T> beanClass, Class<? extends Typed<?>> key) {
+        Object bean = BeanUtil.getBean(beanClass);
+        return (T) proxy(bean, key);
     }
 
     public void publish(@NonNull Event event) {

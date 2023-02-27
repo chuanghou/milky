@@ -11,10 +11,12 @@ import com.stellariver.milky.demo.domain.item.event.ItemAmountUpdatedEvent;
 import com.stellariver.milky.demo.domain.item.event.ItemCreatedEvent;
 import com.stellariver.milky.demo.domain.item.event.ItemInventoryInitEvent;
 import com.stellariver.milky.demo.domain.item.event.ItemTitleUpdatedEvent;
+import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.context.Context;
+import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
@@ -51,11 +53,11 @@ public class Item extends AggregateRoot {
         this.channelEnum = command.getChannelEnum();
     }
 
-    @ConstructorHandler(dependencies = USER_INFO.class)
+    @ConstructorHandler()
     static public Item build(ItemCreateCommand command, Context context) {
         Item item = new Item(command);
         context.publish(ItemCreatedEvent.builder().itemId(item.getItemId()).title(item.getTitle()).build());
-        UserInfo userInfo = context.getDependency(USER_INFO.class);
+        UserInfo userInfo = context.proxyBean(UserInfoRepository.class, USER_INFO.class).getUserInfo(command.getUserId());
         item.setUserName(userInfo.getUserName());
         return item;
     }
@@ -67,7 +69,7 @@ public class Item extends AggregateRoot {
         this.title = command.getUpdateTitle();
         ItemTitleUpdatedEvent event = ItemTitleUpdatedEvent.builder()
                 .itemId(itemId).originalTitle(originalTitle).updatedTitle(title).build();
-        context.getMetaData().put(MARK_HANDLE.class, Clock.currentTimeMillis());
+        context.addMetaData(MARK_HANDLE.class, Clock.currentTimeMillis());
         Thread.sleep(10L);
         context.publish(event);
         return context;
