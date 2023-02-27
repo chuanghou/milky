@@ -83,6 +83,11 @@ public class Context{
         metaData.put(key, value);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T getMetaData(Class<? extends Typed<T>> key) {
+        return (T) metaData.get(key);
+    }
+
     static private final Map<Class<?>, Object> map = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")

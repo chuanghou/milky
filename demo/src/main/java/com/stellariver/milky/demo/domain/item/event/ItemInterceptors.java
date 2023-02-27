@@ -17,7 +17,7 @@ public class ItemInterceptors implements Interceptors {
     @SneakyThrows
     @Intercept(pos = PosEnum.BEFORE)
     public void interceptBefore(ItemTitleUpdateCommand command, Item item, Context context) {
-        context.getMetaData().put(MARK_BEFORE.class, Clock.currentTimeMillis());
+        context.addMetaData(MARK_BEFORE.class, Clock.currentTimeMillis());
         Thread.sleep(10);
     }
 
@@ -25,7 +25,7 @@ public class ItemInterceptors implements Interceptors {
     @SneakyThrows
     @Intercept(pos = PosEnum.AFTER)
     public void interceptAfter(ItemTitleUpdateCommand command, Item item, Context context) {
-        context.getMetaData().put(MARK_AFTER.class, Clock.currentTimeMillis());
+        context.addMetaData(MARK_AFTER.class, Clock.currentTimeMillis());
     }
 
 }

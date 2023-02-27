@@ -108,9 +108,9 @@ public class BasicTest {
         ItemTitleUpdateCommand updateCommand = ItemTitleUpdateCommand.builder().itemId(1L)
                 .updateTitle("new Title").build();
         Context context = (Context) CommandBus.accept(updateCommand, parameters);
-        Long before = (Long) context.getMetaData().get(MARK_BEFORE.class);
-        Long handle = (Long) context.getMetaData().get(MARK_HANDLE.class);
-        Long after = (Long) context.getMetaData().get(MARK_AFTER.class);
+        Long before = context.getMetaData(MARK_BEFORE.class);
+        Long handle = context.getMetaData(MARK_HANDLE.class);
+        Long after = context.getMetaData(MARK_AFTER.class);
         Assertions.assertNotNull(before);
         Assertions.assertNotNull(handle);
         Assertions.assertNotNull(after);

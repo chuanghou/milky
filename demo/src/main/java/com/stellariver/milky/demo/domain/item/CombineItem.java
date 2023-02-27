@@ -29,7 +29,7 @@ public class CombineItem extends Item {
         this.ratio = command.getRatio();
     }
 
-    @ConstructorHandler(dependencies = USER_INFO.class)
+    @ConstructorHandler
     static public CombineItem build(CombineItemCreateCommand command, Context context) {
         CombineItem combineItem = new CombineItem(command);
         UserInfo userInfo = context.getDependency(USER_INFO.class);

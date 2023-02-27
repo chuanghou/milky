@@ -162,7 +162,6 @@ public class EventBus {
             this.executorService = executorService;
         }
 
-        @SuppressWarnings("unchecked")
         public void route(List<? extends Event> events, Context context) {
             events = events.stream().filter(event -> eventClass.isAssignableFrom(event.getClass())).collect(Collectors.toList());
             if (Collect.isEmpty(events)) {
@@ -178,7 +177,7 @@ public class EventBus {
                 Reflect.invoke(method, bean, events, context);
             }
             Record record = Record.builder()
-                    .beanName(this.getClass().getSimpleName()).messages((List<Message>) events)
+                    .beanName(this.getClass().getSimpleName()).messages(new ArrayList<>(events))
                     .dependencies(context.getDependencies())
                     .build();
             context.record(record);
