@@ -87,7 +87,7 @@ public class BasicTest {
         Assertions.assertNotNull(inventory);
         Assertions.assertEquals(item.getStoreCode(), inventory.getStoreCode());
         Assertions.assertEquals(item.getAmount(), inventory.getAmount());
-        Assertions.assertEquals(item.getUserName(), "Tom");
+        Assertions.assertEquals(item.getUserName(), "小明");
         ItemCreatedMessage message = ItemCreatedMessage.builder().itemId(1L).build();
 
         verify(mqService).sendMessage(argThat(new ParameterMatcher<>(message)));
