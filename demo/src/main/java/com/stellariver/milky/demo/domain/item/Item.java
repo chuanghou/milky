@@ -16,7 +16,6 @@ import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
@@ -53,14 +52,15 @@ public class Item extends AggregateRoot {
         this.channelEnum = command.getChannelEnum();
     }
 
-    @ConstructorHandler()
+    @ConstructorHandler
     static public Item build(ItemCreateCommand command, Context context) {
         Item item = new Item(command);
         context.publish(ItemCreatedEvent.builder().itemId(item.getItemId()).title(item.getTitle()).build());
-        UserInfo userInfo = context.proxy(UserInfoRepository.class, USER_INFO.class).getUserInfo(command.getUserId());
+        UserInfo userInfo = context.invoke(UserInfoRepository::getUserInfo, command.getUserId(), USER_INFO.class);
         item.setUserName(userInfo.getUserName());
         return item;
     }
+
 
     @SneakyThrows
     @MethodHandler

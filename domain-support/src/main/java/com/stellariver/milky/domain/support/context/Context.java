@@ -3,6 +3,8 @@ package com.stellariver.milky.domain.support.context;
 
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.slambda.BiSFunction;
+import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
@@ -81,7 +83,7 @@ public class Context{
     static private final Map<Pair<Object, Class<? extends Typed<?>>>, Object> proxies = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
-    public <T> T proxy(T t, Class<? extends Typed<?>> key) {
+    private  <T> T proxy(T t, Class<? extends Typed<?>> key) {
         Pair<Object, Class<? extends Typed<?>>> pair = Pair.of(t, key);
         Object proxyInstance = proxies.get(pair);
         if (proxyInstance == null) {
@@ -97,10 +99,19 @@ public class Context{
         return (T) proxyInstance;
     }
 
+    static private final Map<Class<?>, Object> map = new ConcurrentHashMap<>();
+
     @SuppressWarnings("unchecked")
-    public <T> T proxy(Class<T> clazz, Class<? extends Typed<?>> key) {
-        Object bean = BeanUtil.getBean(clazz);
-        return (T) proxy(bean, key);
+    public <T, U, R> R invoke(BiSFunction<T, U, R> function, U u, Class<? extends Typed<?>> key) {
+        Class<?> fClass = function.getClass();
+        T t = (T) map.get(fClass);
+        if (t == null) {
+            Class<?> instantiatedClass = SLambda.extract(function).getInstantiatedClass();
+            t = (T) BeanUtil.getBean(instantiatedClass);
+            map.put(fClass, t);
+        }
+        T proxy = proxy(t, key);
+        return function.apply(proxy, u);
     }
 
     public void publish(@NonNull Event event) {
