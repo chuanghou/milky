@@ -20,6 +20,9 @@ public class ErrorEnums extends ErrorEnumsBase {
     @Message("聚合根不存在")
     public static ErrorEnum AGGREGATE_NOT_EXISTED;
 
+    public static ErrorEnum REPEAT_DEPENDENCY_KEY;
+
+
     static {
         for (Field field : ErrorEnums.class.getDeclaredFields()) {
             try {

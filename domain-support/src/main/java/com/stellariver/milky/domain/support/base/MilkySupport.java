@@ -1,7 +1,6 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
@@ -29,8 +28,6 @@ public class MilkySupport {
 
     ThreadLocalTransferableExecutor threadLocalTransferableExecutor;
 
-    List<DependencyPrepares> dependencyPrepares;
-
     List<Interceptors> interceptors;
 
     List<EventRouters> eventRouters;
@@ -48,7 +45,6 @@ public class MilkySupport {
     public MilkySupport(ConcurrentOperate concurrentOperate,
                         TraceRepository traceRepository,
                         ThreadLocalTransferableExecutor threadLocalTransferableExecutor,
-                        List<DependencyPrepares> dependencyPrepares,
                         List<Interceptors> interceptors,
                         List<EventRouters> eventRouters,
                         List<DaoAdapter<?>> daoAdapters,
@@ -59,7 +55,6 @@ public class MilkySupport {
         this.concurrentOperate = concurrentOperate;
         this.traceRepository = traceRepository;
         this.threadLocalTransferableExecutor = threadLocalTransferableExecutor;
-        this.dependencyPrepares = Kit.op(dependencyPrepares).orElseGet(ArrayList::new);
         this.interceptors = Kit.op(interceptors).orElseGet(ArrayList::new);
         this.eventRouters = Kit.op(eventRouters).orElseGet(ArrayList::new);
         this.daoAdapters = Kit.op(daoAdapters).orElseGet(ArrayList::new);

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Map;
+
 /**
  * @author houchuang
  */
@@ -13,8 +15,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public abstract class MessageRecord {
+public class MessageRecord {
+
+    String beanName;
 
     Message message;
+
+    Map<Class<? extends Typed<?>>, Object> dependencies;
 
 }

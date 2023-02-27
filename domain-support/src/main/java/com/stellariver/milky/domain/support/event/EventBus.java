@@ -5,6 +5,7 @@ import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
+import com.stellariver.milky.domain.support.base.MessageRecord;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.BeanLoader;
@@ -147,7 +148,16 @@ public class EventBus {
         beforeEventInterceptors.getOrDefault(event.getClass(), new ArrayList<>(0))
                 .forEach(interceptor -> interceptor.invoke(event, null, context));
         eventRouterMap.getOrDefault(event.getClass(), new ArrayList<>(0))
-                .forEach(router -> router.route(event, context));
+                .forEach(router -> {
+                    router.route(event, context);
+                    MessageRecord messageRecord = MessageRecord.builder()
+                            .beanName(router.getClass().getSimpleName())
+                            .message(event)
+                            .dependencies(new HashMap<>(context.getDependencies()))
+                            .build();
+                    context.record(messageRecord);
+                    context.clearDependencies();
+                });
         afterEventInterceptors.getOrDefault(event.getClass(), new ArrayList<>(0))
                 .forEach(interceptor -> interceptor.invoke(event, null, context));
     }

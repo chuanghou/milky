@@ -17,6 +17,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface MethodHandler {
 
-    Class<? extends Typed<?>>[] dependencies() default {};
-
 }

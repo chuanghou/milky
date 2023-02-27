@@ -11,7 +11,6 @@ import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
-import com.stellariver.milky.domain.support.context.DependencyPrepares;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
@@ -66,8 +65,6 @@ public class DomainSupportAutoConfiguration {
                                      TransactionSupport transactionSupport,
                                      ThreadLocalTransferableExecutor threadLocalTransferableExecutor,
                                      @Autowired(required = false)
-                                     List<DependencyPrepares> dependencyPrepares,
-                                     @Autowired(required = false)
                                      List<Interceptors> interceptors,
                                      @Autowired(required = false)
                                      List<EventRouters> eventRouters,
@@ -84,7 +81,6 @@ public class DomainSupportAutoConfiguration {
         return new MilkySupport(concurrentOperate,
                 traceRepository,
                 threadLocalTransferableExecutor,
-                dependencyPrepares,
                 interceptors,
                 eventRouters,
                 daoAdapters,

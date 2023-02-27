@@ -2,8 +2,10 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -13,8 +15,15 @@ import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.Getter;
 import lombok.NonNull;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.stellariver.milky.domain.support.ErrorEnums.REPEAT_DEPENDENCY_KEY;
 
 /**
  * @author houchuang
@@ -64,16 +73,30 @@ public class Context{
         dependencies.clear();
     }
 
+    static private final Map<Pair<Object, Class<? extends Typed<?>>>, Object> proxies = new ConcurrentHashMap<>();
+    @SuppressWarnings("unchecked")
+    public <T> T proxy(T t, Class<? extends Typed<?>> key) {
+        Pair<Object, Class<? extends Typed<?>>> pair = Pair.of(t, key);
+        Object proxyInstance = proxies.get(pair);
+        if (proxyInstance == null) {
+            proxyInstance = Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(),
+                    (proxy, method, args) -> {
+                        Object result = Reflect.invoke(method, t, args);
+                        Object oldValue = dependencies.put(key, result);
+                        SysException.trueThrow(oldValue != null, REPEAT_DEPENDENCY_KEY.message(key));
+                        return result;
+                    });
+            proxies.put(pair, proxyInstance);
+        }
+        return (T) proxyInstance;
+    }
+
     public void publish(@NonNull Event event) {
         events.add(0, event);
     }
 
-    public void recordCommand(@NonNull CommandRecord commandRecord) {
-        messageRecords.add(commandRecord);
-    }
-
-    public void recordEvent(@NonNull EventRecord eventRecord) {
-        messageRecords.add(eventRecord);
+    public void record(@NonNull MessageRecord messageRecord) {
+        messageRecords.add(messageRecord);
     }
 
     public List<MessageRecord> getMessageRecords() {
