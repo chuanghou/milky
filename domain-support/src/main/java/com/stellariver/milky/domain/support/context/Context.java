@@ -98,8 +98,8 @@ public class Context{
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T proxyBean(Class<T> beanClass, Class<? extends Typed<?>> key) {
-        Object bean = BeanUtil.getBean(beanClass);
+    public <T> T proxy(Class<T> clazz, Class<? extends Typed<?>> key) {
+        Object bean = BeanUtil.getBean(clazz);
         return (T) proxy(bean, key);
     }
 

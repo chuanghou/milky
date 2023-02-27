@@ -57,7 +57,7 @@ public class Item extends AggregateRoot {
     static public Item build(ItemCreateCommand command, Context context) {
         Item item = new Item(command);
         context.publish(ItemCreatedEvent.builder().itemId(item.getItemId()).title(item.getTitle()).build());
-        UserInfo userInfo = context.proxyBean(UserInfoRepository.class, USER_INFO.class).getUserInfo(command.getUserId());
+        UserInfo userInfo = context.proxy(UserInfoRepository.class, USER_INFO.class).getUserInfo(command.getUserId());
         item.setUserName(userInfo.getUserName());
         return item;
     }
