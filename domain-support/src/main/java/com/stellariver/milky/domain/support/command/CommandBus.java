@@ -297,7 +297,7 @@ public class CommandBus {
         Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
         try {
             result = route(command, clazz);
-            eventBus.preFinalRoute(context.getFinalRouteEvents(), context);
+            eventBus.preFinalRoute(context.getFinalEvents(), context);
             if (memoryTx) {
                 transactionSupport.begin();
             }
@@ -330,7 +330,7 @@ public class CommandBus {
                     }
                 });
             }
-            eventBus.postFinalRoute(context.getFinalRouteEvents(), context);
+            eventBus.postFinalRoute(context.getFinalEvents(), context);
             threadLocalTransferableExecutor.submit(() -> traceRepository.record(context, true));
         } catch (Throwable throwable) {
             threadLocalTransferableExecutor.submit(() -> traceRepository.record(context, false));

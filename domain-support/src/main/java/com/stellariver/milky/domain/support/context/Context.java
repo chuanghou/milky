@@ -49,7 +49,7 @@ public class Context{
 
     private final List<Event> events = new ArrayList<>();
 
-    private final List<Event> finalRouteEvents = new ArrayList<>();
+    private final List<Event> finalEvents = new ArrayList<>();
 
     private final List<Record> records = new ArrayList<>();
 
@@ -101,14 +101,14 @@ public class Context{
     }
 
     public List<Event> popEvents() {
-        finalRouteEvents.addAll(events);
+        finalEvents.addAll(events);
         List<Event> popEvents = new ArrayList<>(events);
         events.clear();
         return popEvents;
     }
 
-    public List<Event> getFinalRouteEvents() {
-        return finalRouteEvents;
+    public List<Event> getFinalEvents() {
+        return finalEvents;
     }
 
     public List<Event> peekEvents() {
