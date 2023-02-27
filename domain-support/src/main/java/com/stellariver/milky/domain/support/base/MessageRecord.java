@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,6 +21,8 @@ public class MessageRecord {
     String beanName;
 
     Message message;
+
+    List<Message> messages;
 
     Map<Class<? extends Typed<?>>, Object> dependencies;
 

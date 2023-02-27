@@ -5,13 +5,11 @@ import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
+import com.stellariver.milky.domain.support.base.Message;
 import com.stellariver.milky.domain.support.base.MessageRecord;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.BeanLoader;
-import com.stellariver.milky.domain.support.interceptor.Intercept;
-import com.stellariver.milky.domain.support.interceptor.Interceptor;
-import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import lombok.Data;
 import org.reflections.Reflections;
 
@@ -52,10 +50,6 @@ public class EventBus {
 
     private final List<FinalRouter<Class<? extends Event>>> finalRouters = new ArrayList<>();
 
-    private final Map<Class<? extends Event>, List<Interceptor>> beforeEventInterceptors = new HashMap<>();
-
-    private final Map<Class<? extends Event>, List<Interceptor>> afterEventInterceptors = new HashMap<>();
-
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {
         BeanLoader beanLoader = milkySupport.getBeanLoader();
@@ -83,42 +77,6 @@ public class EventBus {
                     eventRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
                 }));
 
-        HashMap<Class<? extends Event>, List<Interceptor>> tempInterceptorsMap = new HashMap<>();
-
-        Kit.op(milkySupport.getInterceptors()).orElseGet(ArrayList::new).stream()
-                .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
-                .filter(m -> m.isAnnotationPresent(Intercept.class))
-                .filter(m -> Event.class.isAssignableFrom(m.getParameterTypes()[0]))
-                .filter(m -> {
-                    SysException.falseThrow(FORMAT.test(m), CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
-                    return true;
-                }).filter(method -> method.getParameterTypes()[0].isAssignableFrom(Event.class))
-                .collect(Collectors.toList())
-                .forEach(method -> {
-                    Intercept annotation = method.getAnnotation(Intercept.class);
-                    Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
-                    Object bean = beanLoader.getBean(method.getDeclaringClass());
-                    Interceptor interceptor = new Interceptor(bean, method, annotation.pos(), annotation.order());
-                    Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
-                            .forEach(eC -> tempInterceptorsMap.computeIfAbsent(eventClass, cC -> new ArrayList<>()).add(interceptor));
-                });
-
-        // divided into before and after
-        tempInterceptorsMap.forEach((eventClass, interceptors) -> {
-            List<Interceptor> beforeInterceptors = interceptors.stream()
-                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.BEFORE)).collect(Collectors.toList());
-            beforeEventInterceptors.put(eventClass, beforeInterceptors);
-            List<Interceptor> afterInterceptors = interceptors.stream()
-                    .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER)).collect(Collectors.toList());
-            afterEventInterceptors.put(eventClass, afterInterceptors);
-        });
-
-        // internal order
-        beforeEventInterceptors.forEach((k, v) ->
-                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
-        afterEventInterceptors.forEach((k, v) ->
-                v = v.stream().sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList()));
-
         methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(FinalEventRouter.class))
@@ -145,21 +103,16 @@ public class EventBus {
     }
 
     public void route(Event event, Context context) {
-        beforeEventInterceptors.getOrDefault(event.getClass(), new ArrayList<>(0))
-                .forEach(interceptor -> interceptor.invoke(event, null, context));
-        eventRouterMap.getOrDefault(event.getClass(), new ArrayList<>(0))
-                .forEach(router -> {
-                    router.route(event, context);
-                    MessageRecord messageRecord = MessageRecord.builder()
-                            .beanName(router.getClass().getSimpleName())
-                            .message(event)
-                            .dependencies(new HashMap<>(context.getDependencies()))
-                            .build();
-                    context.record(messageRecord);
-                    context.clearDependencies();
-                });
-        afterEventInterceptors.getOrDefault(event.getClass(), new ArrayList<>(0))
-                .forEach(interceptor -> interceptor.invoke(event, null, context));
+        eventRouterMap.getOrDefault(event.getClass(), new ArrayList<>(0)).forEach(router -> {
+            router.route(event, context);
+            MessageRecord messageRecord = MessageRecord.builder()
+                    .beanName(router.getClass().getSimpleName())
+                    .message(event)
+                    .dependencies(new HashMap<>(context.getDependencies()))
+                    .build();
+            context.record(messageRecord);
+            context.clearDependencies();
+        });
     }
 
     public void preFinalRoute(List<? extends Event> events, Context context) {
@@ -209,6 +162,7 @@ public class EventBus {
             this.executorService = executorService;
         }
 
+        @SuppressWarnings("unchecked")
         public void route(List<? extends Event> events, Context context) {
             events = events.stream().filter(event -> eventClass.isAssignableFrom(event.getClass())).collect(Collectors.toList());
             if (Collect.isEmpty(events)) {
@@ -216,10 +170,19 @@ public class EventBus {
             }
             if (asyncable) {
                 List<? extends Event> finalEvents = events;
-                executorService.submit(() -> Reflect.invoke(method, bean, finalEvents, context));
+                executorService.submit(() -> {
+                    Reflect.invoke(method, bean, finalEvents, context);
+                    //TODO record 问题 因为context传过去了，如果进行一般意义上的dependency 填充会有 线程安全性问题
+                });
             } else {
                 Reflect.invoke(method, bean, events, context);
             }
+            MessageRecord messageRecord = MessageRecord.builder()
+                    .beanName(this.getClass().getSimpleName()).messages((List<Message>) events)
+                    .dependencies(new HashMap<>(context.getDependencies()))
+                    .build();
+            context.record(messageRecord);
+            context.clearDependencies();
         }
     }
 

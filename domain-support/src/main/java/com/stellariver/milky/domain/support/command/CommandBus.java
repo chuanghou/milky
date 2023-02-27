@@ -391,7 +391,6 @@ public class CommandBus {
             BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(command));
         }
         Object result = doRoute(command, context, commandHandler);
-        context.clearDependencies();
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
             eventBus.route(event, context);
@@ -413,17 +412,14 @@ public class CommandBus {
         if (commandHandler.handlerType == CONSTRUCTOR_HANDLER){
 
             // before interceptors run, it is corresponding to a create command
-            beforeCommandInterceptors.get(command.getClass())
-                    .forEach(interceptor -> {
-                        interceptor.invoke(command, null, context);
-                        MessageRecord messageRecord = MessageRecord.builder()
-                                .beanName(interceptor.getClass().getSimpleName())
-                                .message(command)
-                                .dependencies(new HashMap<>(context.getDependencies()))
-                                .build();
-                        context.record(messageRecord);
-                        context.clearDependencies();
-                    });
+            beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
+                interceptor.invoke(command, null, context);
+                MessageRecord messageRecord = MessageRecord.builder().beanName(interceptor.getClass().getSimpleName())
+                        .message(command).dependencies(new HashMap<>(context.getDependencies()))
+                        .build();
+                context.record(messageRecord);
+                context.clearDependencies();
+            });
 
             // // run command handlers
             aggregate = (AggregateRoot) commandHandler.invoke(null, command, context);
@@ -431,14 +427,21 @@ public class CommandBus {
             // update aggregate status to CREATE
             aggregateStatus = AggregateStatus.CREATE;
             result = aggregate;
+
         } else if (commandHandler.handlerType == INSTANCE_HANDLER){
 
             // from db or context get aggregate
             aggregate = daoAdapter.getByAggregateId(aggregateId, context);
 
             // run command before interceptors, it is corresponding to a common command, an instance method
-            beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>())
-                    .forEach(interceptor -> interceptor.invoke(command, aggregate, context));
+            beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
+                interceptor.invoke(command, aggregate, context);
+                MessageRecord messageRecord = MessageRecord.builder().beanName(interceptor.getClass().getSimpleName())
+                        .message(command).dependencies(new HashMap<>(context.getDependencies()))
+                        .build();
+                context.record(messageRecord);
+                context.clearDependencies();
+            });
 
             // run command handlers
             result = commandHandler.invoke(aggregate, command, context);
@@ -450,9 +453,9 @@ public class CommandBus {
         } else {
             throw new SysException("unreached part!");
         }
+
         MessageRecord messageRecord = MessageRecord.builder()
-                .beanName(aggregate.getClass().getSimpleName())
-                .message(command)
+                .beanName(aggregate.getClass().getSimpleName()).message(command)
                 .dependencies(new HashMap<>(context.getDependencies()))
                 .build();
         context.record(messageRecord);
