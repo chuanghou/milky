@@ -17,7 +17,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class CommandRecord extends MessageRecord{
+public class CommandRecord extends Record {
 
     Map<Class<? extends Typed<?>>, Object> dependencies;
 

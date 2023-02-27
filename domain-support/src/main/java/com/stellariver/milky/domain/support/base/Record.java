@@ -16,7 +16,7 @@ import java.util.Map;
 @SuperBuilder
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class MessageRecord {
+public class Record {
 
     String beanName;
 

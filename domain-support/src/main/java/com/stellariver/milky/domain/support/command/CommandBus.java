@@ -414,10 +414,10 @@ public class CommandBus {
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
-                MessageRecord messageRecord = MessageRecord.builder().beanName(interceptor.getClass().getSimpleName())
+                Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
                         .message(command).dependencies(new HashMap<>(context.getDependencies()))
                         .build();
-                context.record(messageRecord);
+                context.record(record);
                 context.clearDependencies();
             });
 
@@ -436,10 +436,10 @@ public class CommandBus {
             // run command before interceptors, it is corresponding to a common command, an instance method
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
                 interceptor.invoke(command, aggregate, context);
-                MessageRecord messageRecord = MessageRecord.builder().beanName(interceptor.getClass().getSimpleName())
+                Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
                         .message(command).dependencies(new HashMap<>(context.getDependencies()))
                         .build();
-                context.record(messageRecord);
+                context.record(record);
                 context.clearDependencies();
             });
 
@@ -454,11 +454,11 @@ public class CommandBus {
             throw new SysException("unreached part!");
         }
 
-        MessageRecord messageRecord = MessageRecord.builder()
+        Record record = Record.builder()
                 .beanName(aggregate.getClass().getSimpleName()).message(command)
                 .dependencies(new HashMap<>(context.getDependencies()))
                 .build();
-        context.record(messageRecord);
+        context.record(record);
 
         // process context cache for aggregate
         DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
@@ -506,12 +506,12 @@ public class CommandBus {
         List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
-            messageRecord = MessageRecord.builder()
+            record = Record.builder()
                     .beanName(interceptor.getClass().getSimpleName())
                     .message(command)
                     .dependencies(new HashMap<>(context.getDependencies()))
                     .build();
-            context.record(messageRecord);
+            context.record(record);
             context.clearDependencies();
         }
 

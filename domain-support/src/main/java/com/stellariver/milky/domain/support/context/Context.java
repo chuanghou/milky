@@ -2,7 +2,6 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -17,8 +16,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +51,7 @@ public class Context{
 
     private final List<Event> finalRouteEvents = new ArrayList<>();
 
-    private final List<MessageRecord> messageRecords = new ArrayList<>();
+    private final List<Record> records = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
     public <T> T getDependency(Class<? extends Typed<T>> key) {
@@ -95,12 +92,12 @@ public class Context{
         events.add(0, event);
     }
 
-    public void record(@NonNull MessageRecord messageRecord) {
-        messageRecords.add(messageRecord);
+    public void record(@NonNull Record record) {
+        records.add(record);
     }
 
-    public List<MessageRecord> getMessageRecords() {
-        return messageRecords;
+    public List<Record> getRecords() {
+        return records;
     }
 
     public List<Event> popEvents() {

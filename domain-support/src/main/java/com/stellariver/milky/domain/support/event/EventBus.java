@@ -6,7 +6,7 @@ import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.base.Message;
-import com.stellariver.milky.domain.support.base.MessageRecord;
+import com.stellariver.milky.domain.support.base.Record;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.BeanLoader;
@@ -105,12 +105,12 @@ public class EventBus {
     public void route(Event event, Context context) {
         eventRouterMap.getOrDefault(event.getClass(), new ArrayList<>(0)).forEach(router -> {
             router.route(event, context);
-            MessageRecord messageRecord = MessageRecord.builder()
+            Record record = Record.builder()
                     .beanName(router.getClass().getSimpleName())
                     .message(event)
                     .dependencies(new HashMap<>(context.getDependencies()))
                     .build();
-            context.record(messageRecord);
+            context.record(record);
             context.clearDependencies();
         });
     }
@@ -177,11 +177,11 @@ public class EventBus {
             } else {
                 Reflect.invoke(method, bean, events, context);
             }
-            MessageRecord messageRecord = MessageRecord.builder()
+            Record record = Record.builder()
                     .beanName(this.getClass().getSimpleName()).messages((List<Message>) events)
                     .dependencies(new HashMap<>(context.getDependencies()))
                     .build();
-            context.record(messageRecord);
+            context.record(record);
             context.clearDependencies();
         }
     }
