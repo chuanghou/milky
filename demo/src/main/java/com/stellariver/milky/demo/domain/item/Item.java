@@ -55,9 +55,9 @@ public class Item extends AggregateRoot {
     @ConstructorHandler
     static public Item build(ItemCreateCommand command, Context context) {
         Item item = new Item(command);
-        context.publish(ItemCreatedEvent.builder().itemId(item.getItemId()).title(item.getTitle()).build());
         UserInfo userInfo = context.invoke(UserInfoRepository::getUserInfo, command.getUserId(), USER_INFO.class);
         item.setUserName(userInfo.getUserName());
+        context.publish(ItemCreatedEvent.builder().itemId(item.getItemId()).title(item.getTitle()).build());
         return item;
     }
 
