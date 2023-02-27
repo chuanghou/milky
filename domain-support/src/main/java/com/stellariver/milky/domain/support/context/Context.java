@@ -80,20 +80,6 @@ public class Context{
         metaData.put(key, value);
     }
 
-    static private final Map<Pair<Object, Class<? extends Typed<?>>>, Object> proxies = new ConcurrentHashMap<>();
-
-    @SuppressWarnings("unchecked")
-    private  <T> T proxy(T t, Class<? extends Typed<?>> key) {
-         return (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(),
-                    (proxy, method, args) -> {
-                        Object result = Reflect.invoke(method, t, args);
-                        SysException.trueThrow(dependencies.containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
-                        dependencies.put(key, result);
-                        return result;
-                    });
-
-    }
-
     static private final Map<Class<?>, Object> map = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
