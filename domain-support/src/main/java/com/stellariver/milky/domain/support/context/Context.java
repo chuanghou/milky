@@ -84,19 +84,14 @@ public class Context{
 
     @SuppressWarnings("unchecked")
     private  <T> T proxy(T t, Class<? extends Typed<?>> key) {
-        Pair<Object, Class<? extends Typed<?>>> pair = Pair.of(t, key);
-        Object proxyInstance = proxies.get(pair);
-        if (proxyInstance == null) {
-            proxyInstance = Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(),
+         return (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(),
                     (proxy, method, args) -> {
                         Object result = Reflect.invoke(method, t, args);
                         SysException.trueThrow(dependencies.containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
                         dependencies.put(key, result);
                         return result;
                     });
-            proxies.put(pair, proxyInstance);
-        }
-        return (T) proxyInstance;
+
     }
 
     static private final Map<Class<?>, Object> map = new ConcurrentHashMap<>();
@@ -104,14 +99,20 @@ public class Context{
     @SuppressWarnings("unchecked")
     public <T, U, R> R invoke(BiSFunction<T, U, R> function, U u, Class<? extends Typed<?>> key) {
         Class<?> fClass = function.getClass();
-        T t = (T) map.get(fClass);
-        if (t == null) {
+        T proxyInstance = (T) map.get(fClass);
+        if (proxyInstance == null) {
             Class<?> instantiatedClass = SLambda.extract(function).getInstantiatedClass();
-            t = (T) BeanUtil.getBean(instantiatedClass);
-            map.put(fClass, t);
+            T t = (T) BeanUtil.getBean(instantiatedClass);
+            proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(),
+                    (proxy, method, args) -> {
+                        Object result = Reflect.invoke(method, t, args);
+                        SysException.trueThrow(dependencies.containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
+                        dependencies.put(key, result);
+                        return result;
+                    });
+            map.put(fClass, proxyInstance);
         }
-        T proxy = proxy(t, key);
-        return function.apply(proxy, u);
+        return function.apply(proxyInstance, u);
     }
 
     public void publish(@NonNull Event event) {
