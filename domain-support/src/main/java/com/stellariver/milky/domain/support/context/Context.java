@@ -4,6 +4,7 @@ package com.stellariver.milky.domain.support.context;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.slambda.BiSFunction;
+import com.stellariver.milky.common.tool.slambda.SFunction;
 import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -101,6 +102,26 @@ public class Context{
             map.put(fClass, proxyInstance);
         }
         return function.apply(proxyInstance, u);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public <T, R> R invoke(SFunction<T, R> function, Class<? extends Typed<?>> key) {
+        Class<?> fClass = function.getClass();
+        T proxyInstance = (T) map.get(fClass);
+        if (proxyInstance == null) {
+            Class<? extends T> instantiatedClass = (Class<? extends T>) SLambda.extract(function).getInstantiatedClass();
+            T t = BeanUtil.getBean(instantiatedClass);
+            proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(),
+                    (proxy, method, args) -> {
+                        Object result = Reflect.invoke(method, t, args);
+                        SysException.trueThrow(dependencies.containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
+                        dependencies.put(key, result);
+                        return result;
+                    });
+            map.put(fClass, proxyInstance);
+        }
+        return function.apply(proxyInstance);
     }
 
     public void publish(@NonNull Event event) {
