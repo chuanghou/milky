@@ -101,8 +101,8 @@ public class Context{
         Class<?> fClass = function.getClass();
         T proxyInstance = (T) map.get(fClass);
         if (proxyInstance == null) {
-            Class<?> instantiatedClass = SLambda.extract(function).getInstantiatedClass();
-            T t = (T) BeanUtil.getBean(instantiatedClass);
+            Class<? extends T> instantiatedClass = (Class<? extends T>) SLambda.extract(function).getInstantiatedClass();
+            T t = BeanUtil.getBean(instantiatedClass);
             proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(),
                     (proxy, method, args) -> {
                         Object result = Reflect.invoke(method, t, args);
