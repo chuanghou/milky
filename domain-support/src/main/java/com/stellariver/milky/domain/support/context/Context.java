@@ -116,7 +116,7 @@ public class Context{
         if (proxyInstance == null) {
             Class<? extends T> instantiatedClass = (Class<? extends T>) SLambda.extract(function).getInstantiatedClass();
             T t = BeanUtil.getBean(instantiatedClass);
-            proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(),
+            proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[] { instantiatedClass },
                     (proxy, method, args) -> {
                         Object result = Reflect.invoke(method, t, args);
                         SysException.trueThrow(dependencies.containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
