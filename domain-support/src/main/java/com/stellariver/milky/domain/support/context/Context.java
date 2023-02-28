@@ -90,7 +90,7 @@ public class Context{
     static private final Map<Class<?>, Object> map = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
-    public <T, U, R> R invoke(Class<? extends Typed<?>> key, BiSFunction<T, U, R> function, U u) {
+    public <T, U, R> R invoke(Class<? extends Typed<R>> key, BiSFunction<T, U, R> function, U u) {
         Class<?> fClass = function.getClass();
         T proxyInstance = (T) map.get(fClass);
         if (proxyInstance == null) {
