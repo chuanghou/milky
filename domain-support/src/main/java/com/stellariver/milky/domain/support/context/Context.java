@@ -17,7 +17,6 @@ import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.util.BeanUtil;
 import lombok.Getter;
 import lombok.NonNull;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.reflect.Proxy;
 import java.util.*;
@@ -88,22 +87,45 @@ public class Context{
         return (T) metaData.get(key);
     }
 
-    private final Map<Pair<?, Class<? extends Typed<?>>>, Object> map = new ConcurrentHashMap<>();
+    static private final Map<Class<?>, Object> map = new ConcurrentHashMap<>();
+
     @SuppressWarnings("unchecked")
-    public <T, R> T proxy(T t, Class<? extends Typed<?>> key) {
-        Pair<T, Class<? extends Typed<?>>> pair = Pair.of(t, key);
-         T proxyInstance = (T) map.get(pair);
-         if (proxyInstance == null) {
-             proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[] {t.getClass()},
-                     (proxy, method, args) -> {
-                         Object result = Reflect.invoke(method, t, args);
-                         SysException.trueThrow(dependencies.containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
-                         dependencies.put(key, result);
-                         return result;
-                     });
-             map.put(pair, proxyInstance);
-         }
-        return proxyInstance;
+    public <T, U, R> R invoke(Class<? extends Typed<?>> key, BiSFunction<T, U, R> function, U u) {
+        Class<?> fClass = function.getClass();
+        T proxyInstance = (T) map.get(fClass);
+        if (proxyInstance == null) {
+            Class<? extends T> instantiatedClass = (Class<? extends T>) SLambda.extract(function).getInstantiatedClass();
+            T t = BeanUtil.getBean(instantiatedClass);
+            proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[] {instantiatedClass},
+                    (proxy, method, args) -> {
+                        Object result = Reflect.invoke(method, t, args);
+                        SysException.trueThrow(dependencies.containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
+                        dependencies.put(key, result);
+                        return result;
+                    });
+            map.put(fClass, proxyInstance);
+        }
+        return function.apply(proxyInstance, u);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public <T, R> R invoke(Class<? extends Typed<?>> key, SFunction<T, R> function) {
+        Class<?> fClass = function.getClass();
+        T proxyInstance = (T) map.get(fClass);
+        if (proxyInstance == null) {
+            Class<? extends T> instantiatedClass = (Class<? extends T>) SLambda.extract(function).getInstantiatedClass();
+            T t = BeanUtil.getBean(instantiatedClass);
+            proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[] { instantiatedClass },
+                    (proxy, method, args) -> {
+                        Object result = Reflect.invoke(method, t, args);
+                        SysException.trueThrow(dependencies.containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
+                        dependencies.put(key, result);
+                        return result;
+                    });
+            map.put(fClass, proxyInstance);
+        }
+        return function.apply(proxyInstance);
     }
 
     public void publish(@NonNull Event event) {
