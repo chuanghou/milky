@@ -37,7 +37,7 @@ public class StateMachine<State, Event> {
                 throw new IllegalArgumentException(transitionList.toString());
             }
             Map<Event, Action<State, Event>> map = transitions.computeIfAbsent(source, k -> new HashMap<>());
-            Action<State, Event> action = new Action<>(source, condition, runner);
+            Action<State, Event> action = new Action<>(target, condition, runner);
             Action<State, Event> put = map.put(event, action);
             if (put != null) {
                 throw new RepeatStateConfigException(transitionList.toString());
