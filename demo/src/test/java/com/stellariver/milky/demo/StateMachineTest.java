@@ -6,6 +6,7 @@ import com.stellariver.milky.common.tool.state.machine.Transition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -67,7 +68,43 @@ public class StateMachineTest {
         Assertions.assertEquals(target, State.C);
         Assertions.assertTrue(runnerWorked.get());
 
+    }
 
 
+    /**
+     * Graphviz comes from bell lab and is a useful tool to make some graph
+     * This state machine accept a graphviz supportable state transfer graph as input to get a state machine
+     * example:
+     * <pre>
+     * digraph fsm {
+     *         "a" -> "a" [label= "Event1, c:condition, r: runner1"]
+     *         "a" -> "b" [label= "Event2"]
+     *         "b" -> "c" [label= "Event3"]
+     *         "b" -> "d" [label= "Event4"]
+     *         "c" -> "a" [label= "Event5"]
+     * }</pre>
+     * paste above code into <a href="http://viz-js.com/">viz</a> you can see the state machine result
+     * above test verify the state machine graph
+     */
+
+    @Test
+    public void test() {
+        String data = "# http://www.graphviz.org/content/cluster\n" +
+                "\n" +
+                "        digraph fsm {\n" +
+                "        \"a\" -> \"a\" [label= \"Event1, c:condition, r: runner1\"]\n" +
+                "        \"a\" -> \"b\" [label= \"Event2\"]\n" +
+                "        \"b\" -> \"c\" [label= \"Event3\"]\n" +
+                "        \"b\" -> \"d\" [label= \"Event4\"]\n" +
+                "        \"c\" -> \"a\" [label= \"Event5\"]\n" +
+                "        }";
+
+        StateMachine<String, String> machine = StateMachine.buildStateMachine(data);
+
+        String fire = machine.fire("a", "Event2");
+        Assertions.assertEquals(fire, "b");
+
+        fire = machine.fire("b", "Event2");
+        Assertions.assertNull(fire);
     }
 }
