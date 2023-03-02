@@ -91,7 +91,7 @@ public class StateMachine<State, Event> {
         }
     }
 
-    public static StateMachine<String, String> buildStateMachine(String dot) {
+    public static StateMachine<String, String> fromGraphViz(String dot) {
 
         Matcher matcherSource = patternS.matcher(dot);
         Matcher matcherTarget = patternT.matcher(dot);

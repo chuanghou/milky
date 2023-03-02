@@ -6,7 +6,6 @@ import com.stellariver.milky.common.tool.state.machine.Transition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -97,7 +96,7 @@ public class StateMachineTest {
                 "          \"c\" -> \"a\" [label= \"Event5\"]\n" +
                 "  }";
 
-        StateMachine<String, String> machine = StateMachine.buildStateMachine(data);
+        StateMachine<String, String> machine = StateMachine.fromGraphViz(data);
 
         String fire = machine.fire("a", "Event2");
         Assertions.assertEquals(fire, "b");
