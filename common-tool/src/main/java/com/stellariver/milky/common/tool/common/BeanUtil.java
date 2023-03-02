@@ -1,7 +1,6 @@
-package com.stellariver.milky.domain.support.util;
+package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.tool.exception.SysException;
-import com.stellariver.milky.domain.support.dependency.BeanLoader;
 import net.sf.cglib.beans.BeanMap;
 
 import java.lang.annotation.Annotation;
@@ -18,6 +17,10 @@ public class BeanUtil {
 
     public static void setBeanLoader(BeanLoader beanLoader) {
         BeanUtil.beanLoader = beanLoader;
+    }
+
+    public static BeanLoader getBeanLoader() {
+        return beanLoader;
     }
 
     public static List<Object> getBeansForAnnotation(Class<? extends Annotation> annotationType) {

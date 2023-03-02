@@ -3,8 +3,6 @@ package com.stellariver.milky.demo;
 import com.stellariver.milky.common.tool.state.machine.StateMachine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.FileCopyUtils;
 import java.io.IOException;
 
 

@@ -14,7 +14,7 @@ import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.event.Event;
-import com.stellariver.milky.domain.support.util.BeanUtil;
+import com.stellariver.milky.common.tool.common.BeanUtil;
 import lombok.Getter;
 import lombok.NonNull;
 

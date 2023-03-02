@@ -1,5 +1,6 @@
 package com.stellariver.milky.common.tool.state.machine;
 
+import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.common.TriConsumer;
 
 import javax.annotation.Nullable;
@@ -31,80 +32,6 @@ public class StateMachine<State, Event> {
     static private Pattern patternE = Pattern.compile("\\\"\\s*\\w+(,|\\\")");
     static private Pattern patternC = Pattern.compile("c\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
     static private Pattern patternR = Pattern.compile("r\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
-
-    public static StateMachine<String, String> buildStateMachine(String dot) {
-
-        Matcher matcherS = patternS.matcher(dot);
-        Matcher matcherT = patternT.matcher(dot);
-        Matcher matcherL = patternL.matcher(dot);
-
-        List<Transition<String, String>> transitions = new ArrayList<>();
-        while (true) {
-            boolean s = matcherS.find();
-            boolean t = matcherT.find();
-            boolean l = matcherL.find();
-
-            if (!s && !t && !l) {
-                break;
-            }
-            if (s && t && l) {
-                String source = extractByDelimiter(matcherS.group());
-                String target = extractByDelimiter(matcherT.group());
-                String label = matcherL.group();
-
-                String condition = null;
-                Matcher matcherC = patternC.matcher(label);
-                if (matcherC.find()) {
-                    String group = matcherC.group();
-                    condition = group.substring(group.indexOf(":") + 1, group.length() - 1).trim();
-                }
-
-                String runner = null;
-                Matcher matcherR = patternR.matcher(label);
-                if (matcherR.find()) {
-                    String group = matcherR.group();
-                    runner = group.substring(group.indexOf(":") + 1, group.length() - 1).trim();
-                }
-
-                String event;
-                Matcher matcherE = patternE.matcher(label);
-                if (matcherE.find()) {
-                    String group = matcherE.group();
-                    event = group.substring(1, group.length() - 1).trim();
-                } else {
-                    throw new RuntimeException(label);
-                }
-
-//                @SuppressWarnings("unchecked")
-//                BiPredicate<String, String> conditionBean = BeanUtil.getBeanLoader() == null || condition == null ?
-//                        null : (BiPredicate<String, String>) BeanUtil.getBean(condition);
-//                @SuppressWarnings("unchecked")
-//                TriConsumer<String, String, String> actionBean = BeanUtil.getBeanLoader() == null || runner == null ?
-//                        null : (TriConsumer<String, String, String>) BeanUtil.getBean(runner);
-
-                Transition<String, String> transition = Transition.<String, String>builder()
-                        .source(source).event(event).target(target)
-//                        .condition(conditionBean)
-//                        .action(actionBean)
-                        .build();
-
-                transitions.add(transition);
-            } else {
-                throw new RuntimeException(dot);
-            }
-        }
-        return new StateMachine<>(transitions);
-    }
-
-    static private String extractByDelimiter(String str) {
-        int leftIndex = str.indexOf("\"");
-        int rightIndex = str.lastIndexOf("\"");
-        if (rightIndex - leftIndex >= 2) {
-            return str.substring(leftIndex + 1, rightIndex).trim();
-        } else {
-            throw new RuntimeException(str + ", left: " + "\"" + ", right: " + "\"");
-        }
-    }
 
     public StateMachine(List<Transition<State, Event>> transitionList) {
 
@@ -161,6 +88,77 @@ public class StateMachine<State, Event> {
             return action.getTarget();
         } else {
             return null;
+        }
+    }
+
+    public static StateMachine<String, String> buildStateMachine(String dot) {
+
+        Matcher matcherSource = patternS.matcher(dot);
+        Matcher matcherTarget = patternT.matcher(dot);
+        Matcher matcherLable = patternL.matcher(dot);
+
+        List<Transition<String, String>> transitions = new ArrayList<>();
+        while (true) {
+            boolean s = matcherSource.find();
+            boolean t = matcherTarget.find();
+            boolean l = matcherLable.find();
+
+            if (!s && !t && !l) {
+                break;
+            } else if (s && t && l) {
+                String source = extractByQuotes(matcherSource.group());
+                String target = extractByQuotes(matcherTarget.group());
+                String label = matcherLable.group();
+
+                String condition = null;
+                Matcher matcherC = patternC.matcher(label);
+                if (matcherC.find()) {
+                    String group = matcherC.group();
+                    condition = group.substring(group.indexOf(":") + 1, group.length() - 1).trim();
+                }
+
+                String runner = null;
+                Matcher matcherR = patternR.matcher(label);
+                if (matcherR.find()) {
+                    String group = matcherR.group();
+                    runner = group.substring(group.indexOf(":") + 1, group.length() - 1).trim();
+                }
+
+                String event;
+                Matcher matcherE = patternE.matcher(label);
+                if (matcherE.find()) {
+                    String group = matcherE.group();
+                    event = group.substring(group.indexOf("\"") + 1, group.length() - 1).trim();
+                } else {
+                    throw new RuntimeException(label);
+                }
+
+                boolean avilableCondition = condition == null || BeanUtil.getBeanLoader() == null;
+                Object conditionBean = avilableCondition ? null : BeanUtil.getBean(condition);
+                boolean avilableAction = condition == null || BeanUtil.getBeanLoader() == null;
+                Object actionBean = avilableAction ? null : BeanUtil.getBean(runner);
+
+                Transition<String, String> transition = Transition.<String, String>builder()
+                        .source(source).event(event).target(target)
+                        .condition((BiPredicate<String, String>) conditionBean)
+                        .action((TriConsumer<String, String, String>) actionBean)
+                        .build();
+
+                transitions.add(transition);
+            } else {
+                throw new RuntimeException("please paste" + dot + "to http://viz-js.com/ to verify the validation!");
+            }
+        }
+        return new StateMachine<>(transitions);
+    }
+
+    static private String extractByQuotes(String str) {
+        int leftIndex = str.indexOf("\"");
+        int rightIndex = str.lastIndexOf("\"");
+        if (rightIndex - leftIndex >= 2) {
+            return str.substring(leftIndex + 1, rightIndex).trim();
+        } else {
+            throw new RuntimeException(str + ", left: " + "\"" + ", right: " + "\"");
         }
     }
 

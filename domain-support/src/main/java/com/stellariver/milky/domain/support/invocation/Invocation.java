@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.invocation;
 
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
-import com.stellariver.milky.domain.support.util.BeanUtil;
+import com.stellariver.milky.common.tool.common.BeanUtil;
 import lombok.Data;
 
 import java.util.HashMap;

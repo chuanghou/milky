@@ -5,11 +5,10 @@ import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
-import com.stellariver.milky.domain.support.base.Message;
 import com.stellariver.milky.domain.support.base.Record;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.dependency.BeanLoader;
+import com.stellariver.milky.common.tool.common.BeanLoader;
 import lombok.Data;
 import org.reflections.Reflections;
 
