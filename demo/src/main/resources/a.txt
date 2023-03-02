@@ -1,0 +1,9 @@
+# http://www.graphviz.org/content/cluster
+
+digraph fsm {
+"a" -> "a" [label= "Event1"]
+"a" -> "b" [label= "Event2"]
+"b" -> "c" [label= "Event3"]
+"b" -> "d" [label= "Event4"]
+"c" -> "a" [label= "Event5"]
+}
