@@ -19,6 +19,7 @@
             </Filters>
 
             <JsonLayout compact="true" eventEol="true" objectMessageAsJsonObject="true" locationInfo="true">
+                <KeyValuePair key="error_duplicate_key" value="$${ctx:error_duplicate_key:-null}"/>
                 <KeyValuePair key="milky_class" value="$${ctx:milky_class:-null}"/>
                 <KeyValuePair key="milky_method" value="$${ctx:milky_method:-null}"/>
                 <KeyValuePair key="milky_line" value="$${ctx:milky_line:-null}"/>

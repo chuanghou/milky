@@ -119,7 +119,7 @@ public class Logger implements org.slf4j.Logger {
         }
         String oldValue = MDC.get(key);
         if (oldValue != null) {
-            throw new DuplicateFormatFlagsException(key);
+            MDC.put("error_duplicate_key", String.format("%s:%s", key, value));
         }
         withKeys.get().add(key);
         MDC.put(key, value == null ? null : value.toString());
