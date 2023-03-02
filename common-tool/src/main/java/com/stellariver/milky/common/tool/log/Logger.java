@@ -117,6 +117,10 @@ public class Logger implements org.slf4j.Logger {
             log.error("log key shouldn't be null");
             return this;
         }
+        String oldValue = MDC.get(key);
+        if (oldValue != null) {
+            throw new DuplicateFormatFlagsException(key);
+        }
         withKeys.get().add(key);
         MDC.put(key, value == null ? null : value.toString());
         return this;
