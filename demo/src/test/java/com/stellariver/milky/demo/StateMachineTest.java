@@ -89,15 +89,13 @@ public class StateMachineTest {
 
     @Test
     public void test() {
-        String data = "# http://www.graphviz.org/content/cluster\n" +
-                "\n" +
-                "        digraph fsm {\n" +
-                "        \"a\" -> \"a\" [label= \"Event1, c:condition, r: runner1\"]\n" +
-                "        \"a\" -> \"b\" [label= \"Event2\"]\n" +
-                "        \"b\" -> \"c\" [label= \"Event3\"]\n" +
-                "        \"b\" -> \"d\" [label= \"Event4\"]\n" +
-                "        \"c\" -> \"a\" [label= \"Event5\"]\n" +
-                "        }";
+        String data = "  digraph fsm {\n" +
+                "          \"a\" -> \"a\" [label= \"Event1, c:condition, r: runner1\"]\n" +
+                "          \"a\" -> \"b\" [label= \"Event2\"]\n" +
+                "          \"b\" -> \"c\" [label= \"Event3\"]\n" +
+                "          \"b\" -> \"d\" [label= \"Event4\"]\n" +
+                "          \"c\" -> \"a\" [label= \"Event5\"]\n" +
+                "  }";
 
         StateMachine<String, String> machine = StateMachine.buildStateMachine(data);
 
