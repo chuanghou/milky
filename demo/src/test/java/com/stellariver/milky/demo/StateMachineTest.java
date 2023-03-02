@@ -48,14 +48,14 @@ public class StateMachineTest {
         // condition and runner
         Transition<State, Event> t3 = Transition.<State, Event>builder()
                 .source(State.A).event(Event.AB).target(State.B)
-                .condition((s, e) -> false)
+                .condition((s, e, c) -> false)
                 .build();
 
         AtomicBoolean runnerWorked = new AtomicBoolean(false);
         Transition<State, Event> t4 = Transition.<State, Event>builder()
                 .source(State.B).event(Event.BC).target(State.C)
-                .condition((s, e) -> true)
-                .action((s, e, t) -> runnerWorked.set(true))
+                .condition((s, e, c) -> true)
+                .runner((s, e, t, c) -> runnerWorked.set(true))
                 .build();
 
         machine = new StateMachine<>(Arrays.asList(t3, t4));

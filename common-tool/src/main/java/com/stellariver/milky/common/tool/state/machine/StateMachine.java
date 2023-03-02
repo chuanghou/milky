@@ -1,14 +1,9 @@
 package com.stellariver.milky.common.tool.state.machine;
 
 import com.stellariver.milky.common.tool.common.BeanUtil;
-import com.stellariver.milky.common.tool.common.TriConsumer;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiPredicate;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,8 +38,8 @@ public class StateMachine<State, Event> {
             State source = t.getSource();
             Event event = t.getEvent();
             State target = t.getTarget();
-            BiPredicate<State, Event> condition = t.getCondition();
-            TriConsumer<State, Event, State> runner = t.getAction();
+            Condition<State, Event> condition = t.getCondition();
+            Runner<State, Event> runner = t.getRunner();
             boolean b = source == null || event == null || target == null;
             if (b) {
                 throw new IllegalArgumentException(transitionList.toString());
@@ -59,6 +54,13 @@ public class StateMachine<State, Event> {
 
     }
 
+    static final private Map<String, Object> emptyMap = new HashMap<>();
+
+
+    public State fire(State source, Event event) {
+        return fire(source, event, emptyMap);
+    }
+
     /**
      *
      * @param source the source state
@@ -68,7 +70,8 @@ public class StateMachine<State, Event> {
      */
 
     @Nullable
-    public State fire(State source, Event event) {
+    public State fire(State source, Event event, Map<String, Object> context) {
+        context = Optional.ofNullable(context).orElse(emptyMap);
         Map<Event, Action<State, Event>> map = transitions.get(source);
         if (map == null) {
             return null;
@@ -79,11 +82,11 @@ public class StateMachine<State, Event> {
             return null;
         }
 
-        BiPredicate<State, Event> condition = action.getCondition();
-        boolean b = condition == null || condition.test(source, event);
+        Condition<State, Event> condition = action.getCondition();
+        boolean b = condition == null || condition.test(source, event, context);
         if (b) {
             if (action.getRunner() != null) {
-                action.getRunner().accept(source, event, action.getTarget());
+                action.getRunner().run(source, event, action.getTarget(), context);
             }
             return action.getTarget();
         } else {
@@ -136,12 +139,12 @@ public class StateMachine<State, Event> {
                 boolean avilableCondition = condition == null || BeanUtil.getBeanLoader() == null;
                 Object conditionBean = avilableCondition ? null : BeanUtil.getBean(condition);
                 boolean avilableAction = condition == null || BeanUtil.getBeanLoader() == null;
-                Object actionBean = avilableAction ? null : BeanUtil.getBean(runner);
+                Object runnerBean = avilableAction ? null : BeanUtil.getBean(runner);
 
                 Transition<String, String> transition = Transition.<String, String>builder()
                         .source(source).event(event).target(target)
-                        .condition((BiPredicate<String, String>) conditionBean)
-                        .action((TriConsumer<String, String, String>) actionBean)
+                        .condition((Condition<String, String>) conditionBean)
+                        .runner((Runner<String, String>) runnerBean)
                         .build();
 
                 transitions.add(transition);
