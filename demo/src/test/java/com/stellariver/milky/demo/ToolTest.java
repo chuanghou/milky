@@ -43,5 +43,7 @@ public class ToolTest {
                     return result;
                 });
         proxyInstance.print();
+
+        Object[] objects = new Object[10];
     }
 }

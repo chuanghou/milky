@@ -137,6 +137,7 @@ public class Logger implements org.slf4j.Logger {
         MDC.remove("milky_class");
         MDC.remove("milky_method");
         MDC.remove("milky_line");
+        MDC.remove("error_duplicate_key");
         withKeys.get().forEach(MDC::remove);
         withKeys.get().clear();
     }

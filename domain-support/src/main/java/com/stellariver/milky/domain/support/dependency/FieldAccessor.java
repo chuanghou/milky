@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public class FieldAccessor {
         List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
         fields.forEach(f -> SysException.trueThrow(primitives.contains(f.getType()), CONFIG_ERROR));
         for (Field f: fields) {
-            if (f.isSynthetic()) {
+            if (f.isSynthetic() || Modifier.isStatic(f.getModifiers())) {
                 continue;
             }
             String name = f.getName();

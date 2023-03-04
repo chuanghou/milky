@@ -124,7 +124,11 @@
             <groupId>io.atlassian.util.concurrent</groupId>
             <artifactId>atlassian-util-concurrent</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.ctrip.framework.apollo</groupId>
+            <artifactId>apollo-client</artifactId>
+            <version>1.7.0</version>
+        </dependency>
     </dependencies>
 
     <build>

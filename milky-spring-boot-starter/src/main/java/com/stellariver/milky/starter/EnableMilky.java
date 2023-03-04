@@ -5,6 +5,10 @@ import org.springframework.context.annotation.Import;
 import java.lang.annotation.*;
 
 /**
+ * This annotation is used to enable milky abilities, supposed to place
+ * with @SpringBootApplication or any class annotated with @Configuration,
+ * the scanPackages means every milky related java class will be scanned, like
+ * the annotation of @ComponentScan, so this annotation is suggested with @SpringbootApplication, reasonable!
  * @author houchuang
  */
 @Inherited
@@ -14,6 +18,9 @@ import java.lang.annotation.*;
 @Import({DomainSupportDefinitionRegistrar.class, DomainSupportAutoConfiguration.class})
 public @interface EnableMilky {
 
-    String[] value();
+    /**
+     * Base packages to scan for milky annotated components.
+     */
+    String[] scanPackages() default {};
 
 }

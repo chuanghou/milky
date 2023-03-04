@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * @author houchuang
  */
-@EnableMilky("com.stellariver.milky.demo")
+@EnableMilky
 @SpringBootApplication
 public class MilkyDemoApplication {
 

@@ -24,16 +24,14 @@ public class CombineItem extends Item {
 
     Long ratio;
 
-    protected CombineItem(CombineItemCreateCommand command) {
-        super(command);
+    protected CombineItem(CombineItemCreateCommand command, Context context) {
+        super(command, context);
         this.ratio = command.getRatio();
     }
 
     @ConstructorHandler
     static public CombineItem build(CombineItemCreateCommand command, Context context) {
-        CombineItem combineItem = new CombineItem(command);
-        UserInfo userInfo = context.getDependency(USER_INFO.class);
-        combineItem.setUserName(userInfo.getUserName());
+        CombineItem combineItem = new CombineItem(command, context);
         CombineItemCreatedEvent event = CombineItemCreatedEvent.builder()
                 .itemId(combineItem.getItemId())
                 .title(combineItem.getTitle())
