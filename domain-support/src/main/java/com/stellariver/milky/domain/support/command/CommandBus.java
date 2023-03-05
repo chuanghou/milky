@@ -3,6 +3,8 @@ package com.stellariver.milky.domain.support.command;
 import com.stellariver.milky.common.tool.common.*;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.slambda.BiSFunction;
+import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -26,11 +28,13 @@ import org.reflections.Reflections;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONCURRENCY_VIOLATION;
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
+import static com.stellariver.milky.domain.support.ErrorEnums.REPEAT_DEPENDENCY_KEY;
 import static com.stellariver.milky.domain.support.command.HandlerType.*;
 
 /**
@@ -534,4 +538,25 @@ public class CommandBus {
 
     }
 
+    static private final Map<Class<?>, Object> map = new ConcurrentHashMap<>();
+
+    @SuppressWarnings("unchecked")
+    static public <T, U, R> R record(Class<? extends Typed<R>> key, BiSFunction<T, U, R> function, U u) {
+        Class<?> fClass = function.getClass();
+        T proxyInstance = (T) map.get(fClass);
+        if (proxyInstance == null) {
+            Class<? extends T> instantiatedClass = (Class<? extends T>) SLambda.extract(function).getInstantiatedClass();
+            T t = BeanUtil.getBean(instantiatedClass);
+            proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[] {instantiatedClass},
+                    (proxy, method, args) -> {
+                        Object result = Reflect.invoke(method, t, args);
+                        Context context = CommandBus.THREAD_LOCAL_CONTEXT.get();
+                        SysException.trueThrow(context.getDependencies().containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
+                        context.getDependencies().put(key, result);
+                        return result;
+                    });
+            map.put(fClass, proxyInstance);
+        }
+        return function.apply(proxyInstance, u);
+    }
 }

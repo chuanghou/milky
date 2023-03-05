@@ -13,6 +13,7 @@ import com.stellariver.milky.demo.domain.item.event.ItemInventoryInitEvent;
 import com.stellariver.milky.demo.domain.item.event.ItemTitleUpdatedEvent;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
+import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.context.Context;
@@ -51,7 +52,7 @@ public class Item extends AggregateRoot {
         this.amount = command.getAmount();
         this.storeCode = command.getStoreCode();
         this.channelEnum = command.getChannelEnum();
-        UserInfo userInfo = context.invoke(USER_INFO.class, UserInfoRepository::getUserInfo, this.getUserId());
+        UserInfo userInfo = CommandBus.record(USER_INFO.class, UserInfoRepository::getUserInfo, this.getUserId());
         this.setUserName(userInfo.getUserName());
     }
 

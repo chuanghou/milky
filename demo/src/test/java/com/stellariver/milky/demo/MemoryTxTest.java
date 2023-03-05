@@ -45,7 +45,7 @@ public class MemoryTxTest {
     UserInfoRepository userInfoRepository;
     @Test
     public void transactionTest() {
-        LogUtil.setLogLevel(MemoryTxTest.class, Level.OFF);
+        LogUtil.setLogLevel(MemoryTxTest.class, Level.ERROR);
         ItemCreateCommand itemCreateCommand = ItemCreateCommand.builder().itemId(1L).title("测试商品")
                 .userId(10086L).amount(0L).storeCode("")
                 .channelEnum(ChannelEnum.JD)

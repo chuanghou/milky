@@ -24,4 +24,6 @@ public abstract class AggregateRoot{
 
     abstract public String getAggregateId();
 
+
+
 }
