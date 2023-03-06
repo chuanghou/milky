@@ -58,11 +58,9 @@ public class EventBus {
         List<Method> methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
-                .filter(m -> {
-                    SysException.falseThrow(FORMAT.test(m),
-                            CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
-                    return true;
-                }).collect(Collectors.toList());
+                .peek(m -> SysException.falseThrow(FORMAT.test(m),
+                        CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
+                .collect(Collectors.toList());
         Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
         methods.forEach(method -> {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
@@ -82,10 +80,9 @@ public class EventBus {
         methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(FinalEventRouter.class))
-                .filter(m -> {
-                    SysException.falseThrow(FINAL_EVENT_ROUTER_FORMAT.test(m), CONFIG_ERROR.message(m.toGenericString()));
-                    return true;
-                }).collect(Collectors.toList());
+                .peek(m -> SysException.falseThrow(FINAL_EVENT_ROUTER_FORMAT.test(m),
+                        CONFIG_ERROR.message(m.toGenericString())))
+                .collect(Collectors.toList());
 
         List<FinalRouter<Class<? extends Event>>> tempFinalRouters = methods.stream().map(method -> {
             FinalEventRouter annotation = method.getAnnotation(FinalEventRouter.class);

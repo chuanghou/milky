@@ -146,11 +146,8 @@ public class CommandBus {
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
                 .filter(m -> Command.class.isAssignableFrom(m.getParameterTypes()[0]))
-                .filter(m -> {
-                    SysException.falseThrow(COMMAND_INTERCEPTOR_FORMAT.test(m),
-                            CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
-                    return true;
-                }).collect(Collectors.toList())
+                .peek(m -> SysException.falseThrow(COMMAND_INTERCEPTOR_FORMAT.test(m),
+                        CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
@@ -159,9 +156,7 @@ public class CommandBus {
                     tempInterceptorsMap.computeIfAbsent(commandClass, cC -> new ArrayList<>()).add(interceptor);
                 });
 
-        Set<Class<? extends Command>> commandClasses = reflections.getSubTypesOf(Command.class);
-
-        commandClasses.forEach(commandClass -> {
+        reflections.getSubTypesOf(Command.class).forEach(commandClass -> {
             List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass)
                     .stream().filter(Command.class::isAssignableFrom).collect(Collectors.toList());
             ancestorClasses.forEach(ancestor -> {
@@ -210,39 +205,33 @@ public class CommandBus {
     @SuppressWarnings("unchecked")
     private void prepareCommandHandlers() {
         aggregateClasses.forEach(clazz -> {
-            List<Method> methods = Arrays.stream(clazz.getDeclaredMethods())
+            Arrays.stream(clazz.getDeclaredMethods())
                     .filter(m -> m.isAnnotationPresent(MethodHandler.class))
-                    .filter(m -> {
-                        SysException.falseThrow(COMMAND_HANDLER_FORMAT.test(m),
-                                CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
-                        return true;
-                    }).collect(Collectors.toList());
-            methods.forEach(method -> {
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                Handler handler = new Handler(clazz, method, INSTANCE_HANDLER);
-                Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
-                Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
-                SysException.trueThrow(handlerMap.containsKey(clazz),
-                        CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
-                handlerMap.put(clazz, handler);
-            });
+                    .peek(m -> SysException.falseThrow(COMMAND_HANDLER_FORMAT.test(m),
+                            CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
+                    .forEach(method -> {
+                        Class<?>[] parameterTypes = method.getParameterTypes();
+                        Handler handler = new Handler(clazz, method, INSTANCE_HANDLER);
+                        Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
+                        Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
+                        SysException.trueThrow(handlerMap.containsKey(clazz),
+                                CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
+                        handlerMap.put(clazz, handler);
+                    });
 
-            methods = Arrays.stream(clazz.getDeclaredMethods())
+            Arrays.stream(clazz.getDeclaredMethods())
                     .filter(m -> m.isAnnotationPresent(ConstructorHandler.class))
-                    .filter(m -> {
-                        SysException.falseThrow(CONSTRUCTOR_HANDLER_FORMAT.test(m),
-                                CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
-                        return true;
-                    }).collect(Collectors.toList());
-            methods.forEach(method -> {
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                Handler handler = new Handler(clazz, method, CONSTRUCTOR_HANDLER);
-                Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
-                Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
-                SysException.trueThrow(handlerMap.containsKey(clazz),
-                        CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
-                handlerMap.put(clazz, handler);
-            });
+                    .peek(m -> SysException.falseThrow(CONSTRUCTOR_HANDLER_FORMAT.test(m),
+                            CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"))).collect(Collectors.toList())
+                    .forEach(method -> {
+                        Class<?>[] parameterTypes = method.getParameterTypes();
+                        Handler handler = new Handler(clazz, method, CONSTRUCTOR_HANDLER);
+                        Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
+                        Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
+                        SysException.trueThrow(handlerMap.containsKey(clazz),
+                                CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
+                        handlerMap.put(clazz, handler);
+                    });
 
         });
     }
