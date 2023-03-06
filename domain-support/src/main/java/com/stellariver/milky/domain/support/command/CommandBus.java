@@ -536,10 +536,10 @@ public class CommandBus {
                     Class<?> type = field.getType();
                     String name = field.getAnnotation(MilkyWired.class).name();
                     Object bean;
-                    if (StringUtils.isBlank(name)) {
-                        bean = BeanUtil.getBean(type);
-                    } else {
+                    if (StringUtils.isNotBlank(name)) {
                         bean = BeanUtil.getBean(name);
+                    } else {
+                        bean = BeanUtil.getBean(type);
                         if (bean != null) {
                             boolean fit = type.isAssignableFrom(bean.getClass());
                             SysException.falseThrow(fit, CONFIG_ERROR.message("found bean "));
@@ -552,7 +552,8 @@ public class CommandBus {
 
                     Object proxyBean;
                     List<Method> methods = Arrays.stream(type.getMethods())
-                            .filter(m -> m.isAnnotationPresent(Traced.class)).collect(Collectors.toList());
+                            .filter(m -> m.isAnnotationPresent(Traced.class))
+                            .collect(Collectors.toList());
                     if (methods.isEmpty()) {
                         proxyBean = bean;
                     } else {
@@ -569,7 +570,7 @@ public class CommandBus {
                                 });
                     }
                     try {
-                        field.setAccessible(true);
+                        Reflect.setAccessible(field);
                         field.set(null, proxyBean);
                     } catch (IllegalAccessException ignore) {}
 
