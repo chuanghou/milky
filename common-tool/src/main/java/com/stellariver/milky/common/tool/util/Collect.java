@@ -145,6 +145,10 @@ public class Collect {
         return stream(source).filter(predicate).collect(Collectors.toCollection(factory));
     }
 
+    public static <T> List<T> filter(T[] source, Predicate<T> predicate) {
+        return Arrays.stream(source).filter(predicate).collect(Collectors.toList());
+    }
+
     public static <T> Set<T> diff(Collection<T> collection1, Collection<T> collection2) {
         Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
         Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);

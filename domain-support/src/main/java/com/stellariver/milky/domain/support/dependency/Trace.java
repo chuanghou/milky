@@ -3,7 +3,6 @@ package com.stellariver.milky.domain.support.dependency;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 @Data
@@ -13,13 +12,9 @@ import java.lang.reflect.Method;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Trace {
 
-    String beanName;
-
-    Field field;
+    Object bean;
 
     Object[] params;
-
-    Object bean;
 
     Method method;
 

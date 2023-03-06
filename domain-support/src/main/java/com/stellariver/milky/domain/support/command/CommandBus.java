@@ -425,7 +425,7 @@ public class CommandBus {
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
-                com.stellariver.milky.domain.support.base.Record record = com.stellariver.milky.domain.support.base.Record.builder().beanName(interceptor.getClass().getSimpleName())
+                Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
                         .message(command).traces(context.getTraces()).build();
                 context.record(record);
                 context.clearTraces();
@@ -523,7 +523,8 @@ public class CommandBus {
 
     static public void wire() {
 
-        List<Field> fields0 = instance.aggregateClasses.stream().flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
+        List<Field> fields0 = instance.aggregateClasses.stream()
+                .flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
         List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream().flatMap(Collection::stream)
                 .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
         List<Field> fields2 = instance.eventBus.getFinalRouters().stream()
@@ -550,13 +551,9 @@ public class CommandBus {
                         throw new SysException(field.getName());
                     }
 
-                    Object proxyBean;
-                    List<Method> methods = Arrays.stream(type.getMethods())
-                            .filter(m -> m.isAnnotationPresent(Traced.class))
-                            .collect(Collectors.toList());
-                    if (methods.isEmpty()) {
-                        proxyBean = bean;
-                    } else {
+                    Object proxyBean = bean;
+                    List<Method> methods = Collect.filter(type.getMethods(), m -> m.isAnnotationPresent(Traced.class));
+                    if (! methods.isEmpty())  {
                         proxyBean = Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class[]{ type },
                                 (proxy, method, args) -> {
                                     Object result = Reflect.invoke(method, bean, args);
@@ -581,7 +578,8 @@ public class CommandBus {
 
     static public void unwWire() {
 
-        List<Field> fields0 = instance.aggregateClasses.stream().flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
+        List<Field> fields0 = instance.aggregateClasses.stream()
+                .flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
         List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream().flatMap(Collection::stream)
                 .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
         List<Field> fields2 = instance.eventBus.getFinalRouters().stream()
