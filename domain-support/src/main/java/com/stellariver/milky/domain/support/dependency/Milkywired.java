@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 
 /**
- * This Milk
+ * This annotation like @Autowired in Spring,
  *
  * @author houchuang
  */
@@ -15,5 +15,11 @@ import java.lang.annotation.*;
 public @interface Milkywired {
 
     String name() default "";
+
+    /**
+     * Declares whether the annotated dependency is required.
+     * <p>Defaults to {@code true}.
+     */
+    boolean required() default true;
 
 }

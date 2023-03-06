@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author houchuang
@@ -41,6 +42,17 @@ public class BeanUtil {
     public static Object getBean(String beanName) {
         SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBean(beanName);
+    }
+
+
+    public static <T> Optional<T> getBeanOptional(Class<T> requiredType) {
+        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
+        return beanLoader.getBeanOptional(requiredType);
+    }
+
+    public static Optional<Object> getBeanOptional(String beanName) {
+        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
+        return beanLoader.getBeanOptional(beanName);
     }
 
     @SuppressWarnings("unchecked")

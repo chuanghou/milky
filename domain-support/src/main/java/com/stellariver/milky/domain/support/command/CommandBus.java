@@ -32,8 +32,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONCURRENCY_VIOLATION;
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
 import static com.stellariver.milky.domain.support.command.HandlerType.*;
 
 /**
@@ -65,16 +64,8 @@ public class CommandBus {
 
 
     private static final Predicate<Field> MILKY_WIRED_FIELD =
-            field -> {
-                try {
-                    field.setAccessible(true);
-                    return Modifier.isStatic(field.getModifiers())
-                            && field.get(null) == null
-                            && field.getType().isInterface();
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            };
+            field -> Modifier.isStatic(field.getModifiers())
+                    && field.getType().isInterface();
 
 
     volatile private static CommandBus instance;
@@ -521,6 +512,7 @@ public class CommandBus {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     static public void wire() {
 
         List<Field> fields0 = instance.aggregateClasses.stream()
@@ -535,41 +527,43 @@ public class CommandBus {
                 .peek(field -> SysException.falseThrow(MILKY_WIRED_FIELD.test(field), CONFIG_ERROR.message(field.getName())))
                 .forEach(field -> {
                     Class<?> type = field.getType();
-                    String name = field.getAnnotation(Milkywired.class).name();
-                    Object bean;
+                    Milkywired annotation = field.getAnnotation(Milkywired.class);
+                    String name = annotation.name();
+                    Optional<Object> beanOptional;
                     if (StringUtils.isNotBlank(name)) {
-                        bean = BeanUtil.getBean(name);
+                        beanOptional = BeanUtil.getBeanOptional(name);
                     } else {
-                        bean = BeanUtil.getBean(type);
-                        if (bean != null) {
-                            boolean fit = type.isAssignableFrom(bean.getClass());
+                        beanOptional = (Optional<Object>) BeanUtil.getBeanOptional(type);
+                        if (beanOptional.isPresent()) {
+                            boolean fit = type.isAssignableFrom(beanOptional.get().getClass());
                             SysException.falseThrow(fit, CONFIG_ERROR.message("found bean "));
                         }
                     }
 
-                    if (bean == null) {
-                        throw new SysException(field.getName());
-                    }
+                    SysException.trueThrow(annotation.required() && !beanOptional.isPresent(), CONFIG_ERROR);
 
-                    Object proxyBean = bean;
-                    List<Method> methods = Collect.filter(type.getMethods(), m -> m.isAnnotationPresent(Traced.class));
-                    if (! methods.isEmpty())  {
-                        proxyBean = Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class[]{ type },
-                                (proxy, method, args) -> {
-                                    Object result = Reflect.invoke(method, bean, args);
-                                    Traced traced = method.getAnnotation(Traced.class);
-                                    if (traced != null) {
-                                        List<Trace> traces = THREAD_LOCAL_CONTEXT.get().getTraces();
-                                        Trace trace = Trace.builder().bean(bean).method(method).params(args).result(result).build();
-                                        traces.add(trace);
-                                    }
-                                    return result;
-                                });
+                    if (beanOptional.isPresent()) {
+                        List<Method> methods = Collect.filter(type.getMethods(), m -> m.isAnnotationPresent(Traced.class));
+                        Object bean = beanOptional.get();
+                        Object proxyBean = bean;
+                        if (!methods.isEmpty())  {
+                            proxyBean = Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class[]{ type },
+                                    (proxy, method, args) -> {
+                                        Object result = Reflect.invoke(method, bean, args);
+                                        Traced traced = method.getAnnotation(Traced.class);
+                                        if (traced != null) {
+                                            List<Trace> traces = THREAD_LOCAL_CONTEXT.get().getTraces();
+                                            Trace trace = Trace.builder().bean(bean).method(method).params(args).result(result).build();
+                                            traces.add(trace);
+                                        }
+                                        return result;
+                                    });
+                        }
+                        try {
+                            Reflect.setAccessible(field);
+                            field.set(null, proxyBean);
+                        } catch (IllegalAccessException ignore) {}
                     }
-                    try {
-                        Reflect.setAccessible(field);
-                        field.set(null, proxyBean);
-                    } catch (IllegalAccessException ignore) {}
 
                 });
 
