@@ -88,6 +88,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!--conflict start need to be update dependencies-->
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>3.3</version>
+            </dependency>
+
             <!--utils start need to be update dependencies-->
             <dependency>
                 <groupId>com.lmax</groupId>
@@ -149,7 +156,6 @@
                 <artifactId>atlassian-util-concurrent</artifactId>
                 <version>4.0.1</version>
             </dependency>
-
             <!--utils end-->
 
             <!-- code generation start-->
