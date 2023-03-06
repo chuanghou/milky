@@ -531,11 +531,11 @@ public class CommandBus {
                 .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
 
         Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
-                .filter(field -> field.isAnnotationPresent(MilkyWired.class))
+                .filter(field -> field.isAnnotationPresent(Milkywired.class))
                 .peek(field -> SysException.falseThrow(MILKY_WIRED_FIELD.test(field), CONFIG_ERROR.message(field.getName())))
                 .forEach(field -> {
                     Class<?> type = field.getType();
-                    String name = field.getAnnotation(MilkyWired.class).name();
+                    String name = field.getAnnotation(Milkywired.class).name();
                     Object bean;
                     if (StringUtils.isNotBlank(name)) {
                         bean = BeanUtil.getBean(name);
@@ -586,7 +586,7 @@ public class CommandBus {
                 .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
 
         Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
-                .filter(field -> field.isAnnotationPresent(MilkyWired.class))
+                .filter(field -> field.isAnnotationPresent(Milkywired.class))
                 .forEach(field -> {
                     field.setAccessible(true);
                     try {

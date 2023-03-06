@@ -13,11 +13,10 @@ import com.stellariver.milky.demo.domain.item.event.ItemInventoryInitEvent;
 import com.stellariver.milky.demo.domain.item.event.ItemTitleUpdatedEvent;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
-import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.dependency.MilkyWired;
+import com.stellariver.milky.domain.support.dependency.Milkywired;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
@@ -47,7 +46,7 @@ public class Item extends AggregateRoot {
     ChannelEnum channelEnum;
 
 
-    @MilkyWired
+    @Milkywired
     static UserInfoRepository userInfoRepository;
 
     protected Item(ItemCreateCommand command, Context context) {

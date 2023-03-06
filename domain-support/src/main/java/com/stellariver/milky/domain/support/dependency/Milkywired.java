@@ -2,15 +2,18 @@ package com.stellariver.milky.domain.support.dependency;
 
 import java.lang.annotation.*;
 
+
 /**
- *
+ * This Milk
  *
  * @author houchuang
  */
 
 @Documented
-@Target(ElementType.METHOD)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Traced {
+public @interface Milkywired {
+
+    String name() default "";
 
 }
