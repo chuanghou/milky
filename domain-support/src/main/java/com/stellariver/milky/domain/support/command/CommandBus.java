@@ -3,13 +3,12 @@ package com.stellariver.milky.domain.support.command;
 import com.stellariver.milky.common.tool.common.*;
 import com.stellariver.milky.common.tool.exception.BizException;
 import com.stellariver.milky.common.tool.exception.SysException;
-import com.stellariver.milky.common.tool.slambda.BiSFunction;
-import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.Typed;
+import com.stellariver.milky.domain.support.dependency.Traced;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.context.Context;
@@ -23,18 +22,18 @@ import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONCURRENCY_VIOLATION;
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
-import static com.stellariver.milky.domain.support.ErrorEnums.REPEAT_DEPENDENCY_KEY;
 import static com.stellariver.milky.domain.support.command.HandlerType.*;
 
 /**
@@ -63,6 +62,20 @@ public class CommandBus {
                     && Command.class.isAssignableFrom(method.getParameterTypes()[0])
                     && AggregateRoot.class.isAssignableFrom(method.getParameterTypes()[1])
                     && method.getParameterTypes()[2] == Context.class;
+
+
+    private static final Predicate<Field> MILKY_WIRED_FIELD =
+            field -> {
+                try {
+                    field.setAccessible(true);
+                    return Modifier.isStatic(field.getModifiers())
+                            && field.get(null) == null
+                            && field.getType().isInterface();
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+
 
     volatile private static CommandBus instance;
 
@@ -94,6 +107,8 @@ public class CommandBus {
 
     private final ThreadLocal<Boolean> memoryTxTL = ThreadLocal.withInitial(() -> false);
 
+    private final Set<Class<? extends AggregateRoot>> aggregateClasses;
+
     @SuppressWarnings("unused")
     public CommandBus(MilkySupport milkySupport, EventBus eventBus, MilkyConfiguration milkyConfiguration) {
 
@@ -104,6 +119,7 @@ public class CommandBus {
         this.eventBus = eventBus;
         this.reflections = milkySupport.getReflections();
         this.beanLoader = milkySupport.getBeanLoader();
+        this.aggregateClasses = this.reflections.getSubTypesOf(AggregateRoot.class);
         prepareCommandHandlers();
         prepareRepositories(milkySupport);
         prepareDAOWrappers(milkySupport);
@@ -193,8 +209,7 @@ public class CommandBus {
 
     @SuppressWarnings("unchecked")
     private void prepareCommandHandlers() {
-        Set<Class<? extends AggregateRoot>> classes = reflections.getSubTypesOf(AggregateRoot.class);
-        classes.forEach(clazz -> {
+        aggregateClasses.forEach(clazz -> {
             List<Method> methods = Arrays.stream(clazz.getDeclaredMethods())
                     .filter(m -> m.isAnnotationPresent(MethodHandler.class))
                     .filter(m -> {
@@ -418,11 +433,10 @@ public class CommandBus {
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
-                Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
-                        .message(command).dependencies(context.getDependencies())
-                        .build();
+                com.stellariver.milky.domain.support.base.Record record = com.stellariver.milky.domain.support.base.Record.builder().beanName(interceptor.getClass().getSimpleName())
+                        .message(command).traces(context.getTraces()).build();
                 context.record(record);
-                context.clearDependencies();
+                context.clearTraces();
             });
 
             // // run command handlers
@@ -441,10 +455,9 @@ public class CommandBus {
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
                 interceptor.invoke(command, aggregate, context);
                 Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
-                        .message(command).dependencies(context.getDependencies())
-                        .build();
+                        .message(command).traces(context.getTraces()).build();
                 context.record(record);
-                context.clearDependencies();
+                context.clearTraces();
             });
 
             // run command handlers
@@ -459,8 +472,7 @@ public class CommandBus {
         }
 
         Record record = Record.builder().beanName(aggregate.getClass().getSimpleName()).message(command)
-                .dependencies(context.getDependencies())
-                .build();
+                .traces(context.getTraces()).build();
         context.record(record);
 
         // process context cache for aggregate
@@ -509,14 +521,68 @@ public class CommandBus {
         List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
-            record = Record.builder().beanName(interceptor.getClass().getSimpleName()).message(command)
-                    .dependencies(context.getDependencies())
-                    .build();
+            record = Record.builder().beanName(interceptor.getClass().getSimpleName()).message(command).traces(context.getTraces()).build();
             context.record(record);
-            context.clearDependencies();
+            context.clearTraces();
         }
 
         return result;
+    }
+
+    static public void wire() {
+
+        List<Field> fields0 = instance.aggregateClasses.stream().flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
+        List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream().flatMap(Collection::stream)
+                .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
+        List<Field> fields2 = instance.eventBus.getFinalRouters().stream()
+                .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
+
+        Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
+                .filter(field -> field.isAnnotationPresent(MilkyWired.class))
+                .peek(field -> SysException.falseThrow(MILKY_WIRED_FIELD.test(field), CONFIG_ERROR.message(field.getName())))
+                .forEach(field -> {
+                    Class<?> type = field.getType();
+                    String name = field.getAnnotation(MilkyWired.class).name();
+                    Object bean;
+                    if (StringUtils.isBlank(name)) {
+                        bean = BeanUtil.getBean(type);
+                    } else {
+                        bean = BeanUtil.getBean(name);
+                        if (bean != null) {
+                            boolean fit = type.isAssignableFrom(bean.getClass());
+                            SysException.falseThrow(fit, CONFIG_ERROR.message("found bean "));
+                        }
+                    }
+
+                    if (bean == null) {
+                        throw new SysException(field.getName());
+                    }
+
+                    Object proxyBean;
+                    List<Method> methods = Arrays.stream(type.getMethods())
+                            .filter(m -> m.isAnnotationPresent(Traced.class)).collect(Collectors.toList());
+                    if (methods.isEmpty()) {
+                        proxyBean = bean;
+                    } else {
+                        proxyBean = Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class[]{ type },
+                                (proxy, method, args) -> {
+                                    Object result = Reflect.invoke(method, bean, args);
+                                    Traced traced = method.getAnnotation(Traced.class);
+                                    if (traced != null) {
+                                        List<Trace> traces = THREAD_LOCAL_CONTEXT.get().getTraces();
+                                        Trace trace = Trace.builder().bean(bean).method(method).params(args).result(result).build();
+                                        traces.add(trace);
+                                    }
+                                    return result;
+                                });
+                    }
+                    try {
+                        field.setAccessible(true);
+                        field.set(null, proxyBean);
+                    } catch (IllegalAccessException ignore) {}
+
+                });
+
     }
 
     @Data
@@ -538,25 +604,6 @@ public class CommandBus {
 
     }
 
-    static private final Map<Class<?>, Object> map = new ConcurrentHashMap<>();
 
-    @SuppressWarnings("unchecked")
-    static public <T, U, R> R record(Class<? extends Typed<R>> key, BiSFunction<T, U, R> function, U u) {
-        Class<?> fClass = function.getClass();
-        T proxyInstance = (T) map.get(fClass);
-        if (proxyInstance == null) {
-            Class<? extends T> instantiatedClass = (Class<? extends T>) SLambda.extract(function).getInstantiatedClass();
-            T t = BeanUtil.getBean(instantiatedClass);
-            proxyInstance = (T) Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[] {instantiatedClass},
-                    (proxy, method, args) -> {
-                        Object result = Reflect.invoke(method, t, args);
-                        Context context = CommandBus.THREAD_LOCAL_CONTEXT.get();
-                        SysException.trueThrow(context.getDependencies().containsKey(key), REPEAT_DEPENDENCY_KEY.message(key));
-                        context.getDependencies().put(key, result);
-                        return result;
-                    });
-            map.put(fClass, proxyInstance);
-        }
-        return function.apply(proxyInstance, u);
-    }
+
 }

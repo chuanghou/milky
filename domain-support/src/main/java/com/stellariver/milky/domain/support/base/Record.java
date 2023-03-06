@@ -1,13 +1,13 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.stellariver.milky.domain.support.dependency.Trace;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author houchuang
@@ -24,6 +24,6 @@ public class Record {
 
     List<Message> messages;
 
-    Map<Class<? extends Typed<?>>, Object> dependencies;
+    List<Trace> traces;
 
 }

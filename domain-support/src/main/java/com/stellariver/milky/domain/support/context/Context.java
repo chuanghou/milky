@@ -3,26 +3,19 @@ package com.stellariver.milky.domain.support.context;
 
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysException;
-import com.stellariver.milky.common.tool.slambda.BiSFunction;
-import com.stellariver.milky.common.tool.slambda.SFunction;
-import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
+import com.stellariver.milky.domain.support.dependency.Trace;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.common.tool.common.BeanUtil;
 import lombok.Getter;
 import lombok.NonNull;
 
-import java.lang.reflect.Proxy;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.stellariver.milky.domain.support.ErrorEnums.REPEAT_DEPENDENCY_KEY;
 
 /**
  * @author houchuang
@@ -46,8 +39,8 @@ public class Context{
     private final Map<Class<? extends Typed<?>>, Object> parameters = new HashMap<>();
 
     private final Map<Class<? extends Typed<?>>, Object> metaData = new HashMap<>();
-
-    private final Map<Class<? extends Typed<?>>, Object> dependencies = new HashMap<>();
+    @Getter
+    private final List<Trace> traces = new ArrayList<>();
 
     private final List<Event> events = new ArrayList<>();
 
@@ -57,17 +50,8 @@ public class Context{
     @Getter
     private final List<Record> records = new ArrayList<>();
 
-    @SuppressWarnings("unchecked")
-    public <T> T getDependency(Class<? extends Typed<T>> key) {
-        return (T) dependencies.get(key);
-    }
-
-    public Map<Class<? extends Typed<?>>, Object> getDependencies() {
-        return new HashMap<>(dependencies);
-    }
-
-    public void clearDependencies() {
-        dependencies.clear();
+    public void clearTraces() {
+        traces.clear();
     }
 
     public <T> void addMetaData(Class<? extends Typed<T>> key, T value) {

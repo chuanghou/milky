@@ -10,6 +10,7 @@ import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.common.tool.common.BeanLoader;
 import lombok.Data;
+import lombok.Getter;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
@@ -45,8 +46,10 @@ public class EventBus {
         return actualTypeArgument instanceof Class<?> && Event.class.isAssignableFrom((Class<?>)actualTypeArgument);
     };
 
+    @Getter
     private final Map<Class<? extends Event>, List<Router>> eventRouterMap = new HashMap<>();
 
+    @Getter
     private final List<FinalRouter<Class<? extends Event>>> finalRouters = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
@@ -107,10 +110,10 @@ public class EventBus {
             Record record = Record.builder()
                     .beanName(router.getClass().getSimpleName())
                     .message(event)
-                    .dependencies(context.getDependencies())
+                    .traces(context.getTraces())
                     .build();
             context.record(record);
-            context.clearDependencies();
+            context.clearTraces();
         });
     }
 
@@ -175,12 +178,10 @@ public class EventBus {
             } else {
                 Reflect.invoke(method, bean, events, context);
             }
-            Record record = Record.builder()
-                    .beanName(this.getClass().getSimpleName()).messages(new ArrayList<>(events))
-                    .dependencies(context.getDependencies())
-                    .build();
+            Record record = Record.builder().beanName(this.getClass().getSimpleName())
+                    .messages(new ArrayList<>(events)).traces(context.getTraces()).build();
             context.record(record);
-            context.clearDependencies();
+            context.clearTraces();
         }
     }
 

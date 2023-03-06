@@ -17,6 +17,7 @@ import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.context.Context;
+import com.stellariver.milky.domain.support.dependency.MilkyWired;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
@@ -45,6 +46,10 @@ public class Item extends AggregateRoot {
     String storeCode;
     ChannelEnum channelEnum;
 
+
+    @MilkyWired
+    static UserInfoRepository userInfoRepository;
+
     protected Item(ItemCreateCommand command, Context context) {
         this.itemId = command.getItemId();
         this.title = command.getTitle();
@@ -52,13 +57,13 @@ public class Item extends AggregateRoot {
         this.amount = command.getAmount();
         this.storeCode = command.getStoreCode();
         this.channelEnum = command.getChannelEnum();
-        UserInfo userInfo = CommandBus.record(USER_INFO.class, UserInfoRepository::getUserInfo, this.getUserId());
-        this.setUserName(userInfo.getUserName());
     }
 
     @ConstructorHandler
     static public Item build(ItemCreateCommand command, Context context) {
         Item item = new Item(command, context);
+        UserInfo userInfo = userInfoRepository.getUserInfo(item.getUserId());
+        item.setUserName(userInfo.getUserName());
         ItemCreatedEvent event = ItemCreatedEvent.builder().itemId(item.getItemId()).title(item.getTitle()).build();
         context.publish(event);
         return item;

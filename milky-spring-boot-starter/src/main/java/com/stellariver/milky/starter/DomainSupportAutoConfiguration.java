@@ -29,6 +29,7 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -157,7 +158,11 @@ public class DomainSupportAutoConfiguration {
         Optional.ofNullable(traceIdGetter).ifPresent(Result::setTraceIdGetter);
         BeanUtil.setBeanLoader(beanLoader);
         return new DummyStaticSupport();
+    }
 
+    @Bean
+    public ApplicationRunner milkyApplicationRunner() {
+        return args -> CommandBus.wire();
     }
 
 }
