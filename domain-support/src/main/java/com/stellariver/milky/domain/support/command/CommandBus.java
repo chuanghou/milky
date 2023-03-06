@@ -524,7 +524,8 @@ public class CommandBus {
 
         Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
                 .filter(field -> field.isAnnotationPresent(Milkywired.class))
-                .peek(field -> SysException.falseThrow(MILKY_WIRED_FIELD.test(field), CONFIG_ERROR.message(field.getName())))
+                .peek(field -> SysException.falseThrow(MILKY_WIRED_FIELD.test(field),
+                        FIELD_FORMAT_WRONG.params("field", field.getName())))
                 .forEach(field -> {
                     Class<?> type = field.getType();
                     Milkywired annotation = field.getAnnotation(Milkywired.class);

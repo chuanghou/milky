@@ -45,8 +45,8 @@ public class ErrorEnumsBase {
     @Message("参数为空")
     public static ErrorEnum PARAM_IS_NULL;
 
-    @Message("DO对象成员不允许为NULL，请使用特殊值代替空语义")
-    public static ErrorEnum FIELD_IS_NULL;
+    @Message("使用Milkywired字段$field$格式不正确")
+    public static ErrorEnum FIELD_FORMAT_WRONG;
 
     @Message("并发操作失败")
     public static ErrorEnum CONCURRENCY_VIOLATION;

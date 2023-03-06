@@ -43,6 +43,12 @@ public class ErrorEnum {
         return new ErrorEnum(code, StringSubstitutor.replace(message, params), Optional.ofNullable(params).orElseGet(HashMap::new));
     }
 
+    public ErrorEnum params(String name, Object object) {
+        Map<String, Object> params = new HashMap<>();
+        params.put(name, object);
+        return new ErrorEnum(code, StringSubstitutor.replace(message, params), params);
+    }
+
     @Override
     public String toString() {
         return String.format("code: %s, message: %s", code, message);
