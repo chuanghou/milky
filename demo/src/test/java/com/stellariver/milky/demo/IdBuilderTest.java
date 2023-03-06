@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class IdBuilderTest {
+public class IdBuilderTest{
 
     @Autowired
     IdBuilder idBuilder;

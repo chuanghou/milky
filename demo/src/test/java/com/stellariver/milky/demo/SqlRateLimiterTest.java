@@ -13,6 +13,7 @@ import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -63,8 +64,8 @@ public class SqlRateLimiterTest {
 
     }
 
-    @AfterEach
-    public void reset() {
+    @AfterAll
+    static public void reset() {
         CommandBus.reset();
     }
 

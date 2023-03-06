@@ -27,7 +27,7 @@ import static com.stellariver.milky.demo.basic.TypedEnums.*;
 
 @CustomLog
 @SpringBootTest
-public class MemoryTxTest {
+public class MemoryTxTest{
 
     @Autowired
     InventoryRepository inventoryRepository;

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
-public class ValidEntityTest {
+public class ValidEntityTest{
 
 
     @Test

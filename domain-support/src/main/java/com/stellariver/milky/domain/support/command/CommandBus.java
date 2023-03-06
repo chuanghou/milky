@@ -281,7 +281,10 @@ public class CommandBus {
     }
 
     static public void reset() {
-        CommandBus.instance = null;
+        if (CommandBus.instance != null) {
+            CommandBus.unwWire();
+            CommandBus.instance = null;
+        }
     }
 
     /**
@@ -570,6 +573,26 @@ public class CommandBus {
                         field.set(null, proxyBean);
                     } catch (IllegalAccessException ignore) {}
 
+                });
+
+    }
+
+
+    static public void unwWire() {
+
+        List<Field> fields0 = instance.aggregateClasses.stream().flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
+        List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream().flatMap(Collection::stream)
+                .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
+        List<Field> fields2 = instance.eventBus.getFinalRouters().stream()
+                .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
+
+        Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
+                .filter(field -> field.isAnnotationPresent(MilkyWired.class))
+                .forEach(field -> {
+                    field.setAccessible(true);
+                    try {
+                        field.set(null, null);
+                    } catch (IllegalAccessException ignore) {}
                 });
 
     }

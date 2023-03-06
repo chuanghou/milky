@@ -57,13 +57,13 @@ public class Item extends AggregateRoot {
         this.amount = command.getAmount();
         this.storeCode = command.getStoreCode();
         this.channelEnum = command.getChannelEnum();
+        UserInfo userInfo = userInfoRepository.getUserInfo(command.getUserId());
+        this.userName = userInfo.getUserName();
     }
 
     @ConstructorHandler
     static public Item build(ItemCreateCommand command, Context context) {
         Item item = new Item(command, context);
-        UserInfo userInfo = userInfoRepository.getUserInfo(item.getUserId());
-        item.setUserName(userInfo.getUserName());
         ItemCreatedEvent event = ItemCreatedEvent.builder().itemId(item.getItemId()).title(item.getTitle()).build();
         context.publish(event);
         return item;

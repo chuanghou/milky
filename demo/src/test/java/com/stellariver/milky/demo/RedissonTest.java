@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.concurrent.CompletableFuture;
 
 @SpringBootTest
-public class RedissonTest {
+public class RedissonTest{
 
     @Autowired
     RedissonClient redissonClient;
