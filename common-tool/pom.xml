@@ -79,6 +79,10 @@
             <artifactId>aspectjweaver</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>reflectasm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <optional>true</optional>
@@ -92,14 +96,6 @@
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>reflectasm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.atlassian.util.concurrent</groupId>
-            <artifactId>atlassian-util-concurrent</artifactId>
         </dependency>
     </dependencies>
 

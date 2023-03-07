@@ -13,7 +13,7 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum MERGE_EXCEPTION;
 
-    public static ErrorEnum NOT_ALLOW_LOST ;
+    public static ErrorEnum NOT_ALLOW_LOST;
 
     @Message("系统累瘫了请稍后再试")
     public static ErrorEnum OPTIMISTIC_COMPETITION;
@@ -61,13 +61,15 @@ public class ErrorEnumsBase {
                 if (o != null) {
                     continue;
                 }
-            } catch (Throwable ignore) {}
+            } catch (Throwable ignore) {
+            }
             String code = field.getName();
             String message = Kit.op(field.getAnnotation(Message.class)).map(Message::value).orElse("系统繁忙请稍后再试");
             ErrorEnum errorEnum = new ErrorEnum(code, message, null);
             try {
                 field.set(null, errorEnum);
-            } catch (Throwable ignore) {}
+            } catch (Throwable ignore) {
+            }
         }
     }
 }

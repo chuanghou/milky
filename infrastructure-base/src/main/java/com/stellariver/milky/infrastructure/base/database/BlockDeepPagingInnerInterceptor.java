@@ -5,7 +5,6 @@ import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import com.github.vertical_blank.sqlformatter.languages.Dialect;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.BizEx;
-import com.stellariver.milky.infrastructure.base.ErrorEnums;
 import lombok.CustomLog;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
@@ -17,6 +16,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.DEEP_PAGING;
 
 /**
  * 防止深度分页插件，默认不阻断，分页限制1000条
@@ -78,9 +79,9 @@ public class BlockDeepPagingInnerInterceptor implements InnerInterceptor {
             if (max >= deepLimit) {
                 originalSql = SqlFormatter.of(Dialect.MySql).format(originalSql);
                 String message = String.format("fatal error, slow sql possible: \n%s ", originalSql);
-                log.error(message);
+                log.arg0(message).error(DEEP_PAGING.getCode());
                 customStrategyWhenFail(originalSql);
-                BizEx.trueThrow(block, ErrorEnums.DEEP_PAGING.message(message));
+                BizEx.trueThrow(block, DEEP_PAGING.message(message));
             }
         }
     }

@@ -1,27 +1,28 @@
 package com.stellariver.milky.domain.support.command;
 
-import com.stellariver.milky.common.tool.common.*;
+import com.stellariver.milky.common.tool.common.BeanLoader;
+import com.stellariver.milky.common.tool.common.BeanUtil;
+import com.stellariver.milky.common.tool.common.Kit;
+import com.stellariver.milky.common.tool.common.UK;
 import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
-import com.stellariver.milky.domain.support.base.Typed;
-import com.stellariver.milky.domain.support.dependency.Traced;
-import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.*;
-import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
-import com.stellariver.milky.domain.support.dependency.DaoAdapter;
-import com.stellariver.milky.domain.support.dependency.TraceRepository;
-import lombok.*;
+import com.stellariver.milky.domain.support.invocation.InvokeTrace;
+import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
+import lombok.CustomLog;
+import lombok.Data;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
@@ -33,7 +34,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
-import static com.stellariver.milky.domain.support.command.HandlerType.*;
+import static com.stellariver.milky.domain.support.command.HandlerType.CONSTRUCTOR_HANDLER;
+import static com.stellariver.milky.domain.support.command.HandlerType.INSTANCE_HANDLER;
 
 /**
  * @author houchuang
@@ -280,8 +282,9 @@ public class CommandBus {
 
     /**
      * 针对应用层调用的命令总线接口
+     *
      * @param command 外部命令
-     * @param <T> 命令泛型
+     * @param <T>     命令泛型
      * @return 总结结果
      */
     private <T extends Command> Object doSend(T command, Map<Class<? extends Typed<?>>, Object> parameters,
@@ -400,7 +403,7 @@ public class CommandBus {
         return result;
     }
 
-    private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
+    private <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         DaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
         SysEx.nullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
 
@@ -411,7 +414,7 @@ public class CommandBus {
         Object result;
         AggregateRoot aggregate;
         AggregateStatus aggregateStatus = AggregateStatus.KEEP;
-        if (commandHandler.handlerType == CONSTRUCTOR_HANDLER){
+        if (commandHandler.handlerType == CONSTRUCTOR_HANDLER) {
 
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
@@ -429,7 +432,7 @@ public class CommandBus {
             aggregateStatus = AggregateStatus.CREATE;
             result = aggregate;
 
-        } else if (commandHandler.handlerType == INSTANCE_HANDLER){
+        } else if (commandHandler.handlerType == INSTANCE_HANDLER) {
 
             // from db or context get aggregate
             aggregate = daoAdapter.getByAggregateId(aggregateId, context);
@@ -483,8 +486,8 @@ public class CommandBus {
             } else {
                 Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
             }
-             // if memoryTx is true, the created or updated aggregate DO will be saved in cache
-             // or else these DO wil save in DB immediately
+            // if memoryTx is true, the created or updated aggregate DO will be saved in cache
+            // or else these DO wil save in DB immediately
             if (aggregateStatus == AggregateStatus.CREATE) {
                 if (memoryTx) {
                     context.getCreatedAggregateIds().computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
@@ -522,50 +525,52 @@ public class CommandBus {
         List<Field> fields2 = instance.eventBus.getFinalRouters().stream()
                 .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
 
-        Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
+        List<Field> field1 = Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
                 .filter(field -> field.isAnnotationPresent(Milkywired.class))
                 .peek(field -> SysEx.falseThrow(MILKY_WIRED_FIELD.test(field), FIELD_FORMAT_WRONG.params("field", field.getName())))
-                .forEach(field -> {
-                    Class<?> type = field.getType();
-                    Milkywired annotation = field.getAnnotation(Milkywired.class);
-                    String name = annotation.name();
-                    Optional<Object> beanOptional;
-                    if (StringUtils.isNotBlank(name)) {
-                        beanOptional = BeanUtil.getBeanOptional(name);
-                    } else {
-                        beanOptional = (Optional<Object>) BeanUtil.getBeanOptional(type);
-                        if (beanOptional.isPresent()) {
-                            boolean fit = type.isAssignableFrom(beanOptional.get().getClass());
-                            SysEx.falseThrow(fit, CONFIG_ERROR.message("found bean "));
-                        }
-                    }
+                .collect(Collectors.toList());
+        field1.forEach(field -> {
+            Class<?> type = field.getType();
+            Milkywired annotation = field.getAnnotation(Milkywired.class);
+            String name = annotation.name();
+            Optional<Object> beanOptional;
+            if (StringUtils.isNotBlank(name)) {
+                beanOptional = BeanUtil.getBeanOptional(name);
+            } else {
+                beanOptional = (Optional<Object>) BeanUtil.getBeanOptional(type);
+                if (beanOptional.isPresent()) {
+                    boolean fit = type.isAssignableFrom(beanOptional.get().getClass());
+                    SysEx.falseThrow(fit, CONFIG_ERROR.message("found bean "));
+                }
+            }
 
-                    SysEx.trueThrow(annotation.required() && !beanOptional.isPresent(), MILKY_WIRED_FAILURE.message(name));
+            SysEx.trueThrow(annotation.required() && !beanOptional.isPresent(), MILKY_WIRED_FAILURE.message(name));
 
-                    if (beanOptional.isPresent()) {
-                        List<Method> methods = Collect.filter(type.getMethods(), m -> m.isAnnotationPresent(Traced.class));
-                        Object bean = beanOptional.get();
-                        Object proxyBean = bean;
-                        if (!methods.isEmpty())  {
-                            proxyBean = Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class[]{ type },
-                                    (proxy, method, args) -> {
-                                        Object result = Reflect.invoke(method, bean, args);
-                                        Traced traced = method.getAnnotation(Traced.class);
-                                        if (traced != null) {
-                                            List<Trace> traces = THREAD_LOCAL_CONTEXT.get().getTraces();
-                                            Trace trace = Trace.builder().bean(bean).method(method).params(args).result(result).build();
-                                            traces.add(trace);
-                                        }
-                                        return result;
-                                    });
-                        }
-                        try {
-                            Reflect.setAccessible(field);
-                            field.set(null, proxyBean);
-                        } catch (IllegalAccessException ignore) {}
-                    }
+            if (beanOptional.isPresent()) {
+                List<Method> methods = Collect.filter(type.getMethods(), m -> m.isAnnotationPresent(Traced.class));
+                Object bean = beanOptional.get();
+                Object proxyBean = bean;
+                if (!methods.isEmpty()) {
+                    proxyBean = Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class[]{type},
+                            (proxy, method, args) -> {
+                                Object result = Reflect.invoke(method, bean, args);
+                                Traced traced = method.getAnnotation(Traced.class);
+                                if (traced != null) {
+                                    List<Trace> traces = THREAD_LOCAL_CONTEXT.get().getTraces();
+                                    Trace trace = Trace.builder().bean(bean).method(method).params(args).result(result).build();
+                                    traces.add(trace);
+                                }
+                                return result;
+                            });
+                }
+                try {
+                    Reflect.setAccessible(field);
+                    field.set(null, proxyBean);
+                } catch (IllegalAccessException ignore) {
+                }
+            }
 
-                });
+        });
 
     }
 
@@ -585,7 +590,8 @@ public class CommandBus {
                     field.setAccessible(true);
                     try {
                         field.set(null, null);
-                    } catch (IllegalAccessException ignore) {}
+                    } catch (IllegalAccessException ignore) {
+                    }
                 });
 
     }
@@ -608,7 +614,6 @@ public class CommandBus {
         }
 
     }
-
 
 
 }
