@@ -97,21 +97,6 @@ public class IdBuilderImpl implements IdBuilder {
         }while (true);
     }
 
-
-    @Override
-    public void reset(String nameSpace) {
-        int count;
-        int times = 0;
-        do {
-            LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(IdBuilderDO::getNameSpace, nameSpace);
-            IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
-            idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
-            count = idBuilderMapper.updateById(idBuilderDO);
-            trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
-        }while (count < 1);
-    }
-
     private void loadSectionFromDB(String namespace) {
         if (null == section) {
             synchronized (this) {
@@ -131,6 +116,20 @@ public class IdBuilderImpl implements IdBuilder {
                 }
             }
         }
+    }
+
+    @Override
+    public void reset(String nameSpace) {
+        int count;
+        int times = 0;
+        do {
+            LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(IdBuilderDO::getNameSpace, nameSpace);
+            IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
+            idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
+            count = idBuilderMapper.updateById(idBuilderDO);
+            trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
+        }while (count < 1);
     }
 
     private Pair<AtomicLong, Long> doLoadSectionFromDB(String namespace) {
