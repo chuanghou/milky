@@ -74,7 +74,6 @@ public class IdBuilderImpl implements IdBuilder {
     }
 
 
-    static private CompletableFuture<Void> future;
     @Override
     @SneakyThrows
     public Long get(String nameSpace) {
@@ -90,9 +89,9 @@ public class IdBuilderImpl implements IdBuilder {
             }
             if (section != nextSection) {
                 section = nextSection;
-                future = CompletableFuture.runAsync(() -> loadNextSectionFromDB(nameSpace), executor);
+                CompletableFuture.runAsync(() -> loadNextSectionFromDB(nameSpace), executor);
             } else {
-                future.get();
+                loadNextSectionFromDB(nameSpace);
             }
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
