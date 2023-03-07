@@ -40,6 +40,7 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- spring  -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -47,6 +48,20 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
+            <!-- code generation -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${org.mapstruct.version}</version>
+            </dependency>
+
+            <!-- milky modules -->
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
                 <artifactId>spring-partner</artifactId>
@@ -86,13 +101,6 @@
                 <groupId>com.stellariver.milky</groupId>
                 <artifactId>milky-spring-boot-starter</artifactId>
                 <version>${revision}</version>
-            </dependency>
-
-            <!--conflict start need to be update dependencies-->
-            <dependency>
-                <groupId>org.objenesis</groupId>
-                <artifactId>objenesis</artifactId>
-                <version>3.3</version>
             </dependency>
 
             <!--utils start need to be update dependencies-->
@@ -151,20 +159,16 @@
                 <artifactId>resilience4j-circuitbreaker</artifactId>
                 <version>1.3.1</version>
             </dependency>
-            <!--utils end-->
-
-            <!-- code generation start-->
             <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>3.3</version>
             </dependency>
             <dependency>
-                <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct</artifactId>
-                <version>${org.mapstruct.version}</version>
+                <groupId>com.github.vertical-blank</groupId>
+                <artifactId>sql-formatter</artifactId>
+                <version>2.0.3</version>
             </dependency>
-            <!-- code generation end-->
 
             <!--infrastructure-base start-->
             <dependency>
@@ -201,11 +205,6 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-extension</artifactId>
                 <version>3.5.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.vertical-blank</groupId>
-                <artifactId>sql-formatter</artifactId>
-                <version>2.0.3</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
