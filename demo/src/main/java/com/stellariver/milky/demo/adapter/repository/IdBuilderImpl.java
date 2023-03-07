@@ -87,7 +87,7 @@ public class IdBuilderImpl implements IdBuilder {
             if (value < section.getRight()) {
                 return value;
             }
-            if (section != nextSection) {
+            if (Kit.notEq(section, nextSection)) {
                 section = nextSection;
                 CompletableFuture.runAsync(() -> loadNextSectionFromDB(nameSpace), executor);
             } else {
