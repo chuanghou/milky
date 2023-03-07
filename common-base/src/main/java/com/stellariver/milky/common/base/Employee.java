@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Employee implements Displayable {
+public class Employee {
 
     private String id;
 
@@ -24,10 +24,5 @@ public class Employee implements Displayable {
 
     public String getName() {
         return this.name;
-    }
-
-    @Override
-    public String getDisplay() {
-        return id + "_" + name;
     }
 }

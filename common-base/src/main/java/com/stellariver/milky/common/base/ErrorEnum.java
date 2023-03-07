@@ -36,11 +36,11 @@ public class ErrorEnum {
     }
 
     public ErrorEnum message(Object object) {
-        return new ErrorEnum(code, StringSubstitutor.replace(object, params), Optional.ofNullable(params).orElseGet(HashMap::new));
+        return new ErrorEnum(code, StringSubstitutor.replace(object, params), params);
     }
 
     public ErrorEnum params(Map<String, Object> params) {
-        return new ErrorEnum(code, StringSubstitutor.replace(message, params), Optional.ofNullable(params).orElseGet(HashMap::new));
+        return new ErrorEnum(code, StringSubstitutor.replace(message, params), params);
     }
 
     public ErrorEnum params(String name, Object object) {

@@ -2,7 +2,6 @@ package com.stellariver.milky.common.tool.util;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.stellariver.milky.common.tool.slambda.SetAccessibleAction;
-import io.atlassian.util.concurrent.CopyOnWriteMap;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.reflect.AccessibleObject;
