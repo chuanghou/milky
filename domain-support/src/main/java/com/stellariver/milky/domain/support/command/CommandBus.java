@@ -524,8 +524,7 @@ public class CommandBus {
 
         Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
                 .filter(field -> field.isAnnotationPresent(Milkywired.class))
-                .peek(field -> SysEx.falseThrow(MILKY_WIRED_FIELD.test(field),
-                        FIELD_FORMAT_WRONG.params("field", field.getName())))
+                .peek(field -> SysEx.falseThrow(MILKY_WIRED_FIELD.test(field), FIELD_FORMAT_WRONG.params("field", field.getName())))
                 .forEach(field -> {
                     Class<?> type = field.getType();
                     Milkywired annotation = field.getAnnotation(Milkywired.class);
@@ -541,7 +540,7 @@ public class CommandBus {
                         }
                     }
 
-                    SysEx.trueThrow(annotation.required() && !beanOptional.isPresent(), CONFIG_ERROR);
+                    SysEx.trueThrow(annotation.required() && !beanOptional.isPresent(), MILKY_WIRED_FAILURE.message(name));
 
                     if (beanOptional.isPresent()) {
                         List<Method> methods = Collect.filter(type.getMethods(), m -> m.isAnnotationPresent(Traced.class));

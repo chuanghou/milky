@@ -22,6 +22,8 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum CONFIG_ERROR;
 
+    public static ErrorEnum MILKY_WIRED_FAILURE;
+
     public static ErrorEnum LOAD_NEXT_SECTION_LIMIT;
 
     @Message("重复命名空间")
