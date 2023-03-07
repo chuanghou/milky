@@ -12,6 +12,7 @@ import com.stellariver.milky.domain.support.dependency.Sequence;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.dao.DuplicateKeyException;
@@ -23,6 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
 import static com.stellariver.milky.common.tool.exception.SysEx.*;
@@ -71,7 +73,10 @@ public class IdBuilderImpl implements IdBuilder {
         trueThrow(insert != 1, ErrorEnumsBase.SYSTEM_EXCEPTION);
     }
 
+
+    static private CompletableFuture<Void> future;
     @Override
+    @SneakyThrows
     public Long get(String nameSpace) {
         if (section == null) {
             loadSectionFromDB(nameSpace);
@@ -83,9 +88,13 @@ public class IdBuilderImpl implements IdBuilder {
             if (value < section.getRight()) {
                 return value;
             } else {
-                section = nextSection;
+                if (section != nextSection) {
+                    section = nextSection;
+                    future = CompletableFuture.runAsync(() -> loadNextSectionFromDB(nameSpace), executor);
+                } else {
+                    future.get();
+                }
             }
-            CompletableFuture.runAsync(() -> loadNextSectionFromDB(nameSpace), executor);
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
