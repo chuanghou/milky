@@ -16,6 +16,8 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
+    <!--怎么提高打包速度降低打包大小-->
+    <!--    https://zhuanlan.zhihu.com/p/570699053-->
 
     <dependencies>
         <dependency>
