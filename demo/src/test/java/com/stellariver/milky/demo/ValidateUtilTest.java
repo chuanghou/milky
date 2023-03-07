@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.validate.tool.OfEnum;
@@ -33,7 +33,7 @@ public class ValidateUtilTest {
             ex = throwable;
         }
         Assertions.assertNotNull(ex);
-        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertTrue(ex instanceof BizEx);
         Assertions.assertEquals(ex.getMessage(), "id 不能为空");
 
         ex = null;
@@ -43,7 +43,7 @@ public class ValidateUtilTest {
             ex = throwable;
         }
         Assertions.assertNotNull(ex);
-        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertTrue(ex instanceof BizEx);
         Assertions.assertEquals(ex.getMessage(), "id 不能为空");
 
 
@@ -54,7 +54,7 @@ public class ValidateUtilTest {
             ex = throwable;
         }
         Assertions.assertNotNull(ex);
-        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertTrue(ex instanceof BizEx);
         Assertions.assertTrue(ex.getMessage().contains(";"));
 
 
@@ -78,7 +78,7 @@ public class ValidateUtilTest {
             ex = throwable;
         }
         Assertions.assertNotNull(ex);
-        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertTrue(ex instanceof BizEx);
         Assertions.assertEquals(ex.getMessage(), "default");
 
         ex = null;
@@ -88,7 +88,7 @@ public class ValidateUtilTest {
             ex = throwable;
         }
         Assertions.assertNotNull(ex);
-        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertTrue(ex instanceof BizEx);
         Assertions.assertEquals(ex.getMessage(), "myGroup");
 
         ValidParam validParam = new ValidParam();
@@ -100,7 +100,7 @@ public class ValidateUtilTest {
             ex = throwable;
         }
         Assertions.assertNotNull(ex);
-        Assertions.assertTrue(ex instanceof BizException);
+        Assertions.assertTrue(ex instanceof BizEx);
         Assertions.assertEquals(ex.getMessage(), "NESTED");
 
         NotValidParam notValidParam = new NotValidParam();
@@ -189,7 +189,7 @@ public class ValidateUtilTest {
             throwable = t;
         }
         Assertions.assertNotNull(throwable);
-        Assertions.assertTrue(throwable instanceof BizException);
+        Assertions.assertTrue(throwable instanceof BizEx);
 
         myParamTestEnumName = MyParamTestEnumName.builder().code("ALI").build();
         ValidateUtil.validate(myParamTestEnumName);
@@ -217,7 +217,7 @@ public class ValidateUtilTest {
             throwable = t;
         }
         Assertions.assertNotNull(throwable);
-        Assertions.assertTrue(throwable instanceof BizException);
+        Assertions.assertTrue(throwable instanceof BizEx);
 
         myParamTestEnumName = MyParamTestEnumOtherField.builder().code("京东").build();
         ValidateUtil.validate(myParamTestEnumName);
@@ -246,7 +246,7 @@ public class ValidateUtilTest {
             throwable = t;
         }
         Assertions.assertNotNull(throwable);
-        Assertions.assertTrue(throwable instanceof BizException);
+        Assertions.assertTrue(throwable instanceof BizEx);
 
         throwable = null;
         try {

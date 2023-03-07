@@ -8,73 +8,73 @@ import java.util.function.Supplier;
 /**
  * @author houchuang
  */
-public class BizException extends BaseException {
+public class BizEx extends BaseException {
 
-    public BizException(ErrorEnum errorEnum, Throwable throwable) {
+    public BizEx(ErrorEnum errorEnum, Throwable throwable) {
         super(Collections.singletonList(errorEnum), throwable);
     }
 
-    public BizException(ErrorEnum errorEnum, Throwable throwable, boolean fillStackTrace) {
+    public BizEx(ErrorEnum errorEnum, Throwable throwable, boolean fillStackTrace) {
         super(Collections.singletonList(errorEnum), throwable, fillStackTrace);
     }
 
-    public BizException(ErrorEnum errorEnum) {
+    public BizEx(ErrorEnum errorEnum) {
         super(Collections.singletonList(errorEnum));
     }
 
-    public BizException(ErrorEnum errorEnum, boolean fillStackTrace) {
+    public BizEx(ErrorEnum errorEnum, boolean fillStackTrace) {
         super(Collections.singletonList(errorEnum), fillStackTrace);
     }
 
-    public BizException(List<ErrorEnum> errorEnums) {
+    public BizEx(List<ErrorEnum> errorEnums) {
         super(errorEnums);
     }
 
-    public BizException(List<ErrorEnum> errorEnums, boolean fillStackTrace) {
+    public BizEx(List<ErrorEnum> errorEnums, boolean fillStackTrace) {
         super(errorEnums, fillStackTrace);
     }
 
     static public void anyNullThrow(Object... params) {
         boolean containNullValue = Arrays.stream(params).anyMatch(Objects::isNull);
         if (containNullValue) {
-            throw new BizException(ErrorEnumsBase.PARAM_IS_NULL);
+            throw new BizEx(ErrorEnumsBase.PARAM_IS_NULL);
         }
     }
 
     static public void nullThrow(Object param) {
         if (param == null) {
-            throw new BizException(ErrorEnumsBase.PARAM_IS_NULL);
+            throw new BizEx(ErrorEnumsBase.PARAM_IS_NULL);
         }
     }
 
     static public void nullThrow(Object param, Object message) {
         if (param == null) {
-            throw new BizException(ErrorEnumsBase.PARAM_IS_NULL.message(message));
+            throw new BizEx(ErrorEnumsBase.PARAM_IS_NULL.message(message));
         }
     }
 
 
     static public void trueThrowGet(boolean test, Supplier<ErrorEnum> supplier) {
         if (test) {
-            throw new BizException(supplier.get());
+            throw new BizEx(supplier.get());
         }
     }
 
     static public void trueThrowGet(boolean test, Supplier<ErrorEnum> supplier, boolean fillStackTrace) {
         if (test) {
-            throw new BizException(supplier.get(), fillStackTrace);
+            throw new BizEx(supplier.get(), fillStackTrace);
         }
     }
 
     static public void trueThrow(boolean test, ErrorEnum errorEnum) {
         if (test) {
-            throw new BizException(errorEnum);
+            throw new BizEx(errorEnum);
         }
     }
 
     static public void trueThrow(boolean test, ErrorEnum errorEnum, boolean fillStackTrace) {
         if (test) {
-            throw new BizException(errorEnum, fillStackTrace);
+            throw new BizEx(errorEnum, fillStackTrace);
         }
     }
 

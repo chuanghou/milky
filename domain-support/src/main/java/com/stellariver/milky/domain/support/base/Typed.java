@@ -1,9 +1,8 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.*;
 
@@ -52,7 +51,7 @@ public class Typed<T> {
         } else if (typedClass == MapTyped.class) {
             typed = new MapTyped<>(simpleName, (Class<?>) types[0], (Class<?>) types[1]);
         } else {
-            throw new SysException(ErrorEnumsBase.UNREACHABLE_CODE);
+            throw new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
         }
         map.put(clazz, typed);
         return typed;

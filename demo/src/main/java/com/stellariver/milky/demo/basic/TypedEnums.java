@@ -2,10 +2,6 @@ package com.stellariver.milky.demo.basic;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.stellariver.milky.common.base.Employee;
-import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.demo.domain.item.dependency.UserInfo;
@@ -15,8 +11,6 @@ import com.stellariver.milky.domain.support.base.Typed;
 import com.stellariver.milky.domain.support.base.SetTyped;
 import lombok.NonNull;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**

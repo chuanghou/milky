@@ -3,7 +3,7 @@ package com.stellariver.milky.demo.adapter.controller;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.demo.application.ItemAbility;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
@@ -44,8 +44,8 @@ public class ItemController {
         Employee jack = new Employee("001", "jack");
         try {
             itemAbility.changeTitle(itemId, newTitle, jack);
-        } catch (BizException bizException) {
-            return Result.error(bizException.getErrors(), ExceptionType.BIZ);
+        } catch (BizEx bizEx) {
+            return Result.error(bizEx.getErrors(), ExceptionType.BIZ);
         }
         return Result.success();
     }

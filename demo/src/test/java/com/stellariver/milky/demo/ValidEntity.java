@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.validate.tool.CustomValid;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -21,13 +21,13 @@ public class ValidEntity {
 
     @CustomValid
     public void numberTest() {
-        BizException.trueThrow(number == null, PARAM_IS_NULL.message("number不能为空"), false);
+        BizEx.trueThrow(number == null, PARAM_IS_NULL.message("number不能为空"), false);
 
     }
 
     @CustomValid(groups = NameGroup.class)
     public void nameTest() {
-        BizException.trueThrow(name == null, PARAM_IS_NULL.message("name不能为空"), false);
+        BizEx.trueThrow(name == null, PARAM_IS_NULL.message("name不能为空"), false);
     }
 
     interface NameGroup{}

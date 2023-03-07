@@ -1,6 +1,6 @@
 package com.stellariver.milky.validate.tool;
 
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
@@ -35,17 +35,17 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
             try {
                 key = field != null ? field.get(enumConstant) : enumConstant.name();
             } catch (IllegalAccessException e) {
-                throw new SysException(e);
+                throw new SysEx(e);
             }
             boolean add = enumKeys.add(key);
-            SysException.falseThrow(add, CONFIG_ERROR.message(clazz.getSimpleName() + " field: " + key + " duplicated"));
+            SysEx.falseThrow(add, CONFIG_ERROR.message(clazz.getSimpleName() + " field: " + key + " duplicated"));
         }
         if (anno.selected().length != 0) {
             boolean b = field == null || field.getType().equals(String.class);
-            SysException.falseThrow(b, CONFIG_ERROR.message("配置的key类型不是字符串"));
+            SysEx.falseThrow(b, CONFIG_ERROR.message("配置的key类型不是字符串"));
             Set<Object> selectKeys = Arrays.stream(anno.selected()).collect(Collectors.toSet());
             Set<Object> diff = Collect.diff(selectKeys, enumKeys);
-            SysException.falseThrow(diff.isEmpty(), CONFIG_ERROR.message("selected keys 包含枚举类中未配置keys" + diff));
+            SysEx.falseThrow(diff.isEmpty(), CONFIG_ERROR.message("selected keys 包含枚举类中未配置keys" + diff));
             enumKeys = selectKeys;
         }
 

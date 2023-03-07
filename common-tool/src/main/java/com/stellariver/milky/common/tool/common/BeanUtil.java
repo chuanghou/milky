@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import net.sf.cglib.beans.BeanMap;
 
 import java.lang.annotation.Annotation;
@@ -25,33 +25,33 @@ public class BeanUtil {
     }
 
     public static List<Object> getBeansForAnnotation(Class<? extends Annotation> annotationType) {
-        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
+        SysEx.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBeansForAnnotation(annotationType);
     }
 
     public static <T> List<T> getBeansOfType(Class<T> type) {
-        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
+        SysEx.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBeansOfType(type);
     }
 
     public static <T> T getBean(Class<T> requiredType) {
-        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
+        SysEx.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBean(requiredType);
     }
 
     public static Object getBean(String beanName) {
-        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
+        SysEx.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBean(beanName);
     }
 
 
     public static <T> Optional<T> getBeanOptional(Class<T> requiredType) {
-        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
+        SysEx.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBeanOptional(requiredType);
     }
 
     public static Optional<Object> getBeanOptional(String beanName) {
-        SysException.nullThrow(beanLoader, "beanLoader need to be set by container");
+        SysEx.nullThrow(beanLoader, "beanLoader need to be set by container");
         return beanLoader.getBeanOptional(beanName);
     }
 

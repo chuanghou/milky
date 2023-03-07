@@ -1,9 +1,9 @@
 package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.base.ExceptionType;
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +18,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -44,20 +43,20 @@ public class ValidateUtil {
     final static Map<Class<?>, Map<Class<?>, Method>> customValidMap = new ConcurrentHashMap<>();
 
     public static void validate(Object object, Method method, Object[] params,
-                                boolean failFast, ExceptionType type, Class<?>... groups) throws BizException {
+                                boolean failFast, ExceptionType type, Class<?>... groups) throws BizEx {
         validate(object, method, params, type, failFast, groups);
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
     }
 
     public static void bizValidate(Object object, Method method, Object[] params,
-                                   boolean failFast, Class<?>... groups) throws BizException {
+                                   boolean failFast, Class<?>... groups) throws BizEx {
         validate(object, method, params, ExceptionType.BIZ, failFast, groups);
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.BIZ, failFast, groups));
     }
 
     @SuppressWarnings("unused")
     public static void sysValidate(Object object, Method method, Object[] params,
-                                   boolean failFast, Class<?>... groups) throws SysException {
+                                   boolean failFast, Class<?>... groups) throws SysEx {
         validate(object, method, params, ExceptionType.SYS, failFast, groups);
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.SYS, failFast, groups));
     }
@@ -81,7 +80,7 @@ public class ValidateUtil {
         boolean voidReturn = m.getReturnType().equals(void.class);
         boolean pub = Modifier.isPublic(m.getModifiers());
         boolean b = instanceMethod && zeroParams && voidReturn && pub;
-        SysException.falseThrow(b, CONFIG_ERROR.message(m.toGenericString()));
+        SysEx.falseThrow(b, CONFIG_ERROR.message(m.toGenericString()));
     };
 
     public static void validate(Object param, ExceptionType type, boolean failFast, Class<?>... groups) {
@@ -114,7 +113,7 @@ public class ValidateUtil {
                 List<Class<?>> groupList =  anno.groups().length == 0 ? Collect.asList(Default.class) : Collect.asList(anno.groups());
                 for (Class<?> group : groupList) {
                     Method oldValue = customValidations.put(group, method);
-                    SysException.trueThrow(oldValue != null, CONFIG_ERROR.message(method.toGenericString()));
+                    SysEx.trueThrow(oldValue != null, CONFIG_ERROR.message(method.toGenericString()));
                 }
             }
             customValidMap.put(clazz, customValidations);
@@ -135,9 +134,9 @@ public class ValidateUtil {
             List<String> messages = Collect.transfer(validateResult, ConstraintViolation::getMessage);
             String message = StringUtils.join(messages, ';');
             if (type == ExceptionType.BIZ) {
-                throw new BizException(ErrorEnumsBase.PARAM_FORMAT_WRONG.message(message));
+                throw new BizEx(ErrorEnumsBase.PARAM_FORMAT_WRONG.message(message));
             } else {
-                throw new SysException(ErrorEnumsBase.PARAM_FORMAT_WRONG.message(message));
+                throw new SysEx(ErrorEnumsBase.PARAM_FORMAT_WRONG.message(message));
             }
         }
     }

@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.adapter.controller;
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import lombok.*;
@@ -22,7 +22,7 @@ public class ParamIncludeEnum {
 
 
     public ChannelEnum getChannelEnum() {
-        return Kit.enumOf(ChannelEnum.class, channelEnum).orElseThrow(() -> new SysException(ErrorEnums.PARAM_FORMAT_WRONG));
+        return Kit.enumOf(ChannelEnum.class, channelEnum).orElseThrow(() -> new SysEx(ErrorEnums.PARAM_FORMAT_WRONG));
     }
 
 }

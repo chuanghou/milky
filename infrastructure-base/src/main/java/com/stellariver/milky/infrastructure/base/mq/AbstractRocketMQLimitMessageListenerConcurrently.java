@@ -1,7 +1,7 @@
 package com.stellariver.milky.infrastructure.base.mq;
 
 
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.infrastructure.base.ErrorEnums;
@@ -34,7 +34,7 @@ public abstract class AbstractRocketMQLimitMessageListenerConcurrently extends B
             throwable = e;
             boolean retryable = messageExt.getReconsumeTimes() < 10;
             if (retryable) {
-                throwable = new BizException(ErrorEnums.MESSAGE_RETRY, e);
+                throwable = new BizEx(ErrorEnums.MESSAGE_RETRY, e);
                 return ConsumeConcurrentlyStatus.RECONSUME_LATER;
             } else {
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;

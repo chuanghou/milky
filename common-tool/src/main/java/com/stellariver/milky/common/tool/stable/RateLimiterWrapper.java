@@ -2,7 +2,7 @@ package com.stellariver.milky.common.tool.stable;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -44,7 +44,7 @@ public class RateLimiterWrapper {
             }
             return true;
         } else {
-            throw new SysException(ErrorEnumsBase.UNREACHABLE_CODE);
+            throw new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
         }
     }
 

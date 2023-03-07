@@ -1,6 +1,5 @@
 package com.stellariver.milky.common.tool.slambda;
 
-import com.stellariver.milky.common.tool.exception.SysException;
 import com.stellariver.milky.common.tool.util.Reflect;
 import lombok.SneakyThrows;
 
@@ -9,9 +8,7 @@ import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 

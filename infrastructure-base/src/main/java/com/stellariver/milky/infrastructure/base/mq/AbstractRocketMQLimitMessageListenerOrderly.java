@@ -1,6 +1,6 @@
 package com.stellariver.milky.infrastructure.base.mq;
 
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.infrastructure.base.ErrorEnums;
@@ -39,7 +39,7 @@ public abstract class AbstractRocketMQLimitMessageListenerOrderly extends BaseRo
                 retryable = false;
             }
             if (retryable) {
-                throwable = new BizException(ErrorEnums.MESSAGE_RETRY, throwable);
+                throwable = new BizEx(ErrorEnums.MESSAGE_RETRY, throwable);
             }
             return ConsumeOrderlyStatus.SUCCESS;
         } finally {

@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.log;
 
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
@@ -23,7 +23,7 @@ public class Logger implements org.slf4j.Logger {
     public void log(String logTag, Throwable throwable) {
         if (throwable == null) {
             this.success(true).info(logTag);
-        } else if (throwable instanceof BizException) {
+        } else if (throwable instanceof BizEx) {
             this.success(false).warn(logTag, throwable);
         } else {
             this.success(false).error(logTag, throwable);
@@ -51,7 +51,7 @@ public class Logger implements org.slf4j.Logger {
             afterLog();
             return;
         }
-        if (throwable instanceof BizException) {
+        if (throwable instanceof BizEx) {
             this.success(false).warn(logTag, throwable);
         } else {
             this.success(false).error(logTag, throwable);

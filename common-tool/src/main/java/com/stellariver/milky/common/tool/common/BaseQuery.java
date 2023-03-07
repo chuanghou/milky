@@ -3,7 +3,7 @@ package com.stellariver.milky.common.tool.common;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -37,7 +37,7 @@ public abstract class BaseQuery<ID, T> {
 
     public Map<ID, T> queryMapByIdsNotAllowLost(Set<ID> ids) {
         Map<ID, T> idtMap = queryMapByIds(ids);
-        SysException.trueThrowGet(!Kit.eq(idtMap.size(), ids.size()),
+        SysEx.trueThrowGet(!Kit.eq(idtMap.size(), ids.size()),
                 () -> ErrorEnumsBase.NOT_ALLOW_LOST.message(Collect.diff(ids, idtMap.keySet())));
         return idtMap;
     }
@@ -134,11 +134,11 @@ public abstract class BaseQuery<ID, T> {
 
     public T queryById(ID id) {
         Optional<T> optional = queryByIdOptional(id);
-        return optional.orElseThrow(() -> new SysException(ErrorEnumsBase.ENTITY_NOT_FOUND.message("id:" + id.toString())));
+        return optional.orElseThrow(() -> new SysEx(ErrorEnumsBase.ENTITY_NOT_FOUND.message("id:" + id.toString())));
     }
 
     public Iterator<List<T>> buildIterator(Integer pageSize) {
-        throw new SysException(ErrorEnumsBase.CONFIG_ERROR.message("need to instantiate by sub class!"));
+        throw new SysEx(ErrorEnumsBase.CONFIG_ERROR.message("need to instantiate by sub class!"));
     }
 
     @Data

@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.slambda;
 
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Reflect;
 import lombok.SneakyThrows;
 
@@ -21,7 +21,7 @@ public class IdeaProxyLambdaMeta implements LambdaMeta {
             FIELD_MEMBER_NAME_CLAZZ = Reflect.setAccessible(classMemberName.getDeclaredField("clazz"));
             FIELD_MEMBER_NAME_NAME = Reflect.setAccessible(classMemberName.getDeclaredField("name"));
         } catch (ClassNotFoundException | NoSuchFieldException e) {
-            throw new SysException(e);
+            throw new SysEx(e);
         }
     }
 

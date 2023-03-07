@@ -7,10 +7,10 @@ import com.alicloud.openservices.tablestore.model.search.sort.Sort;
 import com.alicloud.openservices.tablestore.model.search.sort.SortOrder;
 import com.google.common.base.Strings;
 import com.stellariver.milky.common.base.TSSearch;
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nullable;
@@ -61,7 +61,7 @@ public class TableStoreTool {
         }
 
         if (annotation.like()) {
-            SysException.falseThrow(value instanceof String, ErrorEnumsBase.PARAM_FORMAT_WRONG.message("like only support String field!"));
+            SysEx.falseThrow(value instanceof String, ErrorEnumsBase.PARAM_FORMAT_WRONG.message("like only support String field!"));
             Query query = QueryBuilders.matchPhrase(index, (String) value).build();
             return doBuildQuery(index, query);
         } else {
@@ -86,7 +86,7 @@ public class TableStoreTool {
     private static Query doBuildQuery(String index, Query query) {
         if (index.contains(SEPARATOR)) {
             String[] paths = index.split("\\.");
-            BizException.trueThrow(paths.length != 2, ErrorEnumsBase.SYSTEM_EXCEPTION.message("search param size is not 2!"));
+            BizEx.trueThrow(paths.length != 2, ErrorEnumsBase.SYSTEM_EXCEPTION.message("search param size is not 2!"));
             String path = paths[0];
             NestedQuery nestedQuery = new NestedQuery();
             nestedQuery.setPath(path);
@@ -108,7 +108,7 @@ public class TableStoreTool {
         } else if (fieldValue instanceof String) {
             columnValue = ColumnValue.fromString((String) fieldValue);
         } else {
-            throw new SysException(fieldValue);
+            throw new SysEx(fieldValue);
         }
         return columnValue;
     }

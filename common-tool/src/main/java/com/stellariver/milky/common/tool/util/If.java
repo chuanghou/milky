@@ -2,7 +2,7 @@ package com.stellariver.milky.common.tool.util;
 
 
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 
 /**
  * @author houchuang
@@ -10,8 +10,8 @@ import com.stellariver.milky.common.tool.exception.SysException;
 public class If {
 
     static public void isTrue(boolean test, Runnable runnable) {
-        SysException.anyNullThrow(test, ErrorEnumsBase.PARAM_IS_NULL);
-        SysException.anyNullThrow(runnable, ErrorEnumsBase.PARAM_IS_NULL);
+        SysEx.anyNullThrow(test, ErrorEnumsBase.PARAM_IS_NULL);
+        SysEx.anyNullThrow(runnable, ErrorEnumsBase.PARAM_IS_NULL);
         if (test) {
             runnable.run();
         }
@@ -22,9 +22,9 @@ public class If {
     }
 
     static public void trueOrFalse(boolean test, Runnable trueRunnable, Runnable falseRunnable) {
-        SysException.anyNullThrow(test, ErrorEnumsBase.PARAM_IS_NULL);
-        SysException.anyNullThrow(trueRunnable, ErrorEnumsBase.PARAM_IS_NULL);
-        SysException.anyNullThrow(falseRunnable, ErrorEnumsBase.PARAM_IS_NULL);
+        SysEx.anyNullThrow(test, ErrorEnumsBase.PARAM_IS_NULL);
+        SysEx.anyNullThrow(trueRunnable, ErrorEnumsBase.PARAM_IS_NULL);
+        SysEx.anyNullThrow(falseRunnable, ErrorEnumsBase.PARAM_IS_NULL);
         if (test) {
             trueRunnable.run();
         } else {

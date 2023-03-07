@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.slambda;
 
 
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 
 import java.io.*;
 
@@ -41,7 +41,7 @@ public class SerializedLambda implements Serializable {
                 return (SerializedLambda) ois.readObject();
             }
         } catch (IOException | ClassNotFoundException e) {
-            throw new SysException(e);
+            throw new SysEx(e);
         }
     }
 

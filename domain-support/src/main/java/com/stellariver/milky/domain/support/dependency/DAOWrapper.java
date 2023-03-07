@@ -1,15 +1,13 @@
 package com.stellariver.milky.domain.support.dependency;
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.NonNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.PERSISTENCE_ERROR;
 
 /**
@@ -20,7 +18,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     @SuppressWarnings("unchecked")
     default void batchSaveWrapper(List<Object> dataObjects) {
         int count = batchSave(Collect.transfer(dataObjects, doj -> (DataObject) doj));
-        SysException.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
+        SysEx.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
     }
 
     int batchSave(List<DataObject> dataObjects);
@@ -28,7 +26,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     @SuppressWarnings("unchecked")
     default void batchUpdateWrapper(List<Object> dataObjects) {
         int count = batchUpdate(Collect.transfer(dataObjects, doj -> (DataObject) doj));
-        SysException.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
+        SysEx.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
     }
 
     int batchUpdate(List<DataObject> dataObjects);

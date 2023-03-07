@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 
@@ -80,7 +80,7 @@ public class Collect {
         map0 = Kit.op(map0).orElseGet(HashMap::new);
         map1 = Kit.op(map1).orElseGet(HashMap::new);
         Set<K> inter = Collect.inter(map0.keySet(), map1.keySet());
-        SysException.trueThrowGet(Collect.isNotEmpty(inter), () -> ErrorEnumsBase.MERGE_EXCEPTION);
+        SysEx.trueThrowGet(Collect.isNotEmpty(inter), () -> ErrorEnumsBase.MERGE_EXCEPTION);
         HashMap<K, V> resultMap = new HashMap<>(map0);
         resultMap.putAll(map1);
         return resultMap;

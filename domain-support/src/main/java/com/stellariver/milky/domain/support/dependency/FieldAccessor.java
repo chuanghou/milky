@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Reflect;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -49,7 +49,7 @@ public class FieldAccessor {
         }
         fieldAccessors = new ArrayList<>();
         List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
-        fields.forEach(f -> SysException.trueThrow(primitives.contains(f.getType()), CONFIG_ERROR));
+        fields.forEach(f -> SysEx.trueThrow(primitives.contains(f.getType()), CONFIG_ERROR));
         for (Field f: fields) {
             if (f.isSynthetic() || Modifier.isStatic(f.getModifiers())) {
                 continue;
@@ -70,7 +70,7 @@ public class FieldAccessor {
                     replacer = annotation.holderSupplier().newInstance().get();
                 }
                 boolean assignableFrom = f.getType().isAssignableFrom(replacer.getClass());
-                SysException.falseThrow(assignableFrom, CONFIG_ERROR.message("the class of replacer is not appropriate!"));
+                SysEx.falseThrow(assignableFrom, CONFIG_ERROR.message("the class of replacer is not appropriate!"));
             }
 
             FieldAccessor fieldAccessor = new FieldAccessor(name, clazz.getName(), strategy, getMethod, setMethod, replacer);

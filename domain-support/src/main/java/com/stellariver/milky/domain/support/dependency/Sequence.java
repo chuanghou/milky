@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.dependency;
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.validate.tool.OfEnum;
 import lombok.Builder;
 import lombok.Data;
@@ -33,7 +33,7 @@ public class Sequence {
     String duty;
 
     public IdBuilder.Duty getDuty() {
-        return Kit.enumOf(IdBuilder.Duty.class, duty).orElseThrow(SysException::unreachable);
+        return Kit.enumOf(IdBuilder.Duty.class, duty).orElseThrow(SysEx::unreachable);
     }
 
 }

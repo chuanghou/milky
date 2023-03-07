@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.dependency;
 
 import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.common.UK;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.base.RetryParameter;
@@ -52,9 +52,9 @@ public abstract class ConcurrentOperate {
 
     @SneakyThrows(InterruptedException.class)
     public boolean tryRetryLock(RetryParameter retryParameter) {
-        SysException.anyNullThrow(retryParameter.getLockKey());
-        SysException.trueThrow(retryParameter.getTimes() <= 0, "retry times should not smaller than 0 or equal with 0");
-        SysException.trueThrow(retryParameter.getSleepTimeMils() > 5000, "sleep time is too long");
+        SysEx.anyNullThrow(retryParameter.getLockKey());
+        SysEx.trueThrow(retryParameter.getTimes() <= 0, "retry times should not smaller than 0 or equal with 0");
+        SysEx.trueThrow(retryParameter.getSleepTimeMils() > 5000, "sleep time is too long");
         int times = retryParameter.getTimes();
         String lockKey = retryParameter.getLockKey();
         int milsToExpire = retryParameter.getMilsToExpire();

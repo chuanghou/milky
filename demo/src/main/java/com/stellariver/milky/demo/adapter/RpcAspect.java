@@ -6,7 +6,7 @@ import com.stellariver.milky.common.base.PageResult;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.exception.BaseException;
 import com.stellariver.milky.common.tool.common.Clock;
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -87,7 +87,7 @@ public class RpcAspect {
             }
             t = throwable;
         } finally {
-            ExceptionType exceptionType = t instanceof BizException ? ExceptionType.BIZ : ExceptionType.SYS;
+            ExceptionType exceptionType = t instanceof BizEx ? ExceptionType.BIZ : ExceptionType.SYS;
             if (t != null && returnType == Result.class) {
                 result = Result.error(errorEnums, exceptionType);
             } else if (t != null && returnType == PageResult.class) {

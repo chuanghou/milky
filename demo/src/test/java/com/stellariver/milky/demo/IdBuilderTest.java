@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
@@ -42,8 +42,8 @@ public class IdBuilderTest{
         } catch (Throwable throwable) {
             backUp = throwable;
         }
-        Assertions.assertTrue(backUp instanceof BizException);
-        String code = ((BizException) backUp).getFirstError().getCode();
+        Assertions.assertTrue(backUp instanceof BizEx);
+        String code = ((BizEx) backUp).getFirstError().getCode();
         Assertions.assertEquals(code, ErrorEnumsBase.DUPLICATE_NAME_SPACE.getCode());
     }
 

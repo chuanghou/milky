@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 
 /**
  * This annotation like @Autowired in Spring,
- *
+ * but the field should static, and field type should an interface
  * @author houchuang
  */
 

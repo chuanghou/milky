@@ -3,7 +3,7 @@ package com.stellariver.milky.infrastructure.base.schedulex;
 import com.alibaba.schedulerx.worker.domain.JobContext;
 import com.alibaba.schedulerx.worker.processor.MapJobProcessor;
 import com.alibaba.schedulerx.worker.processor.ProcessResult;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.CustomLog;
@@ -76,7 +76,7 @@ abstract public class AbstractMapJobProcessor<T extends BaseScheduleData> extend
     public void whenFail (T t, ScheduleParam param, Throwable throwable) {}
 
     public ScheduleConfig getScheduleConfig() {
-        throw new SysException("It should be implemented by its sub class!");
+        throw new SysEx("It should be implemented by its sub class!");
     }
 
     public boolean alwaysLog() {

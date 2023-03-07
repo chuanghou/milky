@@ -2,7 +2,7 @@ package com.stellariver.milky.domain.support.context;
 
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.*;
@@ -56,13 +56,13 @@ public class Context{
 
     public <T> void addMetaData(Class<? extends Typed<T>> key, T value) {
         boolean contains = metaData.containsKey(key);
-        SysException.trueThrow(contains, ErrorEnums.CONFIG_ERROR.message(key));
+        SysEx.trueThrow(contains, ErrorEnums.CONFIG_ERROR.message(key));
         metaData.put(key, value);
     }
 
     public <T> void replaceMetaData(Class<? extends Typed<T>> key, T value) {
         boolean contains = metaData.containsKey(key);
-        SysException.falseThrow(contains, ErrorEnums.CONFIG_ERROR.message(key));
+        SysEx.falseThrow(contains, ErrorEnums.CONFIG_ERROR.message(key));
         metaData.put(key, value);
     }
 
@@ -114,7 +114,7 @@ public class Context{
 
     public <Aggregate extends AggregateRoot> Aggregate getByAggregateId(Class<Aggregate> clazz, String aggregateId) {
         Aggregate aggregate = batchGetByAggregateIds(clazz, Collect.asSet(aggregateId)).get(aggregateId);
-        return Kit.op(aggregate).orElseThrow(() -> new SysException(ErrorEnums.AGGREGATE_NOT_EXISTED));
+        return Kit.op(aggregate).orElseThrow(() -> new SysEx(ErrorEnums.AGGREGATE_NOT_EXISTED));
     }
 
     @SuppressWarnings("unchecked")

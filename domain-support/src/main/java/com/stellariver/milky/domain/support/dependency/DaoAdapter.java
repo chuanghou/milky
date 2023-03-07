@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.dependency;
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
@@ -51,14 +51,14 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
             if (value != null) {
                 if (fA.getStrategy() != null && Kit.eq(fA.getReplacer(), value)) {
                     String message = String.format("%s in %s equal null holder value", fA.getFieldName(), fA.getClassName());
-                    throw new SysException(CONFIG_ERROR.message(message));
+                    throw new SysEx(CONFIG_ERROR.message(message));
                 }
             } else {
                 if (fA.getStrategy() == null) {
                     String message = String.format("%s in %s is null of class %s, " +
                             "consider an annotation NullReplacer at corresponding field to assign a non null value stand null in database ",
                             fA.getFieldName(), fA.getClassName(), aggregate.getClass());
-                    throw new SysException(CONFIG_ERROR.message(message));
+                    throw new SysEx(CONFIG_ERROR.message(message));
                 } else {
                     fA.set(aggregate, fA.getReplacer());
                 }
@@ -83,7 +83,7 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
 
     default Aggregate getByAggregateId(String aggregateId, Context context) {
         return getByAggregateIdOptional(aggregateId, context)
-                .orElseThrow(() -> new SysException(ErrorEnums.AGGREGATE_NOT_EXISTED.message(aggregateId)));
+                .orElseThrow(() -> new SysEx(ErrorEnums.AGGREGATE_NOT_EXISTED.message(aggregateId)));
     }
 
     default Map<String, Aggregate> batchGetByAggregateIds(Set<String> aggregateIds, Context context) {

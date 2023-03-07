@@ -1,7 +1,7 @@
 package com.stellariver.milky.financial.base;
 
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import lombok.NonNull;
 
 import java.math.BigDecimal;
@@ -17,7 +17,7 @@ public class Util {
 
     public static BigDecimal fromPercent(@NonNull String value) {
         boolean equals = value.charAt(value.length() - 1) == '%';
-        SysException.falseThrow(equals, ErrorEnumsBase.PARAM_FORMAT_WRONG.message(value));
+        SysEx.falseThrow(equals, ErrorEnumsBase.PARAM_FORMAT_WRONG.message(value));
         return new BigDecimal(value.substring(0, value.length() - 1)).divide(PERCENT, RoundingMode.UNNECESSARY);
     }
 

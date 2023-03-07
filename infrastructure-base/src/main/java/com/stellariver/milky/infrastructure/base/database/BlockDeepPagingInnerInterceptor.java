@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import com.github.vertical_blank.sqlformatter.languages.Dialect;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.infrastructure.base.ErrorEnums;
 import lombok.CustomLog;
 import org.apache.ibatis.executor.Executor;
@@ -80,7 +80,7 @@ public class BlockDeepPagingInnerInterceptor implements InnerInterceptor {
                 String message = String.format("fatal error, slow sql possible: \n%s ", originalSql);
                 log.error(message);
                 customStrategyWhenFail(originalSql);
-                BizException.trueThrow(block, ErrorEnums.DEEP_PAGING.message(message));
+                BizEx.trueThrow(block, ErrorEnums.DEEP_PAGING.message(message));
             }
         }
     }

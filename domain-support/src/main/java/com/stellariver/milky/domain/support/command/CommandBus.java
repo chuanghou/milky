@@ -1,8 +1,8 @@
 package com.stellariver.milky.domain.support.command;
 
 import com.stellariver.milky.common.tool.common.*;
-import com.stellariver.milky.common.tool.exception.BizException;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.BizEx;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -137,7 +137,7 @@ public class CommandBus {
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
                 .filter(m -> Command.class.isAssignableFrom(m.getParameterTypes()[0]))
-                .peek(m -> SysException.falseThrow(COMMAND_INTERCEPTOR_FORMAT.test(m),
+                .peek(m -> SysEx.falseThrow(COMMAND_INTERCEPTOR_FORMAT.test(m),
                         CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
@@ -176,7 +176,7 @@ public class CommandBus {
                     .map(i -> (ParameterizedType) i)
                     .filter(t -> Objects.equals(t.getRawType(), DaoAdapter.class))
                     .map(ParameterizedType::getActualTypeArguments).findFirst()
-                    .orElseThrow(() -> new SysException(CONFIG_ERROR));
+                    .orElseThrow(() -> new SysEx(CONFIG_ERROR));
             daoAdapterMap.put((Class<? extends AggregateRoot>) types[0], bean);
         });
     }
@@ -188,7 +188,7 @@ public class CommandBus {
                     .map(i -> (ParameterizedType) i)
                     .filter(t -> Objects.equals(t.getRawType(), DAOWrapper.class))
                     .map(ParameterizedType::getActualTypeArguments).findFirst()
-                    .orElseThrow(() -> new SysException(CONFIG_ERROR));
+                    .orElseThrow(() -> new SysEx(CONFIG_ERROR));
             daoWrappersMap.put((Class<? extends BaseDataObject<?>>) types[0], bean);
         });
     }
@@ -198,28 +198,28 @@ public class CommandBus {
         aggregateClasses.forEach(clazz -> {
             Arrays.stream(clazz.getDeclaredMethods())
                     .filter(m -> m.isAnnotationPresent(MethodHandler.class))
-                    .peek(m -> SysException.falseThrow(COMMAND_HANDLER_FORMAT.test(m),
+                    .peek(m -> SysEx.falseThrow(COMMAND_HANDLER_FORMAT.test(m),
                             CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
                     .forEach(method -> {
                         Class<?>[] parameterTypes = method.getParameterTypes();
                         Handler handler = new Handler(clazz, method, INSTANCE_HANDLER);
                         Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
                         Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
-                        SysException.trueThrow(handlerMap.containsKey(clazz),
+                        SysEx.trueThrow(handlerMap.containsKey(clazz),
                                 CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
                         handlerMap.put(clazz, handler);
                     });
 
             Arrays.stream(clazz.getDeclaredMethods())
                     .filter(m -> m.isAnnotationPresent(ConstructorHandler.class))
-                    .peek(m -> SysException.falseThrow(CONSTRUCTOR_HANDLER_FORMAT.test(m),
+                    .peek(m -> SysEx.falseThrow(CONSTRUCTOR_HANDLER_FORMAT.test(m),
                             CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"))).collect(Collectors.toList())
                     .forEach(method -> {
                         Class<?>[] parameterTypes = method.getParameterTypes();
                         Handler handler = new Handler(clazz, method, CONSTRUCTOR_HANDLER);
                         Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
                         Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
-                        SysException.trueThrow(handlerMap.containsKey(clazz),
+                        SysEx.trueThrow(handlerMap.containsKey(clazz),
                                 CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
                         handlerMap.put(clazz, handler);
                     });
@@ -231,7 +231,7 @@ public class CommandBus {
                                                                        Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         instance.memoryTxTL.set(true);
-        SysException.nullThrow(instance.transactionSupport,
+        SysEx.nullThrow(instance.transactionSupport,
                 "transactionSupport is null, so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
         try {
             result = instance.doSend(command, parameters, null, aggregateIdMap);
@@ -289,7 +289,7 @@ public class CommandBus {
                                               @Nullable Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         Context shouldNull = THREAD_LOCAL_CONTEXT.get();
-        SysException.trueThrowGet(shouldNull != null, () -> CONFIG_ERROR
+        SysEx.trueThrowGet(shouldNull != null, () -> CONFIG_ERROR
                 .message("Inside a event router, you should use CommandBus.send() or CommandBus.acceptMemoryTransactional()"));
         Context context = Context.build(parameters, aggregateIdMap);
         THREAD_LOCAL_CONTEXT.set(context);
@@ -366,12 +366,12 @@ public class CommandBus {
     private <T extends Command> Object route(@NonNull T command, @Nullable Class<? extends AggregateRoot> aggregateClazz) {
         Handler commandHandler;
         Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.get(command.getClass());
-        SysException.nullThrow(handlerMap, command.getClass().getSimpleName() + "could not found its handler!");
+        SysEx.nullThrow(handlerMap, command.getClass().getSimpleName() + "could not found its handler!");
         if (aggregateClazz == null) {
             boolean eq = Kit.eq(handlerMap.size(), 1);
-            SysException.falseThrow(eq, CONFIG_ERROR.message(
+            SysEx.falseThrow(eq, CONFIG_ERROR.message(
                     command.getClass().getName() + " has at least 2 handlers implementations, please assign aggregate class"));
-            commandHandler = handlerMap.values().stream().findFirst().orElseThrow(() -> new SysException(ErrorEnums.UNREACHABLE_CODE));
+            commandHandler = handlerMap.values().stream().findFirst().orElseThrow(() -> new SysEx(ErrorEnums.UNREACHABLE_CODE));
         } else {
             commandHandler = handlerMap.get(aggregateClazz);
         }
@@ -390,7 +390,7 @@ public class CommandBus {
                     .sleepTimeMils(sleepTimeMs)
                     .build();
             locked = concurrentOperate.tryRetryLock(retryParameter);
-            BizException.falseThrow(locked, CONCURRENCY_VIOLATION.message(command));
+            BizEx.falseThrow(locked, CONCURRENCY_VIOLATION.message(command));
         }
         Object result = doRoute(command, context, commandHandler);
         context.popEvents().forEach(event -> {
@@ -402,7 +402,7 @@ public class CommandBus {
 
     private  <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
         DaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
-        SysException.nullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
+        SysEx.nullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
 
         // build command record and record it
         String aggregateId = command.getAggregateId();
@@ -451,7 +451,7 @@ public class CommandBus {
                 aggregateStatus = AggregateStatus.UPDATE;
             }
         } else {
-            throw new SysException("unreached part!");
+            throw new SysEx("unreached part!");
         }
 
         Record record = Record.builder().beanName(aggregate.getClass().getSimpleName()).message(command)
@@ -524,7 +524,7 @@ public class CommandBus {
 
         Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
                 .filter(field -> field.isAnnotationPresent(Milkywired.class))
-                .peek(field -> SysException.falseThrow(MILKY_WIRED_FIELD.test(field),
+                .peek(field -> SysEx.falseThrow(MILKY_WIRED_FIELD.test(field),
                         FIELD_FORMAT_WRONG.params("field", field.getName())))
                 .forEach(field -> {
                     Class<?> type = field.getType();
@@ -537,11 +537,11 @@ public class CommandBus {
                         beanOptional = (Optional<Object>) BeanUtil.getBeanOptional(type);
                         if (beanOptional.isPresent()) {
                             boolean fit = type.isAssignableFrom(beanOptional.get().getClass());
-                            SysException.falseThrow(fit, CONFIG_ERROR.message("found bean "));
+                            SysEx.falseThrow(fit, CONFIG_ERROR.message("found bean "));
                         }
                     }
 
-                    SysException.trueThrow(annotation.required() && !beanOptional.isPresent(), CONFIG_ERROR);
+                    SysEx.trueThrow(annotation.required() && !beanOptional.isPresent(), CONFIG_ERROR);
 
                     if (beanOptional.isPresent()) {
                         List<Method> methods = Collect.filter(type.getMethods(), m -> m.isAnnotationPresent(Traced.class));

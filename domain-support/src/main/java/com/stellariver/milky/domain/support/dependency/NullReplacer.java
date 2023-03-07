@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 
 import java.lang.annotation.*;
 import java.util.function.Supplier;
@@ -19,7 +19,7 @@ public @interface NullReplacer {
     class DefaultCustomSupplier implements Supplier<Object> {
         @Override
         public Object get() {
-            throw new SysException(CONFIG_ERROR.message("When you choose custom strategy, " +
+            throw new SysEx(CONFIG_ERROR.message("When you choose custom strategy, " +
                     "you need to implement a supplier by yourself"));
         }
     }

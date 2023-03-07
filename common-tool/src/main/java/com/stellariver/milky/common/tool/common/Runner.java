@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.common;
 
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysException;
+import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.slambda.SCallable;
 import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
@@ -67,7 +67,7 @@ public class Runner {
         if (rateLimiter != null) {
             rateLimiter.acquire();
         }
-        SysException.anyNullThrow(option.getCheck(), option.getTransfer());
+        SysEx.anyNullThrow(option.getCheck(), option.getTransfer());
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
@@ -81,11 +81,11 @@ public class Runner {
                 }
                 Boolean success = option.getCheck().apply(result);
                 if (!success) {
-                    SysException sysException = new SysException(ErrorEnumsBase.SYSTEM_EXCEPTION.message(result));
+                    SysEx sysEx = new SysEx(ErrorEnumsBase.SYSTEM_EXCEPTION.message(result));
                     if (circuitBreaker != null) {
-                        circuitBreaker.onError(Clock.currentTimeMillis() - now, TimeUnit.MILLISECONDS, sysException);
+                        circuitBreaker.onError(Clock.currentTimeMillis() - now, TimeUnit.MILLISECONDS, sysEx);
                     }
-                    throw sysException;
+                    throw sysEx;
                 }
                 return option.getTransfer().apply(result);
             } catch (Throwable throwable) {
@@ -134,7 +134,7 @@ public class Runner {
             }
             throwableBackup = null;
         } while (retryTimes-- > 0);
-        throw new SysException("unreached part!");
+        throw new SysEx("unreached part!");
     }
 
 }

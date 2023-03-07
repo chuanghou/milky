@@ -1,9 +1,8 @@
 package com.stellariver.milky.demo.application;
 
 import com.stellariver.milky.common.base.Employee;
-import com.stellariver.milky.common.tool.exception.BizException;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.util.StreamMap;
-import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
@@ -54,7 +53,7 @@ public class ItemAbility {
     @Transactional(rollbackFor = Throwable.class)
     public void changeTitle(Long itemId, String newTitle, Employee operator) {
         Optional<Item> itemOptional = itemRepository.queryByIdOptional(itemId);
-        BizException.trueThrow(!itemOptional.isPresent(), ITEM_NOT_EXIST.message("找不到相应item，itemId:" + itemId));
+        BizEx.trueThrow(!itemOptional.isPresent(), ITEM_NOT_EXIST.message("找不到相应item，itemId:" + itemId));
         ItemTitleUpdateCommand command = ItemTitleUpdateCommand.builder().itemId(itemId).updateTitle(newTitle).build();
         Map<Class<? extends Typed<?>>, Object> parameters = StreamMap.<Class<? extends Typed<?>>, Object>init()
                 .put(EMPLOYEE.class, operator)
