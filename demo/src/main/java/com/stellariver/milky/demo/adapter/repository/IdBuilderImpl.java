@@ -102,7 +102,7 @@ public class IdBuilderImpl implements IdBuilder {
             synchronized (this) {
                 if (null == section) {
                     section = doLoadSectionFromDB(namespace);
-                    nextSection = section;
+                    nextSection = doLoadSectionFromDB(namespace);
                 }
             }
         }
