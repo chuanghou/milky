@@ -18,6 +18,10 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
@@ -39,6 +43,10 @@ public class IdBuilderImpl implements IdBuilder {
     final IdBuilderMapper idBuilderMapper;
 
     volatile Pair<AtomicLong, Long> section;
+
+    volatile Pair<AtomicLong, Long> nextSection;
+
+    static private final Executor executor = Executors.newSingleThreadExecutor();
 
     @Override
     public void initNameSpace(Sequence param) {
@@ -67,15 +75,17 @@ public class IdBuilderImpl implements IdBuilder {
     public Long get(String nameSpace) {
         if (section == null) {
             loadSectionFromDB(nameSpace);
+            loadNextSectionFromDB(nameSpace);
         }
         int times = 0;
         do {
             long value = section.getLeft().getAndIncrement();
             if (value < section.getRight()) {
                 return value;
+            } else {
+                section = nextSection;
             }
-            section = null;
-            loadSectionFromDB(nameSpace);
+            CompletableFuture.runAsync(() -> loadNextSectionFromDB(nameSpace), executor);
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
@@ -100,6 +110,17 @@ public class IdBuilderImpl implements IdBuilder {
             synchronized (this) {
                 if (null == section) {
                     section = doLoadSectionFromDB(namespace);
+                }
+            }
+        }
+    }
+
+
+    private void loadNextSectionFromDB(String namespace) {
+        if (null == nextSection) {
+            synchronized (this) {
+                if (null == nextSection) {
+                    nextSection = doLoadSectionFromDB(namespace);
                 }
             }
         }
