@@ -79,7 +79,6 @@ public class IdBuilderImpl implements IdBuilder {
     public Long get(String nameSpace) {
         if (section == null) {
             loadSectionFromDB(nameSpace);
-            loadNextSectionFromDB(nameSpace);
         }
         int times = 0;
         do {
@@ -91,7 +90,9 @@ public class IdBuilderImpl implements IdBuilder {
                 section = nextSection;
                 CompletableFuture.runAsync(() -> loadNextSectionFromDB(nameSpace), executor);
             } else {
-                loadNextSectionFromDB(nameSpace);
+                if (Kit.eq(section, nextSection)) {
+                    loadNextSectionFromDB(nameSpace);
+                }
             }
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
@@ -102,6 +103,7 @@ public class IdBuilderImpl implements IdBuilder {
             synchronized (this) {
                 if (null == section) {
                     section = doLoadSectionFromDB(namespace);
+                    nextSection = section;
                 }
             }
         }
@@ -109,9 +111,9 @@ public class IdBuilderImpl implements IdBuilder {
 
 
     private void loadNextSectionFromDB(String namespace) {
-        if (null == nextSection) {
+        if (Kit.eq(section, nextSection)) {
             synchronized (this) {
-                if (null == nextSection) {
+                if (Kit.eq(section, nextSection)) {
                     nextSection = doLoadSectionFromDB(namespace);
                 }
             }
