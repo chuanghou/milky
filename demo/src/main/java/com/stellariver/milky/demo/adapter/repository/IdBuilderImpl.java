@@ -91,8 +91,7 @@ public class IdBuilderImpl implements IdBuilder {
             }
             if (notEq(section, nextSection)) {
                 section = nextSection;
-            }
-            if (eq(section, nextSection)) {
+            } else {
                 lock.lock();
                 if (eq(section, nextSection)) {
                     CompletableFuture.runAsync(() -> {
