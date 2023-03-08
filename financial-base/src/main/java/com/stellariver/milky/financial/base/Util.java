@@ -21,23 +21,23 @@ public class Util {
         return new BigDecimal(value.substring(0, value.length() - 1)).divide(PERCENT, RoundingMode.UNNECESSARY);
     }
 
-    static public boolean same(BigDecimal left, BigDecimal right) {
+    static public boolean same(@NonNull BigDecimal left, @NonNull BigDecimal right) {
         return left.compareTo(right) == 0;
     }
 
-    static public boolean greater(BigDecimal left, BigDecimal right) {
+    static public boolean greater(@NonNull BigDecimal left, @NonNull BigDecimal right) {
         return left.compareTo(right) > 0;
     }
 
-    static public boolean greaterOrSame(BigDecimal left, BigDecimal right) {
+    static public boolean greaterOrSame(@NonNull BigDecimal left, @NonNull BigDecimal right) {
         return left.compareTo(right) >= 0;
     }
 
-    static public boolean less(BigDecimal left, BigDecimal right) {
+    static public boolean less(@NonNull BigDecimal left, @NonNull BigDecimal right) {
         return left.compareTo(right) < 0;
     }
 
-    static public boolean lessOrSame(BigDecimal left, BigDecimal right) {
+    static public boolean lessOrSame(@NonNull BigDecimal left, @NonNull BigDecimal right) {
         return left.compareTo(right) <= 0;
     }
 
