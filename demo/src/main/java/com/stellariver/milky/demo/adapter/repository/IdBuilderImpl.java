@@ -19,9 +19,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -50,7 +48,8 @@ public class IdBuilderImpl implements IdBuilder {
 
     volatile Pair<AtomicLong, Long> nextSection;
 
-    static private final Executor executor = Executors.newSingleThreadExecutor();
+    static private final Executor executor = new ThreadPoolExecutor(1, 1,
+            0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.CallerRunsPolicy());
 
     @Override
     public void initNameSpace(Sequence param) {
@@ -89,20 +88,10 @@ public class IdBuilderImpl implements IdBuilder {
             if (value < section.getRight()) {
                 return value;
             }
-            if (notEq(section, nextSection)) {
+            CompletableFuture.runAsync(() -> {
                 section = nextSection;
-            } else {
-                lock.lock();
-                if (eq(section, nextSection)) {
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            nextSection = doLoadSectionFromDB(nameSpace);
-                        } finally {
-                            lock.unlock();
-                        }
-                    }, executor);
-                }
-            }
+                loadNextSectionFromDB(nameSpace);
+            }, executor);
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
