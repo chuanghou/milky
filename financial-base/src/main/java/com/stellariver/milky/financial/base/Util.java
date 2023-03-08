@@ -11,33 +11,33 @@ public class Util {
 
     static public final BigDecimal PERCENT = new BigDecimal("100");
 
-    public static String toPercent(@NonNull BigDecimal value) {
+    public static String toPercent(BigDecimal value) {
         return value.multiply(PERCENT).toPlainString() + "%";
     }
 
-    public static BigDecimal fromPercent(@NonNull String value) {
+    public static BigDecimal fromPercent(String value) {
         boolean equals = value.charAt(value.length() - 1) == '%';
         SysEx.falseThrow(equals, ErrorEnumsBase.PARAM_FORMAT_WRONG.message(value));
         return new BigDecimal(value.substring(0, value.length() - 1)).divide(PERCENT, RoundingMode.UNNECESSARY);
     }
 
-    static public boolean same(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean same(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) == 0;
     }
 
-    static public boolean greater(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean greater(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) > 0;
     }
 
-    static public boolean greaterOrSame(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean greaterOrSame(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) >= 0;
     }
 
-    static public boolean less(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean less(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) < 0;
     }
 
-    static public boolean lessOrSame(@NonNull BigDecimal left, @NonNull BigDecimal right) {
+    static public boolean lessOrSame(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) <= 0;
     }
 
