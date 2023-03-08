@@ -88,10 +88,12 @@ public class IdBuilderImpl implements IdBuilder {
             if (value < section.getRight()) {
                 return value;
             }
-            CompletableFuture.runAsync(() -> {
-                section = nextSection;
-                loadNextSectionFromDB(nameSpace);
-            }, executor);
+            if (notEq(section, nextSection)) {
+                CompletableFuture.runAsync(() -> {
+                    section = nextSection;
+                    loadNextSectionFromDB(nameSpace);
+                }, executor);
+            }
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
