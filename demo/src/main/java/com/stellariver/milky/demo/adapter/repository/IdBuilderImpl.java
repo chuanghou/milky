@@ -23,8 +23,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.stellariver.milky.common.tool.common.Kit.eq;
+import static com.stellariver.milky.common.tool.common.Kit.notEq;
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
 import static com.stellariver.milky.common.tool.exception.SysEx.*;
 
@@ -72,6 +75,7 @@ public class IdBuilderImpl implements IdBuilder {
         trueThrow(insert != 1, ErrorEnumsBase.SYSTEM_EXCEPTION);
     }
 
+    static Lock lock = new ReentrantLock();
 
     @Override
     @SneakyThrows
@@ -85,11 +89,20 @@ public class IdBuilderImpl implements IdBuilder {
             if (value < section.getRight()) {
                 return value;
             }
-            if (Kit.notEq(section, nextSection)) {
+            if (notEq(section, nextSection)) {
                 section = nextSection;
-                CompletableFuture.runAsync(() -> loadNextSectionFromDB(nameSpace), executor);
-            } else {
-                loadNextSectionFromDB(nameSpace);
+            }
+            if (eq(section, nextSection)) {
+                lock.lock();
+                if (eq(section, nextSection)) {
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            nextSection = doLoadSectionFromDB(nameSpace);
+                        } finally {
+                            lock.unlock();
+                        }
+                    }, executor);
+                }
             }
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
@@ -105,13 +118,7 @@ public class IdBuilderImpl implements IdBuilder {
         }
     }
     synchronized private void loadNextSectionFromDB(String namespace) {
-        if (eq(section, nextSection)) {
-            synchronized (this) {
-                if (eq(section, nextSection)) {
-                    nextSection = doLoadSectionFromDB(namespace);
-                }
-            }
-        }
+        nextSection = doLoadSectionFromDB(namespace);
     }
 
     @Override
