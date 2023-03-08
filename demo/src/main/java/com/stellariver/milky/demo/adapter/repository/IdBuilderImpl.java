@@ -47,8 +47,7 @@ public class IdBuilderImpl implements IdBuilder {
 
     volatile Pair<AtomicLong, Long> section;
 
-    static private final Executor executor = new ThreadPoolExecutor(1, 1,
-            0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
+    static private final Executor executor = Executors.newSingleThreadExecutor();
 
     @Override
     public void initNameSpace(Sequence param) {
@@ -75,7 +74,7 @@ public class IdBuilderImpl implements IdBuilder {
 
     static Lock lock = new ReentrantLock();
 
-    private BlockingQueue<Pair<AtomicLong, Long>> queue = new ArrayBlockingQueue<>(1);
+    private final BlockingQueue<Pair<AtomicLong, Long>> queue = new ArrayBlockingQueue<>(1);
 
     @Override
     @SneakyThrows
@@ -93,12 +92,12 @@ public class IdBuilderImpl implements IdBuilder {
             if (section.getLeft().get() >= section.getRight()) {
                 synchronized (this) {
                     if (section.getLeft().get() >= section.getRight()) {
+                        section = queue.take();
                         CompletableFuture.runAsync(() -> {
                             try {
                                 queue.put(doLoadSectionFromDB(nameSpace));
                             } catch (InterruptedException ignore) {}
                         }, executor);
-                        section = queue.take();
                     }
                 }
             }
