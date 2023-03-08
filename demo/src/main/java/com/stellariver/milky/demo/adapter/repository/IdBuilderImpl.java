@@ -21,10 +21,8 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Function;
 
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
 import static com.stellariver.milky.common.tool.exception.SysEx.*;
@@ -78,7 +76,7 @@ public class IdBuilderImpl implements IdBuilder {
     @SneakyThrows
     public Long get(String nameSpace) {
         if (section == null) {
-            loadSectionFromDB(nameSpace);
+            initSections(nameSpace);
         }
         int times = 0;
         do {
@@ -97,7 +95,7 @@ public class IdBuilderImpl implements IdBuilder {
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
-    private void loadSectionFromDB(String namespace) {
+    private void initSections(String namespace) {
         if (null == section) {
             synchronized (this) {
                 if (null == section) {
