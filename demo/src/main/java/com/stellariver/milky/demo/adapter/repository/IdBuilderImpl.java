@@ -17,6 +17,7 @@ import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
+import sun.swing.SwingUtilities2;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -46,8 +47,6 @@ public class IdBuilderImpl implements IdBuilder {
 
     volatile Pair<AtomicLong, Long> section;
 
-    volatile Pair<AtomicLong, Long> nextSection;
-
     static private final Executor executor = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
 
@@ -76,6 +75,8 @@ public class IdBuilderImpl implements IdBuilder {
 
     static Lock lock = new ReentrantLock();
 
+    private BlockingQueue<Pair<AtomicLong, Long>> queue = new ArrayBlockingQueue<>(1);
+
     @Override
     @SneakyThrows
     public Long get(String nameSpace) {
@@ -92,10 +93,12 @@ public class IdBuilderImpl implements IdBuilder {
             if (section.getLeft().get() >= section.getRight()) {
                 synchronized (this) {
                     if (section.getLeft().get() >= section.getRight()) {
-                        if (!eq(section, nextSection)) {
-                            section = nextSection;
-                        }
-                        CompletableFuture.runAsync(() -> doLoadSectionFromDB(nameSpace), executor);
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                queue.put(doLoadSectionFromDB(nameSpace));
+                            } catch (InterruptedException ignore) {}
+                        }, executor);
+                        section = queue.take();
                     }
                 }
             }
@@ -103,12 +106,13 @@ public class IdBuilderImpl implements IdBuilder {
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
+    @SneakyThrows
     private void initSections(String namespace) {
         if (null == section) {
             synchronized (this) {
                 if (null == section) {
                     section = doLoadSectionFromDB(namespace);
-                    nextSection = doLoadSectionFromDB(namespace);
+                    queue.put(doLoadSectionFromDB(namespace));
                 }
             }
         }
