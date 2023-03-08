@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.stellariver.milky.common.tool.common.Kit.eq;
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
 import static com.stellariver.milky.common.tool.exception.SysEx.*;
 
@@ -104,9 +105,9 @@ public class IdBuilderImpl implements IdBuilder {
         }
     }
     synchronized private void loadNextSectionFromDB(String namespace) {
-        if (Kit.eq(section, nextSection)) {
+        if (eq(section, nextSection)) {
             synchronized (this) {
-                if (Kit.eq(section, nextSection)) {
+                if (eq(section, nextSection)) {
                     nextSection = doLoadSectionFromDB(namespace);
                 }
             }
@@ -140,7 +141,7 @@ public class IdBuilderImpl implements IdBuilder {
                 idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
             }
             Long start = idBuilderDO.getUniqueId();
-            if (Objects.equals(idBuilderDO.getUniqueId(), NULL_HOLDER_OF_LONG)) {
+            if (eq(idBuilderDO.getUniqueId(), NULL_HOLDER_OF_LONG)) {
                 idBuilderDO.setUniqueId(start);
             }
             AtomicLong atomicStart = new AtomicLong(idBuilderDO.getUniqueId());
@@ -168,11 +169,11 @@ public class IdBuilderImpl implements IdBuilder {
         Calendar now = Calendar.getInstance();
         now.setTime(new Date());
 
-        if (Kit.eq(idBuilderDO.getDuty(), Duty.MONTH.name())) {
+        if (eq(idBuilderDO.getDuty(), Duty.MONTH.name())) {
             return modified.get(Calendar.MONTH) != now.get(Calendar.MONTH);
-        } else if (Kit.eq(idBuilderDO.getDuty(), Duty.WEEK.name())) {
+        } else if (eq(idBuilderDO.getDuty(), Duty.WEEK.name())) {
             return modified.get(Calendar.WEEK_OF_YEAR) != now.get(Calendar.WEEK_OF_YEAR);
-        } else if (Kit.eq(idBuilderDO.getDuty(), Duty.DAY.name())) {
+        } else if (eq(idBuilderDO.getDuty(), Duty.DAY.name())) {
             return modified.get(Calendar.DAY_OF_YEAR) != now.get(Calendar.DAY_OF_YEAR);
         } else {
             return false;
