@@ -49,7 +49,7 @@ public class IdBuilderImpl implements IdBuilder {
     volatile Pair<AtomicLong, Long> nextSection;
 
     static private final Executor executor = new ThreadPoolExecutor(1, 1,
-            0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.CallerRunsPolicy());
+            0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
 
     @Override
     public void initNameSpace(Sequence param) {
@@ -88,12 +88,18 @@ public class IdBuilderImpl implements IdBuilder {
             if (value < section.getRight()) {
                 return value;
             }
-            if (notEq(section, nextSection)) {
-                CompletableFuture.runAsync(() -> {
-                    section = nextSection;
-                    loadNextSectionFromDB(nameSpace);
-                }, executor);
+
+            if (section.getLeft().get() >= section.getRight()) {
+                synchronized (this) {
+                    if (section.getLeft().get() >= section.getRight()) {
+                        if (!eq(section, nextSection)) {
+                            section = nextSection;
+                        }
+                        CompletableFuture.runAsync(() -> doLoadSectionFromDB(nameSpace), executor);
+                    }
+                }
             }
+
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
@@ -107,9 +113,7 @@ public class IdBuilderImpl implements IdBuilder {
             }
         }
     }
-    synchronized private void loadNextSectionFromDB(String namespace) {
-        nextSection = doLoadSectionFromDB(namespace);
-    }
+
 
     @Override
     public void reset(String nameSpace) {
