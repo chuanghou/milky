@@ -1,6 +1,8 @@
 package com.stellariver.milky.validate.tool;
 
+import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.ExceptionType;
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysEx;
@@ -21,7 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.stellariver.milky.common.tool.common.Kit.format;
 import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.REPEAT_VALIDATE_GROUP;
 
 /**
  * @author houchuang
@@ -103,9 +107,7 @@ public class ValidateUtil {
         Map<Class<?>, Method> customValidations = customValidMap.get(clazz);
         if (customValidations == null){
             List<Method> methods = Arrays.stream(param.getClass().getDeclaredMethods())
-                    .filter(m -> m.isAnnotationPresent(CustomValid.class))
-                    .peek(CUSTOM_VALID_FORMAT)
-                    .collect(Collectors.toList());
+                    .filter(m -> m.isAnnotationPresent(CustomValid.class)).peek(CUSTOM_VALID_FORMAT).collect(Collectors.toList());
 
             customValidations = new HashMap<>();
             for (Method method : methods) {
@@ -113,7 +115,8 @@ public class ValidateUtil {
                 List<Class<?>> groupList =  anno.groups().length == 0 ? Collect.asList(Default.class) : Collect.asList(anno.groups());
                 for (Class<?> group : groupList) {
                     Method oldValue = customValidations.put(group, method);
-                    SysEx.trueThrow(oldValue != null, CONFIG_ERROR.message(method.toGenericString()));
+                    SysEx.trueThrow(oldValue != null,
+                            REPEAT_VALIDATE_GROUP.message(format("repeat group %s validation", group)));
                 }
             }
             customValidMap.put(clazz, customValidations);
@@ -121,10 +124,9 @@ public class ValidateUtil {
 
         List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
-            Method method = customValidations.get(g);
-            if (method != null) {
-                Reflect.invoke(method, param);
-            }
+            Method method = Kit.op(customValidMap.get(clazz)).map(map -> map.get(g))
+                    .orElseThrow(() -> new SysEx(CONFIG_ERROR.message(format("not config %s validate", g))));
+            Reflect.invoke(method, param);
         }
 
     }

@@ -75,4 +75,7 @@ public class Kit {
         return t == null ? defaultValue : t;
     }
 
+    static public String format(String format, Object... objects) {
+        return String.format(format, objects);
+    }
 }

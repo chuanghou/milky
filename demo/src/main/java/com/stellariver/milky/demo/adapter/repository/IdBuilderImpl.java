@@ -79,9 +79,22 @@ public class IdBuilderImpl implements IdBuilder {
     @Override
     @SneakyThrows
     public Long get(String nameSpace) {
-        if (section == null) {
-            initSections(nameSpace);
+
+        // init
+        if (null == section) {
+            synchronized (this) {
+                if (null == section) {
+                    section = doLoadSectionFromDB(nameSpace);
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            queue.put(doLoadSectionFromDB(nameSpace));
+                        } catch (InterruptedException ignored) {}
+                    }, executor);
+                }
+            }
         }
+
+        // get
         int times = 0;
         do {
             long value = section.getLeft().getAndIncrement();
@@ -105,18 +118,6 @@ public class IdBuilderImpl implements IdBuilder {
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
     }
-    @SneakyThrows
-    private void initSections(String namespace) {
-        if (null == section) {
-            synchronized (this) {
-                if (null == section) {
-                    section = doLoadSectionFromDB(namespace);
-                    queue.put(doLoadSectionFromDB(namespace));
-                }
-            }
-        }
-    }
-
 
     @Override
     public void reset(String nameSpace) {

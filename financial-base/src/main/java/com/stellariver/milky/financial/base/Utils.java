@@ -2,12 +2,11 @@ package com.stellariver.milky.financial.base;
 
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysEx;
-import lombok.NonNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Util {
+public class Utils {
 
     static public final BigDecimal PERCENT = new BigDecimal("100");
 
@@ -41,4 +40,18 @@ public class Util {
         return left.compareTo(right) <= 0;
     }
 
+    static public BigDecimal multiply100(BigDecimal bigDecimal) {
+        return bigDecimal.multiply(PERCENT);
+    }
+
+    static public BigDecimal divide100(BigDecimal bigDecimal) {
+        return bigDecimal.movePointLeft(2);
+    }
+
+    public static void main(String[] args) {
+        BigDecimal bigDecimal = new BigDecimal("1.7");
+        System.out.println(bigDecimal);
+        System.out.println(divide100(bigDecimal));
+        System.out.println(bigDecimal);
+    }
 }

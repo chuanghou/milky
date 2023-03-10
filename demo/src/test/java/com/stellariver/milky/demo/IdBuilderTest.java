@@ -24,18 +24,12 @@ public class IdBuilderTest{
     @Test
     public void testIdBuilder() {
         Sequence sequence = Sequence.builder().nameSpace("my_test")
-                .duty(IdBuilder.Duty.NOT_WORK.name())
-                .step(100)
-                .start(1L)
-                .build();
+                .duty(IdBuilder.Duty.NOT_WORK.name()).step(100).start(1L).build();
         idBuilder.initNameSpace(sequence);
 
 
         sequence = Sequence.builder().nameSpace("my_test")
-                .duty(IdBuilder.Duty.NOT_WORK.name())
-                .step(100)
-                .start(1L)
-                .build();
+                .duty(IdBuilder.Duty.NOT_WORK.name()).step(100).start(1L).build();
         Throwable backUp = null;
         try {
             idBuilder.initNameSpace(sequence);
@@ -45,6 +39,7 @@ public class IdBuilderTest{
         Assertions.assertTrue(backUp instanceof BizEx);
         String code = ((BizEx) backUp).getFirstError().getCode();
         Assertions.assertEquals(code, ErrorEnumsBase.DUPLICATE_NAME_SPACE.getCode());
+
     }
 
 
