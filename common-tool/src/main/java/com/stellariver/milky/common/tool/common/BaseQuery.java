@@ -39,12 +39,14 @@ public abstract class BaseQuery<ID, T> {
         return idtMap;
     }
 
+    @SuppressWarnings("unchecked")
     public Map<ID, T> queryMapByIds(Set<ID> ids) {
-        Map<ID, T> mapResult = new HashMap<>(16);
+
         if (Collect.isEmpty(ids)) {
-            return mapResult;
+            return Collections.EMPTY_MAP;
         }
 
+        Map<ID, T> mapResult = new HashMap<>(16);
         Cache<ID, T> cache = threadLocal.get();
         if (getCacheConfig() != null && cache == null) {
             Cache<ID, T> c = CacheBuilder.newBuilder().maximumSize(getCacheConfig().getMaximumSize())
@@ -52,6 +54,7 @@ public abstract class BaseQuery<ID, T> {
                     .build();
             threadLocal.set(c);
         }
+
         cache = threadLocal.get();
         if (enable.get() && threadLocal.get() != null) {
             Set<ID> cacheKeys = Collect.inter(ids, cache.asMap().keySet());
