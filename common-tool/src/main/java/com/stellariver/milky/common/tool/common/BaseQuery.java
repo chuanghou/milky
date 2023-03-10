@@ -98,7 +98,7 @@ public abstract class BaseQuery<ID, T> {
         if (cacheConfig != null) {
             return cacheConfig;
         }
-        TLCConfig annotation = this.getClass().getAnnotation(TLCConfig.class);
+        TLCConfig annotation = this.getClass().getSuperclass().getAnnotation(TLCConfig.class);
         if (annotation != null) {
             return CacheConfig.builder()
                     .maximumSize(annotation.maximumSize())
