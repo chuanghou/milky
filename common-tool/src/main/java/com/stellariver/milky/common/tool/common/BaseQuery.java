@@ -72,7 +72,7 @@ public abstract class BaseQuery<ID, T> {
         }
 
         Map<ID, T> rpcResultMap = queryMapByIdsFilterEmptyIdsAfterCache(ids);
-        if (enable.get()) {
+        if (enable.get() && cache != null) {
             for (Map.Entry<ID, T> entry : rpcResultMap.entrySet()) {
                 if (entry.getValue() == null) {
                     cache.put(entry.getKey(), nullObject);
