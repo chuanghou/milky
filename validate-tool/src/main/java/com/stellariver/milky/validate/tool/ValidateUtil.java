@@ -123,9 +123,7 @@ public class ValidateUtil {
 
         List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
-            Method method = Kit.op(customValidMap.get(clazz)).map(map -> map.get(g))
-                    .orElseThrow(() -> new SysEx(CONFIG_ERROR.message(format("not config %s validate", g))));
-            Reflect.invoke(method, param);
+            Kit.op(customValidMap.get(clazz)).map(map -> map.get(g)).ifPresent(m -> Reflect.invoke(m, param));
         }
 
     }
