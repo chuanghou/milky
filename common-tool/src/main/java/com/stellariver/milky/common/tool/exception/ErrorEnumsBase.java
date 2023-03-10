@@ -66,8 +66,8 @@ public class ErrorEnumsBase {
             } catch (Throwable ignore) {}
 
             String code = field.getName();
-            String message = Kit.op(field.getAnnotation(Message.class).value()).filter(s -> !s.isEmpty()).orElse("系统累趴下啦！请稍后再试");
-            String prefix = field.getAnnotation(Message.class).prefix();
+            String message = Kit.op(field.getAnnotation(Message.class)).map(Message::value).filter(s -> !s.isEmpty()).orElse("系统累趴下啦！请稍后再试");
+            String prefix = Kit.op(field.getAnnotation(Message.class)).map(Message::prefix).orElse("");
             String p = prefix.isEmpty() ? prefix : prefix + ": ";
             ErrorEnum errorEnum = new ErrorEnum(code, p + message, null);
             try {
