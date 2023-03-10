@@ -105,9 +105,7 @@ public abstract class BaseQuery<ID, T> {
         TLCConfig annotation1 = this.getClass().getAnnotation(TLCConfig.class);
         boolean b = annotation0 != null && annotation1 != null;
         SysEx.trueThrow(b, ErrorEnumsBase.CONFIG_ERROR.message("exist two TLCConfigs"));
-
         TLCConfig annotation = annotation0 != null ? annotation0 : annotation1;
-
         if (annotation != null) {
             return CacheConfig.builder()
                     .maximumSize(annotation.maximumSize())
