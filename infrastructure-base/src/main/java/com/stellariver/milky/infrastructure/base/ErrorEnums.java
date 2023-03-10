@@ -15,7 +15,7 @@ public class ErrorEnums extends ErrorEnumsBase {
     public static ErrorEnum MESSAGE_RETRY;
 
     static {
-        for (Field field : ErrorEnumsBase.class.getDeclaredFields()) {
+        for (Field field : ErrorEnums.class.getDeclaredFields()) {
             try {
                 field.setAccessible(true);
                 Object o = field.get(null);
