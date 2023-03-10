@@ -32,10 +32,12 @@ public class ErrorEnums extends ErrorEnumsBase {
                     continue;
                 }
             } catch (Throwable ignore) {}
+
             String code = field.getName();
-            String message = Kit.op(field.getAnnotation(Message.class))
-                    .map(Message::value).orElse("系统繁忙请稍后再试");
-            ErrorEnum errorEnum = new ErrorEnum(code, message, null);
+            String message = Kit.op(field.getAnnotation(Message.class).value()).filter(s -> !s.isEmpty()).orElse("系统累趴下啦！请稍后再试");
+            String prefix = field.getAnnotation(Message.class).prefix();
+            String p = prefix.isEmpty() ? prefix : prefix + ": ";
+            ErrorEnum errorEnum = new ErrorEnum(code, p + message, null);
             try {
                 field.set(null, errorEnum);
             } catch (Throwable ignore) {}

@@ -9,6 +9,8 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Message {
 
-    String value();
+    String value() default "";
+
+    String prefix() default "";
 
 }

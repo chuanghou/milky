@@ -24,8 +24,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.stellariver.milky.common.tool.common.Kit.format;
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.REPEAT_VALIDATE_GROUP;
+import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
 
 /**
  * @author houchuang
@@ -136,9 +135,9 @@ public class ValidateUtil {
             List<String> messages = Collect.transfer(validateResult, ConstraintViolation::getMessage);
             String message = StringUtils.join(messages, ';');
             if (type == ExceptionType.BIZ) {
-                throw new BizEx(ErrorEnumsBase.PARAM_FORMAT_WRONG.message(message));
+                throw new BizEx(PARAM_FORMAT_WRONG.message(message));
             } else {
-                throw new SysEx(ErrorEnumsBase.PARAM_FORMAT_WRONG.message(message));
+                throw new SysEx(PARAM_FORMAT_WRONG.message(message));
             }
         }
     }

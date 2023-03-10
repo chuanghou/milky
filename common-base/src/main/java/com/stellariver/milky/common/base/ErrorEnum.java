@@ -19,9 +19,7 @@ import java.util.function.Supplier;
 public class ErrorEnum {
 
     String code;
-
     String message;
-
     Map<String, Object> params;
 
     public ErrorEnum(@NonNull String code, String message, Map<String, Object> params) {
