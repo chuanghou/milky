@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author houchuang
  */
+@SuppressWarnings("unused")
 public abstract class BaseQuery<ID, T> {
 
     private final ThreadLocal<Boolean> enable = ThreadLocal.withInitial(() -> false);
@@ -27,11 +28,7 @@ public abstract class BaseQuery<ID, T> {
 
     private CacheConfig cacheConfig;
 
-    private final ThreadLocal<Cache<ID, T>> threadLocal = ThreadLocal.withInitial(
-            () -> CacheBuilder.newBuilder().maximumSize(getCacheConfig().getMaximumSize())
-                    .expireAfterWrite(getCacheConfig().getExpireAfterWrite(), getCacheConfig().getTimeUnit())
-                    .build()
-    );
+    private final ThreadLocal<Cache<ID, T>> threadLocal = new ThreadLocal<>();
 
     abstract public Map<ID, T> queryMapByIdsFilterEmptyIdsAfterCache(Set<ID> ids);
 
@@ -47,8 +44,16 @@ public abstract class BaseQuery<ID, T> {
         if (Collect.isEmpty(ids)) {
             return mapResult;
         }
+
         Cache<ID, T> cache = threadLocal.get();
-        if (enable.get()) {
+        if (getCacheConfig() != null && cache == null) {
+            Cache<ID, T> c = CacheBuilder.newBuilder().maximumSize(getCacheConfig().getMaximumSize())
+                    .expireAfterWrite(getCacheConfig().getExpireAfterWrite(), getCacheConfig().getTimeUnit())
+                    .build();
+            threadLocal.set(c);
+        }
+        cache = threadLocal.get();
+        if (enable.get() && threadLocal.get() != null) {
             Set<ID> cacheKeys = Collect.inter(ids, cache.asMap().keySet());
             for (ID cacheKey : cacheKeys) {
                 T t = cache.getIfPresent(cacheKey);
@@ -68,13 +73,13 @@ public abstract class BaseQuery<ID, T> {
 
         Map<ID, T> rpcResultMap = queryMapByIdsFilterEmptyIdsAfterCache(ids);
         if (enable.get()) {
-            rpcResultMap.forEach((k, v) -> {
-                if (v == null) {
-                    cache.put(k, nullObject);
+            for (Map.Entry<ID, T> entry : rpcResultMap.entrySet()) {
+                if (entry.getValue() == null) {
+                    cache.put(entry.getKey(), nullObject);
                 } else {
-                    cache.put(k, v);
+                    cache.put(entry.getKey(), entry.getValue());
                 }
-            });
+            }
         }
         mapResult.putAll(rpcResultMap);
         return mapResult;
@@ -95,19 +100,13 @@ public abstract class BaseQuery<ID, T> {
         }
         TLCConfig annotation = this.getClass().getAnnotation(TLCConfig.class);
         if (annotation != null) {
-            cacheConfig =  CacheConfig.builder()
+            return CacheConfig.builder()
                     .maximumSize(annotation.maximumSize())
                     .expireAfterWrite(annotation.expireAfterWrite())
                     .timeUnit(annotation.timeUnit())
                     .build();
-        } else {
-            cacheConfig = CacheConfig.builder()
-                    .maximumSize(10L)
-                    .expireAfterWrite(3000L)
-                    .timeUnit(TimeUnit.MILLISECONDS)
-                    .build();
         }
-        return cacheConfig;
+        return null;
     }
 
     public Set<T> querySetByIdsNotAllowLost(Set<ID> ids) {
