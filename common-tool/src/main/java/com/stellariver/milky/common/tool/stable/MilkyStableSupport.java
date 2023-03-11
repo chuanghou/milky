@@ -40,7 +40,12 @@ public class MilkyStableSupport {
     }
 
     private void updateConfig() {
-        stableConfig = stableConfigReader.read();
+        StableConfig readStableConfig = stableConfigReader.read();
+        if (!Kit.eq(readStableConfig, stableConfig)) {
+            stableConfig = stableConfigReader.read();
+            rateLimiters.invalidateAll();
+            circuitBreakers.invalidateAll();
+        }
     }
 
     public String ruleId(ProceedingJoinPoint pjp) {
@@ -91,7 +96,7 @@ public class MilkyStableSupport {
     @Nullable
     public CircuitBreaker circuitBreaker(@NonNull String ruleId, @Nullable String key) {
 
-        String id = String.format(ruleId, key);
+        String id = String.format("%s_%s", ruleId, key);
         CircuitBreaker circuitBreaker = circuitBreakers.getIfPresent(id);
         if (circuitBreaker != null) {
             return circuitBreaker;
