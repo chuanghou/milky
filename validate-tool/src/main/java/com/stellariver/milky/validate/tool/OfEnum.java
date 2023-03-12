@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * The annotated element must be the name of an enum object of the enum class {@link OfEnum#enumType}
  * or any field of this enum class, default is enum name
  * you can also assign some selected ones, but the field must be string type or enum name
- * {@code null} elements are considered valid.
+ * {@code null} elements is considered valid.
  *
  * @author houchuang
  * @since 1.0
@@ -24,7 +24,7 @@ public @interface OfEnum {
     Class<? extends Enum<?>> enumType();
 
     /**
-     * if field is blank, used enum name as key
+     * if field is blank, use enum name as key
      */
     String field() default "";
 
