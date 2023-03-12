@@ -143,7 +143,7 @@ public class StateMachine<State, Event> {
 
                 transitions.add(transition);
             } else {
-                throw new RuntimeException("please paste" + dot + "to http://viz-js.com/ to verify the validation!");
+                throw new RuntimeException("please paste\n" + dot + "\nto http://viz-js.com/ to verify the validation!");
             }
         }
         return new StateMachine<>(transitions);
