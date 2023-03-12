@@ -20,10 +20,10 @@ public class Record {
 
     String beanName;
 
-    Message message;
-
     List<Message> messages;
 
     List<Trace> traces;
+
+    Object result;
 
 }

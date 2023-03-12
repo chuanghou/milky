@@ -167,6 +167,12 @@ public class Collect {
         return Sets.symmetricDifference(set1, set2);
     }
 
+    public static <T> Set<T> union(Collection<T> collection1, Collection<T> collection2) {
+        Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
+        return Sets.union(set1, set2);
+    }
+
     @SafeVarargs
     public static <T> Collector<T, List<List<T>>, List<List<T>>> select(Predicate<T>... predicates) {
         return new Collector<T, List<List<T>>, List<List<T>>>() {

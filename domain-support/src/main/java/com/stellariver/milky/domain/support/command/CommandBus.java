@@ -420,7 +420,7 @@ public class CommandBus {
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
                 Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
-                        .message(command).traces(context.getTraces()).build();
+                        .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
                 context.record(record);
                 context.clearTraces();
             });
@@ -441,7 +441,7 @@ public class CommandBus {
             beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
                 interceptor.invoke(command, aggregate, context);
                 Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
-                        .message(command).traces(context.getTraces()).build();
+                        .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
                 context.record(record);
                 context.clearTraces();
             });
@@ -457,8 +457,10 @@ public class CommandBus {
             throw new SysEx("unreached part!");
         }
 
-        Record record = Record.builder().beanName(aggregate.getClass().getSimpleName()).message(command)
-                .traces(context.getTraces()).build();
+        Record record = Record.builder().beanName(aggregate.getClass().getSimpleName())
+                .messages(Collections.singletonList(command)).traces(context.getTraces())
+                .result(result)
+                .build();
         context.record(record);
 
         // process context cache for aggregate
@@ -507,7 +509,8 @@ public class CommandBus {
         List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
-            record = Record.builder().beanName(interceptor.getClass().getSimpleName()).message(command).traces(context.getTraces()).build();
+            record = Record.builder().beanName(interceptor.getClass().getSimpleName())
+                    .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
             context.record(record);
             context.clearTraces();
         }

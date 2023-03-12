@@ -19,17 +19,23 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
     private Set<Object> enumKeys = new HashSet<>();
 
     @Override
-    @SneakyThrows
     public void initialize(OfEnum anno) {
         Class<? extends Enum<?>> clazz = anno.enumType();
         Enum<?>[] enumConstants = clazz.getEnumConstants();
         Field field = null;
         if (!StringUtils.isBlank(anno.field())) {
-            field = clazz.getDeclaredField(anno.field());
-            field.setAccessible(true);
+            try {
+                field = clazz.getDeclaredField(anno.field());
+            } catch (NoSuchFieldException ignore) {}
+            if (field != null) {
+                field.setAccessible(true);
+            }
         }
         for (Enum<?> enumConstant : enumConstants) {
-            Object key = field != null ? field.get(enumConstant) : enumConstant.name();
+            Object key = null;
+            try {
+                key = field != null ? field.get(enumConstant) : enumConstant.name();
+            } catch (IllegalAccessException ignore) {}
             boolean add = enumKeys.add(key);
             SysEx.falseThrow(add, CONFIG_ERROR.message(clazz.getSimpleName() + " field: " + key + " duplicated"));
         }

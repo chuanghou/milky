@@ -106,7 +106,7 @@ public class EventBus {
             router.route(event, context);
             Record record = Record.builder()
                     .beanName(router.getClass().getSimpleName())
-                    .message(event)
+                    .messages(Collections.singletonList(event))
                     .traces(context.getTraces())
                     .build();
             context.record(record);

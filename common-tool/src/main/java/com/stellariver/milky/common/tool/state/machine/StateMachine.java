@@ -1,6 +1,7 @@
 package com.stellariver.milky.common.tool.state.machine;
 
 import com.stellariver.milky.common.tool.common.BeanUtil;
+import lombok.NonNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -20,7 +21,6 @@ public class StateMachine<State, Event> {
 
     private final Map<State, Map<Event, Action<State, Event>>> transitions = new HashMap<>();
 
-
     static private Pattern patternS = Pattern.compile("\\\"\\w+\\\"\\s*->");
     static private Pattern patternT = Pattern.compile("->\\s*\\\"\\w+\\\"");
     static private Pattern patternL = Pattern.compile("\\[\\s*label\\s*=\\s*\\\".+\\\"\\]");
@@ -28,12 +28,7 @@ public class StateMachine<State, Event> {
     static private Pattern patternC = Pattern.compile("c\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
     static private Pattern patternR = Pattern.compile("r\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
 
-    public StateMachine(List<Transition<State, Event>> transitionList) {
-
-        if (transitionList == null) {
-            throw new IllegalArgumentException("parameter is null");
-        }
-
+    public StateMachine(@NonNull List<Transition<State, Event>> transitionList) {
         transitionList.forEach(t -> {
             State source = t.getSource();
             Event event = t.getEvent();
@@ -51,7 +46,6 @@ public class StateMachine<State, Event> {
                 throw new RepeatStateConfigException(transitionList.toString());
             }
         });
-
     }
 
     static final private Map<String, Object> emptyMap = new HashMap<>();
@@ -70,7 +64,7 @@ public class StateMachine<State, Event> {
      */
 
     @Nullable
-    public State fire(State source, Event event, Map<String, Object> context) {
+    public State fire(@NonNull State source, @NonNull Event event, Map<String, Object> context) {
         context = Optional.ofNullable(context).orElse(emptyMap);
         Map<Event, Action<State, Event>> map = transitions.get(source);
         if (map == null) {
