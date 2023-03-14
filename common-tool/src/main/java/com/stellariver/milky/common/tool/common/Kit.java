@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * @author houchuang
@@ -78,4 +79,5 @@ public class Kit {
     static public String format(String format, Object... objects) {
         return String.format(format, objects);
     }
+
 }

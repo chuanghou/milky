@@ -157,7 +157,7 @@ public class Collect {
 
     public static <T> Set<T> inter(Collection<T> collection1, Collection<T> collection2) {
         Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
-        Set<T> set2 =Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
+        Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
         return Sets.intersection(set1, set2);
     }
 
