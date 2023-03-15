@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo;
 
+import com.stellariver.milky.common.tool.state.machine.GraphVizSupport;
 import com.stellariver.milky.common.tool.state.machine.RepeatStateConfigException;
 import com.stellariver.milky.common.tool.state.machine.StateMachine;
 import com.stellariver.milky.common.tool.state.machine.Transition;
@@ -29,7 +30,7 @@ public class StateMachineTest {
         Throwable throwable = null;
         StateMachine<State, Event> machine;
         try {
-            machine = new StateMachine<>(Arrays.asList(t0, t00));
+            new StateMachine<>(Arrays.asList(t0, t00));
         } catch (RepeatStateConfigException exception) {
             throwable = exception;
         }
@@ -96,7 +97,7 @@ public class StateMachineTest {
                 "          \"c\" -> \"a\" [label= \"Event5\"]\n" +
                 "  }";
 
-        StateMachine<String, String> machine = StateMachine.fromGraphViz(data);
+        StateMachine<String, String> machine = GraphVizSupport.fromGraphViz(data);
 
         String fire = machine.fire("a", "Event2");
         Assertions.assertEquals(fire, "b");
