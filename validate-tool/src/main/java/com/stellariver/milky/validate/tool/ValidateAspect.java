@@ -2,6 +2,8 @@ package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.base.ExceptionType;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -19,15 +21,18 @@ public class ValidateAspect {
     @Pointcut("execution(@Validate * *(..))")
     private void pointCut() {}
 
-    @Before("pointCut()")
-    public void valid(JoinPoint joinPoint) {
-        Object[] args = joinPoint.getArgs();
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+    @Around("pointCut()")
+    public Object valid(ProceedingJoinPoint pjp) throws Throwable {
+        Object[] args = pjp.getArgs();
+        Method method = ((MethodSignature) pjp.getSignature()).getMethod();
         Validate annotation = method.getAnnotation(Validate.class);
         Class<?>[] groups = annotation.groups();
         boolean failFast = annotation.failFast();
         ExceptionType type = annotation.type();
-        ValidateUtil.validate(joinPoint.getTarget(), method, args, failFast, type, groups);
+        ValidateUtil.validate(pjp.getTarget(), method, args, failFast, type, groups);
+        Object result = pjp.proceed();
+        ValidateUtil.validate(result,type, failFast, groups);
+        return result;
     }
 
 }
