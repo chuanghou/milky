@@ -31,7 +31,7 @@ public class ValidateAspect {
         ExceptionType type = annotation.type();
         ValidateUtil.validate(pjp.getTarget(), method, args, failFast, type, groups);
         Object result = pjp.proceed();
-        ValidateUtil.validate(result,type, failFast, groups);
+        ValidateUtil.validate(pjp.getTarget(), method, result, failFast, type, groups);
         return result;
     }
 

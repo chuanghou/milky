@@ -44,9 +44,16 @@ public class ValidateUtil {
     final static Map<Class<?>, Map<Class<?>, Method>> customValidMap = new ConcurrentHashMap<>();
 
     public static void validate(Object object, Method method, Object[] params,
-                                boolean failFast, ExceptionType type, Class<?>... groups) throws BizEx {
+                                boolean failFast, ExceptionType type, Class<?>... groups) {
         validate(object, method, params, type, failFast, groups);
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
+    }
+
+    public static void validate(Object object, Method method, Object returnValue,
+                                boolean failFast, ExceptionType type, Class<?>... groups) {
+        ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
+        Set<ConstraintViolation<Object>> validateResult = executableValidator.validateReturnValue(object, method, returnValue, groups);
+        check(validateResult, type);
     }
 
     public static void bizValidate(Object object, Method method, Object[] params,
