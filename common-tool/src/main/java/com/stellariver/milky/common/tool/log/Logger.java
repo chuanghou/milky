@@ -126,6 +126,11 @@ public class Logger implements org.slf4j.Logger {
         return this;
     }
 
+    public void clear() {
+        withKeys.get().forEach(MDC::remove);
+        withKeys.get().clear();
+    }
+
     private void beforeLog() {
         StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[3];
         MDC.put("milky_class", stackTraceElement.getClassName());

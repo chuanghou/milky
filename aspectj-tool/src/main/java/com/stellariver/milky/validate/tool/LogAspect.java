@@ -33,11 +33,15 @@ public class LogAspect {
             backUp = throwable;
             throw throwable;
         } finally {
-            IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
-            log.result(result).cost(Clock.currentTimeMillis() - start);
-            if (backUp == null && debug && log.isDebugEnabled()) {
-                log.debug(pjp.toShortString());
+            if (backUp == null && debug) {
+                if (log.isDebugEnabled()) {
+                    IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
+                    log.result(result).cost(Clock.currentTimeMillis() - start);
+                    log.debug(pjp.toShortString());
+                }
             } else {
+                IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
+                log.result(result).cost(Clock.currentTimeMillis() - start);
                 log.log(pjp.toShortString(), backUp);
             }
         }
