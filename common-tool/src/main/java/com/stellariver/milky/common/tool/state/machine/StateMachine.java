@@ -21,8 +21,8 @@ public class StateMachine<State, Event> {
 
     private final Map<State, Map<Event, Action<State, Event>>> transitions = new HashMap<>();
 
-    public StateMachine(@NonNull List<Transition<State, Event>> transitionList) {
-        transitionList.forEach(t -> {
+    public StateMachine(@NonNull List<Transition<State, Event>> transitions) {
+        transitions.forEach(t -> {
             State source = t.getSource();
             Event event = t.getEvent();
             State target = t.getTarget();
@@ -30,26 +30,24 @@ public class StateMachine<State, Event> {
             Runner<State, Event> runner = t.getRunner();
             boolean b = source == null || event == null || target == null;
             if (b) {
-                throw new IllegalArgumentException(transitionList.toString());
+                throw new IllegalArgumentException(transitions.toString());
             }
-            Map<Event, Action<State, Event>> map = transitions.computeIfAbsent(source, k -> new HashMap<>());
+            Map<Event, Action<State, Event>> map = this.transitions.computeIfAbsent(source, k -> new HashMap<>());
             Action<State, Event> action = new Action<>(target, condition, runner);
             Action<State, Event> put = map.put(event, action);
             if (put != null) {
-                throw new RepeatStateConfigException(transitionList.toString());
+                throw new RepeatStateConfigException(transitions.toString());
             }
         });
     }
 
     static final private Map<String, Object> emptyMap = new HashMap<>();
 
-
     public State fire(State source, Event event) {
         return fire(source, event, emptyMap);
     }
 
     /**
-     *
      * @param source the source state
      * @param event the event on this state machine
      * @return the target state, if the target state is null, mean the source state did not accept this event when

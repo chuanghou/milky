@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>com.stellariver.milky</groupId>
-            <artifactId>validate-tool</artifactId>
+            <artifactId>aspectj-tool</artifactId>
         </dependency>
         <dependency>
             <groupId>org.reflections</groupId>

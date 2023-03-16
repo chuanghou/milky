@@ -13,7 +13,7 @@
 
     <modules>
         <module>common-base</module>
-        <module>validate-tool</module>
+        <module>aspectj-tool</module>
         <module>common-tool</module>
         <module>domain-support</module>
         <module>milky-spring-boot-starter</module>
@@ -79,7 +79,7 @@
             </dependency>
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
-                <artifactId>validate-tool</artifactId>
+                <artifactId>aspectj-tool</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
