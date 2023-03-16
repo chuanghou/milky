@@ -3,11 +3,14 @@
 
     <Properties>
         <Property name="LOG_PATH">log</Property>
+        <Property name="header">header: %d{HH:mm:ss.SSS} [%t-%-5level] %logger{36}:%-4L:%X{traceId} [success:%X{success}] [cost:%X{cost}] [result:%X{result}]</Property>
+        <Property name="milky">milky: [class:%X{milky_class}] [method:%X{milky_method}] [line:%X{milky_line}]</Property>
+        <Property name="args">args: [arg0:%X{arg0}] [arg1:%X{arg1}] [arg2:%X{arg2}] [arg3:%X{arg3}] [arg4:%X{arg4}] [arg5:%X{arg5}]</Property>
     </Properties>
 
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t-%-5level] %logger{36}:%-4L\n    msg: %msg\n    milky_info: [class:%X{milky_class}] [method:%X{milky_method}] [line:%X{milky_line}]%n%n"/>
+            <PatternLayout pattern="\n=====msg: %msg\n==${header}\n===${milky}\n====${args}\n"/>
         </Console>
 
         <RollingRandomAccessFile name="Application" immediateFlush="true"

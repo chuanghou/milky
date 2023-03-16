@@ -118,8 +118,6 @@ public class BasicTest {
         Assertions.assertTrue(handle < after);
 
         List<ItemDO> itemDOS = itemDOMapper.selectList(null);
-        System.out.println("publishItemDOTest");
-        System.out.println(itemDOS);
 
     }
 
