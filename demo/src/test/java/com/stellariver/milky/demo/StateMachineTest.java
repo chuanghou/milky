@@ -4,12 +4,14 @@ import com.stellariver.milky.common.tool.state.machine.GraphVizSupport;
 import com.stellariver.milky.common.tool.state.machine.RepeatStateConfigException;
 import com.stellariver.milky.common.tool.state.machine.StateMachine;
 import com.stellariver.milky.common.tool.state.machine.Transition;
+import lombok.CustomLog;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@CustomLog
 public class StateMachineTest {
 
     enum State {

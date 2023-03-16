@@ -119,6 +119,8 @@ public class BasicTest {
 
         List<ItemDO> itemDOS = itemDOMapper.selectList(null);
 
+        log.arg0("1").arg1(233).error("test");
+
     }
 
     @Test

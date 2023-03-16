@@ -52,7 +52,7 @@
     </Appenders>
 
     <Loggers>
-        <AsyncRoot level="WARN">
+        <AsyncRoot level="INFO">
             <AppenderRef ref="Application"/>
             <AppenderRef ref="Console"/>
         </AsyncRoot>
