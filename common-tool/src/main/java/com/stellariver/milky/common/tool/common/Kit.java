@@ -5,6 +5,7 @@ import com.stellariver.milky.common.tool.slambda.SLambda;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
@@ -78,6 +79,27 @@ public class Kit {
 
     static public String format(String format, Object... objects) {
         return String.format(format, objects);
+    }
+
+    @Nullable
+    @SafeVarargs
+    static public <T> T defaultChain(Supplier<T>... suppliers) {
+        for (Supplier<T> supplier : suppliers) {
+            if (supplier.get() != null) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    @SafeVarargs
+    static public <T> T defaultChain(@NonNull T defaultValue, Supplier<T>... suppliers) {
+        for (Supplier<T> supplier : suppliers) {
+            if (supplier.get() != null) {
+                return null;
+            }
+        }
+        return defaultValue;
     }
 
 }

@@ -8,15 +8,13 @@ import java.math.RoundingMode;
 
 public class Utils {
 
-    static public final BigDecimal PERCENT = new BigDecimal("100");
-
     public static String toPercent(BigDecimal value) {
         return value.movePointRight(2).toPlainString() + "%";
     }
 
     public static BigDecimal fromPercent(String value) {
         boolean equals = value.charAt(value.length() - 1) == '%';
-        SysEx.falseThrow(equals, ErrorEnumsBase.PARAM_FORMAT_WRONG.message(value));
+        SysEx.falseThrowGet(equals, () -> ErrorEnumsBase.PARAM_FORMAT_WRONG.message(value));
         return new BigDecimal(value.substring(0, value.length() - 1)).movePointLeft(2);
     }
 

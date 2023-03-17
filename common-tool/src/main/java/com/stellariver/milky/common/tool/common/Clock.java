@@ -20,18 +20,15 @@ public class Clock {
     }
 
     private void scheduleClockUpdating() {
-
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
             Thread thread = new Thread(runnable, "System Clock");
             thread.setDaemon(true);
             return thread;
         });
-
         scheduler.scheduleAtFixedRate(() -> {
             now = System.currentTimeMillis();
             today = Integer.parseInt(DateFormatUtils.format(new Date(now), "yyyyMMdd"));
         }, period, period, TimeUnit.MILLISECONDS);
-
     }
 
     private static class InstanceHolder {
