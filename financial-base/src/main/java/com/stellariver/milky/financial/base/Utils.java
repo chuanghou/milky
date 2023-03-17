@@ -11,13 +11,13 @@ public class Utils {
     static public final BigDecimal PERCENT = new BigDecimal("100");
 
     public static String toPercent(BigDecimal value) {
-        return value.multiply(PERCENT).toPlainString() + "%";
+        return value.movePointRight(2).toPlainString() + "%";
     }
 
     public static BigDecimal fromPercent(String value) {
         boolean equals = value.charAt(value.length() - 1) == '%';
         SysEx.falseThrow(equals, ErrorEnumsBase.PARAM_FORMAT_WRONG.message(value));
-        return new BigDecimal(value.substring(0, value.length() - 1)).divide(PERCENT, RoundingMode.UNNECESSARY);
+        return new BigDecimal(value.substring(0, value.length() - 1)).movePointLeft(2);
     }
 
     static public boolean same(BigDecimal left, BigDecimal right) {
@@ -41,17 +41,11 @@ public class Utils {
     }
 
     static public BigDecimal multiply100(BigDecimal bigDecimal) {
-        return bigDecimal.multiply(PERCENT);
+        return bigDecimal.movePointRight(2);
     }
 
     static public BigDecimal divide100(BigDecimal bigDecimal) {
         return bigDecimal.movePointLeft(2);
     }
 
-    public static void main(String[] args) {
-        BigDecimal bigDecimal = new BigDecimal("1.7");
-        System.out.println(bigDecimal);
-        System.out.println(divide100(bigDecimal));
-        System.out.println(bigDecimal);
-    }
 }
