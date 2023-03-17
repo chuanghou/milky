@@ -85,8 +85,9 @@ public class Kit {
     @SafeVarargs
     static public <T> T defaultChain(Supplier<T>... suppliers) {
         for (Supplier<T> supplier : suppliers) {
-            if (supplier.get() != null) {
-                return null;
+            T t = supplier.get();
+            if (t != null) {
+                return t;
             }
         }
         return null;
@@ -95,8 +96,9 @@ public class Kit {
     @SafeVarargs
     static public <T> T defaultChain(@NonNull T defaultValue, Supplier<T>... suppliers) {
         for (Supplier<T> supplier : suppliers) {
-            if (supplier.get() != null) {
-                return null;
+            T t = supplier.get();
+            if (t != null) {
+                return t;
             }
         }
         return defaultValue;
