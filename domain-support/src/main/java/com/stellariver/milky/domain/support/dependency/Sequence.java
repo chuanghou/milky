@@ -2,7 +2,7 @@ package com.stellariver.milky.domain.support.dependency;
 
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysEx;
-import com.stellariver.milky.validate.tool.OfEnum;
+import com.stellariver.milky.common.tool.validate.OfEnum;
 import lombok.Builder;
 import lombok.Data;
 

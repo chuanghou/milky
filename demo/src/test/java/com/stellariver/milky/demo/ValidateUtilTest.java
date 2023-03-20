@@ -3,12 +3,12 @@ package com.stellariver.milky.demo;
 import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.common.base.ExceptionType;
-import com.stellariver.milky.validate.tool.OfEnum;
-import com.stellariver.milky.validate.tool.Validate;
-import com.stellariver.milky.validate.tool.ValidateUtil;
-import lombok.Builder;
-import lombok.Data;
-import lombok.SneakyThrows;
+import com.stellariver.milky.common.tool.validate.OfEnum;
+import com.stellariver.milky.common.tool.validate.Validate;
+import com.stellariver.milky.common.tool.validate.ValidateUtil;
+import com.stellariver.milky.financial.base.Share;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Range;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -268,6 +268,42 @@ public class ValidateUtilTest {
 
         @OfEnum(enumType = ChannelEnum.class, field = "display", selected = "阿里")
         String code;
+
+    }
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    static class StockEntity {
+
+        @Share
+        long quantity;
+
+    }
+
+
+    @Test
+    public void shareTest() {
+        StockEntity stockEntity = new StockEntity();
+        ValidateUtil.validate(stockEntity);
+
+        stockEntity.setQuantity(1050L);
+
+        Throwable backup = null;
+        try {
+            ValidateUtil.validate(stockEntity);
+        } catch (Throwable t) {
+            backup = t;
+        }
+        Assertions.assertNotNull(backup);
+        Assertions.assertTrue(backup instanceof BizEx);
+        System.out.println(backup.getMessage());
+
+        stockEntity.setQuantity(1000L);
+        ValidateUtil.validate(stockEntity);
 
     }
 

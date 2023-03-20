@@ -3,7 +3,7 @@ package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.exception.BizEx;
-import com.stellariver.milky.validate.tool.ValidateUtil;
+import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

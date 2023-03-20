@@ -1,11 +1,11 @@
 package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.base.ExceptionType;
-import org.aspectj.lang.JoinPoint;
+import com.stellariver.milky.common.tool.validate.Validate;
+import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 
@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 @Aspect
 public class ValidateAspect {
 
-    @Pointcut("execution(@Validate * *(..))")
+    @Pointcut("execution(@com.stellariver.milky.common.tool.validate.Validate * *(..))")
     private void pointCut() {}
 
     @Around("pointCut()")

@@ -65,6 +65,10 @@
             <groupId>com.stellariver.milky</groupId>
             <artifactId>infrastructure-base</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>financial-base</artifactId>
+        </dependency>
         <!-- redundant dependencies end -->
 
         <dependency>

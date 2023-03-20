@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool;
+package com.stellariver.milky.common.tool.validate;
 
 import java.lang.annotation.*;
 

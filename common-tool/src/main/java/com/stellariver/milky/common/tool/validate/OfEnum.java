@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool;
+package com.stellariver.milky.common.tool.validate;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

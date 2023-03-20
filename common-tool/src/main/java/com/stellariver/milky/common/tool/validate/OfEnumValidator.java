@@ -1,8 +1,7 @@
-package com.stellariver.milky.validate.tool;
+package com.stellariver.milky.common.tool.validate;
 
 import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
