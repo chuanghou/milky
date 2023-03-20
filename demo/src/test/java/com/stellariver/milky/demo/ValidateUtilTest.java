@@ -6,7 +6,7 @@ import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.validate.OfEnum;
 import com.stellariver.milky.common.tool.validate.Validate;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
-import com.stellariver.milky.financial.base.Share;
+import com.stellariver.milky.financial.base.ExactDivision;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Range;
@@ -280,8 +280,12 @@ public class ValidateUtilTest {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     static class StockEntity {
 
-        @Share
+        @ExactDivision
         long quantity;
+
+
+        @ExactDivision("0.01")
+        String value;
 
     }
 
@@ -301,11 +305,24 @@ public class ValidateUtilTest {
         }
         Assertions.assertNotNull(backup);
         Assertions.assertTrue(backup instanceof BizEx);
-        System.out.println(backup.getMessage());
 
         stockEntity.setQuantity(1000L);
         ValidateUtil.validate(stockEntity);
 
+
+        StockEntity stockEntity1 = new StockEntity();
+        stockEntity1.setValue("0.45");
+        ValidateUtil.validate(stockEntity1);
+
+        backup = null;
+        stockEntity1.setValue("0.451");
+        try {
+            ValidateUtil.validate(stockEntity1);
+        } catch (Throwable throwable) {
+            backup = throwable;
+        }
+        Assertions.assertNotNull(backup);
+        Assertions.assertTrue(backup instanceof BizEx);
     }
 
 

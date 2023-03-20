@@ -8,15 +8,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ *
+ * {@code null} elements is considered valid.
  * @author houchuang
  * @since 1.0
  */
 @Target(ElementType.FIELD)
-@Constraint(validatedBy = ShareValidator.class)
+@Constraint(validatedBy = ExactDivisionValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Share{
+public @interface ExactDivision {
 
-    long value() default 100L;
+    String value() default "100";
 
     String message() default "${validatedValue}不能被{value}整除";
 
