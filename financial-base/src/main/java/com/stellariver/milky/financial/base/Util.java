@@ -4,9 +4,8 @@ import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysEx;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
-public class Utils {
+public class Util {
 
     public static String toPercent(BigDecimal value) {
         return value.movePointRight(2).toPlainString() + "%";
