@@ -1,5 +1,6 @@
 package com.stellariver.milky.financial.base;
 
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysEx;
 
@@ -12,7 +13,7 @@ public class Util {
     }
 
     public static BigDecimal fromPercent(String value) {
-        boolean equals = value.charAt(value.length() - 1) == '%';
+        boolean equals = Kit.eq(value.charAt(value.length() - 1), '%');
         SysEx.falseThrowGet(equals, () -> ErrorEnumsBase.PARAM_FORMAT_WRONG.message(value));
         return new BigDecimal(value.substring(0, value.length() - 1)).movePointLeft(2);
     }
