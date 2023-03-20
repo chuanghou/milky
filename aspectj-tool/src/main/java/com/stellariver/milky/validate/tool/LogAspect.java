@@ -2,7 +2,7 @@ package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.log.Logger;
-import com.stellariver.milky.common.tool.validate.Log;
+import com.stellariver.milky.common.tool.log.Log;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,7 +17,7 @@ public class LogAspect {
 
     static private final Logger log = Logger.getLogger(LogAspect.class);
 
-    @Pointcut("execution(@com.stellariver.milky.common.tool.validate.Log * *(..))")
+    @Pointcut("execution(@com.stellariver.milky.common.tool.log.Log * *(..))")
     private void pointCut() {}
 
     @Around("pointCut()")

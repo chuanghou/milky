@@ -21,8 +21,8 @@ public class ExactDivisionValidator implements ConstraintValidator<ExactDivision
             return true;
         }
         if (value instanceof Double || value instanceof Float) {
-            throw new SysEx("double or float couldn't be used to describe an exact number, " +
-                    "if your number include point, please use string");
+            throw new SysEx("double or float couldn't be used to describe an exact number, please use int or long, " +
+                    "if your number include point, use string");
         }
         BigDecimal bigDecimal = new BigDecimal(value.toString());
         return bigDecimal.remainder(divider).compareTo(BigDecimal.ZERO) == 0;

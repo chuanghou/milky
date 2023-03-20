@@ -4,7 +4,7 @@ import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.PageResult;
 import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.tool.exception.BaseException;
+import com.stellariver.milky.common.tool.exception.BaseEx;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
@@ -78,8 +78,8 @@ public class RpcAspect {
             }
             result = pjp.proceed();
         } catch (Throwable throwable) {
-            if (throwable instanceof BaseException) {
-                errorEnums = ((BaseException) throwable).getErrors();
+            if (throwable instanceof BaseEx) {
+                errorEnums = ((BaseEx) throwable).getErrors();
             } else {
                 ErrorEnum errorEnum = ErrorEnums.SYSTEM_EXCEPTION.message(throwable.getMessage());
                 errorEnums = Collect.asList(errorEnum);

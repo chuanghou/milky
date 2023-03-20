@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 /**
  * @author houchuang
  */
-public class SysEx extends BaseException {
+public class SysEx extends BaseEx {
 
     public SysEx(Object object) {
         super(Collections.singletonList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(object)));

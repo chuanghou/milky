@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 /**
  * @author houchuang
  */
-public class BizEx extends BaseException {
+public class BizEx extends BaseEx {
 
     public BizEx(ErrorEnum errorEnum, Throwable throwable) {
         super(Collections.singletonList(errorEnum), throwable);
