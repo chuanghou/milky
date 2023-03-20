@@ -2,6 +2,7 @@ package com.stellariver.milky.common.tool.validate;
 
 import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.Reflect;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
@@ -15,36 +16,34 @@ import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_
 
 public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
 
-    private Set<Object> enumKeys = new HashSet<>();
+    private final Set<Object> enumKeys = new HashSet<>();
 
     @Override
     public void initialize(OfEnum anno) {
         Class<? extends Enum<?>> clazz = anno.enumType();
-        Enum<?>[] enumConstants = clazz.getEnumConstants();
+        List<Enum<?>> enumConstants = Arrays.stream(clazz.getEnumConstants()).collect(Collectors.toList());
+        if (anno.selectedEnums().length != 0) {
+            Set<String> existedEnumNames = enumConstants.stream().map(Enum::name).collect(Collectors.toSet());
+            Set<String> selectedEnums = Arrays.stream(anno.selectedEnums()).collect(Collectors.toSet());
+            Set<String> diff = Collect.diff(selectedEnums, existedEnumNames);
+            SysEx.falseThrow(diff.isEmpty(), CONFIG_ERROR.message("selected Enums 包含未配置枚举" + diff));
+            enumConstants = enumConstants.stream().filter(e -> selectedEnums.contains(e.name())).collect(Collectors.toList());
+        }
+
         Field field = null;
         if (!StringUtils.isBlank(anno.field())) {
             try {
                 field = clazz.getDeclaredField(anno.field());
             } catch (NoSuchFieldException ignore) {}
-            if (field != null) {
-                field.setAccessible(true);
-            }
+            Reflect.setAccessible(field);
         }
+
         for (Enum<?> enumConstant : enumConstants) {
             Object key = null;
             try {
                 key = field != null ? field.get(enumConstant) : enumConstant.name();
             } catch (IllegalAccessException ignore) {}
-            boolean add = enumKeys.add(key);
-            SysEx.falseThrow(add, CONFIG_ERROR.message(clazz.getSimpleName() + " field: " + key + " duplicated"));
-        }
-        if (anno.selected().length != 0) {
-            boolean b = field == null || field.getType().equals(String.class);
-            SysEx.falseThrow(b, CONFIG_ERROR.message("配置的key类型不是字符串"));
-            Set<Object> selectKeys = Arrays.stream(anno.selected()).collect(Collectors.toSet());
-            Set<Object> diff = Collect.diff(selectKeys, enumKeys);
-            SysEx.falseThrow(diff.isEmpty(), CONFIG_ERROR.message("selected keys 包含枚举类中未配置keys" + diff));
-            enumKeys = selectKeys;
+            enumKeys.add(key);
         }
 
     }

@@ -32,7 +32,7 @@ public @interface OfEnum {
      * when the check key is enum name or the field selected is String type
      * the selected values could be a subset code of selected enum values
      */
-    String[] selected() default {};
+    String[] selectedEnums() default {};
 
     String message() default "${validatedValue}不在允许的${enumKeys}范围之内";
 

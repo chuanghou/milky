@@ -266,8 +266,9 @@ public class ValidateUtilTest {
     @Builder
     static class MyParamTestEnumSelectedKeys {
 
-        @OfEnum(enumType = ChannelEnum.class, field = "display", selected = "阿里")
+        @OfEnum(enumType = ChannelEnum.class, field = "display", selectedEnums = "ALI")
         String code;
+
 
     }
 
