@@ -17,7 +17,6 @@ import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
-import sun.swing.SwingUtilities2;
 
 import java.util.*;
 import java.util.concurrent.*;
