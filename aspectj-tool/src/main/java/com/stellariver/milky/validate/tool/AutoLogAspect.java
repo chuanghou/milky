@@ -3,6 +3,7 @@ package com.stellariver.milky.validate.tool;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.log.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
 
 import java.util.stream.IntStream;
@@ -35,7 +36,10 @@ public class AutoLogAspect {
     @Pointcut("execution(public * com.stellariver.milky.demo..*.*(..))")
     private void packagePC() {}
 
-//    @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC()")
+    @Pointcut("execution(@com.stellariver.milky.common.tool.log.Log * *(..))")
+    private void logAnno() {}
+
+//    @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC() && !logAnno")
     public Object log(ProceedingJoinPoint pjp) throws Throwable {
         Object[] args = pjp.getArgs();
         Object result = null;
@@ -49,7 +53,19 @@ public class AutoLogAspect {
         } finally {
             IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
             log.result(result).cost(Clock.currentTimeMillis() - start);
+
+            // you can choose one model above, debug enable or info
+
+            // 1. debug enable model
+            if (log.isDebugEnabled()) {
+                log.log(pjp.toShortString(), backUp);
+            }
+
+            // 2. info and error model
+            IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
+            log.result(result).cost(Clock.currentTimeMillis() - start);
             log.log(pjp.toShortString(), backUp);
+
         }
         return result;
     }
