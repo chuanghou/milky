@@ -1,12 +1,9 @@
 package com.stellariver.milky.common.tool.state.machine;
 
-import com.stellariver.milky.common.tool.common.BeanUtil;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This a very simple state machine implementation, I have ever use squirrel state machine and spring state machine,

@@ -9,31 +9,32 @@ import java.util.regex.Pattern;
 
 public class GraphVizSupport {
 
-    static private Pattern patternS = Pattern.compile("\\\"\\w+\\\"\\s*->");
-    static private Pattern patternT = Pattern.compile("->\\s*\\\"\\w+\\\"");
-    static private Pattern patternL = Pattern.compile("\\[\\s*label\\s*=\\s*\\\".+\\\"\\]");
-    static private Pattern patternE = Pattern.compile("\\\"\\s*\\w+(,|\\\")");
-    static private Pattern patternC = Pattern.compile("c\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
-    static private Pattern patternR = Pattern.compile("r\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
+    static private final Pattern patternS = Pattern.compile("\\\"\\w+\\\"\\s*->");
+    static private final Pattern patternT = Pattern.compile("->\\s*\\\"\\w+\\\"");
+    static private final Pattern patternL = Pattern.compile("\\[\\s*label\\s*=\\s*\\\".+\\\"\\]");
+    static private final Pattern patternE = Pattern.compile("\\\"\\s*\\w+(,|\\\")");
+    static private final Pattern patternC = Pattern.compile("c\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
+    static private final Pattern patternR = Pattern.compile("r\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
 
+    @SuppressWarnings("unchecked")
     public static StateMachine<String, String> fromGraphViz(String dot) {
 
         Matcher matcherSource = patternS.matcher(dot);
         Matcher matcherTarget = patternT.matcher(dot);
-        Matcher matcherLable = patternL.matcher(dot);
+        Matcher matcherLabel = patternL.matcher(dot);
 
         List<Transition<String, String>> transitions = new ArrayList<>();
         while (true) {
             boolean s = matcherSource.find();
             boolean t = matcherTarget.find();
-            boolean l = matcherLable.find();
+            boolean l = matcherLabel.find();
 
             if (!s && !t && !l) {
                 break;
             } else if (s && t && l) {
                 String source = extractByQuotes(matcherSource.group());
                 String target = extractByQuotes(matcherTarget.group());
-                String label = matcherLable.group();
+                String label = matcherLabel.group();
 
                 String condition = null;
                 Matcher matcherC = patternC.matcher(label);
@@ -58,10 +59,10 @@ public class GraphVizSupport {
                     throw new RuntimeException(label);
                 }
 
-                boolean avilableCondition = condition == null || BeanUtil.getBeanLoader() == null;
-                Object conditionBean = avilableCondition ? null : BeanUtil.getBean(condition);
-                boolean avilableAction = condition == null || BeanUtil.getBeanLoader() == null;
-                Object runnerBean = avilableAction ? null : BeanUtil.getBean(runner);
+                boolean availableCondition = condition == null || BeanUtil.getBeanLoader() == null;
+                Object conditionBean = availableCondition ? null : BeanUtil.getBean(condition);
+                boolean availableAction = condition == null || BeanUtil.getBeanLoader() == null;
+                Object runnerBean = availableAction ? null : BeanUtil.getBean(runner);
 
                 Transition<String, String> transition = Transition.<String, String>builder()
                         .source(source).event(event).target(target)

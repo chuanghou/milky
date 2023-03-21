@@ -1,6 +1,5 @@
 package com.stellariver.milky.common.base;
 
-
 import lombok.Data;
 import lombok.NonNull;
 
