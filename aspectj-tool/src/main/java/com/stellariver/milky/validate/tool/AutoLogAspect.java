@@ -1,15 +1,10 @@
-package com.stellariver.milky.validate.tool;
+package org.example;
 
 import com.stellariver.milky.common.tool.common.Clock;
-import com.stellariver.milky.common.tool.log.Log;
 import com.stellariver.milky.common.tool.log.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 
-import java.lang.reflect.Method;
 import java.util.stream.IntStream;
 
 /**
@@ -17,14 +12,30 @@ import java.util.stream.IntStream;
  * user source code, then set the point cut to the package of project
  * @author houchuang
  */
-public class DebugAspect {
+//@Aspect
+public class AutoLogAspect {
 
-    static private final Logger log = Logger.getLogger(DebugAspect.class);
+    static private final Logger log = Logger.getLogger(AutoLogAspect.class);
 
-    @Pointcut("execution(* com.stellariver.milky.demo..*.*(..))")
-    private void pointCut() {}
+    @Pointcut("execution(* *.set*(..))")
+    private void setterPC() {}
 
-    @Around("pointCut()")
+    @Pointcut("execution(* *.get*(..))")
+    private void getterPC() {}
+
+    @Pointcut("execution(* *.toString(..))")
+    public void toStringPC() {}
+
+    @Pointcut("execution(* *.hashCode(..))")
+    public void hashCodePC() {}
+
+    @Pointcut("execution(* *.equals(..))")
+    public void equalPC() {}
+
+    @Pointcut("execution(public * org.example.business..*.*(..))")
+    private void packagePC() {}
+
+//    @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalPC() && !hashCodePC()")
     public Object log(ProceedingJoinPoint pjp) throws Throwable {
         Object[] args = pjp.getArgs();
         Object result = null;
