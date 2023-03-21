@@ -4,6 +4,7 @@ import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.log.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 import java.util.stream.IntStream;
@@ -39,7 +40,7 @@ public class AutoLogAspect {
     @Pointcut("execution(@com.stellariver.milky.common.tool.log.Log * *(..))")
     private void logAnno() {}
 
-//    @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC() && !logAnno")
+//    @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC() && !logAnno()")
     public Object log(ProceedingJoinPoint pjp) throws Throwable {
         Object[] args = pjp.getArgs();
         Object result = null;
