@@ -1,4 +1,4 @@
-package org.example;
+package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.log.Logger;
@@ -30,12 +30,12 @@ public class AutoLogAspect {
     public void hashCodePC() {}
 
     @Pointcut("execution(* *.equals(..))")
-    public void equalPC() {}
+    public void equalsPC() {}
 
-    @Pointcut("execution(public * org.example.business..*.*(..))")
+    @Pointcut("execution(public * com.stellariver.milky.demo..*.*(..))")
     private void packagePC() {}
 
-//    @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalPC() && !hashCodePC()")
+//    @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC()")
     public Object log(ProceedingJoinPoint pjp) throws Throwable {
         Object[] args = pjp.getArgs();
         Object result = null;
