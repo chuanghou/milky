@@ -55,7 +55,7 @@ public class AutoLogAspect {
             IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
             log.result(result).cost(Clock.currentTimeMillis() - start);
 
-            // you can choose one model above, debug enable or info
+            // you can choose one model above, debug enable model or info and error model
 
             // 1. debug enable model
             if (log.isDebugEnabled()) {
