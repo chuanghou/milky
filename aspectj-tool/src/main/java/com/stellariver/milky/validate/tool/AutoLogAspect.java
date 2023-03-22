@@ -34,7 +34,7 @@ public class AutoLogAspect {
     @Pointcut("execution(* *.equals(..))")
     public void equalsPC() {}
 
-    @Pointcut("execution(public * com.stellariver.milky.demo..*.*(..))")
+    @Pointcut("execution(* com.stellariver.milky.demo..*.*(..))")
     private void packagePC() {}
 
     @Pointcut("execution(@com.stellariver.milky.common.tool.log.Log * *(..))")
