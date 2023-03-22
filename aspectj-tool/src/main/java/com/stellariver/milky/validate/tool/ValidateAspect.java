@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
  * @author houchuang
  */
 @Aspect
+@SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
 public class ValidateAspect {
 
     static private final Logger log = Logger.getLogger(ValidateAspect.class);

@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.util.stream.IntStream;
 
 @Aspect
+@SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
 public class LogAspect {
 
     static private final Logger log = Logger.getLogger(LogAspect.class);

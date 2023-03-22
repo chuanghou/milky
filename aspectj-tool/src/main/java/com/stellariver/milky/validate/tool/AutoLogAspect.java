@@ -3,8 +3,6 @@ package com.stellariver.milky.validate.tool;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.log.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 import java.util.stream.IntStream;
@@ -15,6 +13,7 @@ import java.util.stream.IntStream;
  * @author houchuang
  */
 //@Aspect
+@SuppressWarnings("unused")
 public class AutoLogAspect {
 
     static private final Logger log = Logger.getLogger(AutoLogAspect.class);
