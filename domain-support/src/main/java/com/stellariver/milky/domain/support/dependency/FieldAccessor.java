@@ -43,11 +43,12 @@ public class FieldAccessor {
 
     @SneakyThrows
     static public List<FieldAccessor> resolveAccessors(Class<?> clazz) {
-        List<FieldAccessor> fieldAccessors = map.get(clazz);
-        if (fieldAccessors != null) {
-            return fieldAccessors;
-        }
-        fieldAccessors = new ArrayList<>();
+        return map.computeIfAbsent(clazz, FieldAccessor::build);
+    }
+
+    @SneakyThrows
+    static private List<FieldAccessor> build(Class<?> clazz) {
+        List<FieldAccessor> fieldAccessors = new ArrayList<>();
         List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
         fields.forEach(f -> SysEx.trueThrow(primitives.contains(f.getType()), CONFIG_ERROR));
         for (Field f: fields) {
@@ -76,8 +77,6 @@ public class FieldAccessor {
             FieldAccessor fieldAccessor = new FieldAccessor(name, clazz.getName(), strategy, getMethod, setMethod, replacer);
             fieldAccessors.add(fieldAccessor);
         }
-
-        map.put(clazz, fieldAccessors);
         return fieldAccessors;
     }
 
