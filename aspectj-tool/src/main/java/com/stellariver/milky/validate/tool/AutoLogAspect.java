@@ -63,8 +63,6 @@ public class AutoLogAspect {
             }
 
             // 2. info and error model
-            IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
-            log.result(result).cost(Clock.currentTimeMillis() - start);
             log.log(pjp.toShortString(), backUp);
 
         }
