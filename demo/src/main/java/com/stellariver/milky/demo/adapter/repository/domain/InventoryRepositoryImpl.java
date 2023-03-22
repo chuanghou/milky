@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo.adapter.repository.domain;
 
-import com.stellariver.milky.common.tool.common.TLCConfig;
+import com.stellariver.milky.common.tool.common.CacheConfig;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
@@ -19,7 +19,7 @@ import java.util.Set;
  * @author houchuang
  */
 @Repository
-@TLCConfig
+@CacheConfig
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InventoryRepositoryImpl extends InventoryRepository {

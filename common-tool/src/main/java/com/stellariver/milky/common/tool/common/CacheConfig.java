@@ -8,11 +8,15 @@ import java.util.concurrent.TimeUnit;
  * @author houchuang
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TLCConfig {
+public @interface CacheConfig {
 
-    long maximumSize() default 10L;
+    long tlcMaximumSize() default 10L;
 
-    long expireAfterWrite() default 3000L;
+    long tlcExpireAfterWrite() default 3000L;
+
+    long barrierCacheMaximumSize() default 0L;
+
+    long barrierCacheExpireAfterWrite() default 0L;
 
     TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
 

@@ -26,9 +26,11 @@ public abstract class BaseQuery<ID, T> {
         return nullObject;
     }
 
-    private CacheConfig cacheConfig;
+    private Config config;
 
     private final ThreadLocal<Cache<ID, T>> threadLocal = new ThreadLocal<>();
+    
+    volatile private Cache<Set<ID>, Map<ID, T>> barrierCache;
 
     abstract public Map<ID, T> queryMapByIdsFilterEmptyIdsAfterCache(Set<ID> ids);
 
@@ -39,6 +41,7 @@ public abstract class BaseQuery<ID, T> {
         return idtMap;
     }
 
+    @SneakyThrows
     @SuppressWarnings("unchecked")
     public Map<ID, T> queryMapByIds(Set<ID> ids) {
 
@@ -48,15 +51,16 @@ public abstract class BaseQuery<ID, T> {
 
         Map<ID, T> mapResult = new HashMap<>(16);
         Cache<ID, T> cache = threadLocal.get();
-        if (getCacheConfig() != null && cache == null) {
-            Cache<ID, T> c = CacheBuilder.newBuilder().maximumSize(getCacheConfig().getMaximumSize())
-                    .expireAfterWrite(getCacheConfig().getExpireAfterWrite(), getCacheConfig().getTimeUnit())
+        Config cacheConfig = getCacheConfig();
+        if (cacheConfig != null && cache == null) {
+            Cache<ID, T> c = CacheBuilder.newBuilder().maximumSize(cacheConfig.getTlcMaximumSize())
+                    .expireAfterWrite(cacheConfig.getTlcExpireAfterWrite(), cacheConfig.getTimeUnit())
                     .build();
             threadLocal.set(c);
         }
 
         cache = threadLocal.get();
-        if (enable.get() && threadLocal.get() != null) {
+        if (threadLocal.get() != null && enable.get()) {
             Set<ID> cacheKeys = Collect.inter(ids, cache.asMap().keySet());
             for (ID cacheKey : cacheKeys) {
                 T t = cache.getIfPresent(cacheKey);
@@ -74,7 +78,19 @@ public abstract class BaseQuery<ID, T> {
             }
         }
 
-        Map<ID, T> rpcResultMap = queryMapByIdsFilterEmptyIdsAfterCache(ids);
+        if (barrierCache == null && cacheConfig != null && cacheConfig.barrierCacheExpireAfterWrite > 0) {
+            barrierCache = CacheBuilder.newBuilder().maximumSize(cacheConfig.getBarrierCacheMaximumSize())
+                    .expireAfterWrite(cacheConfig.getBarrierCacheMaximumSize(), cacheConfig.getTimeUnit()).build();
+        }
+
+        Map<ID, T> rpcResultMap;
+        if (barrierCache != null) {
+            Set<ID> finalIds = ids;
+            rpcResultMap = barrierCache.get(ids, () -> queryMapByIdsFilterEmptyIdsAfterCache(finalIds));
+        } else {
+            rpcResultMap = queryMapByIdsFilterEmptyIdsAfterCache(ids);
+        }
+
         if (enable.get() && cache != null) {
             for (Map.Entry<ID, T> entry : rpcResultMap.entrySet()) {
                 if (entry.getValue() == null) {
@@ -84,6 +100,7 @@ public abstract class BaseQuery<ID, T> {
                 }
             }
         }
+
         mapResult.putAll(rpcResultMap);
         return mapResult;
     }
@@ -97,19 +114,20 @@ public abstract class BaseQuery<ID, T> {
         enable.set(false);
     }
 
-    protected CacheConfig getCacheConfig() {
-        if (cacheConfig != null) {
-            return cacheConfig;
+    protected Config getCacheConfig() {
+        if (config != null) {
+            return config;
         }
-        TLCConfig annotation0 = this.getClass().getSuperclass().getAnnotation(TLCConfig.class);
-        TLCConfig annotation1 = this.getClass().getAnnotation(TLCConfig.class);
+        CacheConfig annotation0 = this.getClass().getSuperclass().getAnnotation(CacheConfig.class);
+        CacheConfig annotation1 = this.getClass().getAnnotation(CacheConfig.class);
         boolean b = annotation0 != null && annotation1 != null;
         SysEx.trueThrow(b, ErrorEnumsBase.CONFIG_ERROR.message("exist two TLCConfigs"));
-        TLCConfig annotation = annotation0 != null ? annotation0 : annotation1;
+        CacheConfig annotation = annotation0 != null ? annotation0 : annotation1;
         if (annotation != null) {
-            return CacheConfig.builder()
-                    .maximumSize(annotation.maximumSize())
-                    .expireAfterWrite(annotation.expireAfterWrite())
+            return Config.builder().tlcMaximumSize(annotation.tlcMaximumSize())
+                    .tlcExpireAfterWrite(annotation.tlcExpireAfterWrite())
+                    .barrierCacheMaximumSize(annotation.barrierCacheMaximumSize())
+                    .barrierCacheExpireAfterWrite(annotation.barrierCacheExpireAfterWrite())
                     .timeUnit(annotation.timeUnit())
                     .build();
         }
@@ -152,11 +170,13 @@ public abstract class BaseQuery<ID, T> {
     @NoArgsConstructor
     @AllArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class CacheConfig {
+    public static class Config {
 
-        long maximumSize;
-
-        long expireAfterWrite;
+        long tlcMaximumSize;
+        long tlcExpireAfterWrite;
+        
+        long barrierCacheMaximumSize;
+        long barrierCacheExpireAfterWrite;
 
         TimeUnit timeUnit;
 
