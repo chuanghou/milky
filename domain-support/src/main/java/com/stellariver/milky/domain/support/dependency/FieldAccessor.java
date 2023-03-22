@@ -47,10 +47,11 @@ public class FieldAccessor {
     }
 
     @SneakyThrows
-    static private List<FieldAccessor> build(Class<?> clazz) {
+    static List<FieldAccessor> build(Class<?> clazz) {
         List<FieldAccessor> fieldAccessors = new ArrayList<>();
         List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
-        fields.forEach(f -> SysEx.trueThrow(primitives.contains(f.getType()), CONFIG_ERROR));
+        fields.forEach(f -> SysEx.trueThrow(primitives.contains(f.getType()),
+                CONFIG_ERROR.message("primitive could not be a field of an aggregate")));
         for (Field f: fields) {
             if (f.isSynthetic() || Modifier.isStatic(f.getModifiers())) {
                 continue;

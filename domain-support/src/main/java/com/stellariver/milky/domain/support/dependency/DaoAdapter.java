@@ -34,13 +34,13 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
         }
         return aggregate;
     }
+
     /**
      * 实现数据库对象到聚合根转化
      * @param dataObject 数据库对象
      * @return 聚合根对象
      */
     Aggregate toAggregate(@NonNull Object dataObject);
-
 
     @SuppressWarnings("unchecked")
     default Object toDataObjectWrapper(Object aggregate) {
