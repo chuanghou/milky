@@ -12,6 +12,10 @@ import org.aspectj.lang.reflect.MethodSignature;
 import java.lang.reflect.Method;
 import java.util.stream.IntStream;
 
+/**
+ * @author houchuang
+ */
+
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
 public class LogAspect {
