@@ -54,8 +54,7 @@ public abstract class BaseQuery<ID, T> {
         Config cacheConfig = getCacheConfig();
         if (cacheConfig != null && cache == null) {
             Cache<ID, T> c = CacheBuilder.newBuilder().maximumSize(cacheConfig.getTlcMaximumSize())
-                    .expireAfterWrite(cacheConfig.getTlcExpireAfterWrite(), cacheConfig.getTimeUnit())
-                    .build();
+                    .expireAfterWrite(cacheConfig.getTlcExpireAfterWrite(), cacheConfig.getTimeUnit()).build();
             threadLocal.set(c);
         }
 
@@ -78,9 +77,17 @@ public abstract class BaseQuery<ID, T> {
             }
         }
 
-        if (barrierCache == null && cacheConfig != null && cacheConfig.barrierCacheExpireAfterWrite > 0) {
-            barrierCache = CacheBuilder.newBuilder().maximumSize(cacheConfig.getBarrierCacheMaximumSize())
-                    .expireAfterWrite(cacheConfig.getBarrierCacheMaximumSize(), cacheConfig.getTimeUnit()).build();
+        if (cacheConfig != null && cacheConfig.getBarrierCacheExpireAfterWrite() >= 0) {
+            if (barrierCache == null) {
+                synchronized (this) {
+                    if (barrierCache == null) {
+                        barrierCache = CacheBuilder.newBuilder()
+                                .maximumSize(cacheConfig.getBarrierCacheMaximumSize())
+                                .expireAfterWrite(cacheConfig.getBarrierCacheExpireAfterWrite(), cacheConfig.getTimeUnit())
+                                .build();
+                    }
+                }
+            }
         }
 
         Map<ID, T> rpcResultMap;
