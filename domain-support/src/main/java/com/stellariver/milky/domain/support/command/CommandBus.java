@@ -66,8 +66,7 @@ public class CommandBus {
 
 
     private static final Predicate<Field> MILKY_WIRED_FIELD =
-            field -> Modifier.isStatic(field.getModifiers())
-                    && field.getType().isInterface();
+            field -> Modifier.isStatic(field.getModifiers()) && field.getType().isInterface();
 
 
     volatile private static CommandBus instance;
@@ -540,38 +539,42 @@ public class CommandBus {
                         beanOptional = BeanUtil.getBeanOptional(name);
                     } else {
                         beanOptional = (Optional<Object>) BeanUtil.getBeanOptional(type);
-                        if (beanOptional.isPresent()) {
-                            boolean fit = type.isAssignableFrom(beanOptional.get().getClass());
-                            SysEx.falseThrow(fit, CONFIG_ERROR.message("found bean "));
-                        }
                     }
 
-                    SysEx.trueThrow(annotation.required() && !beanOptional.isPresent(), MILKY_WIRED_FAILURE.message(name));
+                    if (beanOptional.isPresent()) {
+                        boolean fit = type.isAssignableFrom(beanOptional.get().getClass());
+                        SysEx.falseThrow(fit, CONFIG_ERROR.message("found bean "));
+                    } else {
+                        SysEx.trueThrow(annotation.required(), MILKY_WIRED_FAILURE.message(name));
+                    }
 
                     if (beanOptional.isPresent()) {
                         List<Method> methods = Collect.filter(type.getMethods(), m -> m.isAnnotationPresent(Traced.class));
                         Object bean = beanOptional.get();
-                        Object proxyBean = bean;
                         if (!methods.isEmpty()) {
-                            proxyBean = Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class[]{type},
-                                    (proxy, method, args) -> {
-                                        Object result = Reflect.invoke(method, bean, args);
-                                        Traced traced = method.getAnnotation(Traced.class);
-                                        if (traced != null) {
-                                            List<Trace> traces = THREAD_LOCAL_CONTEXT.get().getTraces();
-                                            Trace trace = Trace.builder().bean(bean).method(method).params(args).result(result).build();
-                                            traces.add(trace);
-                                        }
-                                        return result;
-                                    });
+                            bean = buildProxyBean(type, bean);
                         }
                         try {
                             Reflect.setAccessible(field);
-                            field.set(null, proxyBean);
+                            field.set(null, bean);
                         } catch (IllegalAccessException ignore) {}
                     }
                 });
 
+    }
+
+    private static Object buildProxyBean(Class<?> type, Object bean) {
+        return Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class[]{type},
+                (proxy, method, args) -> {
+                    Object result = Reflect.invoke(method, bean, args);
+                    Traced traced = method.getAnnotation(Traced.class);
+                    if (traced != null) {
+                        List<Trace> traces = THREAD_LOCAL_CONTEXT.get().getTraces();
+                        Trace trace = Trace.builder().bean(bean).method(method).params(args).result(result).build();
+                        traces.add(trace);
+                    }
+                    return result;
+                });
     }
 
 
@@ -590,8 +593,7 @@ public class CommandBus {
                     field.setAccessible(true);
                     try {
                         field.set(null, null);
-                    } catch (IllegalAccessException ignore) {
-                    }
+                    } catch (IllegalAccessException ignore) {}
                 });
 
     }
