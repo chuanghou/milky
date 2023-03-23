@@ -33,7 +33,6 @@ public class SerializedLambda implements Serializable {
                     Class<?> clazz = super.resolveClass(desc);
                     return clazz == java.lang.invoke.SerializedLambda.class ? SerializedLambda.class : clazz;
                 }
-
             }) {
                 return (SerializedLambda) ois.readObject();
             }
