@@ -1,8 +1,11 @@
 package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.tool.common.Clock;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.log.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 import java.util.stream.IntStream;
@@ -12,8 +15,8 @@ import java.util.stream.IntStream;
  * user source code, then set the point cut to the package of project
  * @author houchuang
  */
-//@Aspect
-@SuppressWarnings("unused")
+@Aspect
+@SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection", "unused"})
 public class AutoLogAspect {
 
     static private final Logger log = Logger.getLogger(AutoLogAspect.class);
@@ -33,13 +36,13 @@ public class AutoLogAspect {
     @Pointcut("execution(* *.equals(..))")
     public void equalsPC() {}
 
-    @Pointcut("execution(* com.stellariver.milky.demo..*.*(..))")
+    @Pointcut("execution(* com.package..*.*(..))")
     private void packagePC() {}
 
     @Pointcut("execution(@com.stellariver.milky.common.tool.log.Log * *(..))")
     private void logAnno() {}
 
-//    @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC() && !logAnno()")
+    @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC() && !logAnno()")
     public Object log(ProceedingJoinPoint pjp) throws Throwable {
         Object[] args = pjp.getArgs();
         Object result = null;
@@ -53,17 +56,19 @@ public class AutoLogAspect {
         } finally {
             IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
             log.result(result).cost(Clock.currentTimeMillis() - start);
-
-            // you can choose one model above, debug enable model or info and error model
-
-            // 1. debug enable model
-            if (log.isDebugEnabled()) {
-                log.log(pjp.toShortString(), backUp);
+            if (backUp == null) {
+                // you can choose one model above, debug enable model or info and error model
+                // 1. debug model
+                if (log.isDebugEnabled()) {
+                    log.success(true).debug(pjp.toShortString());
+                }
+                // 2. info model
+                log.success(true).info(pjp.toShortString());
+            } else if (backUp instanceof BizEx) {
+                log.success(false).warn(pjp.toShortString());
+            } else {
+                log.success(false).error(pjp.toShortString());
             }
-
-            // 2. info and error model
-            log.log(pjp.toShortString(), backUp);
-
         }
         return result;
     }
