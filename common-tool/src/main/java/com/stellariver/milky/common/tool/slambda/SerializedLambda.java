@@ -7,10 +7,7 @@ import java.io.*;
 
 /**
  * 当前类是 {@link java.lang.invoke.SerializedLambda } 的一个镜像
- * <p>
- * Create by hcl at 2020/7/17
  */
-@SuppressWarnings("ALL")
 public class SerializedLambda implements Serializable {
     private static final long serialVersionUID = 8025925345765570181L;
 
