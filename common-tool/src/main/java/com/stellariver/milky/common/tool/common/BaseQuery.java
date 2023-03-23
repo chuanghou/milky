@@ -5,9 +5,13 @@ import com.google.common.cache.CacheBuilder;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -51,24 +55,22 @@ public abstract class BaseQuery<ID, T> {
 
         Map<ID, T> mapResult = new HashMap<>(16);
         Cache<ID, T> cache = threadLocal.get();
-        Config cacheConfig = getCacheConfig();
-        if (cacheConfig != null && cache == null) {
-            Cache<ID, T> c = CacheBuilder.newBuilder().maximumSize(cacheConfig.getTlcMaximumSize())
-                    .expireAfterWrite(cacheConfig.getTlcExpireAfterWrite(), cacheConfig.getTimeUnit()).build();
+        Config config = getCacheConfig();
+        if (config != null && cache == null) {
+            Cache<ID, T> c = CacheBuilder.newBuilder().maximumSize(config.getTlcMaximumSize())
+                    .expireAfterWrite(config.getTlcExpireAfterWrite(), config.getTimeUnit())
+                    .build();
             threadLocal.set(c);
         }
 
         cache = threadLocal.get();
-        if (threadLocal.get() != null && enable.get()) {
+        if (cache != null && enable.get()) {
             Set<ID> cacheKeys = Collect.inter(ids, cache.asMap().keySet());
             for (ID cacheKey : cacheKeys) {
                 T t = cache.getIfPresent(cacheKey);
                 if (t != null) {
-                    if (t == nullObject) {
-                        mapResult.put(cacheKey, null);
-                    } else {
-                        mapResult.put(cacheKey, t);
-                    }
+                    t = t == nullObject ? null : t;
+                    mapResult.put(cacheKey, t);
                 }
             }
             ids = Collect.diff(ids, mapResult.keySet());
@@ -77,13 +79,13 @@ public abstract class BaseQuery<ID, T> {
             }
         }
 
-        if (cacheConfig != null && cacheConfig.getBarrierCacheExpireAfterWrite() >= 0) {
+        if (config != null && config.getBarrierCacheExpireAfterWrite() >= 0) {
             if (barrierCache == null) {
                 synchronized (this) {
                     if (barrierCache == null) {
                         barrierCache = CacheBuilder.newBuilder()
-                                .maximumSize(cacheConfig.getBarrierCacheMaximumSize())
-                                .expireAfterWrite(cacheConfig.getBarrierCacheExpireAfterWrite(), cacheConfig.getTimeUnit())
+                                .maximumSize(config.getBarrierCacheMaximumSize())
+                                .expireAfterWrite(config.getBarrierCacheExpireAfterWrite(), config.getTimeUnit())
                                 .build();
                     }
                 }
@@ -100,11 +102,8 @@ public abstract class BaseQuery<ID, T> {
 
         if (enable.get() && cache != null) {
             for (Map.Entry<ID, T> entry : rpcResultMap.entrySet()) {
-                if (entry.getValue() == null) {
-                    cache.put(entry.getKey(), nullObject);
-                } else {
-                    cache.put(entry.getKey(), entry.getValue());
-                }
+                T value = entry.getValue() == null ? nullObject : entry.getValue();
+                cache.put(entry.getKey(), value);
             }
         }
 
@@ -131,12 +130,14 @@ public abstract class BaseQuery<ID, T> {
         SysEx.trueThrow(b, ErrorEnumsBase.CONFIG_ERROR.message("exist two TLCConfigs"));
         CacheConfig annotation = annotation0 != null ? annotation0 : annotation1;
         if (annotation != null) {
-            return Config.builder().tlcMaximumSize(annotation.tlcMaximumSize())
+            config = Config.builder().tlcMaximumSize(annotation.tlcMaximumSize())
                     .tlcExpireAfterWrite(annotation.tlcExpireAfterWrite())
                     .barrierCacheMaximumSize(annotation.barrierCacheMaximumSize())
                     .barrierCacheExpireAfterWrite(annotation.barrierCacheExpireAfterWrite())
                     .timeUnit(annotation.timeUnit())
                     .build();
+            ValidateUtil.validate(config);
+            return config;
         }
         return null;
     }
@@ -179,12 +180,23 @@ public abstract class BaseQuery<ID, T> {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Config {
 
-        long tlcMaximumSize;
-        long tlcExpireAfterWrite;
-        
+        @NotNull
+        @Positive
+        Long tlcMaximumSize;
+
+        @NotNull
+        @Positive
+        Long tlcExpireAfterWrite;
+
+        @NotNull
+        @PositiveOrZero
         long barrierCacheMaximumSize;
+
+        @NotNull
+        @PositiveOrZero
         long barrierCacheExpireAfterWrite;
 
+        @NotNull
         TimeUnit timeUnit;
 
     }
