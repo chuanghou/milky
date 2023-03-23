@@ -65,18 +65,17 @@ public class Kit {
             return Optional.empty();
         }
     }
-
-    final static private Cache<Class<?>, Class<?>> enumMap = CacheBuilder.newBuilder().softValues().build();
     final static private Cache<Class<?>, Map<Object, Object>> enumValueMap = CacheBuilder.newBuilder().softValues().build();
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
     public static <E extends Enum<E>, V> Optional<E> enumOf(SFunction<E, V> getter, V value) {
-        Class<? extends SFunction<?, ?>> getterC = (Class<? extends SFunction<?, ?>>) getter.getClass();
-        Class<E> enumClass = (Class<E>) enumMap.get(getterC, () -> SLambda.extract(getter).getInstantiatedClass());
-        E[] enumConstants = enumClass.getEnumConstants();
-        E o = (E) enumValueMap.get(getterC, () -> new HashMap<>(Collect.toMapMightException(enumConstants, getter))).get(value);
-        return Optional.ofNullable(o);
+        Class<? extends SFunction<E, V>> getterC = (Class<? extends SFunction<E, V>>) getter.getClass();
+        E o = (E) enumValueMap.get(getterC, () -> {
+            E[] enumConstants = ((Class<E>)SLambda.extract(getter).getInstantiatedClass()).getEnumConstants();
+            return new HashMap<>(Collect.toMapMightException(enumConstants, getter));
+        }).get(value);
+        return Kit.op(o);
     }
 
 
