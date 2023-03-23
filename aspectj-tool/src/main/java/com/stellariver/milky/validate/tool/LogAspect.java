@@ -1,6 +1,7 @@
 package com.stellariver.milky.validate.tool;
 
 import com.stellariver.milky.common.tool.common.Clock;
+import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.log.Log;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -48,7 +49,13 @@ public class LogAspect {
             } else {
                 IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
                 log.result(result).cost(Clock.currentTimeMillis() - start);
-                log.log(pjp.toShortString(), backUp);
+                if (backUp == null) {
+                    log.success(true).info(pjp.toShortString());
+                } else if (backUp instanceof BizEx) {
+                    log.success(false).warn(pjp.toShortString());
+                } else {
+                    log.success(false).error(pjp.toShortString());
+                }
             }
         }
         return result;
