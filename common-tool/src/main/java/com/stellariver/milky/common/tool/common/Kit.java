@@ -1,8 +1,12 @@
 package com.stellariver.milky.common.tool.common;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.stellariver.milky.common.tool.slambda.SFunction;
 import com.stellariver.milky.common.tool.slambda.SLambda;
+import com.stellariver.milky.common.tool.util.Collect;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -11,7 +15,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author houchuang
@@ -54,7 +60,7 @@ public class Kit {
         return StringUtils.isBlank(value) ? defaultValue : value;
     }
 
-    public static <E extends Enum<E>> Optional<E> enumOf(@NonNull Class<E> enumClass, @NonNull String enumName) {
+    public static <E extends Enum<E>> Optional<E> enumOf(Class<E> enumClass, @NonNull String enumName) {
         try {
             return Optional.of(Enum.valueOf(enumClass, enumName));
         } catch (IllegalArgumentException ex) {
@@ -62,14 +68,17 @@ public class Kit {
         }
     }
 
-    final static private Map<Class<?>, Class<?>> enumMap = new ConcurrentHashMap<>();
+    final static private Cache<Class<?>, Class<?>> enumMap = CacheBuilder.newBuilder().softValues().build();
+    final static private Cache<Class<?>, Map<Object, Object>> enumValueMap = CacheBuilder.newBuilder().softValues().build();
 
+    @SneakyThrows
     @SuppressWarnings("unchecked")
     public static <E extends Enum<E>, V> Optional<E> enumOf(SFunction<E, V> getter, V value) {
-        Class<E> enumClass = (Class<E>) enumMap.computeIfAbsent(
-                getter.getClass(), c -> SLambda.extract(getter).getInstantiatedClass());
+        Class<? extends SFunction<?, ?>> getterC = (Class<? extends SFunction<?, ?>>) getter.getClass();
+        Class<E> enumClass = (Class<E>) enumMap.get(getterC, () -> SLambda.extract(getter).getInstantiatedClass());
         E[] enumConstants = enumClass.getEnumConstants();
-        return Arrays.stream(enumConstants).filter(e -> value.equals(getter.apply(e))).findFirst();
+        E o = (E) enumValueMap.get(getterC, () -> Collect.toMap(enumConstants, (Function<E, Object>) getter, e -> e)).get(value);
+        return Optional.ofNullable(o);
     }
 
     static public <T> T whenNull(T t, T defaultValue) {

@@ -106,6 +106,10 @@ public class Collect {
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(keyMapper, valueMapper, (v1, v2) -> v1));
     }
 
+    public static <T, K, V> Map<K, V> toMap(T[] source, Function<T, K> keyMapper, Function<T, V> valueMapper) {
+        return Arrays.stream(source).filter(Objects::nonNull).collect(Collectors.toMap(keyMapper, valueMapper, (v1, v2) -> v1));
+    }
+
     public static <K, V> Map<K, V> toMapMightException(Collection<V> source, Function<V, K> mapper){
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(mapper, Function.identity()));
     }
