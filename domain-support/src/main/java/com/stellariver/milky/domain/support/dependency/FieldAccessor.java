@@ -78,7 +78,7 @@ public class FieldAccessor {
             FieldAccessor fieldAccessor = new FieldAccessor(name, clazz.getName(), strategy, getMethod, setMethod, replacer);
             fieldAccessors.add(fieldAccessor);
         }
-        return fieldAccessors;
+        return Collections.unmodifiableList(fieldAccessors);
     }
 
 }
