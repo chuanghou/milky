@@ -10,14 +10,12 @@ import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * @author houchuang
@@ -77,9 +75,11 @@ public class Kit {
         Class<? extends SFunction<?, ?>> getterC = (Class<? extends SFunction<?, ?>>) getter.getClass();
         Class<E> enumClass = (Class<E>) enumMap.get(getterC, () -> SLambda.extract(getter).getInstantiatedClass());
         E[] enumConstants = enumClass.getEnumConstants();
-        E o = (E) enumValueMap.get(getterC, () -> Collect.toMap(enumConstants, (Function<E, Object>) getter, e -> e)).get(value);
+        E o = (E) enumValueMap.get(getterC, () -> new HashMap<>(Collect.toMapMightException(enumConstants, getter))).get(value);
         return Optional.ofNullable(o);
     }
+
+
 
     static public <T> T whenNull(T t, T defaultValue) {
         return t == null ? defaultValue : t;

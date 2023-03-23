@@ -106,12 +106,25 @@ public class Collect {
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(keyMapper, valueMapper, (v1, v2) -> v1));
     }
 
+    @SuppressWarnings("unchecked")
     public static <T, K, V> Map<K, V> toMap(T[] source, Function<T, K> keyMapper, Function<T, V> valueMapper) {
+        if (source == null) {
+            return Collections.EMPTY_MAP;
+        }
         return Arrays.stream(source).filter(Objects::nonNull).collect(Collectors.toMap(keyMapper, valueMapper, (v1, v2) -> v1));
     }
 
     public static <K, V> Map<K, V> toMapMightException(Collection<V> source, Function<V, K> mapper){
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(mapper, Function.identity()));
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static <K, V> Map<K, V> toMapMightException(V[] source, Function<V, K> mapper){
+        if (source == null) {
+            return Collections.EMPTY_MAP;
+        }
+        return Arrays.stream(source).filter(Objects::nonNull).collect(Collectors.toMap(mapper, Function.identity()));
     }
 
     public static <K, V> Map<K, List<V>> group(Collection<V> source, Function<V, K> keyMapper){
