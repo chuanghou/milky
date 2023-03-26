@@ -30,6 +30,7 @@ public class TLCAspect {
 
     @Around("pointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) throws Throwable {
+        //TODO according method signature init differently
         Object result;
         if (!init) {
             synchronized (lock) {
