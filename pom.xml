@@ -19,9 +19,10 @@
         <module>milky-spring-boot-starter</module>
         <module>spring-partner</module>
         <module>milky-dependencies</module>
-        <module>demo</module>
         <module>infrastructure-base</module>
         <module>financial-base</module>
+        <module>demo</module>
+
     </modules>
 
     <properties>
@@ -102,7 +103,6 @@
                 <artifactId>milky-spring-boot-starter</artifactId>
                 <version>${revision}</version>
             </dependency>
-
             <!--utils start need to be update dependencies-->
             <dependency>
                 <groupId>com.lmax</groupId>
@@ -168,6 +168,11 @@
                 <groupId>com.github.vertical-blank</groupId>
                 <artifactId>sql-formatter</artifactId>
                 <version>2.0.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>3.4.2</version>
             </dependency>
 
             <!--infrastructure-base start-->

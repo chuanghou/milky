@@ -22,24 +22,27 @@ import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.spring.partner.BeanLoaderImpl;
 import com.stellariver.milky.spring.partner.TransactionSupportImpl;
-import com.stellariver.milky.spring.partner.limit.RateLimitSupport;
-import com.stellariver.milky.spring.partner.tlc.TLCSupport;
 import lombok.CustomLog;
+import org.apache.commons.lang3.tuple.Pair;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author houchuang
@@ -130,18 +133,6 @@ public class DomainSupportAutoConfiguration {
     public TraceRepository traceRepository() {
         return (context, success) -> {};
     }
-
-    @Bean
-    @ConditionalOnBean(MilkyStableSupport.class)
-    public RateLimitSupport rateLimitSupport(MilkyStableSupport milkyStableSupport) {
-        return new RateLimitSupport(milkyStableSupport);
-    }
-
-    @Bean
-    public TLCSupport tlcSupport(List<BaseQuery<?, ?>> baseQueries) {
-        return new TLCSupport(baseQueries);
-    }
-
 
     static class DummyStaticSupport {}
 

@@ -60,7 +60,6 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         scanner.addIncludeFilter(new AssignableTypeFilter(Interceptors.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(TraceRepository.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ThreadLocalPasser.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(ConcurrentOperate.class) );
         scanner.scan(scanPackages);
     }
 }

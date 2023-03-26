@@ -39,7 +39,7 @@ public class AutoLogAspect {
     @Pointcut("execution(* com.package..*.*(..))")
     private void packagePC() {}
 
-    @Pointcut("execution(@com.stellariver.milky.common.tool.log.Log * *(..))")
+    @Pointcut("execution(@com.stellariver.milky.validate.tool.Log * *(..))")
     private void logAnno() {}
 
     @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC() && !logAnno()")
