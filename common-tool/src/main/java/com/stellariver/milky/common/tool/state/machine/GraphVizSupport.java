@@ -60,9 +60,9 @@ public class GraphVizSupport {
                 }
 
                 boolean availableCondition = condition == null || BeanUtil.getBeanLoader() == null;
-                Object conditionBean = availableCondition ? null : BeanUtil.getBean(condition);
+                Object conditionBean = availableCondition ? null : BeanUtil.getBeanOptional(condition).orElse(null);
                 boolean availableAction = condition == null || BeanUtil.getBeanLoader() == null;
-                Object runnerBean = availableAction ? null : BeanUtil.getBean(runner);
+                Object runnerBean = availableAction ? null : BeanUtil.getBeanOptional(runner).orElse(null);
 
                 Transition<String, String> transition = Transition.<String, String>builder()
                         .source(source).event(event).target(target)
