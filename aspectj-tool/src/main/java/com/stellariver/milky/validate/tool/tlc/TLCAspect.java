@@ -9,40 +9,36 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 
+import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
  * @author houchuang
  */
 @Aspect
-@SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection", "unused"})
+@SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
 public class TLCAspect {
-
-    private Set<BaseQuery<?, ?>> enableBaseQueries;
-
-    volatile private boolean init = false;
-
-    private final Object lock = new Object();
+    private final Map<Method, Set<BaseQuery<?, ?>>> enableBqs = new ConcurrentHashMap<>();
 
     @Pointcut("@annotation(com.stellariver.milky.validate.tool.tlc.EnableTLC)")
     void pointCut() {}
 
     @Around("pointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) throws Throwable {
-        //TODO according method signature init differently
+        MethodSignature signature = (MethodSignature) pjp.getSignature();
+        Method method = signature.getMethod();
         Object result;
-        if (!init) {
-            synchronized (lock) {
-                if (!init) {
-                    EnableTLC enableTLC = ((MethodSignature) pjp.getSignature()).getMethod().getAnnotation(EnableTLC.class);
-                    Set<Class<? extends BaseQuery<?, ?>>> enableBQCs = Collect.asSet(enableTLC.enableBaseQueries());
-                    enableBaseQueries = BeanUtil.getBeansOfType(BaseQuery.class).stream()
-                            .filter(aBQ -> enableBQCs.contains(aBQ.getClass())).map(bq -> (BaseQuery<?, ?>) bq).collect(Collectors.toSet());
-                    init = true;
-                }
-            }
-        }
+
+        Set<BaseQuery<?, ?>> enableBaseQueries = enableBqs.computeIfAbsent(method, m -> {
+            EnableTLC enableTLC = m.getAnnotation(EnableTLC.class);
+            Set<Class<? extends BaseQuery<?, ?>>> disableBQCs = Collect.asSet(enableTLC.disableBaseQueries());
+            return BeanUtil.getBeansOfType(BaseQuery.class).stream()
+                    .filter(aBQ -> disableBQCs.contains(aBQ.getClass()))
+                    .map(bq -> (BaseQuery<?, ?>) bq).collect(Collectors.toSet());
+        });
         enableBaseQueries.forEach(BaseQuery::enableThreadLocal);
         try {
             result = pjp.proceed();
