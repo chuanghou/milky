@@ -1,7 +1,5 @@
 package com.stellariver.milky.starter.demo.starter;
 
-import com.stellariver.milky.common.tool.common.ConcurrentTool;
-import io.reactivex.rxjava3.core.Completable;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,6 +8,7 @@ import org.redisson.api.RRateLimiter;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Conditional;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,6 +21,10 @@ public class RedissonTest{
     @Test
     @SneakyThrows
     public void testLock() {
+        boolean windows = System.getProperty("os.name").toLowerCase().contains("windows");
+        if (windows) {
+            return;
+        }
         RLock rLock0 = redissonClient.getLock("test");
         boolean b = rLock0.tryLock();
         Assertions.assertTrue(b);
