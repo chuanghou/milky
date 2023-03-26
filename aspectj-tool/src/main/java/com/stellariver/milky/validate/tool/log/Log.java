@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool;
+package com.stellariver.milky.validate.tool.log;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

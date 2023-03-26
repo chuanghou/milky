@@ -10,17 +10,16 @@
     <groupId>com.stellariver.milky.demo</groupId>
     <artifactId>basic</artifactId>
 
-    <name>basic</name>
-    <url>http://maven.apache.org</url>
-
     <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.stellariver.milky.demo</groupId>
-            <artifactId>aspectj</artifactId>
+            <artifactId>aspects</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stellariver.milky.demo</groupId>

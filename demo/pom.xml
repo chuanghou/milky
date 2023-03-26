@@ -17,7 +17,7 @@
         <module>adapter</module>
         <module>ajc</module>
         <module>application</module>
-        <module>aspectj</module>
+        <module>aspects</module>
         <module>basic</module>
         <module>client</module>
         <module>common</module>
@@ -52,7 +52,7 @@
             </dependency>
             <dependency>
                 <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>aspectj</artifactId>
+                <artifactId>aspects</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>

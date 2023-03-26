@@ -23,6 +23,7 @@ public class EmbeddedRedisConfiguration {
 
 
     @Bean
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public ConcurrentOperate concurrentOperate(RedissonClient redissonClient) {
         return new RedissionConcurrentOperateImpl(redissonClient);
     }

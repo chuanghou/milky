@@ -8,24 +8,32 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
+import java.util.Optional;
+
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection", "unused"})
-public class RateLimitSupport {
+public class RateLimitAspect {
 
     private MilkyStableSupport milkyStableSupport;
+
+    private boolean init = false;
 
     @Pointcut("@annotation(com.stellariver.milky.validate.tool.limit.EnableRateLimit)")
     public void pointCut() {}
 
     @Around("pointCut()")
     public Object rateLimit(ProceedingJoinPoint pjp) throws Throwable {
-        if (milkyStableSupport == null) {
-            milkyStableSupport = BeanUtil.getBean(MilkyStableSupport.class);
+        if (!init) {
+            Optional<MilkyStableSupport> beanOptional = BeanUtil.getBeanOptional(MilkyStableSupport.class);
+            beanOptional.ifPresent(stableSupport -> milkyStableSupport = stableSupport);
+            init = true;
         }
-        String key = milkyStableSupport.ruleId(pjp);
-        RateLimiterWrapper rateLimiter = milkyStableSupport.rateLimiter(key);
-        if (rateLimiter != null) {
-            rateLimiter.acquire();
+        if (milkyStableSupport != null) {
+            String key = milkyStableSupport.ruleId(pjp);
+            RateLimiterWrapper rateLimiter = milkyStableSupport.rateLimiter(key);
+            if (rateLimiter != null) {
+                rateLimiter.acquire();
+            }
         }
         return pjp.proceed();
     }

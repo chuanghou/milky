@@ -8,13 +8,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.stellariver.milky.demo</groupId>
-    <artifactId>aspectj</artifactId>
-    <packaging>jar</packaging>
-
-    <name>compiler</name>
-    <url>http://maven.apache.org</url>
+    <artifactId>aspects</artifactId>
 
     <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

@@ -46,7 +46,7 @@
                         </aspectLibrary>
                         <aspectLibrary>
                             <groupId>com.stellariver.milky.demo</groupId>
-                            <artifactId>aspectj</artifactId>
+                            <artifactId>aspects</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
                 </configuration>
