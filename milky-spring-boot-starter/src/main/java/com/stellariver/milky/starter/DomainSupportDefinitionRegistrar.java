@@ -38,7 +38,6 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
     @Override
     public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, @NonNull BeanDefinitionRegistry registry) {
 
-
         AnnotationAttributes enableMilky = AnnotationAttributes.fromMap(annotationMetadata.getAnnotationAttributes(EnableMilky.class.getName()));
         if (enableMilky == null) {
             return;
@@ -58,7 +57,6 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         scanner.addIncludeFilter(new AssignableTypeFilter(DaoAdapter.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(DAOWrapper.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Interceptors.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(TraceRepository.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ThreadLocalPasser.class));
         scanner.scan(scanPackages);
     }
