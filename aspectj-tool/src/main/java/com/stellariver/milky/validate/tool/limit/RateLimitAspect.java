@@ -16,7 +16,9 @@ public class RateLimitAspect {
 
     private MilkyStableSupport milkyStableSupport;
 
-    private boolean init = false;
+    private volatile boolean init = false;
+
+    private final Object lock = new Object();
 
     @Pointcut("@annotation(com.stellariver.milky.validate.tool.limit.EnableRateLimit)")
     public void pointCut() {}
@@ -24,9 +26,13 @@ public class RateLimitAspect {
     @Around("pointCut()")
     public Object rateLimit(ProceedingJoinPoint pjp) throws Throwable {
         if (!init) {
-            Optional<MilkyStableSupport> beanOptional = BeanUtil.getBeanOptional(MilkyStableSupport.class);
-            beanOptional.ifPresent(stableSupport -> milkyStableSupport = stableSupport);
-            init = true;
+            synchronized (lock) {
+                if (!init) {
+                    Optional<MilkyStableSupport> beanOptional = BeanUtil.getBeanOptional(MilkyStableSupport.class);
+                    beanOptional.ifPresent(stableSupport -> milkyStableSupport = stableSupport);
+                    init = true;
+                }
+            }
         }
         if (milkyStableSupport != null) {
             String key = milkyStableSupport.ruleId(pjp);

@@ -21,7 +21,9 @@ public class TLCAspect {
 
     private Set<BaseQuery<?, ?>> enableBaseQueries;
 
-    private boolean init = false;
+    volatile private boolean init = false;
+
+    private final Object lock = new Object();
 
     @Pointcut("@annotation(com.stellariver.milky.validate.tool.tlc.EnableTLC)")
     void pointCut() {}
@@ -30,13 +32,16 @@ public class TLCAspect {
     public Object resultResponseHandler(ProceedingJoinPoint pjp) throws Throwable {
         Object result;
         if (!init) {
-            EnableTLC enableTLC = ((MethodSignature) pjp.getSignature()).getMethod().getAnnotation(EnableTLC.class);
-            Set<Class<? extends BaseQuery<?, ?>>> enableBQCs = Collect.asSet(enableTLC.enableBaseQueries());
-            enableBaseQueries = BeanUtil.getBeansOfType(BaseQuery.class).stream()
-                    .filter(aBQ -> enableBQCs.contains(aBQ.getClass())).map(bq -> (BaseQuery<?, ?>) bq).collect(Collectors.toSet());
-            init = true;
+            synchronized (lock) {
+                if (!init) {
+                    EnableTLC enableTLC = ((MethodSignature) pjp.getSignature()).getMethod().getAnnotation(EnableTLC.class);
+                    Set<Class<? extends BaseQuery<?, ?>>> enableBQCs = Collect.asSet(enableTLC.enableBaseQueries());
+                    enableBaseQueries = BeanUtil.getBeansOfType(BaseQuery.class).stream()
+                            .filter(aBQ -> enableBQCs.contains(aBQ.getClass())).map(bq -> (BaseQuery<?, ?>) bq).collect(Collectors.toSet());
+                    init = true;
+                }
+            }
         }
-
         enableBaseQueries.forEach(BaseQuery::enableThreadLocal);
         try {
             result = pjp.proceed();
