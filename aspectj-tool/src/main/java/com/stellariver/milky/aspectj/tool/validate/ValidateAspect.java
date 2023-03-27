@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool.validate;
+package com.stellariver.milky.aspectj.tool.validate;
 
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.common.Clock;
@@ -24,7 +24,7 @@ public class ValidateAspect {
 
     static private final Logger log = Logger.getLogger(ValidateAspect.class);
 
-    @Pointcut("execution(@com.stellariver.milky.validate.tool.validate.Validate * *(..))")
+    @Pointcut("execution(@com.stellariver.milky.aspectj.tool.validate.Validate * *(..))")
     private void pointCut() {}
 
     @Around("pointCut()")

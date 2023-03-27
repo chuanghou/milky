@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool.limit;
+package com.stellariver.milky.aspectj.tool.limit;
 
 
 import java.lang.annotation.*;

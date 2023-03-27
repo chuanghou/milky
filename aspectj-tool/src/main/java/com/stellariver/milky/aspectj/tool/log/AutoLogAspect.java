@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool.log;
+package com.stellariver.milky.aspectj.tool.log;
 
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.exception.BizEx;
@@ -39,7 +39,7 @@ public class AutoLogAspect {
     @Pointcut("execution(* com.package..*.*(..))")
     private void packagePC() {}
 
-    @Pointcut("execution(@com.stellariver.milky.validate.tool.log.Log * *(..))")
+    @Pointcut("execution(@com.stellariver.milky.aspectj.tool.log.Log * *(..))")
     private void logAnno() {}
 
     @Around("packagePC() && !getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC() && !logAnno()")

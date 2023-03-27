@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool.tlc;
+package com.stellariver.milky.aspectj.tool.tlc;
 
 import com.stellariver.milky.common.tool.common.BaseQuery;
 import com.stellariver.milky.common.tool.common.BeanUtil;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class TLCAspect {
     private final Map<Method, Set<BaseQuery<?, ?>>> enableBqs = new ConcurrentHashMap<>();
 
-    @Pointcut("@annotation(com.stellariver.milky.validate.tool.tlc.EnableTLC)")
+    @Pointcut("@annotation(com.stellariver.milky.aspectj.tool.tlc.EnableTLC)")
     void pointCut() {}
 
     @Around("pointCut()")

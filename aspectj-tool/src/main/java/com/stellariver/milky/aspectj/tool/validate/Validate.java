@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool.validate;
+package com.stellariver.milky.aspectj.tool.validate;
 
 import com.stellariver.milky.common.base.ExceptionType;
 

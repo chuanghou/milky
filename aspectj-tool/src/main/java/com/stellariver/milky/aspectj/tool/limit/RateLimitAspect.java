@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool.limit;
+package com.stellariver.milky.aspectj.tool.limit;
 
 import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
@@ -20,7 +20,7 @@ public class RateLimitAspect {
 
     private final Object lock = new Object();
 
-    @Pointcut("@annotation(com.stellariver.milky.validate.tool.limit.EnableRateLimit)")
+    @Pointcut("@annotation(com.stellariver.milky.aspectj.tool.limit.EnableRateLimit)")
     public void pointCut() {}
 
     @Around("pointCut()")

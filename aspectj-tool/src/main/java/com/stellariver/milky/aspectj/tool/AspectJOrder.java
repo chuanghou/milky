@@ -1,4 +1,4 @@
-package com.stellariver.milky.validate.tool;
+package com.stellariver.milky.aspectj.tool;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.DeclarePrecedence;
