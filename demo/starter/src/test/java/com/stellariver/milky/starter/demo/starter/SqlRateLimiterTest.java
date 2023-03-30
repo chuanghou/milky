@@ -1,5 +1,6 @@
 package com.stellariver.milky.starter.demo.starter;
 
+import com.stellariver.milky.common.tool.TestReset;
 import com.stellariver.milky.common.tool.common.Option;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.common.Clock;
@@ -66,6 +67,7 @@ public class SqlRateLimiterTest {
     @AfterAll
     static public void reset() {
         CommandBus.reset();
+        TestReset.reset();
     }
 
 }

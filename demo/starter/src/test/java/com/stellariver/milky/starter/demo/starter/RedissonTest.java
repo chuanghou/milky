@@ -1,6 +1,9 @@
 package com.stellariver.milky.starter.demo.starter;
 
+import com.stellariver.milky.common.tool.TestReset;
+import com.stellariver.milky.domain.support.command.CommandBus;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
@@ -50,6 +53,12 @@ public class RedissonTest{
         //TODO 全局限流
         RRateLimiter rateLimiter = redissonClient.getRateLimiter("test-limiter");
 
-
     }
+
+    @AfterAll
+    static public void reset() {
+        CommandBus.reset();
+        TestReset.reset();
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.stellariver.milky.starter.demo.starter;
 
 
+import com.stellariver.milky.common.tool.TestReset;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
@@ -149,6 +150,7 @@ public class BasicTest {
     @AfterAll
     static public void resetMilky() {
         CommandBus.reset();
+        TestReset.reset();
     }
 
 }

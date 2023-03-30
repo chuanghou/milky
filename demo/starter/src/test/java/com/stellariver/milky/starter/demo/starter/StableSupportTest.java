@@ -101,11 +101,6 @@ public class StableSupportTest {
         LogUtil.setLogLevel(Runner.class, Level.WARN);
     }
 
-    @AfterEach
-    public void reset() {
-        Runner.reset();
-    }
-
     static private Result<String> stableTest(int i) {
         if (i > 0) {
             return Result.error(ErrorEnums.SYSTEM_EXCEPTION, ExceptionType.SYS);
