@@ -21,6 +21,73 @@
             <groupId>com.stellariver.milky.demo</groupId>
             <artifactId>ajc</artifactId>
         </dependency>
+
+        <!--for jacoco report start-->
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>aspectj-tool</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>common-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>common-tool</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>domain-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>financial-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>infrastructure-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>spring-partner</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>milky-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky.demo</groupId>
+            <artifactId>adapter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky.demo</groupId>
+            <artifactId>application</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky.demo</groupId>
+            <artifactId>aspects</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky.demo</groupId>
+            <artifactId>basic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky.demo</groupId>
+            <artifactId>client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky.demo</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky.demo</groupId>
+            <artifactId>domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky.demo</groupId>
+            <artifactId>infrastructure</artifactId>
+        </dependency>
+        <!--for jacoco report start-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -40,12 +107,6 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>jacoco-initialize</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
                         <id>report-aggregate</id>
                         <phase>test</phase>
                         <goals>
@@ -57,6 +118,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>

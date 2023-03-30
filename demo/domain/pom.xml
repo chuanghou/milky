@@ -23,5 +23,9 @@
             <groupId>com.stellariver.milky.demo</groupId>
             <artifactId>basic</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>domain-support</artifactId>
+        </dependency>
     </dependencies>
 </project>
