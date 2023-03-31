@@ -3,8 +3,6 @@ package com.stellariver.milky.common.tool.util;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysEx;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 
@@ -62,6 +60,19 @@ public class Collect {
     }
 
     @SafeVarargs
+    public static <K, V> Map<K, V> mergeMightEx(Map<K, V>... maps) {
+        Map<K, V> result = new HashMap<>();
+        Arrays.stream(maps).flatMap(map -> map.entrySet().stream()).forEach(e -> {
+            V put = result.put(e.getKey(), e.getValue());
+            if (put != null) {
+                throw new IllegalStateException(String.format("Duplicate key %s", e.getKey()));
+            }
+        });
+        return result;
+    }
+
+
+    @SafeVarargs
     public static <K, V> Map<K, List<V>> reGroup(Map<K, List<V>>... maps) {
         HashMap<K, List<V>> resultMap = new HashMap<>(16);
         Arrays.stream(maps).flatMap(map -> map == null ? Stream.empty() : map.entrySet().stream())
@@ -76,26 +87,13 @@ public class Collect {
         map2.forEach((key, value) -> map.computeIfAbsent(key, k -> new ArrayList<>()).add(value));
         return map;
     }
-    public static <K, V> Map<K, V> mergeMightException(Map<K, V> map0, Map<K, V> map1) {
-        map0 = Kit.op(map0).orElseGet(HashMap::new);
-        map1 = Kit.op(map1).orElseGet(HashMap::new);
-        Set<K> inter = Collect.inter(map0.keySet(), map1.keySet());
-        SysEx.trueThrowGet(Collect.isNotEmpty(inter), () -> ErrorEnumsBase.MERGE_EXCEPTION);
-        HashMap<K, V> resultMap = new HashMap<>(map0);
-        resultMap.putAll(map1);
-        return resultMap;
-    }
 
-    public static <K, V> Map<K, V> subPriorMerge(Map<K, V> supMap, Map<K, V> subMap) {
+    public static <K, V> Map<K, V> priorMerge(Map<K, V> supMap, Map<K, V> subMap) {
         supMap = Kit.op(supMap).orElseGet(HashMap::new);
         subMap = Kit.op(subMap).orElseGet(HashMap::new);
         HashMap<K, V> map = new HashMap<>(supMap);
         map.putAll(subMap);
         return map;
-    }
-
-    public static <K, V> Map<K, V> supPriorMerge(Map<K, V> supMap, Map<K, V> subMap) {
-        return subPriorMerge(subMap, supMap);
     }
 
     public static <K, V> Map<K, V> toMap(Collection<V> source, Function<V, K> mapper) {
