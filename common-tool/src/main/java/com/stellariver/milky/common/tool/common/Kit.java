@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -73,7 +72,7 @@ public class Kit {
         Class<? extends SFunction<E, V>> getterC = (Class<? extends SFunction<E, V>>) getter.getClass();
         E o = (E) enumValueMap.get(getterC, () -> {
             E[] enumConstants = ((Class<E>)SLambda.extract(getter).getInstantiatedClass()).getEnumConstants();
-            return new HashMap<>(Collect.toMapMightException(enumConstants, getter));
+            return new HashMap<>(Collect.toMapMightEx(enumConstants, getter));
         }).get(value);
         return Kit.op(o);
     }

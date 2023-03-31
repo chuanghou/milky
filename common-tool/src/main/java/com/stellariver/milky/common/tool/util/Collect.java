@@ -114,13 +114,13 @@ public class Collect {
         return Arrays.stream(source).filter(Objects::nonNull).collect(Collectors.toMap(keyMapper, valueMapper, (v1, v2) -> v1));
     }
 
-    public static <K, V> Map<K, V> toMapMightException(Collection<V> source, Function<V, K> mapper){
+    public static <K, V> Map<K, V> toMapMightEx(Collection<V> source, Function<V, K> mapper){
         return stream(source).filter(Objects::nonNull).collect(Collectors.toMap(mapper, Function.identity()));
     }
 
 
     @SuppressWarnings("unchecked")
-    public static <K, V> Map<K, V> toMapMightException(V[] source, Function<V, K> mapper){
+    public static <K, V> Map<K, V> toMapMightEx(V[] source, Function<V, K> mapper){
         if (source == null) {
             return Collections.EMPTY_MAP;
         }
@@ -188,6 +188,10 @@ public class Collect {
         Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
         Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
         return Sets.union(set1, set2);
+    }
+
+    public static <T, K>  Collector<T, ?, Map<K, T>> toMapMightEx(Function<? super T, ? extends K> keyMapper) {
+        return Collectors.toMap(keyMapper, v -> v);
     }
 
     @SafeVarargs
