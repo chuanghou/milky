@@ -20,6 +20,8 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum PARAM_FORMAT_WRONG;
 
+    public static ErrorEnum NOT_VALID;
+
     public static ErrorEnum CONFIG_ERROR;
 
     public static ErrorEnum REPEAT_VALIDATE_GROUP;
