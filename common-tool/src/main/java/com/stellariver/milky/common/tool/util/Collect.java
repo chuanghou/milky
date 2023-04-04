@@ -1,7 +1,6 @@
 package com.stellariver.milky.common.tool.util;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.stellariver.milky.common.tool.common.Kit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -164,28 +163,51 @@ public class Collect {
         return Arrays.stream(source).filter(predicate).collect(Collectors.toList());
     }
 
-    public static <T> Set<T> diff(Collection<T> collection1, Collection<T> collection2) {
-        Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
-        Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
-        return Sets.difference(set1, set2);
+    public static <T> Set<T> subtract(Collection<T> collection1, Collection<T> collection2) {
+        Set<T> set1 = new HashSet<>();
+        Set<T> set2 = new HashSet<>();
+        collection2.forEach(c -> {
+            if (c != null) {
+                set2.add(c);
+            }
+        });
+        collection1.forEach(c -> {
+            if (c != null && !set2.contains(c)) {
+                set1.add(c);
+            }
+        });
+        return set1;
     }
 
     public static <T> Set<T> inter(Collection<T> collection1, Collection<T> collection2) {
-        Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
-        Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
-        return Sets.intersection(set1, set2);
-    }
-
-    public static <T> Set<T> symmetric(Collection<T> collection1, Collection<T> collection2) {
-        Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
-        Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
-        return Sets.symmetricDifference(set1, set2);
+        Set<T> set1 = new HashSet<>();
+        Set<T> set2 = new HashSet<>();
+        collection1.forEach(c -> {
+            if (c != null) {
+                set1.add(c);
+            }
+        });
+        collection2.forEach(c -> {
+            if (c != null && set1.contains(c)) {
+                set2.add(c);
+            }
+        });
+        return set2;
     }
 
     public static <T> Set<T> union(Collection<T> collection1, Collection<T> collection2) {
-        Set<T> set1 = Kit.op(collection1).map(HashSet::new).orElseGet(HashSet::new);
-        Set<T> set2 = Kit.op(collection2).map(HashSet::new).orElseGet(HashSet::new);
-        return Sets.union(set1, set2);
+        Set<T> set = new HashSet<>();
+        collection1.forEach(c -> {
+            if (c != null) {
+                set.add(c);
+            }
+        });
+        collection2.forEach(c -> {
+            if (c != null) {
+                set.add(c);
+            }
+        });
+        return set;
     }
 
     public static <T, K>  Collector<T, ?, Map<K, T>> toMapMightEx(Function<? super T, ? extends K> keyMapper) {

@@ -41,7 +41,7 @@ public abstract class BaseQuery<ID, T> {
     public Map<ID, T> queryMapByIdsNotAllowLost(Set<ID> ids) {
         Map<ID, T> idtMap = queryMapByIds(ids);
         SysEx.trueThrowGet(!Kit.eq(idtMap.size(), ids.size()),
-                () -> ErrorEnumsBase.NOT_ALLOW_LOST.message(Collect.diff(ids, idtMap.keySet())));
+                () -> ErrorEnumsBase.NOT_ALLOW_LOST.message(Collect.subtract(ids, idtMap.keySet())));
         return idtMap;
     }
 
@@ -73,7 +73,7 @@ public abstract class BaseQuery<ID, T> {
                     mapResult.put(cacheKey, t);
                 }
             }
-            ids = Collect.diff(ids, mapResult.keySet());
+            ids = Collect.subtract(ids, mapResult.keySet());
             if (Collect.isEmpty(ids)) {
                 return mapResult;
             }

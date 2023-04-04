@@ -319,7 +319,7 @@ public class CommandBus {
 
                     // created and updated primary ids
                     Set<Object> createdPrimaryIds = Collect.inter(doPrimaryIds, created);
-                    Set<Object> changedPrimaryIds = Collect.diff(Collect.inter(doPrimaryIds, changed), createdPrimaryIds);
+                    Set<Object> changedPrimaryIds = Collect.subtract(Collect.inter(doPrimaryIds, changed), createdPrimaryIds);
 
                     // created and updated data object
                     List<Object> createdDataObjects = createdPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
