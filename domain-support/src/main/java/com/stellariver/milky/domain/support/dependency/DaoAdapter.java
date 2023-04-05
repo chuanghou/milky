@@ -97,7 +97,7 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
         Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
         Set<Pair<? extends Class<? extends BaseDataObject<?>>, Set<Object>>> params = clazzPrimaryIdMap.keySet().stream().map(c -> {
             Map<Object, Object> clazzDoMap = doMap.getOrDefault(c, map);
-            Set<Object> lostPrimaryIds = Collect.diff(clazzPrimaryIdMap.get(c), clazzDoMap.keySet());
+            Set<Object> lostPrimaryIds = Collect.subtract(clazzPrimaryIdMap.get(c), clazzDoMap.keySet());
             return Pair.of(c, lostPrimaryIds);
         }).filter(pair -> Collect.isNotEmpty(pair.getRight())).collect(Collectors.toSet());
         params.forEach(param -> {
