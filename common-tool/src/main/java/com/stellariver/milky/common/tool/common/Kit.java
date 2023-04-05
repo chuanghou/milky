@@ -53,9 +53,22 @@ public class Kit {
         return !StringUtils.isBlank(value);
     }
 
+    public static boolean isEmpty(String value) {
+        return StringUtils.isEmpty(value);
+    }
+
+    public static boolean notEmpty(String value) {
+        return !StringUtils.isEmpty(value);
+    }
+
+    public static boolean isAlphanumeric(String value) {
+        return StringUtils.isAlphanumeric(value);
+    }
+
     public static String isBlank(String value, String defaultValue) {
         return StringUtils.isBlank(value) ? defaultValue : value;
     }
+
 
     public static <E extends Enum<E>> Optional<E> enumOf(Class<E> enumClass, @NonNull String enumName) {
         try {
