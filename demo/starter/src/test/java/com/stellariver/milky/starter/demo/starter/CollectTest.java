@@ -31,5 +31,6 @@ public class CollectTest {
         Set<Integer> union = Collect.union(set1, set2);
         Assertions.assertEquals(set5, union);
 
+
     }
 }

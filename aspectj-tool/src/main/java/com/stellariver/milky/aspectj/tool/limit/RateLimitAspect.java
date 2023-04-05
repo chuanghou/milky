@@ -20,7 +20,7 @@ public class RateLimitAspect {
 
     private final Object lock = new Object();
 
-    @Pointcut("@annotation(com.stellariver.milky.aspectj.tool.limit.EnableRateLimit)")
+    @Pointcut("@annotation(com.stellariver.milky.aspectj.tool.limit.RateLimit)")
     public void pointCut() {}
 
     @Around("pointCut()")

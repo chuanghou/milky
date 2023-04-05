@@ -35,29 +35,10 @@ public class ValidateAspect {
         Class<?>[] groups = annotation.groups();
         boolean failFast = annotation.failFast();
         ExceptionType type = annotation.type();
-        Throwable backUp = null;
-        Object result = null;
-        long start = Clock.currentTimeMillis();
-        try {
-            ValidateUtil.validate(pjp.getTarget(), method, args, failFast, type, groups);
-            result = pjp.proceed();
-            ValidateUtil.validate(pjp.getTarget(), method, result, failFast, type, groups);
-        } catch (Throwable throwable) {
-            backUp = throwable;
-            throw throwable;
-        } finally {
-            if (annotation.log()) {
-                IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
-                log.result(result).cost(Clock.currentTimeMillis() - start);
-                if (backUp == null) {
-                    log.success(true).info(pjp.toShortString());
-                } else if (backUp instanceof BizEx) {
-                    log.success(false).warn(pjp.toShortString());
-                } else {
-                    log.success(false).error(pjp.toShortString());
-                }
-            }
-        }
+        Object result;
+        ValidateUtil.validate(pjp.getTarget(), method, args, failFast, type, groups);
+        result = pjp.proceed();
+        ValidateUtil.validate(pjp.getTarget(), method, result, failFast, type, groups);
         return result;
     }
 

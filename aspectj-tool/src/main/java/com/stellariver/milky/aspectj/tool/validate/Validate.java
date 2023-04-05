@@ -11,13 +11,11 @@ import java.lang.annotation.Target;
 /**
  * @author houchuang
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Validate {
 
     ExceptionType type() default ExceptionType.BIZ;
-
-    boolean log() default false;
 
     Class<?>[] groups() default Default.class;
 

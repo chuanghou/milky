@@ -9,8 +9,7 @@ import java.lang.annotation.*;
  */
 @Target( ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
-public @interface EnableTLC {
+public @interface TLC {
 
     Class<? extends BaseQuery<?, ?>>[] disableBaseQueries() default {};
 

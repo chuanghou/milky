@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 /**
  * @author houchuang
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Log {
 
     boolean debug() default false;

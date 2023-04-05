@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class TLCAspect {
     private final Map<Method, Set<BaseQuery<?, ?>>> enableBqs = new ConcurrentHashMap<>();
 
-    @Pointcut("@annotation(com.stellariver.milky.aspectj.tool.tlc.EnableTLC)")
+    @Pointcut("@annotation(com.stellariver.milky.aspectj.tool.tlc.TLC)")
     void pointCut() {}
 
     @Around("pointCut()")
@@ -33,8 +33,8 @@ public class TLCAspect {
         Object result;
 
         Set<BaseQuery<?, ?>> enableBaseQueries = enableBqs.computeIfAbsent(method, m -> {
-            EnableTLC enableTLC = m.getAnnotation(EnableTLC.class);
-            Set<Class<? extends BaseQuery<?, ?>>> disableBQCs = Collect.asSet(enableTLC.disableBaseQueries());
+            TLC TLC = m.getAnnotation(TLC.class);
+            Set<Class<? extends BaseQuery<?, ?>>> disableBQCs = Collect.asSet(TLC.disableBaseQueries());
             return BeanUtil.getBeansOfType(BaseQuery.class).stream()
                     .filter(aBQ -> disableBQCs.contains(aBQ.getClass()))
                     .map(bq -> (BaseQuery<?, ?>) bq).collect(Collectors.toSet());

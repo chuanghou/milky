@@ -196,6 +196,26 @@ public class Collect {
         return set;
     }
 
+
+    public static <T> Set<T> symmetric(Collection<T> collection1, Collection<T> collection2) {
+        Set<T> set = new HashSet<>();
+        collection1.forEach(c -> {
+            if (c != null) {
+                set.add(c);
+            }
+        });
+        collection2.forEach(c -> {
+            if (c != null) {
+                if (set.contains(c)) {
+                    set.remove(c);
+                } else {
+                    set.add(c);
+                }
+            }
+        });
+        return set;
+    }
+
     public static <T, K>  Collector<T, ?, Map<K, T>> toMapMightEx(Function<? super T, ? extends K> keyMapper) {
         return Collectors.toMap(keyMapper, v -> v);
     }

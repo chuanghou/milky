@@ -4,10 +4,7 @@ import com.stellariver.milky.common.tool.exception.SysEx;
 import net.sf.cglib.beans.BeanMap;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author houchuang
@@ -30,7 +27,9 @@ public class BeanUtil {
     }
 
     public static <T> List<T> getBeansOfType(Class<T> type) {
-        SysEx.nullThrow(beanLoader, "beanLoader need to be set by container");
+        if (beanLoader == null) {
+            return Collections.emptyList();
+        }
         return beanLoader.getBeansOfType(type);
     }
 
@@ -46,12 +45,16 @@ public class BeanUtil {
 
 
     public static <T> Optional<T> getBeanOptional(Class<T> requiredType) {
-        SysEx.nullThrow(beanLoader, "beanLoader need to be set by container");
+        if (beanLoader == null) {
+            return Optional.empty();
+        }
         return beanLoader.getBeanOptional(requiredType);
     }
 
     public static Optional<Object> getBeanOptional(String beanName) {
-        SysEx.nullThrow(beanLoader, "beanLoader need to be set by container");
+        if (beanLoader == null) {
+            return Optional.empty();
+        }
         return beanLoader.getBeanOptional(beanName);
     }
 
