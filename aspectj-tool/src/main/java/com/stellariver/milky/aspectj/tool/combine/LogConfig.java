@@ -12,4 +12,10 @@ public class LogConfig {
         this.debug = debug;
     }
 
+    static private final LogConfig DEFAULT_INSTANCE = new LogConfig();
+
+    static public LogConfig defaultConfig() {
+        return DEFAULT_INSTANCE;
+    }
+
 }

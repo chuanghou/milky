@@ -34,4 +34,10 @@ public class ValidateConfig {
         this.failFast = failFast;
     }
 
+    static private final ValidateConfig DEFAULT_INSTANCE = new ValidateConfig();
+
+    static public ValidateConfig defaultConfig() {
+        return DEFAULT_INSTANCE;
+    }
+
 }

@@ -72,8 +72,11 @@ public class ValidateUtil {
     public static void validate(Object object, Method method, Object[] params,
                                 ExceptionType type, boolean failFast, Class<?>... groups) {
         ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
-        Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params, groups);
-        check(validateResult, type);
+        if (!Modifier.isStatic(method.getModifiers())) {
+            Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params, groups);
+            check(validateResult, type);
+        }
+        // static method not supported
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
     }
 

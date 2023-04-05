@@ -13,4 +13,11 @@ public class TLCConfig {
     public void setDisableBaseQueries(Class<? extends BaseQuery<?, ?>>[] disableBaseQueries) {
         this.disableBaseQueries = disableBaseQueries;
     }
+
+    static private final TLCConfig DEFAULT_INSTANCE = new TLCConfig();
+
+    static public TLCConfig defaultConfig() {
+        return DEFAULT_INSTANCE;
+    }
+
 }

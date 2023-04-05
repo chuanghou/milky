@@ -43,15 +43,38 @@ public abstract class AbstractCombineAspect {
     public void hashCodePC() {}
     @Pointcut("execution(* *.equals(..))")
     public void equalsPC() {}
+    @Pointcut("execution(* *.logConfig(..))")
+    public void logConfigPC() {}
+    @Pointcut("execution(* *.validateConfig(..))")
+    public void validateConfigPC() {}
+    @Pointcut("execution(* *.tlcConfig(..))")
+    public void tlcConfigPC() {}
+    @Pointcut("execution(* *.rateLimitConfig(..))")
+    public void rateLimitConfigPC() {}
 
     @Pointcut
-    public abstract LogConfig logConfig();
+    public abstract void logPC();
+    public LogConfig logConfig() {
+        return null;
+    }
+
     @Pointcut
-    public abstract ValidateConfig validateConfig();
+    public abstract void validatePC();
+    public ValidateConfig validateConfig() {
+        return null;
+    }
+
     @Pointcut
-    public abstract TLCConfig tlcConfig();
+    public abstract void tlcPC();
+    public TLCConfig tlcConfig() {
+        return null;
+    }
+
     @Pointcut
-    public abstract RateLimitConfig rateLimitConfig();
+    public abstract void rateLimitPC();
+    public RateLimitConfig rateLimitConfig() {
+        return null;
+    }
 
     private MilkyStableSupport milkyStableSupport;
     private volatile boolean initMSS = false;
@@ -59,11 +82,13 @@ public abstract class AbstractCombineAspect {
     private final Map<Method, Set<BaseQuery<?, ?>>> enableBqs = new ConcurrentHashMap<>();
 
     @Around("!getterPC() && !setterPC() && !toStringPC() && !equalsPC() && !hashCodePC()" + " && " +
-            "(logConfig() || validateConfig() || tlcConfig() || rateLimitConfig())")
+            "!logConfigPC() && !validateConfigPC() && !tlcConfigPC() && !rateLimitConfigPC()" + " && " +
+            "(logPC() || validatePC() || tlcPC() || rateLimitPC())")
     public Object cut(ProceedingJoinPoint pjp) throws Throwable {
         long start = Clock.currentTimeMillis();
         Object[] args = pjp.getArgs();
         Method method = ((MethodSignature) pjp.getSignature()).getMethod();
+
         LogConfig logConfig = logConfig();
         ValidateConfig validateConfig = validateConfig();
         TLCConfig tlcConfig = tlcConfig();
