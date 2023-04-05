@@ -1,5 +1,7 @@
 package com.stellariver.milky.domain.support.command;
 
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
 import com.stellariver.milky.common.tool.common.BeanLoader;
 import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.common.Kit;
@@ -79,9 +81,11 @@ public class CommandBus {
 
     private final Map<Class<? extends BaseDataObject<?>>, DAOWrapper<? extends BaseDataObject<?>, ?>> daoWrappersMap = new HashMap<>();
 
-    private final Map<Class<? extends Command>, List<Interceptor>> beforeCommandInterceptors = new HashMap<>();
+    private final ListMultimap<Class<? extends Command>, Interceptor> beforeCommandInterceptors
+            = MultimapBuilder.hashKeys().arrayListValues().build();
 
-    private final Map<Class<? extends Command>, List<Interceptor>> afterCommandInterceptors = new HashMap<>();
+    private final ListMultimap<Class<? extends Command>, Interceptor> afterCommandInterceptors
+            = MultimapBuilder.hashKeys().arrayListValues().build();
 
     private final ConcurrentOperate concurrentOperate;
 
@@ -129,9 +133,9 @@ public class CommandBus {
     @SuppressWarnings("unchecked")
     private void prepareCommandInterceptors(MilkySupport milkySupport) {
 
-        HashMap<Class<? extends Command>, List<Interceptor>> tempInterceptorsMap = new HashMap<>(16);
+        ListMultimap<Class<? extends Command>, Interceptor> tempInterceptorsMap =  MultimapBuilder.hashKeys().arrayListValues().build();
 
-        HashMap<Class<? extends Command>, List<Interceptor>> finalInterceptorsMap = new HashMap<>(16);
+        ListMultimap<Class<? extends Command>, Interceptor> finalInterceptorsMap =  MultimapBuilder.hashKeys().arrayListValues().build();
 
         // collect all command interceptors into tempInterceptorsMap group by commandClass
         milkySupport.getInterceptors().stream()
@@ -145,28 +149,29 @@ public class CommandBus {
                     Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
                     Object bean = beanLoader.getBean(method.getDeclaringClass());
                     Interceptor interceptor = new Interceptor(bean, method, annotation.pos(), annotation.order());
-                    tempInterceptorsMap.computeIfAbsent(commandClass, cC -> new ArrayList<>()).add(interceptor);
+                    tempInterceptorsMap.get(commandClass).add(interceptor);
                 });
 
         reflections.getSubTypesOf(Command.class).forEach(commandClass -> {
             List<Class<? extends Command>> ancestorClasses = Reflect.ancestorClasses(commandClass)
                     .stream().filter(Command.class::isAssignableFrom).collect(Collectors.toList());
             ancestorClasses.forEach(ancestor -> {
-                List<Interceptor> ancestorInterceptors = Optional.ofNullable(tempInterceptorsMap.get(ancestor)).orElseGet(ArrayList::new);
-                finalInterceptorsMap.computeIfAbsent(commandClass, c -> new ArrayList<>()).addAll(ancestorInterceptors);
+                List<Interceptor> ancestorInterceptors = tempInterceptorsMap.get(ancestor);
+                finalInterceptorsMap.get(commandClass).addAll(ancestorInterceptors);
             });
         });
 
         // divided into before and after
-        finalInterceptorsMap.forEach((commandClass, interceptors) -> {
+        finalInterceptorsMap.keySet().forEach(commandClass -> {
+            List<Interceptor> interceptors = finalInterceptorsMap.get(commandClass);
             List<Interceptor> beforeInterceptors = interceptors.stream()
                     .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.BEFORE))
                     .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
-            beforeCommandInterceptors.put(commandClass, beforeInterceptors);
+            beforeCommandInterceptors.putAll(commandClass, beforeInterceptors);
             List<Interceptor> afterInterceptors = interceptors.stream()
                     .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER))
                     .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
-            afterCommandInterceptors.put(commandClass, afterInterceptors);
+            afterCommandInterceptors.putAll(commandClass, afterInterceptors);
         });
     }
 
@@ -305,8 +310,6 @@ public class CommandBus {
             if (memoryTx) {
                 transactionSupport.begin();
             }
-            Map<Class<?>, Set<Object>> createdAggregateIds = context.getCreatedAggregateIds();
-            Map<Class<?>, Set<Object>> changedAggregateIds = context.getChangedAggregateIds();
             Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
             if (memoryTx) {
                 doMap.forEach((dataObjectClazz, map) -> {
@@ -314,8 +317,8 @@ public class CommandBus {
 
                     // all three group of primary ids
                     Set<Object> doPrimaryIds = map.keySet();
-                    Set<Object> created = createdAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
-                    Set<Object> changed = changedAggregateIds.getOrDefault(dataObjectClazz, new HashSet<>());
+                    Set<Object> created = context.getCreatedAggregateIds().get(dataObjectClazz);
+                    Set<Object> changed = context.getChangedAggregateIds().get(dataObjectClazz);
 
                     // created and updated primary ids
                     Set<Object> createdPrimaryIds = Collect.inter(doPrimaryIds, created);
@@ -416,7 +419,7 @@ public class CommandBus {
         if (commandHandler.handlerType == CONSTRUCTOR_HANDLER) {
 
             // before interceptors run, it is corresponding to a create command
-            beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
+            beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
                 Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
                         .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
@@ -437,7 +440,7 @@ public class CommandBus {
             aggregate = daoAdapter.getByAggregateId(aggregateId, context);
 
             // run command before interceptors, it is corresponding to a common command, an instance method
-            beforeCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>()).forEach(interceptor -> {
+            beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, aggregate, context);
                 Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
                         .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
@@ -491,13 +494,13 @@ public class CommandBus {
             // or else these DO wil save in DB immediately
             if (aggregateStatus == AggregateStatus.CREATE) {
                 if (memoryTx) {
-                    context.getCreatedAggregateIds().computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+                    context.getCreatedAggregateIds().get(dataObjectClazz).add(primaryId);
                 } else {
                     daoWrapper.batchSaveWrapper(Collect.asList(mergeResult));
                 }
             } else {
                 if (memoryTx) {
-                    context.getChangedAggregateIds().computeIfAbsent(dataObjectClazz, k -> new HashSet<>()).add(primaryId);
+                    context.getChangedAggregateIds().get(dataObjectClazz).add(primaryId);
                 } else {
                     daoWrapper.batchUpdateWrapper(Collect.asList(mergeResult));
                 }
@@ -505,7 +508,7 @@ public class CommandBus {
         }
 
         // after interceptors
-        List<Interceptor> interceptors = afterCommandInterceptors.getOrDefault(command.getClass(), new ArrayList<>());
+        List<Interceptor> interceptors = afterCommandInterceptors.get(command.getClass());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
             record = Record.builder().beanName(interceptor.getClass().getSimpleName())
@@ -522,7 +525,7 @@ public class CommandBus {
 
         List<Field> fields0 = instance.aggregateClasses.stream()
                 .flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
-        List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream().flatMap(Collection::stream)
+        List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream()
                 .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
         List<Field> fields2 = instance.eventBus.getFinalRouters().stream()
                 .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
@@ -582,7 +585,7 @@ public class CommandBus {
 
         List<Field> fields0 = instance.aggregateClasses.stream()
                 .flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
-        List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream().flatMap(Collection::stream)
+        List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream()
                 .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
         List<Field> fields2 = instance.eventBus.getFinalRouters().stream()
                 .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());

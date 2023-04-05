@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.event;
 
+import com.google.common.collect.*;
 import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysEx;
@@ -47,7 +48,7 @@ public class EventBus {
     };
 
     @Getter
-    private final Map<Class<? extends Event>, List<Router>> eventRouterMap = new HashMap<>();
+    Multimap<Class<? extends Event>, Router> eventRouterMap = ArrayListMultimap.create();
 
     @Getter
     private final List<FinalRouter<Class<? extends Event>>> finalRouters = new ArrayList<>();
@@ -61,20 +62,20 @@ public class EventBus {
                 .peek(m -> SysEx.falseThrow(FORMAT.test(m),
                         CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
                 .collect(Collectors.toList());
-        Map<Class<? extends Event>, List<Router>> tempRouterMap = new HashMap<>();
+        ListMultimap<Class<? extends Event>, Router> tempRouterMap = MultimapBuilder.hashKeys().arrayListValues().build();
         methods.forEach(method -> {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             Router router = new Router(bean, method);
-            tempRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).add(router);
+            tempRouterMap.get(eventClass).add(router);
         });
 
         Reflections reflections = milkySupport.getReflections();
         Set<Class<? extends Event>> eventClasses = reflections.getSubTypesOf(Event.class);
         eventClasses.forEach(eventClass -> Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
                 .forEach(aC -> {
-                    List<Router> routers = Optional.ofNullable(tempRouterMap.get(aC)).orElseGet(ArrayList::new);
-                    eventRouterMap.computeIfAbsent(eventClass, clazz -> new ArrayList<>()).addAll(routers);
+                    List<Router> routers = tempRouterMap.get(aC);
+                    eventRouterMap.putAll(eventClass, routers);
                 }));
 
         methods = milkySupport.getEventRouters().stream()
@@ -102,7 +103,7 @@ public class EventBus {
     }
 
     public void route(Event event, Context context) {
-        eventRouterMap.getOrDefault(event.getClass(), new ArrayList<>(0)).forEach(router -> {
+        eventRouterMap.get(event.getClass()).forEach(router -> {
             router.route(event, context);
             Record record = Record.builder()
                     .beanName(router.getClass().getSimpleName())

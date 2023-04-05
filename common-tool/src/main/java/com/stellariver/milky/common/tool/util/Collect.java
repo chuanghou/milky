@@ -1,7 +1,6 @@
 package com.stellariver.milky.common.tool.util;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.stellariver.milky.common.tool.common.Kit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -52,10 +51,10 @@ public class Collect {
     }
 
     @SafeVarargs
-    public static <K, V> Map<K, List<V>> merge(Map<K, V>... maps) {
-        HashMap<K, List<V>> resultMap = new HashMap<>(16);
-        Arrays.stream(maps).flatMap(map -> map == null ? Stream.empty() : map.entrySet().stream())
-                .forEach(entry -> resultMap.computeIfAbsent(entry.getKey(), key -> new ArrayList<>()).add(entry.getValue()));
+    public static <K, V> Multimap<K, V> merge(Map<K, V>... maps) {
+        Multimap<K, V> resultMap = ArrayListMultimap.create();
+        Arrays.stream(maps).filter(Objects::nonNull).flatMap(m -> m.entrySet().stream())
+                .forEach(entry -> resultMap.put(entry.getKey(), entry.getValue()));
         return resultMap;
     }
 
@@ -73,19 +72,22 @@ public class Collect {
 
 
     @SafeVarargs
-    public static <K, V> Map<K, List<V>> reGroup(Map<K, List<V>>... maps) {
-        HashMap<K, List<V>> resultMap = new HashMap<>(16);
-        Arrays.stream(maps).flatMap(map -> map == null ? Stream.empty() : map.entrySet().stream())
-                .forEach(entry -> resultMap.computeIfAbsent(entry.getKey(), key -> new ArrayList<>()).addAll(entry.getValue()));
+    public static <K, V> Multimap<K, V> reGroup(Map<K, List<V>>... maps) {
+        Multimap<K, V> resultMap = ArrayListMultimap.create();
+        Arrays.stream(maps).filter(Objects::nonNull).flatMap(map -> map.entrySet().stream())
+                .forEach(entry -> resultMap.putAll(entry.getKey(), entry.getValue()));
         return resultMap;
     }
 
-    public static <K, V> Map<K, List<V>> merge(Map<K, List<V>> map1, Map<K, V> map2) {
-        map1 = Kit.op(map1).orElse(new HashMap<>(16));
-        map2 = Kit.op(map2).orElse(new HashMap<>(16));
-        HashMap<K, List<V>> map = new HashMap<>(map1);
-        map2.forEach((key, value) -> map.computeIfAbsent(key, k -> new ArrayList<>()).add(value));
-        return map;
+    public static <K, V> Multimap<K, V> merge(Map<K, List<V>> map1, Map<K, V> map2) {
+        Multimap<K, V> resultMap = ArrayListMultimap.create();
+        if (map1 != null) {
+            map1.forEach(resultMap::putAll);
+        }
+        if (map2 != null) {
+            map2.forEach(resultMap::put);
+        }
+        return resultMap;
     }
 
     public static <K, V> Map<K, V> priorMerge(Map<K, V> supMap, Map<K, V> subMap) {
@@ -123,24 +125,6 @@ public class Collect {
             return Collections.EMPTY_MAP;
         }
         return Arrays.stream(source).filter(Objects::nonNull).collect(Collectors.toMap(mapper, Function.identity()));
-    }
-
-    public static <K, V> Map<K, List<V>> group(Collection<V> source, Function<V, K> keyMapper){
-        return stream(source).filter(Objects::nonNull).collect(Collectors.groupingBy(keyMapper));
-    }
-
-    public static <T, K, V> Map<K, List<V>> groupList(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper){
-        HashMap<K, List<V>> resultMap = new HashMap<>(16);
-        stream(source).filter(Objects::nonNull)
-                .forEach(t -> resultMap.computeIfAbsent(keyMapper.apply(t), i -> new ArrayList<>()).add(valueMapper.apply(t)));
-        return resultMap;
-    }
-
-    public static <T, K, V> Map<K, Set<V>> groupSet(Collection<T> source, Function<T, K> keyMapper, Function<T, V> valueMapper){
-        HashMap<K, Set<V>> resultMap = new HashMap<>(16);
-        stream(source).filter(Objects::nonNull)
-                .forEach(t -> resultMap.computeIfAbsent(keyMapper.apply(t), i -> new HashSet<>()).add(valueMapper.apply(t)));
-        return resultMap;
     }
 
     public static <S, R, T extends Collection<R>> T transfer(Collection<S> sourceCollection, Function<S, R> converter, Supplier<T> factory) {
@@ -230,6 +214,49 @@ public class Collect {
 
             @Override
             public Function<List<List<T>>, List<List<T>>> finisher() {
+                return Function.identity();
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return Collections.singleton(Characteristics.IDENTITY_FINISH);
+            }
+
+        };
+    }
+
+    public static <T, K> Collector<T, Multimap<K, T>, Multimap<K, T>> multiMap(
+            Function<? super T, ? extends K> keyMapper,
+            boolean distinct) {
+        return multiMap(keyMapper, Function.identity(), distinct);
+    }
+
+    public static <T, K, V> Collector<T, Multimap<K, V>, Multimap<K, V>> multiMap(
+            Function<? super T, ? extends K> keyMapper,
+            Function<? super T, ? extends V> valueMapper,
+            boolean distinct) {
+        return new Collector<T, Multimap<K, V>, Multimap<K, V>>() {
+            @Override
+            public Supplier<Multimap<K, V>> supplier() {
+                return distinct ? () -> MultimapBuilder.hashKeys().arrayListValues().build()
+                        : () -> MultimapBuilder.hashKeys().hashSetValues().build();
+            }
+
+            @Override
+            public BiConsumer<Multimap<K, V>, T> accumulator() {
+                return (container, t) -> container.put(keyMapper.apply(t), valueMapper.apply(t));
+            }
+
+            @Override
+            public BinaryOperator<Multimap<K, V>> combiner() {
+                return (container0, container1) -> {
+                     container0.putAll(container1);
+                     return container0;
+                };
+            }
+
+            @Override
+            public Function<Multimap<K, V>,Multimap<K, V>> finisher() {
                 return Function.identity();
             }
 

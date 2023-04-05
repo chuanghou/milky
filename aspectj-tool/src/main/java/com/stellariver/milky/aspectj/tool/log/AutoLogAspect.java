@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
  */
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection", "unused"})
-public class AutoLogAspect {
+public abstract class AutoLogAspect {
 
     static private final Logger log = Logger.getLogger(AutoLogAspect.class);
 
@@ -36,7 +36,7 @@ public class AutoLogAspect {
     @Pointcut("execution(* *.equals(..))")
     public void equalsPC() {}
 
-    @Pointcut("execution(* com.package..*.*(..))")
+    @Pointcut
     private void packagePC() {}
 
     @Pointcut("execution(@com.stellariver.milky.aspectj.tool.log.Log * *(..))")

@@ -1,5 +1,7 @@
 package com.stellariver.milky.domain.support.context;
 
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.SetMultimap;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -25,10 +27,10 @@ public class Context{
     private Long invocationId;
 
     @Getter
-    private final Map<Class<?>, Set<Object>> changedAggregateIds = new HashMap<>();
+    private final SetMultimap<Class<?>, Object> changedAggregateIds = MultimapBuilder.hashKeys().hashSetValues().build();
 
     @Getter
-    private final Map<Class<?>, Set<Object>> createdAggregateIds = new HashMap<>();
+    private final SetMultimap<Class<?>, Object> createdAggregateIds = MultimapBuilder.hashKeys().hashSetValues().build();
 
     // it is used to store all DO cache
     @Getter

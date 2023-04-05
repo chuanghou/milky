@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.dependency;
 
+import com.google.common.collect.Multimap;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -86,19 +87,19 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
                 .orElseThrow(() -> new SysEx(ErrorEnums.AGGREGATE_NOT_EXISTED.message(aggregateId)));
     }
 
+    Map<Object, Object> map = new HashMap<>();
+
     default Map<String, Aggregate> batchGetByAggregateIds(Set<String> aggregateIds, Context context) {
         List<DataObjectInfo> dataObjectInfos = Collect.transfer(aggregateIds, this::dataObjectInfo);
-        Map<? extends Class<? extends BaseDataObject<?>>, Set<Object>> clazzPrimaryIdMap =
-                Collect.groupSet(dataObjectInfos, DataObjectInfo::getClazz, DataObjectInfo::getPrimaryId);
+        Multimap<Class<? extends BaseDataObject<?>>, Object> clazzPrimaryIdMap =
+                dataObjectInfos.stream().collect(Collect.multiMap(DataObjectInfo::getClazz, DataObjectInfo::getPrimaryId, true));
 
         Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
-        Set<Pair<? extends Class<? extends BaseDataObject<?>>, Set<Object>>> params = clazzPrimaryIdMap
-                .entrySet().stream().map(entry -> {
-                    Map<Object, Object> clazzDoMap = doMap.getOrDefault(entry.getKey(), new HashMap<>(16));
-                    Set<Object> lostPrimaryIds = Collect.diff(entry.getValue(), clazzDoMap.keySet());
-                    return Pair.of(entry.getKey(), lostPrimaryIds);
-                }).filter(pair -> Collect.isNotEmpty(pair.getRight())).collect(Collectors.toSet());
-
+        Set<Pair<? extends Class<? extends BaseDataObject<?>>, Set<Object>>> params = clazzPrimaryIdMap.keySet().stream().map(c -> {
+            Map<Object, Object> clazzDoMap = doMap.getOrDefault(c, map);
+            Set<Object> lostPrimaryIds = Collect.diff(clazzPrimaryIdMap.get(c), clazzDoMap.keySet());
+            return Pair.of(c, lostPrimaryIds);
+        }).filter(pair -> Collect.isNotEmpty(pair.getRight())).collect(Collectors.toSet());
         params.forEach(param -> {
             DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = CommandBus.getDaoWrapper(param.getKey());
             Map<Object, Object> clazzResultMap = daoWrapper.batchGetByPrimaryIdsWrapper(param.getRight());
