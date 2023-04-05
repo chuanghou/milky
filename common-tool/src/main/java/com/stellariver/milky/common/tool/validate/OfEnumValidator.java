@@ -25,7 +25,7 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
         if (anno.selectedEnums().length != 0) {
             Set<String> existedEnumNames = enumConstants.stream().map(Enum::name).collect(Collectors.toSet());
             Set<String> selectedEnums = Arrays.stream(anno.selectedEnums()).collect(Collectors.toSet());
-            Set<String> diff = Collect.diff(selectedEnums, existedEnumNames);
+            Set<String> diff = Collect.subtract(selectedEnums, existedEnumNames);
             SysEx.falseThrow(diff.isEmpty(), CONFIG_ERROR.message("selected Enums 包含未配置枚举" + diff));
             enumConstants = enumConstants.stream().filter(e -> selectedEnums.contains(e.name())).collect(Collectors.toList());
         }
