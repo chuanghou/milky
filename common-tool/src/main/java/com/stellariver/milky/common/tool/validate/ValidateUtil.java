@@ -43,14 +43,7 @@ public class ValidateUtil {
 
     final static Map<Class<?>, Map<Class<?>, Method>> customValidMap = new ConcurrentHashMap<>();
 
-    public static void validate(Object object, Method method, Object[] params,
-                                boolean failFast, ExceptionType type, Class<?>... groups) {
-        validate(object, method, params, type, failFast, groups);
-        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
-    }
-
-    public static void validate(Object object, Method method, Object returnValue,
-                                boolean failFast, ExceptionType type, Class<?>... groups) {
+    public static void validate(Object object, Method method, Object returnValue, boolean failFast, ExceptionType type, Class<?>... groups) {
         if (Modifier.isStatic(method.getModifiers())) {
             return;
         }
@@ -59,27 +52,15 @@ public class ValidateUtil {
         check(validateResult, type);
     }
 
-    public static void bizValidate(Object object, Method method, Object[] params,
-                                   boolean failFast, Class<?>... groups) throws BizEx {
-        validate(object, method, params, ExceptionType.BIZ, failFast, groups);
-        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.BIZ, failFast, groups));
-    }
 
-    @SuppressWarnings("unused")
-    public static void sysValidate(Object object, Method method, Object[] params,
-                                   boolean failFast, Class<?>... groups) throws SysEx {
-        validate(object, method, params, ExceptionType.SYS, failFast, groups);
-        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, ExceptionType.SYS, failFast, groups));
-    }
-
-    public static void validate(Object object, Method method, Object[] params,
-                                ExceptionType type, boolean failFast, Class<?>... groups) {
+    public static void validate(Object object, Method method, Object[] params, boolean failFast, ExceptionType type, Class<?>... groups) {
         if (Modifier.isStatic(method.getModifiers())) {
             return;
         }
         ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
         Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params, groups);
         check(validateResult, type);
+        Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
     }
 
     public static void validate(Object param) {

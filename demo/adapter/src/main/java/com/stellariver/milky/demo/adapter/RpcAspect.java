@@ -74,7 +74,7 @@ public class RpcAspect {
         Throwable t = null;
         try {
             if (method.getAnnotation(Validate.class) != null) {
-                ValidateUtil.bizValidate(pjp.getTarget(), method, args, true);
+                ValidateUtil.validate(pjp.getTarget(), method, args, true, ExceptionType.BIZ);
             }
             result = pjp.proceed();
         } catch (Throwable throwable) {

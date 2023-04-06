@@ -28,7 +28,7 @@ public class ValidateUtilTest {
         Method method = Fool.class.getMethod("myTest", Long.class, FoolParam.class);
         Throwable ex = null;
         try {
-            ValidateUtil.bizValidate(fool, method, new Object[]{null, new FoolParam()}, true);
+            ValidateUtil.validate(fool, method, new Object[]{null, new FoolParam()}, true, ExceptionType.BIZ);
         } catch (Throwable throwable) {
             ex = throwable;
         }
@@ -38,7 +38,7 @@ public class ValidateUtilTest {
 
         ex = null;
         try {
-            ValidateUtil.bizValidate(fool, method, new Object[]{null, new FoolParam()}, true, Default.class);
+            ValidateUtil.validate(fool, method, new Object[]{null, new FoolParam()}, true, ExceptionType.BIZ, Default.class);
         } catch (Throwable throwable) {
             ex = throwable;
         }
@@ -49,7 +49,7 @@ public class ValidateUtilTest {
 
         ex = null;
         try {
-            ValidateUtil.bizValidate(fool, method, new Object[]{null, null}, false);
+            ValidateUtil.validate(fool, method, new Object[]{null, null}, false, ExceptionType.BIZ);
         } catch (Throwable throwable) {
             ex = throwable;
         }
@@ -61,7 +61,7 @@ public class ValidateUtilTest {
         method = Fool.class.getMethod("myTestWithGroup", Long.class, FoolParam.class);
         ex = null;
         try {
-            ValidateUtil.bizValidate(fool, method, new Object[]{null, new FoolParam()}, true, MyGroup.class);
+            ValidateUtil.validate(fool, method, new Object[]{null, new FoolParam()}, true, ExceptionType.BIZ, MyGroup.class);
         } catch (Throwable throwable) {
             ex = throwable;
         }
@@ -73,7 +73,7 @@ public class ValidateUtilTest {
 
         method = Fool.class.getMethod("myTestDefaultGroup", Long.class, FoolParam.class);
         try {
-            ValidateUtil.bizValidate(fool, method, new Object[]{null, null}, false, Default.class);
+            ValidateUtil.validate(fool, method, new Object[]{null, null}, false, ExceptionType.BIZ, Default.class);
         } catch (Throwable throwable) {
             ex = throwable;
         }
@@ -83,7 +83,7 @@ public class ValidateUtilTest {
 
         ex = null;
         try {
-            ValidateUtil.bizValidate(fool, method, new Object[]{null, null}, false, MyGroup.class);
+            ValidateUtil.validate(fool, method, new Object[]{null, null}, false, ExceptionType.BIZ, MyGroup.class);
         } catch (Throwable throwable) {
             ex = throwable;
         }
