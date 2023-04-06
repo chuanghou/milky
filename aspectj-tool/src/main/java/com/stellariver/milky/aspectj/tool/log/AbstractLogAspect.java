@@ -27,10 +27,6 @@ public abstract class AbstractLogAspect extends BaseAspect {
         return doProceed(pjp, logConfig);
     }
 
-    public LogConfig logConfig(ProceedingJoinPoint pjp) {
-        return LogConfig.defaultConfig();
-    }
-
     private Object doProceed(ProceedingJoinPoint pjp, LogConfig logConfig) throws Throwable {
         Object[] args = pjp.getArgs();
         Object result = null;
@@ -62,5 +58,10 @@ public abstract class AbstractLogAspect extends BaseAspect {
         }
         return result;
     }
+
+    public LogConfig logConfig(ProceedingJoinPoint pjp) {
+        return LogConfig.defaultConfig();
+    }
+
 }
 
