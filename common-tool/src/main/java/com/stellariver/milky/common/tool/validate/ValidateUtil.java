@@ -4,6 +4,7 @@ import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +29,8 @@ import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
  * @author houchuang
  */
 public class ValidateUtil {
+
+    static private final Logger logger = Logger.getLogger(ValidateUtil.class);
 
     @SuppressWarnings("resource")
     static final private Validator FAIL_FAST_VALIDATOR = Validation.byProvider(HibernateValidator.class)
@@ -54,6 +57,8 @@ public class ValidateUtil {
             ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
             Set<ConstraintViolation<Object>> validateResult = executableValidator.validateReturnValue(object, method, returnValue, groups);
             check(validateResult, type);
+        } else {
+            logger.arg0(method.toGenericString()).warn("NOT_SUPPORT_STATIC_METHOD");
         }
         if (returnValue != null) {
             validate(returnValue, type, failFast, groups);
@@ -68,6 +73,8 @@ public class ValidateUtil {
             ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
             Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params, groups);
             check(validateResult, type);
+        } else {
+            logger.arg0(method.toGenericString()).warn("NOT_SUPPORT_STATIC_METHOD");
         }
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
     }
