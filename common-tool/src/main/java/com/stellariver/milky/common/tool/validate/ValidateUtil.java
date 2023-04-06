@@ -43,23 +43,32 @@ public class ValidateUtil {
 
     final static Map<Class<?>, Map<Class<?>, Method>> customValidMap = new ConcurrentHashMap<>();
 
+
+    /**
+     * Because JSR 303 doesn't support static method, this method omit constraints in method signature, but
+     * the constraint inside java bean will be checked always
+     */
+    //TODO search on internet are there extend supports for static method ?
     public static void validate(Object object, Method method, Object returnValue, boolean failFast, ExceptionType type, Class<?>... groups) {
-        if (Modifier.isStatic(method.getModifiers())) {
-            return;
+        if (!Modifier.isStatic(method.getModifiers())) {
+            ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
+            Set<ConstraintViolation<Object>> validateResult = executableValidator.validateReturnValue(object, method, returnValue, groups);
+            check(validateResult, type);
         }
-        ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
-        Set<ConstraintViolation<Object>> validateResult = executableValidator.validateReturnValue(object, method, returnValue, groups);
-        check(validateResult, type);
+        if (returnValue != null) {
+            validate(returnValue, type, failFast, groups);
+        }
     }
 
-
+    /**
+     * the same to above comment
+     */
     public static void validate(Object object, Method method, Object[] params, boolean failFast, ExceptionType type, Class<?>... groups) {
-        if (Modifier.isStatic(method.getModifiers())) {
-            return;
+        if (!Modifier.isStatic(method.getModifiers())) {
+            ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
+            Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params, groups);
+            check(validateResult, type);
         }
-        ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
-        Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params, groups);
-        check(validateResult, type);
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
     }
 
