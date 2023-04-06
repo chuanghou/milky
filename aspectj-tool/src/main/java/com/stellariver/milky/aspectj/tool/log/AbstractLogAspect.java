@@ -24,14 +24,11 @@ public abstract class AbstractLogAspect extends BaseAspect {
     @Around("pointCut() && !ignorePointCut()")
     public Object proceed(ProceedingJoinPoint pjp) throws Throwable {
         LogConfig logConfig = logConfig(pjp);
-        if (logConfig == null) {
-            return pjp.proceed();
-        }
-        return doProceed(pjp, logConfig(pjp));
+        return doProceed(pjp, logConfig);
     }
 
     public LogConfig logConfig(ProceedingJoinPoint pjp) {
-        return null;
+        return LogConfig.defaultConfig();
     }
 
     private Object doProceed(ProceedingJoinPoint pjp, LogConfig logConfig) throws Throwable {

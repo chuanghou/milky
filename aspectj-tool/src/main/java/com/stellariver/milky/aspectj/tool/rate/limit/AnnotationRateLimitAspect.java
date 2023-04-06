@@ -17,10 +17,5 @@ public class AnnotationRateLimitAspect extends AbstractRateLimitAspect{
     @Pointcut("@annotation(com.stellariver.milky.aspectj.tool.rate.limit.RateLimit)")
     public void pointCut() {}
 
-    @Override
-    public RateLimitConfig rateLimitConfig(ProceedingJoinPoint pjp) {
-        return RateLimitConfig.defaultConfig();
-    }
-
 }
 

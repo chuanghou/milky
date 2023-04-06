@@ -30,9 +30,6 @@ public abstract class AbstractTLCAspect extends BaseAspect {
     @Around("pointCut() && !ignorePointCut()")
     public Object tlc(ProceedingJoinPoint pjp) throws Throwable {
         TLCConfig tlcConfig = tlcConfig(pjp);
-        if (tlcConfig == null) {
-            return pjp.proceed();
-        }
         return doProceed(pjp, tlcConfig);
     }
 
@@ -57,7 +54,7 @@ public abstract class AbstractTLCAspect extends BaseAspect {
     }
 
     public TLCConfig tlcConfig(ProceedingJoinPoint pjp) {
-        return null;
+        return TLCConfig.defaultConfig();
     }
 
 }

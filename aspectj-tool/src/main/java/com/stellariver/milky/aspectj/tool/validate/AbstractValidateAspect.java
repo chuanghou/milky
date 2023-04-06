@@ -25,9 +25,6 @@ public abstract class AbstractValidateAspect extends BaseAspect {
     @Around("pointCut() && !ignorePointCut()")
     public Object valid(ProceedingJoinPoint pjp) throws Throwable {
         ValidateConfig config = validateConfig(pjp);
-        if (config == null) {
-            return pjp.proceed();
-        }
         return doProceed(pjp, config);
     }
 
@@ -45,7 +42,7 @@ public abstract class AbstractValidateAspect extends BaseAspect {
     }
 
     public ValidateConfig validateConfig(ProceedingJoinPoint pjp) {
-        return null;
+        return ValidateConfig.defaultConfig();
     }
 
 }

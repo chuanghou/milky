@@ -27,9 +27,6 @@ public abstract class AbstractRateLimitAspect extends BaseAspect {
     @Around("pointCut() && !ignorePointCut()")
     public Object rateLimit(ProceedingJoinPoint pjp) throws Throwable {
         RateLimitConfig rateLimitConfig = rateLimitConfig(pjp);
-        if (rateLimitConfig == null) {
-            return pjp.proceed();
-        }
         return doProceed(pjp, rateLimitConfig);
     }
 
@@ -55,7 +52,7 @@ public abstract class AbstractRateLimitAspect extends BaseAspect {
 
 
     public RateLimitConfig rateLimitConfig(ProceedingJoinPoint pjp) {
-        return null;
+        return RateLimitConfig.defaultConfig();
     }
 
 }
