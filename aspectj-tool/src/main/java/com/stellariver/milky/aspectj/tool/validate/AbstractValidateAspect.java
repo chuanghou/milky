@@ -1,9 +1,7 @@
 package com.stellariver.milky.aspectj.tool.validate;
 
+import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.base.ExceptionType;
-import com.stellariver.milky.common.tool.common.Clock;
-import com.stellariver.milky.common.tool.exception.BizEx;
-import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -12,7 +10,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 
 import java.lang.reflect.Method;
-import java.util.stream.IntStream;
 
 /**
  * <a href="https://stackoverflow.com/questions/38938845/can-not-build-thisjoinpoint-lazily-for-this-advice-since-it-has-no-suitable-guar">关于Xlint:noGuardForLazyTjp</a>
@@ -20,26 +17,35 @@ import java.util.stream.IntStream;
  */
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
-public class ValidateAspect {
+public abstract class AbstractValidateAspect extends BaseAspect {
 
-    static private final Logger log = Logger.getLogger(ValidateAspect.class);
+    @Pointcut
+    public abstract void pointCut();
 
-    @Pointcut("execution(@com.stellariver.milky.aspectj.tool.validate.Validate * *(..))")
-    private void pointCut() {}
-
-    @Around("pointCut()")
+    @Around("pointCut() && !ignorePointCut()")
     public Object valid(ProceedingJoinPoint pjp) throws Throwable {
+        ValidateConfig config = validateConfig(pjp);
+        if (config == null) {
+            return pjp.proceed();
+        }
+        return doProceed(pjp, config);
+    }
+
+    private Object doProceed(ProceedingJoinPoint pjp, ValidateConfig config) throws Throwable {
+        Object result;
         Object[] args = pjp.getArgs();
         Method method = ((MethodSignature) pjp.getSignature()).getMethod();
-        Validate annotation = method.getAnnotation(Validate.class);
-        Class<?>[] groups = annotation.groups();
-        boolean failFast = annotation.failFast();
-        ExceptionType type = annotation.type();
-        Object result;
+        boolean failFast = config.isFailFast();
+        ExceptionType type = config.getType();
+        Class<?>[] groups = config.getGroups();
         ValidateUtil.validate(pjp.getTarget(), method, args, failFast, type, groups);
         result = pjp.proceed();
         ValidateUtil.validate(pjp.getTarget(), method, result, failFast, type, groups);
         return result;
+    }
+
+    public ValidateConfig validateConfig(ProceedingJoinPoint pjp) {
+        return null;
     }
 
 }

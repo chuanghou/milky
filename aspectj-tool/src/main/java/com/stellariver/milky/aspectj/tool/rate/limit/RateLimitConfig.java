@@ -1,4 +1,4 @@
-package com.stellariver.milky.aspectj.tool.combine;
+package com.stellariver.milky.aspectj.tool.rate.limit;
 
 public class RateLimitConfig {
 

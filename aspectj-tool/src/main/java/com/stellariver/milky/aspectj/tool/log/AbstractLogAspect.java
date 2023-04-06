@@ -1,15 +1,13 @@
 package com.stellariver.milky.aspectj.tool.log;
 
+import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.exception.BizEx;
-import com.stellariver.milky.common.tool.log.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 
-import java.lang.reflect.Method;
 import java.util.stream.IntStream;
 
 /**
@@ -18,18 +16,26 @@ import java.util.stream.IntStream;
 
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
-public class LogAspect {
+public abstract class AbstractLogAspect extends BaseAspect {
 
-    static private final Logger log = Logger.getLogger(LogAspect.class);
+    @Pointcut
+    public abstract void pointCut();
 
-    @Pointcut("execution(@com.stellariver.milky.aspectj.tool.log.Log * *(..))")
-    private void pointCut() {}
+    @Around("pointCut() && !ignorePointCut()")
+    public Object proceed(ProceedingJoinPoint pjp) throws Throwable {
+        LogConfig logConfig = logConfig(pjp);
+        if (logConfig == null) {
+            return pjp.proceed();
+        }
+        return doProceed(pjp, logConfig(pjp));
+    }
 
-    @Around("pointCut()")
-    public Object valid(ProceedingJoinPoint pjp) throws Throwable {
+    public LogConfig logConfig(ProceedingJoinPoint pjp) {
+        return null;
+    }
+
+    private Object doProceed(ProceedingJoinPoint pjp, LogConfig logConfig) throws Throwable {
         Object[] args = pjp.getArgs();
-        Method method = ((MethodSignature) pjp.getSignature()).getMethod();
-        boolean debug = method.getAnnotation(Log.class).debug();
         Object result = null;
         long start = Clock.currentTimeMillis();
         Throwable backUp = null;
@@ -39,7 +45,7 @@ public class LogAspect {
             backUp = throwable;
             throw throwable;
         } finally {
-            if (backUp == null && debug) {
+            if (backUp == null && logConfig.isDebug()) {
                 if (log.isDebugEnabled()) {
                     IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
                     log.result(result).cost(Clock.currentTimeMillis() - start);
@@ -59,6 +65,5 @@ public class LogAspect {
         }
         return result;
     }
-
 }
 

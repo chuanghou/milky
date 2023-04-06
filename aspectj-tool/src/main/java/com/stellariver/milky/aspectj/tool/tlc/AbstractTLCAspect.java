@@ -1,8 +1,8 @@
 package com.stellariver.milky.aspectj.tool.tlc;
 
+import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.tool.common.BaseQuery;
 import com.stellariver.milky.common.tool.common.BeanUtil;
-import com.stellariver.milky.common.tool.util.Collect;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,21 +20,29 @@ import java.util.stream.Collectors;
  */
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
-public class TLCAspect {
+public abstract class AbstractTLCAspect extends BaseAspect {
+
     private final Map<Method, Set<BaseQuery<?, ?>>> enableBqs = new ConcurrentHashMap<>();
 
-    @Pointcut("@annotation(com.stellariver.milky.aspectj.tool.tlc.TLC)")
-    void pointCut() {}
+    @Pointcut
+    public abstract void pointCut();
 
-    @Around("pointCut()")
-    public Object resultResponseHandler(ProceedingJoinPoint pjp) throws Throwable {
+    @Around("pointCut() && !ignorePointCut()")
+    public Object tlc(ProceedingJoinPoint pjp) throws Throwable {
+        TLCConfig tlcConfig = tlcConfig(pjp);
+        if (tlcConfig == null) {
+            return pjp.proceed();
+        }
+        return doProceed(pjp, tlcConfig);
+    }
+
+    private Object doProceed(ProceedingJoinPoint pjp, TLCConfig tlcConfig) throws Throwable{
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
         Object result;
 
         Set<BaseQuery<?, ?>> enableBaseQueries = enableBqs.computeIfAbsent(method, m -> {
-            TLC TLC = m.getAnnotation(TLC.class);
-            Set<Class<? extends BaseQuery<?, ?>>> disableBQCs = Collect.asSet(TLC.disableBaseQueries());
+            Set<Class<? extends BaseQuery<?, ?>>> disableBQCs = tlcConfig.getDisableBaseQueries();
             return BeanUtil.getBeansOfType(BaseQuery.class).stream()
                     .filter(aBQ -> disableBQCs.contains(aBQ.getClass()))
                     .map(bq -> (BaseQuery<?, ?>) bq).collect(Collectors.toSet());
@@ -46,6 +54,10 @@ public class TLCAspect {
             enableBaseQueries.forEach(BaseQuery::clearThreadLocal);
         }
         return result;
+    }
+
+    public TLCConfig tlcConfig(ProceedingJoinPoint pjp) {
+        return null;
     }
 
 }

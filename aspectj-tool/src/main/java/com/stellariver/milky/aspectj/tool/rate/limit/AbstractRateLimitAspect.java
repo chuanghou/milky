@@ -1,5 +1,6 @@
-package com.stellariver.milky.aspectj.tool.limit;
+package com.stellariver.milky.aspectj.tool.rate.limit;
 
+import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection", "unused"})
-public class RateLimitAspect {
+public abstract class AbstractRateLimitAspect extends BaseAspect {
 
     private MilkyStableSupport milkyStableSupport;
 
@@ -20,11 +21,19 @@ public class RateLimitAspect {
 
     private final Object lock = new Object();
 
-    @Pointcut("@annotation(com.stellariver.milky.aspectj.tool.limit.RateLimit)")
-    public void pointCut() {}
+    @Pointcut
+    public abstract void pointCut();
 
-    @Around("pointCut()")
+    @Around("pointCut() && !ignorePointCut()")
     public Object rateLimit(ProceedingJoinPoint pjp) throws Throwable {
+        RateLimitConfig rateLimitConfig = rateLimitConfig(pjp);
+        if (rateLimitConfig == null) {
+            return pjp.proceed();
+        }
+        return doProceed(pjp, rateLimitConfig);
+    }
+
+    private Object doProceed(ProceedingJoinPoint pjp, RateLimitConfig rateLimitConfig) throws Throwable{
         if (!init) {
             synchronized (lock) {
                 if (!init) {
@@ -42,6 +51,11 @@ public class RateLimitAspect {
             }
         }
         return pjp.proceed();
+    }
+
+
+    public RateLimitConfig rateLimitConfig(ProceedingJoinPoint pjp) {
+        return null;
     }
 
 }

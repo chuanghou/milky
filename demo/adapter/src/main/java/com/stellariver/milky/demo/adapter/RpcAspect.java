@@ -13,7 +13,7 @@ import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.aspectj.tool.validate.Validate;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
-import com.stellariver.milky.aspectj.tool.validate.ValidateAspect;
+import com.stellariver.milky.aspectj.tool.validate.AnnotationValidateAspect;
 import lombok.CustomLog;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -33,9 +33,9 @@ import java.util.stream.IntStream;
 /**
  * @author houchuang
  *
- * <p>This aspect will check if the method has been annotated with {@link ValidateAspect},
+ * <p>This aspect will check if the method has been annotated with {@link AnnotationValidateAspect},
  * If the method has been validaed with ValidateAspect, then this aspect will not check the param validation</p>
- * @see ValidateAspect
+ * @see AnnotationValidateAspect
  */
 @Aspect
 @CustomLog
