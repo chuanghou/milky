@@ -39,6 +39,7 @@
                     <showWeaveInfo>true</showWeaveInfo>
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>
+                    <detail>true</detail>
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>com.stellariver.milky</groupId>
@@ -49,6 +50,12 @@
                             <artifactId>aspects</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
+                    <weaveDependencies>
+                        <weaveDependency>
+                            <groupId>com.stellariver.milky.demo</groupId>
+                            <artifactId>adapter</artifactId>
+                        </weaveDependency>
+                    </weaveDependencies>
                 </configuration>
                 <executions>
                     <execution>
