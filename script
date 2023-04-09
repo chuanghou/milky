@@ -1,0 +1,12 @@
+
+# compile one module, -pl --projects
+mvn clean compile -pl demo/starter
+
+# -am also make
+mvn clean compile -am -pl demo/starter
+
+#-D define property test => unit test class failIfNoTest make empty tests also worked
+mvn clean test -am -Dtest=BasicTest -pl demo/starter -DfailIfNoTests=false
+
+
+
