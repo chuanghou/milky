@@ -1,6 +1,7 @@
 package com.stellariver.milky.domain.support.dependency;
 
 import com.google.common.collect.Multimap;
+import com.google.common.collect.SetMultimap;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -91,8 +92,8 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
 
     default Map<String, Aggregate> batchGetByAggregateIds(Set<String> aggregateIds, Context context) {
         List<DataObjectInfo> dataObjectInfos = Collect.transfer(aggregateIds, this::dataObjectInfo);
-        Multimap<Class<? extends BaseDataObject<?>>, Object> clazzPrimaryIdMap =
-                dataObjectInfos.stream().collect(Collect.multiMap(DataObjectInfo::getClazz, DataObjectInfo::getPrimaryId, true));
+        SetMultimap<Class<? extends BaseDataObject<?>>, Object> clazzPrimaryIdMap =
+                dataObjectInfos.stream().collect(Collect.setMultiMap(DataObjectInfo::getClazz, DataObjectInfo::getPrimaryId));
 
         Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
         Set<Pair<? extends Class<? extends BaseDataObject<?>>, Set<Object>>> params = clazzPrimaryIdMap.keySet().stream().map(c -> {

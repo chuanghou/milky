@@ -269,38 +269,73 @@ public class Collect {
         };
     }
 
-    public static <T, K> Collector<T, Multimap<K, T>, Multimap<K, T>> multiMap(
-            Function<? super T, ? extends K> keyMapper,
-            boolean distinct) {
-        return multiMap(keyMapper, Function.identity(), distinct);
+    public static <T, K> Collector<T, SetMultimap<K, T>, SetMultimap<K, T>> setMultiMap(Function<? super T, ? extends K> keyMapper) {
+        return setMultiMap(keyMapper, Function.identity());
     }
 
-    public static <T, K, V> Collector<T, Multimap<K, V>, Multimap<K, V>> multiMap(
+    public static <T, K, V> Collector<T, SetMultimap<K, V>, SetMultimap<K, V>> setMultiMap(
             Function<? super T, ? extends K> keyMapper,
-            Function<? super T, ? extends V> valueMapper,
-            boolean distinct) {
-        return new Collector<T, Multimap<K, V>, Multimap<K, V>>() {
+            Function<? super T, ? extends V> valueMapper) {
+        return new Collector<T, SetMultimap<K, V>, SetMultimap<K, V>>() {
             @Override
-            public Supplier<Multimap<K, V>> supplier() {
-                return distinct ? () -> MultimapBuilder.hashKeys().arrayListValues().build()
-                        : () -> MultimapBuilder.hashKeys().hashSetValues().build();
+            public Supplier<SetMultimap<K, V>> supplier() {
+                return () -> MultimapBuilder.hashKeys().hashSetValues().build();
             }
 
             @Override
-            public BiConsumer<Multimap<K, V>, T> accumulator() {
+            public BiConsumer<SetMultimap<K, V>, T> accumulator() {
                 return (container, t) -> container.put(keyMapper.apply(t), valueMapper.apply(t));
             }
 
             @Override
-            public BinaryOperator<Multimap<K, V>> combiner() {
+            public BinaryOperator<SetMultimap<K, V>> combiner() {
                 return (container0, container1) -> {
-                     container0.putAll(container1);
-                     return container0;
+                    container0.putAll(container1);
+                    return container0;
                 };
             }
 
             @Override
-            public Function<Multimap<K, V>,Multimap<K, V>> finisher() {
+            public Function<SetMultimap<K, V>,SetMultimap<K, V>> finisher() {
+                return Function.identity();
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return Collections.singleton(Characteristics.IDENTITY_FINISH);
+            }
+
+        };
+    }
+
+    public static <T, K> Collector<T, ListMultimap<K, T>, ListMultimap<K, T>> listMultiMap(Function<? super T, ? extends K> keyMapper) {
+        return listMultiMap(keyMapper, Function.identity());
+    }
+
+    public static <T, K, V> Collector<T, ListMultimap<K, V>, ListMultimap<K, V>> listMultiMap(
+            Function<? super T, ? extends K> keyMapper,
+            Function<? super T, ? extends V> valueMapper) {
+        return new Collector<T, ListMultimap<K, V>, ListMultimap<K, V>>() {
+            @Override
+            public Supplier<ListMultimap<K, V>> supplier() {
+                return () -> MultimapBuilder.hashKeys().arrayListValues().build();
+            }
+
+            @Override
+            public BiConsumer<ListMultimap<K, V>, T> accumulator() {
+                return (container, t) -> container.put(keyMapper.apply(t), valueMapper.apply(t));
+            }
+
+            @Override
+            public BinaryOperator<ListMultimap<K, V>> combiner() {
+                return (container0, container1) -> {
+                    container0.putAll(container1);
+                    return container0;
+                };
+            }
+
+            @Override
+            public Function<ListMultimap<K, V>,ListMultimap<K, V>> finisher() {
                 return Function.identity();
             }
 
