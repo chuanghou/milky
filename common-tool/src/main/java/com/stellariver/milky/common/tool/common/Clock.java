@@ -16,6 +16,7 @@ public class Clock {
     private Clock(long period) {
         this.period = period;
         this.now = System.currentTimeMillis();
+        this.today = Integer.parseInt(DateFormatUtils.format(new Date(now), "yyyyMMdd"));
         scheduleClockUpdating();
     }
 
