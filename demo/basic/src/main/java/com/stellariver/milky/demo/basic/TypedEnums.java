@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.common.tool.util.StreamMap;
-import com.stellariver.milky.domain.support.base.ListTyped;
-import com.stellariver.milky.domain.support.base.MapTyped;
-import com.stellariver.milky.domain.support.base.Typed;
-import com.stellariver.milky.domain.support.base.SetTyped;
+import com.stellariver.milky.common.tool.common.ListTyped;
+import com.stellariver.milky.common.tool.common.MapTyped;
+import com.stellariver.milky.common.tool.common.Typed;
+import com.stellariver.milky.common.tool.common.SetTyped;
 import lombok.NonNull;
 
 import java.util.*;

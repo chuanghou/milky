@@ -1,4 +1,4 @@
-package com.stellariver.milky.domain.support.base;
+package com.stellariver.milky.common.tool.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;

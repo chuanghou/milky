@@ -22,7 +22,7 @@ import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
-import com.stellariver.milky.domain.support.base.Typed;
+import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;

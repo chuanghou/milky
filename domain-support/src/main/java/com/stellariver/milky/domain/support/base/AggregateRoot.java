@@ -1,5 +1,6 @@
 package com.stellariver.milky.domain.support.base;
 
+import com.stellariver.milky.common.tool.common.Typed;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;

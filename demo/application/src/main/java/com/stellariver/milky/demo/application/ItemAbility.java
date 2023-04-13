@@ -8,7 +8,7 @@ import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
-import com.stellariver.milky.domain.support.base.Typed;
+import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import lombok.AccessLevel;
