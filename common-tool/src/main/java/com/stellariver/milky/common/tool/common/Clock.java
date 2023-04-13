@@ -32,16 +32,14 @@ public class Clock {
         }, period, period, TimeUnit.MILLISECONDS);
     }
 
-    private static class InstanceHolder {
-        public static final Clock INSTANCE = new Clock(1);
-    }
+    public static final Clock INSTANCE = new Clock(1);
 
     public static long currentTimeMillis() {
-        return InstanceHolder.INSTANCE.now;
+        return INSTANCE.now;
     }
 
     public static Date now() {
-        return new Date(InstanceHolder.INSTANCE.now);
+        return new Date(INSTANCE.now);
     }
 
     public static Date beforeNow(int days) {
@@ -49,11 +47,11 @@ public class Clock {
     }
 
     public static int today() {
-        return InstanceHolder.INSTANCE.today;
+        return INSTANCE.today;
     }
 
     public static int beforeToday(int days) {
-        return InstanceHolder.INSTANCE.today - days;
+        return INSTANCE.today - days;
     }
 
 }
