@@ -1,13 +1,7 @@
 package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.base.TraceIdGetter;
 import com.stellariver.milky.common.tool.common.BeanLoader;
-import com.stellariver.milky.common.tool.common.Runner;
-import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
-import com.stellariver.milky.common.tool.common.BaseQuery;
-import com.stellariver.milky.common.tool.util.RunnerExtension;
 import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
@@ -19,11 +13,9 @@ import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
 import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
-import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.spring.partner.BeanLoaderImpl;
 import com.stellariver.milky.spring.partner.TransactionSupportImpl;
 import lombok.CustomLog;
-import org.apache.commons.lang3.tuple.Pair;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
@@ -35,14 +27,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author houchuang
@@ -134,22 +120,7 @@ public class DomainSupportAutoConfiguration {
         return (context, success) -> {};
     }
 
-    static class DummyStaticSupport {}
 
-    @Bean
-    public DummyStaticSupport dummyStaticSupport(@Autowired(required = false)
-                                                 MilkyStableSupport milkyStableSupport,
-                                                 @Autowired(required = false)
-                                                 RunnerExtension runnerExtension,
-                                                 @Autowired(required = false)
-                                                 TraceIdGetter traceIdGetter,
-                                                 BeanLoader beanLoader) {
-        Optional.ofNullable(milkyStableSupport).ifPresent(Runner::setMilkyStableSupport);
-        Optional.ofNullable(runnerExtension).ifPresent(Runner::setFailureExtendable);
-        Optional.ofNullable(traceIdGetter).ifPresent(Result::setTraceIdGetter);
-        BeanUtil.setBeanLoader(beanLoader);
-        return new DummyStaticSupport();
-    }
 
     @Bean
     public ApplicationRunner milkyApplicationRunner() {
