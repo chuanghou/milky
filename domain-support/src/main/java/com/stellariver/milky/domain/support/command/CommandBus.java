@@ -103,7 +103,7 @@ public class CommandBus {
     private final Set<Class<? extends AggregateRoot>> aggregateClasses;
 
     @SuppressWarnings("unused")
-    public CommandBus(MilkySupport milkySupport, EventBus eventBus, MilkyConfiguration milkyConfiguration) {
+    public CommandBus(MilkySupport milkySupport, EventBus eventBus) {
 
         this.concurrentOperate = milkySupport.getConcurrentOperate();
         this.traceRepository = milkySupport.getTraceRepository();

@@ -1,9 +1,7 @@
 package com.stellariver.milky.starter;
 
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
-import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import com.stellariver.milky.domain.support.dependency.DAOWrapper;
-import com.stellariver.milky.domain.support.dependency.TraceRepository;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
@@ -50,7 +48,7 @@ public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionReg
         }
         BeanDefinitionBuilder scanPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(MilkyScanPackages.class);
         scanPackagesBeanBuilder.addPropertyValue("scanPackages", scanPackages);
-        registry.registerBeanDefinition("scanPackages", scanPackagesBeanBuilder.getBeanDefinition());
+        registry.registerBeanDefinition("milkyScanPackages", scanPackagesBeanBuilder.getBeanDefinition());
         ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry, false);
         scanner.setResourceLoader(resourceLoader);
         scanner.addIncludeFilter(new AssignableTypeFilter(EventRouters.class));

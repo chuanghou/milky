@@ -2,7 +2,6 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.tool.common.BeanLoader;
-import com.stellariver.milky.domain.support.base.MilkyConfiguration;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -39,17 +38,12 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @SuppressWarnings("all")
-    public MilkyConfiguration milkyConfiguration(MilkyScanPackages milkyScanPackages, MilkProperties milkProperties) {
-        return new MilkyConfiguration(milkyScanPackages.getScanPackages());
-    }
-
-    @Bean
-    @SuppressWarnings("all")
     public TransactionSupport transactionSupport(DataSourceTransactionManager dataSourceTransactionManager) {
         return new TransactionSupportImpl(dataSourceTransactionManager);
     }
 
     @Bean
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public MilkySupport milkySupport(ConcurrentOperate concurrentOperate,
                                      TraceRepository traceRepository,
                                      @Autowired(required = false)
@@ -64,10 +58,13 @@ public class DomainSupportAutoConfiguration {
                                      @Autowired(required = false)
                                      List<DAOWrapper<?, ?>> daoWrappers,
                                      BeanLoader beanLoader,
-                                     MilkyConfiguration milkyConfiguration) {
-        ConfigurationBuilder configuration = new ConfigurationBuilder()
-                .forPackages(milkyConfiguration.getScanPackages())
-                .addScanners(new SubTypesScanner());
+                                     MilkyScanPackages milkyScanPackages,
+                                     MilkProperties milkProperties) {
+        String[] scanPackages = milkProperties.getScanPackages();
+        if (scanPackages == null) {
+            scanPackages = milkyScanPackages.getScanPackages();
+        }
+        ConfigurationBuilder configuration = new ConfigurationBuilder().forPackages(scanPackages).addScanners(new SubTypesScanner());
         Reflections reflections = new Reflections(configuration);
         return new MilkySupport(concurrentOperate,
                 traceRepository,
@@ -82,8 +79,8 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
-    public CommandBus commandBus(MilkySupport milkySupport, EventBus eventBus, MilkyConfiguration milkyConfiguration) {
-        return new CommandBus(milkySupport, eventBus, milkyConfiguration);
+    public CommandBus commandBus(MilkySupport milkySupport, EventBus eventBus) {
+        return new CommandBus(milkySupport, eventBus);
     }
 
     @Bean
