@@ -7,7 +7,9 @@ import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.util.RunnerExtension;
+import com.stellariver.milky.common.tool.wire.StaticWireSupport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,5 +36,13 @@ public class SpringPartnerAutoConfiguration {
         BeanUtil.setBeanLoader(beanLoader);
         return new StaticSupport();
     }
+
+
+    //TODO process scan logic
+    @Bean
+    public ApplicationRunner milkyApplicationRunner() {
+        return args -> StaticWireSupport.wire();
+    }
+
 
 }
