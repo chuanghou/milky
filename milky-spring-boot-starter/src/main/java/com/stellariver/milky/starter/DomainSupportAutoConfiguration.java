@@ -12,8 +12,6 @@ import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
 import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
-import com.stellariver.milky.spring.partner.BeanLoaderImpl;
-import com.stellariver.milky.spring.partner.TransactionSupportImpl;
 import lombok.CustomLog;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -22,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
@@ -86,11 +83,6 @@ public class DomainSupportAutoConfiguration {
     @Bean
     public EventBus eventBus(MilkySupport milkySupport) {
         return new EventBus(milkySupport);
-    }
-
-    @Bean
-    BeanLoader beanLoader(ApplicationContext applicationContext) {
-        return new BeanLoaderImpl(applicationContext);
     }
 
     @Bean

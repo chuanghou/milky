@@ -1,4 +1,4 @@
-package com.stellariver.milky.spring.partner;
+package com.stellariver.milky.starter;
 
 import com.stellariver.milky.domain.support.dependency.TransactionSupport;
 import lombok.AccessLevel;
