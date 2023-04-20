@@ -1,4 +1,4 @@
-package com.stellariver.milky.starter.demo.starter;
+package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.tool.util.Collect;
 import org.apache.commons.lang3.StringUtils;

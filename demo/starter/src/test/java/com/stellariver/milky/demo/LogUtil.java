@@ -1,4 +1,4 @@
-package com.stellariver.milky.starter.demo.starter;
+package com.stellariver.milky.demo;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;

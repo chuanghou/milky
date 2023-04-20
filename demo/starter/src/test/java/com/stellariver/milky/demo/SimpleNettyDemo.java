@@ -1,4 +1,4 @@
-package com.stellariver.milky.starter.demo.starter;
+package com.stellariver.milky.demo;
 
 
 import io.netty.bootstrap.Bootstrap;

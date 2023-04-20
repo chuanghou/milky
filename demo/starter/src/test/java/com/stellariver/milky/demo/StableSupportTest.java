@@ -1,4 +1,4 @@
-package com.stellariver.milky.starter.demo.starter;
+package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.Result;
@@ -14,7 +14,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.Level;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

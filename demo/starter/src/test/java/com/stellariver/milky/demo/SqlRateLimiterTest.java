@@ -1,4 +1,4 @@
-package com.stellariver.milky.starter.demo.starter;
+package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.tool.TestReset;
 import com.stellariver.milky.common.tool.common.Option;

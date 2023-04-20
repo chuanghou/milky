@@ -8,5 +8,7 @@ mvn clean compile -am -pl demo/starter
 #-D define property test => unit test class failIfNoTest make empty tests also worked
 mvn clean test -am -Dtest=BasicTest -pl demo/starter -DfailIfNoTests=false
 
+mvn clean install -DskipTests -Dgpg.skip
+
 
 

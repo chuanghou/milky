@@ -1,4 +1,4 @@
-package com.stellariver.milky.starter.demo.starter;
+package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.demo.adapter.ajc.Param;
@@ -23,7 +23,7 @@ public class AspectJTest {
     }
 
     @Test
-    public void testReturnValue() throws InterruptedException {
+    public void testReturnValue() {
         AjcCustomDemo ajcCustomDemo = new AjcCustomDemo();
         Throwable throwable = null;
         try {

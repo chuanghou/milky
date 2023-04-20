@@ -1,4 +1,4 @@
-package com.stellariver.milky.starter.demo.starter;
+package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.tool.common.Clock;
 import org.junit.jupiter.api.Assertions;
