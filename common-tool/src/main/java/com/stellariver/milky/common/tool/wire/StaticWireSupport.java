@@ -3,7 +3,6 @@ package com.stellariver.milky.common.tool.wire;
 import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
 import com.stellariver.milky.common.tool.exception.SysEx;
-import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CustomLog
 public class StaticWireSupport {
 
     @SuppressWarnings("unchecked")
@@ -28,9 +26,8 @@ public class StaticWireSupport {
                 .collect(Collectors.toList());
         for (Field field : fields) {
             Object o = field.get(null);
-            if (o != null) {
-                log.arg0(field.getName()).arg1(field.getDeclaringClass().getSimpleName()).warn("field is not null, static wire bean should null before wired!");
-            }
+            SysEx.trueThrow(o != null, ErrorEnumsBase.CONFIG_ERROR.message(
+                    field.toGenericString()  + " is not null, static wire bean should null before wired!"));
             StaticWire annotation = field.getAnnotation(StaticWire.class);
             Optional<Object> beanOptional;
             if (StringUtils.isNotBlank(annotation.name())) {
