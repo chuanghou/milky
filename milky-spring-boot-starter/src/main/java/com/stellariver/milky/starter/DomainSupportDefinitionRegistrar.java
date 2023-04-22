@@ -24,7 +24,7 @@ import java.util.Arrays;
 /**
  * @author houchuang
  */
-public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware{
+public class DomainSupportDefinitionRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
     private ResourceLoader resourceLoader;
 

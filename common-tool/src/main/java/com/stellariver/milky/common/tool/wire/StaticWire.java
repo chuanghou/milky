@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Documented
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface staticwire {
+public @interface StaticWire {
 
     String name() default "";
     boolean required() default true;

@@ -8,12 +8,19 @@ import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.util.RunnerExtension;
 import com.stellariver.milky.common.tool.wire.StaticWireSupport;
+import org.reflections.Reflections;
+import org.reflections.scanners.FieldAnnotationsScanner;
+import org.reflections.util.ConfigurationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
+import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Configuration
@@ -37,11 +44,33 @@ public class SpringPartnerAutoConfiguration {
         return new StaticSupport();
     }
 
+    static class StaticWireCondition implements Condition {
 
-    //TODO process scan logic
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            AnnotationAttributes enableSpringPartner = AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(EnableSpringPartner.class.getName()));
+            boolean springPartnerScanPackages = context.getRegistry().containsBeanDefinition("springPartnerScanPackages");
+            return (enableSpringPartner != null) || springPartnerScanPackages ;
+        }
+
+    }
+
+
     @Bean
-    public ApplicationRunner applicationRunner() {
-        return args -> StaticWireSupport.wire();
+    @Conditional(StaticWireCondition.class)
+    public ApplicationRunner staticWireRunner(@Autowired(required = false) SpringPartnerScanPackages springPartnerScanPackages,
+                                              @Autowired(required = false) SpringPartnerProperties springPartnerProperties) {
+        List<String> packages = new ArrayList<>();
+        if (springPartnerProperties != null) {
+            packages.addAll(Arrays.asList(springPartnerProperties.getScanPackages()));
+        }
+        if (springPartnerScanPackages != null) {
+            packages.addAll(Arrays.asList(springPartnerScanPackages.getScanPackages()));
+        }
+        ConfigurationBuilder configuration = new ConfigurationBuilder()
+                .forPackages(packages.toArray(new String[0])).addScanners(new FieldAnnotationsScanner());
+        Reflections reflections = new Reflections(configuration);
+        return args -> StaticWireSupport.wire(reflections);
     }
 
 
