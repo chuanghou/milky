@@ -15,7 +15,6 @@ import org.springframework.context.annotation.*;
 import java.util.*;
 
 @Configuration
-@EnableConfigurationProperties(StaticWireProperties.class)
 public class SpringPartnerAutoConfiguration {
 
     @Bean
