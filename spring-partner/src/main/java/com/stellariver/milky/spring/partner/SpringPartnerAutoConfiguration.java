@@ -33,7 +33,7 @@ public class SpringPartnerAutoConfiguration {
         Optional.ofNullable(runnerExtension).ifPresent(Runner::setFailureExtendable);
         Optional.ofNullable(traceIdGetter).ifPresent(Result::setTraceIdGetter);
         BeanUtil.setBeanLoader(beanLoader);
-        return new StaticSupport();
+        return new StaticSupport(milkyStableSupport, runnerExtension, traceIdGetter, beanLoader);
     }
 
 }
