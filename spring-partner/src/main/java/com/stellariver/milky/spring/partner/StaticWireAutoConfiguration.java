@@ -16,8 +16,8 @@ import java.util.List;
 @EnableConfigurationProperties(StaticWireProperties.class)
 public class StaticWireAutoConfiguration {
 
-    @Bean(destroyMethod = "destroy")
-    @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection", "ContextJavaBeanUnresolvedMethodsInspection"})
+    @Bean
+    @SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection"})
     public ApplicationRunner staticWireRunner(StaticWireScanPackages staticWireScanPackages,
                                               StaticWireProperties staticWireProperties) {
         List<String> packages = new ArrayList<>(Arrays.asList(staticWireScanPackages.getScanPackages()));

@@ -1,6 +1,5 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.TestReset;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
@@ -11,7 +10,6 @@ import org.redisson.api.RRateLimiter;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.concurrent.CompletableFuture;
@@ -53,12 +51,6 @@ public class RedissonTest{
         //TODO 全局限流
         RRateLimiter rateLimiter = redissonClient.getRateLimiter("test-limiter");
 
-    }
-
-    @AfterAll
-    static public void reset() {
-        CommandBus.reset();
-        TestReset.reset();
     }
 
 }

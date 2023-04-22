@@ -36,15 +36,11 @@ public class Runner {
     @Nullable
     static private RunnerExtension runnerExtension;
 
-    static public void setMilkyStableSupport(@NonNull MilkyStableSupport milkyStableSupportImpl) {
+    static public void setMilkyStableSupport(MilkyStableSupport milkyStableSupportImpl) {
         milkyStableSupport = milkyStableSupportImpl;
     }
 
-    static public void reset() {
-        milkyStableSupport = null;
-    }
-
-    static public void setFailureExtendable(@NonNull RunnerExtension runnerExtensionImpl) {
+    static public void setFailureExtendable(RunnerExtension runnerExtensionImpl) {
         runnerExtension = runnerExtensionImpl;
     }
 

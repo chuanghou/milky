@@ -1,7 +1,6 @@
 package com.stellariver.milky.demo;
 
 
-import com.stellariver.milky.common.tool.TestReset;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
@@ -27,7 +26,6 @@ import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import lombok.CustomLog;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,12 +143,6 @@ public class BasicTest {
         combineItem = combineItemRepository.queryById(1L);
         Assertions.assertNotNull(combineItem);
         Assertions.assertEquals(combineItem.getTitle(), "new Title");
-    }
-
-    @AfterAll
-    static public void resetMilky() {
-        CommandBus.reset();
-        TestReset.reset();
     }
 
 }

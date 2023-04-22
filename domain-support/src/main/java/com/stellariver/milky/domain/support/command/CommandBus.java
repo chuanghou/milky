@@ -274,13 +274,6 @@ public class CommandBus {
         return instance.daoWrappersMap.get(clazz);
     }
 
-    static public void reset() {
-        if (CommandBus.instance != null) {
-            CommandBus.unwWire();
-            CommandBus.instance = null;
-        }
-    }
-
     /**
      * 针对应用层调用的命令总线接口
      *
@@ -617,5 +610,10 @@ public class CommandBus {
 
     }
 
+
+    public void close() {
+        unwWire();
+        instance = null;
+    }
 
 }

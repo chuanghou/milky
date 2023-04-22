@@ -12,11 +12,11 @@ public class StaticWireApplicationRunner implements ApplicationRunner {
     private Reflections reflections;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         StaticWireSupport.wire(reflections);
     }
 
-    public void destroy() {
+    public void close() {
         StaticWireSupport.unWire(reflections);
     }
 
