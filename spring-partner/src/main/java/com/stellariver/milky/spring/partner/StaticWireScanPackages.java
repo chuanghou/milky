@@ -6,7 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SpringPartnerScanPackages {
+public class StaticWireScanPackages {
 
     String[] scanPackages;
 

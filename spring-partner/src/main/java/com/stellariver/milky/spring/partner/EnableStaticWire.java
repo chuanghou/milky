@@ -8,8 +8,8 @@ import java.lang.annotation.*;
 @Documented
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Import({SpringPartnerDefinitionRegistrar.class, SpringPartnerAutoConfiguration.class})
-public @interface EnableSpringPartner {
+@Import({StaticWireScanPackagesDefinitionRegistrar.class, StaticWireAutoConfiguration.class})
+public @interface EnableStaticWire {
 
     /**
      * Base packages to scan for milky annotated components.

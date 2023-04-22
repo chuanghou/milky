@@ -11,24 +11,24 @@ import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 
-public class SpringPartnerDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+public class StaticWireScanPackagesDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, @NonNull BeanDefinitionRegistry registry) {
 
-        AnnotationAttributes enableSpringPartner = AnnotationAttributes.fromMap(annotationMetadata.getAnnotationAttributes(EnableSpringPartner.class.getName()));
-        if (enableSpringPartner == null) {
+        AnnotationAttributes enableStaticWire = AnnotationAttributes.fromMap(annotationMetadata.getAnnotationAttributes(EnableStaticWire.class.getName()));
+        if (enableStaticWire == null) {
             return;
         }
-        String[] scanPackages = Arrays.stream(enableSpringPartner.getStringArray("scanPackages")).filter(StringUtils::hasText).toArray(String[]::new);
+        String[] scanPackages = Arrays.stream(enableStaticWire.getStringArray("scanPackages")).filter(StringUtils::hasText).toArray(String[]::new);
         if (scanPackages.length == 0) {
             String declaringClass = annotationMetadata.getClassName();
             String packageName = ClassUtils.getPackageName(declaringClass);
             scanPackages = new String[]{packageName};
         }
-        BeanDefinitionBuilder scanPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(SpringPartnerScanPackages.class);
+        BeanDefinitionBuilder scanPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(StaticWireScanPackages.class);
         scanPackagesBeanBuilder.addPropertyValue("scanPackages", scanPackages);
-        registry.registerBeanDefinition("springPartnerScanPackages", scanPackagesBeanBuilder.getBeanDefinition());
+        registry.registerBeanDefinition("staticWireScanPackages", scanPackagesBeanBuilder.getBeanDefinition());
     }
 
 }

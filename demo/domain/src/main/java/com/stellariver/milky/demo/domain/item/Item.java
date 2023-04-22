@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo.domain.item;
 
+import com.stellariver.milky.common.tool.wire.StaticWire;
 import com.stellariver.milky.demo.basic.UserInfo;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
@@ -45,6 +46,8 @@ public class Item extends AggregateRoot {
     String storeCode;
     ChannelEnum channelEnum;
 
+    @StaticWire
+    static UserInfoRepository staticUserInfoRepository;
 
     @Milkywired
     static UserInfoRepository userInfoRepository;
