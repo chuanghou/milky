@@ -40,7 +40,7 @@ public class SpringPartnerAutoConfiguration {
 
     //TODO process scan logic
     @Bean
-    public ApplicationRunner milkyApplicationRunner() {
+    public ApplicationRunner applicationRunner() {
         return args -> StaticWireSupport.wire();
     }
 
