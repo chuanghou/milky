@@ -1,6 +1,5 @@
 package com.stellariver.milky.spring.partner;
 
-import com.stellariver.milky.common.tool.wire.StaticWireSupport;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.util.ConfigurationBuilder;
@@ -14,22 +13,22 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties(SpringPartnerProperties.class)
+@EnableConfigurationProperties(StaticWireProperties.class)
 public class StaticWireAutoConfiguration {
 
     @Bean
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public ApplicationRunner staticWireRunner(StaticWireScanPackages staticWireScanPackages,
-                                              SpringPartnerProperties springPartnerProperties) {
+                                              StaticWireProperties staticWireProperties) {
         List<String> packages = new ArrayList<>(Arrays.asList(staticWireScanPackages.getScanPackages()));
-        String[] scanPackages = springPartnerProperties.getScanPackages();
+        String[] scanPackages = staticWireProperties.getScanPackages();
         if (scanPackages != null) {
             packages.addAll(Arrays.asList(scanPackages));
         }
         ConfigurationBuilder configuration = new ConfigurationBuilder()
                 .forPackages(packages.toArray(new String[0])).addScanners(new FieldAnnotationsScanner());
         Reflections reflections = new Reflections(configuration);
-        return args -> StaticWireSupport.wire(reflections);
+        return new StaticWireApplicationRunner(reflections);
     }
 
 }

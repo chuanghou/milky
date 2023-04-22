@@ -4,8 +4,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties("spring.partner")
-public class SpringPartnerProperties {
+@ConfigurationProperties("static.wire")
+public class StaticWireProperties {
 
     String[] scanPackages;
 
