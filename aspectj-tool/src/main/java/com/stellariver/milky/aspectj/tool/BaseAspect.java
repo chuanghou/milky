@@ -5,8 +5,6 @@ import org.aspectj.lang.annotation.Pointcut;
 
 public abstract class BaseAspect {
 
-    static public final Logger log = Logger.getLogger(BaseAspect.class);
-
     @Pointcut("execution(* *.set*(..))")
     private void setterPC() {}
     @Pointcut("execution(* *.get*(..))")

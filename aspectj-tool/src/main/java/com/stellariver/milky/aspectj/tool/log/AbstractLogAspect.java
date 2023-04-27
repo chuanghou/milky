@@ -3,11 +3,14 @@ package com.stellariver.milky.aspectj.tool.log;
 import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.exception.BizEx;
+import com.stellariver.milky.common.tool.log.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
 /**
@@ -17,6 +20,9 @@ import java.util.stream.IntStream;
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
 public abstract class AbstractLogAspect extends BaseAspect {
+
+
+    static private final Map<Class<?>, Logger> loggers = new ConcurrentHashMap<>();
 
     @Pointcut
     public abstract void pointCut();
@@ -32,6 +38,8 @@ public abstract class AbstractLogAspect extends BaseAspect {
         Object result = null;
         long start = Clock.currentTimeMillis();
         Throwable backUp = null;
+        Class<?> declaringType = pjp.getSignature().getDeclaringType();
+        Logger log = loggers.computeIfAbsent(declaringType, Logger::getLogger);
         try {
             result= pjp.proceed();
         } catch (Throwable throwable) {
