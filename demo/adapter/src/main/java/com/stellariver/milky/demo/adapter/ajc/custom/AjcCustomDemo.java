@@ -10,4 +10,9 @@ public class AjcCustomDemo {
     public Object testAjc(@NotNull Param str) {
         return null;
     }
+
+    public Object testAjcLog(String para1, Long para2) {
+        return "ok";
+    }
+
 }
