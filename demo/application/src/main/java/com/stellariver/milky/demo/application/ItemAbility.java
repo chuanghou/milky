@@ -38,7 +38,7 @@ public class ItemAbility {
 
     UserInfoRepository userInfoRepository;
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional
     public Item publishItem(Long userId, String title) {
         Long itemId = idBuilder.get("default");
         ItemCreateCommand command = ItemCreateCommand.builder().userId(userId)
@@ -52,7 +52,7 @@ public class ItemAbility {
     }
 
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional
     public void changeTitle(Long itemId, String newTitle, Employee operator) {
         Optional<Item> itemOptional = itemRepository.queryByIdOptional(itemId);
         BizEx.trueThrow(!itemOptional.isPresent(), ITEM_NOT_EXIST.message("找不到相应item，itemId:" + itemId));
@@ -62,4 +62,5 @@ public class ItemAbility {
                 .getMap();
         CommandBus.accept(command, parameters);
     }
+
 }
