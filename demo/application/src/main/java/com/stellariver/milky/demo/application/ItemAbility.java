@@ -3,6 +3,7 @@ package com.stellariver.milky.demo.application;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.exception.BizEx;
 import com.stellariver.milky.common.tool.util.StreamMap;
+import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
@@ -42,6 +43,7 @@ public class ItemAbility {
         Long itemId = idBuilder.get("default");
         ItemCreateCommand command = ItemCreateCommand.builder().userId(userId)
                 .itemId(itemId).title(title).amount(0L).storeCode("")
+                .channelEnum(ChannelEnum.ALI)
                 .build();
         Map<Class<? extends Typed<?>>, Object> parameters = StreamMap.<Class<? extends Typed<?>>, Object>init()
                 .put(EMPLOYEE.class, new Employee("110", "tom"))
