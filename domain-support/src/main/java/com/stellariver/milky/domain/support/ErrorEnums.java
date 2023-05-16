@@ -37,7 +37,7 @@ public class ErrorEnums extends ErrorEnumsBase {
             String message = Kit.op(field.getAnnotation(Message.class)).map(Message::value).filter(s -> !s.isEmpty()).orElse("系统累趴下啦！请稍后再试");
             String prefix = Kit.op(field.getAnnotation(Message.class)).map(Message::prefix).orElse("");
             String p = prefix.isEmpty() ? prefix : prefix + ": ";
-            ErrorEnum errorEnum = new ErrorEnum(code, p + message, null);
+            ErrorEnum errorEnum = new ErrorEnum(code, p + message);
             try {
                 field.set(null, errorEnum);
             } catch (Throwable ignore) {}

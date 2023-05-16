@@ -19,31 +19,28 @@ public class ErrorEnum {
 
     String code;
     String message;
-    Map<String, Object> params;
 
-    public ErrorEnum(@NonNull String code, String message, Map<String, Object> params) {
+    public ErrorEnum(@NonNull String code, String message) {
         this.code = code;
         this.message = message;
-        this.params = params;
     }
-
 
     public ErrorEnum message(Supplier<String> supplier) {
         return message(supplier.get());
     }
 
     public ErrorEnum message(Object object) {
-        return new ErrorEnum(code, StringSubstitutor.replace(object, params), params);
+        return new ErrorEnum(code, object.toString());
     }
 
     public ErrorEnum params(Map<String, Object> params) {
-        return new ErrorEnum(code, StringSubstitutor.replace(message, params), params);
+        return new ErrorEnum(code, StringSubstitutor.replace(message, params));
     }
 
-    public ErrorEnum params(String name, Object object) {
+    public ErrorEnum param(String name, Object object) {
         Map<String, Object> params = new HashMap<>();
         params.put(name, object);
-        return new ErrorEnum(code, StringSubstitutor.replace(message, params), params);
+        return new ErrorEnum(code, StringSubstitutor.replace(message, params));
     }
 
     @Override
