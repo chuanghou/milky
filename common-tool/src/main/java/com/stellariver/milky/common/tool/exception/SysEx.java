@@ -83,4 +83,8 @@ public class SysEx extends BaseEx {
         return new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
     }
 
+    static public void throwUnreachable() {
+        throw new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
+    }
+
 }
