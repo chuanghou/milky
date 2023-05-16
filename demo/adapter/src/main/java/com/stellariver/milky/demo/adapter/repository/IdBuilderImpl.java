@@ -65,9 +65,9 @@ public class IdBuilderImpl implements IdBuilder {
         } catch (DuplicateKeyException duplicateKeyException) {
             throw new BizEx(DUPLICATE_NAME_SPACE);
         } catch (Throwable throwable) {
-            throw new SysEx(ErrorEnumsBase.SYSTEM_EXCEPTION, throwable);
+            throw new SysEx(ErrorEnumsBase.SYS_EX, throwable);
         }
-        trueThrow(insert != 1, ErrorEnumsBase.SYSTEM_EXCEPTION);
+        trueThrow(insert != 1, ErrorEnumsBase.SYS_EX);
     }
 
     static Lock lock = new ReentrantLock();

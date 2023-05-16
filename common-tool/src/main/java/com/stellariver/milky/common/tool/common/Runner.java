@@ -10,7 +10,6 @@ import com.stellariver.milky.common.tool.util.RunnerExtension;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import lombok.CustomLog;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nullable;
@@ -77,7 +76,7 @@ public class Runner {
                 }
                 Boolean success = option.getCheck().apply(result);
                 if (!success) {
-                    SysEx sysEx = new SysEx(ErrorEnumsBase.SYSTEM_EXCEPTION.message(result));
+                    SysEx sysEx = new SysEx(ErrorEnumsBase.SYS_EX.message(result));
                     if (circuitBreaker != null) {
                         circuitBreaker.onError(Clock.currentTimeMillis() - now, TimeUnit.MILLISECONDS, sysEx);
                     }

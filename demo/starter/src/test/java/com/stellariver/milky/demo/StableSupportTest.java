@@ -102,7 +102,7 @@ public class StableSupportTest {
 
     static private Result<String> stableTest(int i) {
         if (i > 0) {
-            return Result.error(ErrorEnums.SYSTEM_EXCEPTION, ExceptionType.SYS);
+            return Result.error(ErrorEnums.SYS_EX, ExceptionType.SYS);
         }
         return Result.success();
     }

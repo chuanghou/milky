@@ -86,7 +86,7 @@ public class TableStoreTool {
     private static Query doBuildQuery(String index, Query query) {
         if (index.contains(SEPARATOR)) {
             String[] paths = index.split("\\.");
-            BizEx.trueThrow(paths.length != 2, ErrorEnumsBase.SYSTEM_EXCEPTION.message("search param size is not 2!"));
+            BizEx.trueThrow(paths.length != 2, ErrorEnumsBase.SYS_EX.message("search param size is not 2!"));
             String path = paths[0];
             NestedQuery nestedQuery = new NestedQuery();
             nestedQuery.setPath(path);

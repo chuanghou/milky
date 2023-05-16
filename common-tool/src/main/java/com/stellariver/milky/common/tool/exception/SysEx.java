@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 public class SysEx extends BaseEx {
 
     public SysEx(Object object) {
-        super(Collections.singletonList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(object)));
+        super(Collections.singletonList(ErrorEnumsBase.SYS_EX.message(object)));
     }
 
     public SysEx(Throwable throwable) {
@@ -63,7 +63,7 @@ public class SysEx extends BaseEx {
 
     static public void trueThrow(boolean test, Object object) {
         if (test) {
-            throw new SysEx(ErrorEnumsBase.SYSTEM_EXCEPTION.message(object));
+            throw new SysEx(ErrorEnumsBase.SYS_EX.message(object));
         }
     }
 

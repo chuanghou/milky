@@ -14,12 +14,12 @@ public abstract class BaseEx extends RuntimeException {
 
     public BaseEx(Throwable t) {
         super(t);
-        this.errorEnums = Collect.asList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(t.getMessage()));
+        this.errorEnums = Collect.asList(ErrorEnumsBase.SYS_EX.message(t.getMessage()));
     }
 
     public BaseEx(Throwable t, boolean fillStackTrace) {
         super(null, t, true, fillStackTrace);
-        this.errorEnums = Collect.asList(ErrorEnumsBase.SYSTEM_EXCEPTION.message(t.getMessage()));
+        this.errorEnums = Collect.asList(ErrorEnumsBase.SYS_EX.message(t.getMessage()));
     }
 
     public BaseEx(List<ErrorEnum> errorEnums) {

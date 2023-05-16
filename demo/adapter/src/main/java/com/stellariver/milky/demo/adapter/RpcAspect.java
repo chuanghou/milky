@@ -81,7 +81,7 @@ public class RpcAspect {
             if (throwable instanceof BaseEx) {
                 errorEnums = ((BaseEx) throwable).getErrors();
             } else {
-                ErrorEnum errorEnum = ErrorEnums.SYSTEM_EXCEPTION.message(throwable.getMessage());
+                ErrorEnum errorEnum = ErrorEnums.SYS_EX.message(throwable.getMessage());
                 errorEnums = Collect.asList(errorEnum);
             }
             t = throwable;

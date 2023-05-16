@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
  */
 public class ErrorEnumsBase {
 
-    public static ErrorEnum MERGE_EXCEPTION;
+    public static ErrorEnum MERGE_EX;
 
     public static ErrorEnum NOT_ALLOW_LOST;
 
@@ -35,7 +35,7 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum ENTITY_NOT_FOUND;
 
-    public static ErrorEnum SYSTEM_EXCEPTION;
+    public static ErrorEnum SYS_EX;
 
     public static ErrorEnum RPC_EXCEPTION;
 
