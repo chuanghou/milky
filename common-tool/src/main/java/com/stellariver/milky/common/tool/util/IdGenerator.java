@@ -47,13 +47,13 @@ public class IdGenerator {
 
     volatile long lastTime;
     @Contended
-    AtomicInteger seq;
+    int seq;
 
     @SneakyThrows
     public IdGenerator(String prefix) {
         this.prefix = prefix;
         this.lastTime = Clock.currentTimeMillis();
-        this.seq = new AtomicInteger(0);
+        this.seq = 0;
 
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.lastTime), zoneId);
         this.startYear = localDateTime.getYear();
@@ -88,12 +88,15 @@ public class IdGenerator {
         long time;
         int s = 0;
         time = Clock.currentTimeMillis();
-        if (time <= lastTime) {
-            s = seq.getAndIncrement();
-        } else {
-            lastTime = time;
-            seq.getAndSet(0);
+        synchronized (this) {
+            if (time <= lastTime) {
+                s = seq++;
+            } else {
+                lastTime = time;
+                seq = 0;
+            }
         }
+
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.lastTime), zoneId);
         builder.append(BUFFER_YEAR[localDateTime.getYear() - startYear]);
         builder.append(BUFFER_CHRONO[localDateTime.getMonthValue()]);
