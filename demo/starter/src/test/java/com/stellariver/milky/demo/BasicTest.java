@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo;
 
 
+import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
@@ -25,6 +26,7 @@ import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
+import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import lombok.CustomLog;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -145,4 +147,14 @@ public class BasicTest {
         Assertions.assertEquals(combineItem.getTitle(), "new Title");
     }
 
+
+    @Test
+    public void idBuilderTest() {
+        IdBuilder bean = BeanUtil.getBean(IdBuilder.class);
+        long l = System.nanoTime();
+        for (int i = 0; i < 1000; i++) {
+            bean.get("default");
+        }
+        System.out.println(System.nanoTime() - l);
+    }
 }

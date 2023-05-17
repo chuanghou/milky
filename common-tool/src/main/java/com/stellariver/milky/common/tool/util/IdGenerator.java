@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @CustomLog
 @RequiredArgsConstructor
@@ -83,8 +85,11 @@ public class IdGenerator {
         SysEx.nullThrow(this.host, ErrorEnumsBase.NOT_VALID_NET_ADDRESS);
     }
 
+    Map<Thread, StringBuilder> map = new ConcurrentHashMap<>();
     public String next() {
-        StringBuilder builder = new StringBuilder(64).append(prefix);
+        StringBuilder builder = map.computeIfAbsent(Thread.currentThread(), k -> new StringBuilder(64));
+        builder.setLength(0);
+        builder.append(prefix);
         long time;
         int s = 0;
         time = Clock.currentTimeMillis();
@@ -106,7 +111,7 @@ public class IdGenerator {
         builder.append(BUFFER_CHRONO[localDateTime.getMinute()]);
         builder.append(BUFFER_CHRONO[localDateTime.getSecond()]);
         builder.append("-");
-        builder.append(BUFFER_THOUSAND[localDateTime.get(ChronoField.MILLI_OF_SECOND)]);
+        builder.append(BUFFER_THOUSAND[(int) (lastTime%1000)]);
         builder.append(BUFFER_THOUSAND[s]);
         builder.append("-");
         builder.append(host);
