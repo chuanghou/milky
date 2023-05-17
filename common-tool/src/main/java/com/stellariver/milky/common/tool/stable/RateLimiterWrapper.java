@@ -1,8 +1,8 @@
 package com.stellariver.milky.common.tool.stable;
 
 import com.google.common.util.concurrent.RateLimiter;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.ErrorEnumsBase;
+import com.stellariver.milky.common.base.SysEx;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

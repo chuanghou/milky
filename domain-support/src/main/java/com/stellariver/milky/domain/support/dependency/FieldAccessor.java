@@ -1,6 +1,6 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.util.Reflect;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
 
 @Data
 @NoArgsConstructor

@@ -1,6 +1,4 @@
-package com.stellariver.milky.common.tool.exception;
-
-import com.stellariver.milky.common.base.ErrorEnum;
+package com.stellariver.milky.common.base;
 
 import java.util.*;
 import java.util.function.Supplier;

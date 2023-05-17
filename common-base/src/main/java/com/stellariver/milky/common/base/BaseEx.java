@@ -1,8 +1,7 @@
-package com.stellariver.milky.common.tool.exception;
+package com.stellariver.milky.common.base;
 
-import com.stellariver.milky.common.base.ErrorEnum;
-import com.stellariver.milky.common.tool.util.Collect;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -14,12 +13,12 @@ public abstract class BaseEx extends RuntimeException {
 
     public BaseEx(Throwable t) {
         super(t);
-        this.errorEnums = Collect.asList(ErrorEnumsBase.SYS_EX.message(t.getMessage()));
+        this.errorEnums = Collections.singletonList(ErrorEnumsBase.SYS_EX.message(t.getMessage()));
     }
 
     public BaseEx(Throwable t, boolean fillStackTrace) {
         super(null, t, true, fillStackTrace);
-        this.errorEnums = Collect.asList(ErrorEnumsBase.SYS_EX.message(t.getMessage()));
+        this.errorEnums = Collections.singletonList(ErrorEnumsBase.SYS_EX.message(t.getMessage()));
     }
 
     public BaseEx(List<ErrorEnum> errorEnums) {

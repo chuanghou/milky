@@ -1,11 +1,11 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.exception.BizEx;
+import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.CustomValid;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.PARAM_IS_NULL;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.PARAM_IS_NULL;
 
 @Data
 @Builder

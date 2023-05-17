@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.exception.BizEx;
+import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.demo.adapter.ajc.Param;
 import com.stellariver.milky.demo.adapter.ajc.anno.AjcAnnoDemo;
 import com.stellariver.milky.demo.adapter.ajc.custom.AjcCustomDemo;

@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.adapter.controller;
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import lombok.*;

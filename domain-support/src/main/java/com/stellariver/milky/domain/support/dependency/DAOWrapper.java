@@ -1,14 +1,14 @@
 package com.stellariver.milky.domain.support.dependency;
 
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.NonNull;
 
 import java.util.*;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.PERSISTENCE_ERROR;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.PERSISTENCE_ERROR;
 
 /**
  * @author houchuang

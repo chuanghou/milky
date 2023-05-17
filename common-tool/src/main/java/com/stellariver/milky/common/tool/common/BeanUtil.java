@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 import net.sf.cglib.beans.BeanMap;
 
 import java.lang.annotation.Annotation;

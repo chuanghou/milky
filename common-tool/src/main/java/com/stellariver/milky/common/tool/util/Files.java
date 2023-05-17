@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.util;
 
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 

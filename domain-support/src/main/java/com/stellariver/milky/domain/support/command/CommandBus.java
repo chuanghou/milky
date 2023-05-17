@@ -3,8 +3,8 @@ package com.stellariver.milky.domain.support.command;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.stellariver.milky.common.tool.common.*;
-import com.stellariver.milky.common.tool.exception.BizEx;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.BizEx;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.*;
 import static com.stellariver.milky.domain.support.command.HandlerType.CONSTRUCTOR_HANDLER;
 import static com.stellariver.milky.domain.support.command.HandlerType.INSTANCE_HANDLER;
 

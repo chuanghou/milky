@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.slambda;
 
 
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 
 import java.io.*;
 

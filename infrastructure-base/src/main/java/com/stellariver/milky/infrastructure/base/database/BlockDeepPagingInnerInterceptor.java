@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import com.github.vertical_blank.sqlformatter.languages.Dialect;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.BizEx;
+import com.stellariver.milky.common.base.BizEx;
 import lombok.CustomLog;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.DEEP_PAGING;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.DEEP_PAGING;
 
 /**
  * 防止深度分页插件，默认不阻断，分页限制1000条

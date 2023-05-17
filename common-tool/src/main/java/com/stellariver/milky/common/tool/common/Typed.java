@@ -1,8 +1,8 @@
 package com.stellariver.milky.common.tool.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.ErrorEnumsBase;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.*;
 

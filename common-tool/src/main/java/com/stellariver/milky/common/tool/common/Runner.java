@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.common;
 
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.ErrorEnumsBase;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.slambda.SCallable;
 import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;

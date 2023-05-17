@@ -1,11 +1,11 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 
 import java.lang.annotation.*;
 import java.util.function.Supplier;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
 
 @Documented
 @Target(ElementType.FIELD)

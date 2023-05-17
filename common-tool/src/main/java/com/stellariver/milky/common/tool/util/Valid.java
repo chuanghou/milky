@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.util;
 
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.ErrorEnumsBase;
+import com.stellariver.milky.common.base.SysEx;
 
 public class Valid<T> {
 

@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.exception.BizEx;
+import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.OfEnum;

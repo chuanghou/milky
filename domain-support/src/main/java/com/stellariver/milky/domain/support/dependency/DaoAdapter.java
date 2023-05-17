@@ -1,9 +1,8 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
@@ -16,7 +15,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
 
 /**
  * @author houchuang

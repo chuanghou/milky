@@ -1,6 +1,6 @@
 package com.stellariver.milky.financial.base;
 
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

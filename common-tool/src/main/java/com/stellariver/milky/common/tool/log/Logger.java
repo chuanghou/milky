@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.log;
 
-import com.stellariver.milky.common.tool.exception.BizEx;
+import com.stellariver.milky.common.base.BizEx;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.Marker;

@@ -6,7 +6,7 @@ import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.tool.exception.BizEx;
+import com.stellariver.milky.common.base.BizEx;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

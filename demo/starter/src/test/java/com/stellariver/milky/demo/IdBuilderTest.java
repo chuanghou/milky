@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.exception.BizEx;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
+import com.stellariver.milky.common.base.BizEx;
+import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import com.stellariver.milky.domain.support.dependency.Sequence;

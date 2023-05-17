@@ -2,9 +2,9 @@ package com.stellariver.milky.demo.adapter.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.exception.BizEx;
-import com.stellariver.milky.common.tool.exception.ErrorEnumsBase;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.BizEx;
+import com.stellariver.milky.common.base.ErrorEnumsBase;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.IdBuilder;
@@ -25,8 +25,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.stellariver.milky.common.tool.common.Kit.eq;
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.*;
-import static com.stellariver.milky.common.tool.exception.SysEx.*;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.*;
+import static com.stellariver.milky.common.base.SysEx.*;
 
 /**
  * @author houchuang

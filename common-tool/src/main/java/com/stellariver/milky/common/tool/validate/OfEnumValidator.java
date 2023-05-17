@@ -1,7 +1,7 @@
 package com.stellariver.milky.common.tool.validate;
 
 import com.stellariver.milky.common.base.OfEnum;
-import com.stellariver.milky.common.tool.exception.SysEx;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.stellariver.milky.common.tool.exception.ErrorEnumsBase.CONFIG_ERROR;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
 
 public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
 
