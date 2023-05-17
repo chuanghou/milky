@@ -7,6 +7,7 @@ import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.Range;
+import org.apache.commons.lang3.StringUtils;
 import sun.misc.Contended;
 
 import java.net.Inet4Address;
@@ -17,8 +18,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.util.Enumeration;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 @CustomLog
 @RequiredArgsConstructor
@@ -51,6 +50,7 @@ public class IdGenerator {
 
     @SneakyThrows
     public IdGenerator(String prefix) {
+        SysEx.trueThrow(StringUtils.isBlank(prefix), ErrorEnumsBase.CONFIG_ERROR);
         this.prefix = prefix;
         this.lastTime = Clock.currentTimeMillis();
         this.seq = 0;
@@ -111,15 +111,5 @@ public class IdGenerator {
         builder.append("-");
         builder.append(host);
         return builder.toString();
-    }
-
-
-    public static void main(String[] args) {
-        IdGenerator idGenerator = new IdGenerator("");
-        long l = System.nanoTime();
-        for (int i = 0; i < 1000; i++) {
-            idGenerator.next();
-        }
-        System.out.println(System.nanoTime() - l);
     }
 }
