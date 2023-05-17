@@ -22,6 +22,8 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum CONFIG_ERROR;
 
+    public static ErrorEnum NOT_VALID_NET_ADDRESS;
+
     public static ErrorEnum REPEAT_VALIDATE_GROUP;
 
     public static ErrorEnum MILKY_WIRED_FAILURE;
