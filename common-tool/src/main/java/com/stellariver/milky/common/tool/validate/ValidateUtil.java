@@ -1,5 +1,6 @@
 package com.stellariver.milky.common.tool.validate;
 
+import com.stellariver.milky.common.base.CustomValid;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.exception.BizEx;

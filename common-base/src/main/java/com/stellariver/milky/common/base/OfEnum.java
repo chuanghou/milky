@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.validate;
+package com.stellariver.milky.common.base;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -17,8 +17,8 @@ import java.lang.annotation.Target;
  * @since 1.0
  */
 @Target(ElementType.FIELD)
-@Constraint(validatedBy = OfEnumValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = { })
 public @interface OfEnum {
 
     Class<? extends Enum<?>> enumType();

@@ -1,5 +1,6 @@
 package com.stellariver.milky.common.tool.validate;
 
+import com.stellariver.milky.common.base.OfEnum;
 import com.stellariver.milky.common.tool.exception.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
