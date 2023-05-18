@@ -47,8 +47,8 @@ public class IdGenerator {
         return buffer;
     }
 
+    char[] host;
     final char[] prefix;
-    final String host;
     final ZoneId zoneId = ZoneId.systemDefault();
     final int startYear;
 
@@ -83,41 +83,12 @@ public class IdGenerator {
                 }
             }
         }
-        this.host = selectedHost;
-        SysEx.nullThrow(this.host, ErrorEnumsBase.NOT_VALID_NET_ADDRESS);
+        if (selectedHost != null) {
+            this.host = selectedHost.toCharArray();
+        } else {
+            throw new SysEx(ErrorEnumsBase.NOT_VALID_NET_ADDRESS);
+        }
     }
-
-//    Map<Thread, StringBuilder> map = new ConcurrentHashMap<>();
-//    public String next() {
-//        StringBuilder builder = map.computeIfAbsent(Thread.currentThread(), k -> new StringBuilder(64));
-//        builder.setLength(0);
-//        builder.append(prefix);
-//        long time;
-//        int s = 0;
-//        time = Clock.currentTimeMillis();
-//        synchronized (this) {
-//            if (time <= lastTime) {
-//                s = seq++;
-//            } else {
-//                lastTime = time;
-//                seq = 0;
-//            }
-//        }
-//        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.lastTime), zoneId);
-//        builder.append(BUFFER_YEAR[localDateTime.getYear() - startYear]);
-//        builder.append(BUFFER_CHRONO[localDateTime.getMonthValue()]);
-//        builder.append(BUFFER_CHRONO[localDateTime.getDayOfMonth()]);
-//        builder.append("-");
-//        builder.append(BUFFER_CHRONO[localDateTime.getHour()]);
-//        builder.append(BUFFER_CHRONO[localDateTime.getMinute()]);
-//        builder.append(BUFFER_CHRONO[localDateTime.getSecond()]);
-//        builder.append("-");
-//        builder.append(BUFFER_THOUSAND[(int) (lastTime%1000)]);
-//        builder.append(BUFFER_THOUSAND[s]);
-//        builder.append("-");
-//        builder.append(host);
-//        return builder.toString();
-//    }
 
     Map<Thread, char[]> map = new ConcurrentHashMap<>();
     public String next() {
@@ -126,6 +97,7 @@ public class IdGenerator {
             rawChars[4] = '-';
             rawChars[13] = '-';
             rawChars[20] = '-';
+            rawChars[27] = '-';
             return rawChars;
         });
         System.arraycopy(prefix, 0, chars, 0, 4);
@@ -150,14 +122,15 @@ public class IdGenerator {
         System.arraycopy(BUFFER_CHRONO[localDateTime.getSecond()], 0, chars, 18, 2);
         System.arraycopy(BUFFER_THOUSAND[(int) (lastTime%1000)], 0, chars, 21, 3);
         System.arraycopy(BUFFER_THOUSAND[s], 0, chars, 24, 3);
-        return new String(chars);
+        System.arraycopy(host, 0, chars, 28, host.length);
+        return new String(chars, 0, 28 + host.length);
     }
 
     public static void main(String[] args) {
         IdGenerator idGenerator = new IdGenerator("test".toCharArray());
         long l = System.nanoTime();
-        for (int i = 0; i < 1000; i++) {
-            idGenerator.next();
+        for (int i = 0; i < 100; i++) {
+            System.out.println(idGenerator.next());
         }
         System.out.println(System.nanoTime() - l);
     }
