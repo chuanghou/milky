@@ -262,6 +262,11 @@ public class CommandBus {
     }
 
 
+    static public <T extends Command> Object accept(T command) {
+        return accept(command, null, null, null);
+    }
+
+
     static public <T extends Command> Object accept(T command, Map<Class<? extends Typed<?>>, Object> parameters) {
         return accept(command, parameters, null, null);
     }
