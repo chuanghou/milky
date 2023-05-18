@@ -6,6 +6,7 @@ import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.If;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -97,11 +98,12 @@ public class Context{
         return build(parameters, null);
     }
 
+    @SuppressWarnings("all")
     public static Context build(Map<Class<? extends Typed<?>>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Context context = new Context();
         context.invocationId = BeanUtil.getBean(IdBuilder.class).get("default");
-        context.parameters.putAll(parameters);
-        context.metaData.putAll(parameters);
+        If.isTrue(parameters != null, () -> context.parameters.putAll(parameters));
+        If.isTrue(parameters != null, () -> context.metaData.putAll(parameters));
         Kit.op(aggregateIdMap).orElseGet(HashMap::new).forEach((aggregateClazz, aggregateIdSet) -> {
             DaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(aggregateClazz);
             daoAdapter.batchGetByAggregateIds(aggregateIdSet, context);
