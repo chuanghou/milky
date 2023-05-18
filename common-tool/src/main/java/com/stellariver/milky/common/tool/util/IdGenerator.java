@@ -126,12 +126,4 @@ public class IdGenerator {
         return new String(chars, 0, 28 + host.length);
     }
 
-    public static void main(String[] args) {
-        IdGenerator idGenerator = new IdGenerator("test".toCharArray());
-        long l = System.nanoTime();
-        for (int i = 0; i < 100; i++) {
-            System.out.println(idGenerator.next());
-        }
-        System.out.println(System.nanoTime() - l);
-    }
 }
