@@ -68,7 +68,7 @@ public class RpcAspect {
         List<ErrorEnum> errorEnums = Collections.emptyList();
         Throwable t = null;
         try {
-            if (method.getAnnotation(Validate.class) != null) {
+            if (method.getAnnotation(Validate.class) == null) {
                 ValidateUtil.validate(pjp.getTarget(), method, args, true, ExceptionType.BIZ);
             }
             result = pjp.proceed();
