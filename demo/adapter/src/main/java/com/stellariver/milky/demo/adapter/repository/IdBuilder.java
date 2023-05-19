@@ -80,14 +80,7 @@ public class IdBuilder implements UniqueIdGetter {
         if (null == section) {
             synchronized (this) {
                 if (null == section) {
-                    section = doLoadSectionFromDB(sequence.getNameSpace());
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
-                        } catch (Throwable throwable) {
-                            log.arg0(sequence.getNameSpace()).error("SECOND_LOAD_SECTION", throwable);
-                        }
-                    }, executor);
+                    loadSection();
                 }
             }
         }
@@ -100,23 +93,29 @@ public class IdBuilder implements UniqueIdGetter {
                 return value;
             }
 
-            if (section.getLeft().get() >= section.getRight()) {
+            if (value >= section.getRight()) {
                 synchronized (this) {
-                    if (section.getLeft().get() >= section.getRight()) {
-                        section = queue.take();
-                        CompletableFuture.runAsync(() -> {
-                            try {
-                                queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
-                            } catch (Throwable throwable) {
-                                log.arg0(sequence.getNameSpace()).error("NEXT_LOAD_SECTION", throwable);
-                            }
-                        }, executor);
+                    if (value >= section.getRight()) {
+                        loadSection();
                     }
                 }
             }
 
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
+    }
+
+
+    @SneakyThrows
+    private void loadSection() {
+        section = queue.take();
+        CompletableFuture.runAsync(() -> {
+            try {
+                queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
+            } catch (Throwable throwable) {
+                log.arg0(sequence.getNameSpace()).error("NEXT_LOAD_SECTION", throwable);
+            }
+        }, executor);
     }
 
     public void reset() {
