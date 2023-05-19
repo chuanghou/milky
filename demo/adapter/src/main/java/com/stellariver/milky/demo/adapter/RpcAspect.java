@@ -3,7 +3,9 @@ package com.stellariver.milky.demo.adapter;
 import com.stellariver.milky.aspectj.tool.validate.AnnotationValidateAspect;
 import com.stellariver.milky.aspectj.tool.validate.Validate;
 import com.stellariver.milky.common.base.*;
+import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.common.Clock;
+import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 /**
@@ -33,10 +36,9 @@ import java.util.stream.IntStream;
  * @see AnnotationValidateAspect
  */
 @Aspect
-@CustomLog
-@Component
-@Order(value = Ordered.HIGHEST_PRECEDENCE)
 public class RpcAspect {
+
+    static private final Logger log = Logger.getLogger(RpcAspect.class);
 
     @Pointcut("execution(public com.stellariver.milky.common.base.Result com.stellariver.milky.demo.adapter.rpc..*(..))")
     private void resultPointCut() {}
@@ -44,7 +46,11 @@ public class RpcAspect {
     @Pointcut("execution(public com.stellariver.milky.common.base.Result com.stellariver.milky.demo.adapter.rpc..*(..))")
     private void pageResultPointCut() {}
 
-    final MilkyStableSupport milkyStableSupport;
+    MilkyStableSupport milkyStableSupport;
+
+    final Object lock = new Object();
+
+    volatile boolean init = false;
 
     public RpcAspect(@Autowired(required = false) MilkyStableSupport milkyStableSupport) {
         this.milkyStableSupport = milkyStableSupport;
@@ -52,6 +58,14 @@ public class RpcAspect {
 
     @Around("resultPointCut() || pageResultPointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
+        if (!init) {
+            synchronized (lock) {
+                if (!init) {
+                    BeanUtil.getBeanOptional(MilkyStableSupport.class).ifPresent(s -> milkyStableSupport = s);
+                }
+                init = true;
+            }
+        }
         if (milkyStableSupport != null) {
             String key = milkyStableSupport.ruleId(pjp);
             RateLimiterWrapper rateLimiterWrapper = milkyStableSupport.rateLimiter(key);
