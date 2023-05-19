@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo.adapter.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.stellariver.milky.common.tool.common.ConcurrentTool;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
@@ -80,7 +81,15 @@ public class IdBuilder implements UniqueIdGetter {
         if (null == section) {
             synchronized (this) {
                 if (null == section) {
-                    loadSection();
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
+                            queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
+                        } catch (Throwable throwable) {
+                            log.arg0(sequence.getNameSpace()).error("NEXT_LOAD_SECTION", throwable);
+                        }
+                    }, executor);
+                    section = queue.take();
                 }
             }
         }
@@ -96,26 +105,20 @@ public class IdBuilder implements UniqueIdGetter {
             if (value >= section.getRight()) {
                 synchronized (this) {
                     if (value >= section.getRight()) {
-                        loadSection();
+                        section = queue.take();
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
+                            } catch (Throwable throwable) {
+                                log.arg0(sequence.getNameSpace()).error("NEXT_LOAD_SECTION", throwable);
+                            }
+                        }, executor);
                     }
                 }
             }
 
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (true);
-    }
-
-
-    @SneakyThrows
-    private void loadSection() {
-        section = queue.take();
-        CompletableFuture.runAsync(() -> {
-            try {
-                queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
-            } catch (Throwable throwable) {
-                log.arg0(sequence.getNameSpace()).error("NEXT_LOAD_SECTION", throwable);
-            }
-        }, executor);
     }
 
     public void reset() {
