@@ -52,10 +52,6 @@ public class RpcAspect {
 
     volatile boolean init = false;
 
-    public RpcAspect(@Autowired(required = false) MilkyStableSupport milkyStableSupport) {
-        this.milkyStableSupport = milkyStableSupport;
-    }
-
     @Around("resultPointCut() || pageResultPointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
         if (!init) {
@@ -78,7 +74,7 @@ public class RpcAspect {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
         Class<?> returnType = method.getReturnType();
-        long start = Clock.currentTimeMillis();
+        long start = System.nanoTime();
         List<ErrorEnum> errorEnums = Collections.emptyList();
         Throwable t = null;
         try {
@@ -103,7 +99,7 @@ public class RpcAspect {
             }
             IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
             String logTag = ((MethodSignature) pjp.getSignature()).getMethod().getName();
-            log.result(result).source("rpc's source").cost(Clock.currentTimeMillis() - start).log(logTag, t);
+            log.result(result).source("rpc's source").cost(System.nanoTime() - start).log(logTag, t);
         }
         return result;
     }
