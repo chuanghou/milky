@@ -138,7 +138,8 @@ public class ValidateUtil {
 
     private static void check(Set<ConstraintViolation<Object>> validateResult, ExceptionType type) {
         if (Collect.isNotEmpty(validateResult)) {
-            List<String> messages = Collect.transfer(validateResult, ConstraintViolation::getMessage);
+
+            List<String> messages = Collect.transfer(validateResult, r -> r.getPropertyPath().toString() + r.getMessage());
             String message = StringUtils.join(messages, ';');
             if (type == ExceptionType.BIZ) {
                 throw new BizEx(PARAM_FORMAT_WRONG.message(message));
