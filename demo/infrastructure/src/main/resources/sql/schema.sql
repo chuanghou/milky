@@ -22,29 +22,6 @@ create table id_builder
 alter table id_builder
     add primary key (id);
 
-insert into id_builder(name_space,
-                       start,
-                       unique_id,
-                       step,
-                       ceiling,
-                       duty,
-                       alarm_threshold,
-                       version,
-                       deleted,
-                       gmt_create,
-                       gmt_modified)
-values ('default',
-        1,
-        1,
-        100,
-        100000,
-        'NOT_WORK',
-        90000,
-        0,
-        0,
-        current_timestamp(),
-        current_timestamp());
-
 drop table if exists invocation_store;
 -- auto-generated definition
 create table invocation_store

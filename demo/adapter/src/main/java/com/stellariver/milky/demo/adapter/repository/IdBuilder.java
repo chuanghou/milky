@@ -7,22 +7,17 @@ import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
-import com.stellariver.milky.domain.support.dependency.IdBuilder;
-import com.stellariver.milky.domain.support.dependency.Sequence;
+import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import lombok.AccessLevel;
 import lombok.CustomLog;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.stellariver.milky.common.tool.common.Kit.eq;
 import static com.stellariver.milky.common.base.ErrorEnumsBase.*;
@@ -32,36 +27,42 @@ import static com.stellariver.milky.common.base.SysEx.*;
  * @author houchuang
  */
 @CustomLog
-@Repository
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class IdBuilderImpl implements IdBuilder {
+public class IdBuilder implements UniqueIdGetter {
 
+    enum Duty {NOT_WORK, MONTH, WEEK, DAY}
     static final int maxTimes = 10;
+    static long NULL_HOLDER_OF_LONG = -1L;
 
     static final Set<String> SUPPORTABLE_DUTIES = new HashSet<>(Arrays.asList(Duty.MONTH.name(), Duty.WEEK.name(), Duty.DAY.name()));
 
-    final IdBuilderMapper idBuilderMapper;
+    final Sequence sequence;
+
+    final IdBuilderMapper mapper;
 
     volatile Pair<AtomicLong, Long> section;
 
     static private final Executor executor = Executors.newSingleThreadExecutor();
 
-    @Override
-    public void initNameSpace(Sequence param) {
-        long ceiling = param.getCeiling() == null ? Long.MAX_VALUE : param.getCeiling();
-        double alarmRatio = Kit.whenNull(param.getAlarmRatio(), 0.8);
-        IdBuilderDO builderDO = IdBuilderDO.builder().nameSpace(param.getNameSpace())
-                .start(param.getStart())
+    public IdBuilder(Sequence sequence, IdBuilderMapper mapper) {
+        this.sequence = sequence;
+        this.mapper = mapper;
+    }
+
+    public void initDB() {
+        long ceiling = sequence.getCeiling() == null ? Long.MAX_VALUE : sequence.getCeiling();
+        double alarmRatio = Kit.whenNull(sequence.getAlarmRatio(), 0.8);
+        IdBuilderDO builderDO = IdBuilderDO.builder().nameSpace(sequence.getNameSpace())
+                .start(sequence.getStart())
                 .uniqueId(NULL_HOLDER_OF_LONG)
-                .step(param.getStep())
+                .step(sequence.getStep())
                 .ceiling(ceiling)
                 .alarmThreshold((long) (ceiling * alarmRatio))
-                .duty(param.getDuty().name())
+                .duty(sequence.getDuty().name())
                 .build();
         int insert;
         try {
-            insert = idBuilderMapper.insert(builderDO);
+            insert = mapper.insert(builderDO);
         } catch (DuplicateKeyException duplicateKeyException) {
             throw new BizEx(DUPLICATE_NAME_SPACE);
         } catch (Throwable throwable) {
@@ -70,23 +71,22 @@ public class IdBuilderImpl implements IdBuilder {
         trueThrow(insert != 1, ErrorEnumsBase.SYS_EX);
     }
 
-    static Lock lock = new ReentrantLock();
-
     private final BlockingQueue<Pair<AtomicLong, Long>> queue = new ArrayBlockingQueue<>(1);
 
-    @Override
     @SneakyThrows
-    public Long get(String nameSpace) {
+    public Long get() {
 
         // init
         if (null == section) {
             synchronized (this) {
                 if (null == section) {
-                    section = doLoadSectionFromDB(nameSpace);
+                    section = doLoadSectionFromDB(sequence.getNameSpace());
                     CompletableFuture.runAsync(() -> {
                         try {
-                            queue.put(doLoadSectionFromDB(nameSpace));
-                        } catch (InterruptedException ignored) {}
+                            queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
+                        } catch (Throwable throwable) {
+                            log.arg0(sequence.getNameSpace()).error("SECOND_LOAD_SECTION", throwable);
+                        }
                     }, executor);
                 }
             }
@@ -106,8 +106,10 @@ public class IdBuilderImpl implements IdBuilder {
                         section = queue.take();
                         CompletableFuture.runAsync(() -> {
                             try {
-                                queue.put(doLoadSectionFromDB(nameSpace));
-                            } catch (InterruptedException ignore) {}
+                                queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
+                            } catch (Throwable throwable) {
+                                log.arg0(sequence.getNameSpace()).error("NEXT_LOAD_SECTION", throwable);
+                            }
                         }, executor);
                     }
                 }
@@ -117,16 +119,15 @@ public class IdBuilderImpl implements IdBuilder {
         }while (true);
     }
 
-    @Override
-    public void reset(String nameSpace) {
+    public void reset() {
         int count;
         int times = 0;
         do {
             LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(IdBuilderDO::getNameSpace, nameSpace);
-            IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
+            wrapper.eq(IdBuilderDO::getNameSpace, sequence.getNameSpace());
+            IdBuilderDO idBuilderDO = mapper.selectOne(wrapper);
             idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
-            count = idBuilderMapper.updateById(idBuilderDO);
+            count = mapper.updateById(idBuilderDO);
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         }while (count < 1);
     }
@@ -138,7 +139,7 @@ public class IdBuilderImpl implements IdBuilder {
         do {
             LambdaQueryWrapper<IdBuilderDO> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(IdBuilderDO::getNameSpace, namespace);
-            IdBuilderDO idBuilderDO = idBuilderMapper.selectOne(wrapper);
+            IdBuilderDO idBuilderDO = mapper.selectOne(wrapper);
             nullThrow(idBuilderDO, CONFIG_ERROR.message("you haven't config you namespace " + namespace));
             if (autoReset(idBuilderDO)) {
                 idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
@@ -155,7 +156,7 @@ public class IdBuilderImpl implements IdBuilder {
                 trueThrow(tail > idBuilderDO.getCeiling(), LOAD_NEXT_SECTION_LIMIT);
             }
             idBuilderDO.setUniqueId(idBuilderDO.getUniqueId() + idBuilderDO.getStep());
-            count = idBuilderMapper.updateById(idBuilderDO);
+            count = mapper.updateById(idBuilderDO);
             trueThrow(times++ > maxTimes, OPTIMISTIC_COMPETITION);
         } while (count < 1);
         return section;

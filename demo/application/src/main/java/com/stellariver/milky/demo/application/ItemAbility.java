@@ -11,7 +11,7 @@ import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
-import com.stellariver.milky.domain.support.dependency.IdBuilder;
+import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,13 +34,13 @@ public class ItemAbility {
 
     ItemRepository itemRepository;
 
-    IdBuilder idBuilder;
+    UniqueIdGetter uniqueIdGetter;
 
     UserInfoRepository userInfoRepository;
 
     @Transactional
     public Item publishItem(Long userId, String title) {
-        Long itemId = idBuilder.get("default");
+        Long itemId = uniqueIdGetter.get();
         ItemCreateCommand command = ItemCreateCommand.builder().userId(userId)
                 .itemId(itemId).title(title).amount(0L).storeCode("")
                 .channelEnum(ChannelEnum.ALI)

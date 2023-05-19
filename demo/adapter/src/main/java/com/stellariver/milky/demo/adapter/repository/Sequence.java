@@ -1,15 +1,18 @@
-package com.stellariver.milky.domain.support.dependency;
+package com.stellariver.milky.demo.adapter.repository;
 
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.base.OfEnum;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.*;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Sequence {
 
     @NotBlank

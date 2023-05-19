@@ -9,11 +9,9 @@ import com.stellariver.milky.common.tool.stable.StableConfig;
 import com.stellariver.milky.common.tool.stable.StableConfigReader;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.demo.basic.UKs;
-import com.stellariver.milky.domain.support.command.CommandBus;
-import com.stellariver.milky.domain.support.dependency.IdBuilder;
+import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,7 @@ import java.util.function.Function;
 public class SqlRateLimiterTest {
 
     @Autowired
-    IdBuilder idBuilder;
+    UniqueIdGetter uniqueIdGetter;
 
     static class TestConfig {
 
@@ -56,7 +54,7 @@ public class SqlRateLimiterTest {
                 .build();
         long now = Clock.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
-            Runner.checkout(option, () -> idBuilder.get("default"));
+            Runner.checkout(option, () -> uniqueIdGetter.get());
         }
         long cost = Clock.currentTimeMillis() - now;
         Assertions.assertTrue((cost > 1800) && (cost < 2100));

@@ -2,7 +2,7 @@ package com.stellariver.milky.domain.support.base;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.stellariver.milky.common.tool.common.Clock;
-import com.stellariver.milky.domain.support.dependency.IdBuilder;
+import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import com.stellariver.milky.common.tool.common.BeanUtil;
 import lombok.Builder;
@@ -22,7 +22,7 @@ import java.util.Date;
 public abstract class Message {
 
     @Builder.Default
-    protected Long id = BeanUtil.getBean(IdBuilder.class).get("default");
+    protected Long id = BeanUtil.getBean(UniqueIdGetter.class).get();
 
     @Builder.Default
     protected Date gmtCreate = Clock.now();

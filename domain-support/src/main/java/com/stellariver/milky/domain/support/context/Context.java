@@ -11,7 +11,7 @@ import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
-import com.stellariver.milky.domain.support.dependency.IdBuilder;
+import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import com.stellariver.milky.domain.support.dependency.Trace;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.common.tool.common.BeanUtil;
@@ -101,7 +101,7 @@ public class Context{
     @SuppressWarnings("all")
     public static Context build(Map<Class<? extends Typed<?>>, Object> parameters, Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Context context = new Context();
-        context.invocationId = BeanUtil.getBean(IdBuilder.class).get("default");
+        context.invocationId = BeanUtil.getBean(UniqueIdGetter.class).get();
         If.isTrue(parameters != null, () -> context.parameters.putAll(parameters));
         If.isTrue(parameters != null, () -> context.metaData.putAll(parameters));
         Kit.op(aggregateIdMap).orElseGet(HashMap::new).forEach((aggregateClazz, aggregateIdSet) -> {

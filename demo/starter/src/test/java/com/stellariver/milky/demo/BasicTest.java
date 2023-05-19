@@ -1,7 +1,6 @@
 package com.stellariver.milky.demo;
 
 
-import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
@@ -26,7 +25,6 @@ import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
-import com.stellariver.milky.domain.support.dependency.IdBuilder;
 import lombok.CustomLog;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
