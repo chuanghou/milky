@@ -2,7 +2,9 @@ package com.stellariver.milky.common.tool.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.stellariver.milky.common.tool.util.Json;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 

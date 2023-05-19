@@ -1,7 +1,8 @@
 package com.stellariver.milky.demo.application;
 
-import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.base.BizEx;
+import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.util.StreamMap;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.domain.item.Item;
@@ -9,7 +10,6 @@ import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
-import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import lombok.AccessLevel;
@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.stellariver.milky.demo.basic.ErrorEnums.ITEM_NOT_EXIST;
-import static com.stellariver.milky.demo.basic.TypedEnums.*;
+import static com.stellariver.milky.demo.basic.TypedEnums.EMPLOYEE;
 
 /**
  * @author houchuang

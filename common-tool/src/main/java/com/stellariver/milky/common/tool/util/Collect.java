@@ -1,7 +1,6 @@
 package com.stellariver.milky.common.tool.util;
 
 import com.google.common.collect.*;
-import com.google.common.collect.Lists;
 import com.stellariver.milky.common.tool.common.Kit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;

@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.domain.inventory.event;
 
-import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
+import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.event.ItemTitleUpdatedEvent;
 import com.stellariver.milky.demo.domain.service.ItemTitleUpdatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;

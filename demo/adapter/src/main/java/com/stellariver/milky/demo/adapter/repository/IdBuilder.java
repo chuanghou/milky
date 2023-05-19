@@ -1,11 +1,10 @@
 package com.stellariver.milky.demo.adapter.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.stellariver.milky.common.tool.common.ConcurrentTool;
-import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.demo.infrastructure.database.entity.IdBuilderDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.IdBuilderMapper;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
@@ -20,9 +19,10 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.stellariver.milky.common.tool.common.Kit.eq;
 import static com.stellariver.milky.common.base.ErrorEnumsBase.*;
-import static com.stellariver.milky.common.base.SysEx.*;
+import static com.stellariver.milky.common.base.SysEx.nullThrow;
+import static com.stellariver.milky.common.base.SysEx.trueThrow;
+import static com.stellariver.milky.common.tool.common.Kit.eq;
 
 /**
  * @author houchuang

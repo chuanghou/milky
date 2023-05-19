@@ -5,8 +5,8 @@ import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateComman
 import com.stellariver.milky.demo.domain.inventory.event.InventoryCreatedEvent;
 import com.stellariver.milky.demo.domain.inventory.event.InventoryUpdateEvent;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
-import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.command.ConstructorHandler;
+import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.context.Context;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

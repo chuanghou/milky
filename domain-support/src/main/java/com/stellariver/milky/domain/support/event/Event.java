@@ -1,7 +1,6 @@
 package com.stellariver.milky.domain.support.event;
 
 import com.stellariver.milky.domain.support.base.Message;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

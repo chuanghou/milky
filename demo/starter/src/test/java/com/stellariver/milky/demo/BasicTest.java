@@ -1,9 +1,10 @@
 package com.stellariver.milky.demo;
 
 
-import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
+import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
@@ -21,7 +22,6 @@ import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
-import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
@@ -37,7 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.verify;
 
 @CustomLog
 @Transactional

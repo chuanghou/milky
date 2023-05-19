@@ -1,6 +1,5 @@
 package com.stellariver.milky.aspectj.tool;
 
-import com.stellariver.milky.common.tool.log.Logger;
 import org.aspectj.lang.annotation.Pointcut;
 
 public abstract class BaseAspect {

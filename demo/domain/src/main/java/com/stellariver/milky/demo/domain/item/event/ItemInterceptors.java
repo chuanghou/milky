@@ -1,15 +1,16 @@
 package com.stellariver.milky.demo.domain.item.event;
 
-import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.demo.domain.item.Item;
+import com.stellariver.milky.demo.domain.item.command.ItemTitleUpdateCommand;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import lombok.SneakyThrows;
 
-import static com.stellariver.milky.demo.basic.TypedEnums.*;
+import static com.stellariver.milky.demo.basic.TypedEnums.MARK_AFTER;
+import static com.stellariver.milky.demo.basic.TypedEnums.MARK_BEFORE;
 
 public class ItemInterceptors implements Interceptors {
 

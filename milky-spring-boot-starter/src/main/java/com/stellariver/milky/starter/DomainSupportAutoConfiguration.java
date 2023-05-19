@@ -2,16 +2,16 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.tool.common.BeanLoader;
-import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
+import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.*;
+import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
-import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
-import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
+import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
 import lombok.CustomLog;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * @author houchuang

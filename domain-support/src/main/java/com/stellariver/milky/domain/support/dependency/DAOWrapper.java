@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.dependency;
 
-import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.base.SysEx;
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.NonNull;

@@ -17,7 +17,6 @@ package com.stellariver.milky.common.tool.slambda;
 
 import java.io.Serializable;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * 支持序列化的 Function

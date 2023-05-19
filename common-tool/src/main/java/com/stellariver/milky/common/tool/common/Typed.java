@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.util.Json;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

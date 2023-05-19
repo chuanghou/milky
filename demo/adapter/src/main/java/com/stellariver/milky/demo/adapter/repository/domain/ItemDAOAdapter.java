@@ -2,8 +2,8 @@ package com.stellariver.milky.demo.adapter.repository.domain;
 
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
-import com.stellariver.milky.domain.support.dependency.DataObjectInfo;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
+import com.stellariver.milky.domain.support.dependency.DataObjectInfo;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

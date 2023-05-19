@@ -1,8 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.domain.support.command.CommandBus;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;

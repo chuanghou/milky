@@ -1,9 +1,9 @@
 package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.demo.basic.TypedEnums;
-import com.stellariver.milky.common.tool.common.Typed;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,7 @@
 package com.stellariver.milky.domain.support.base;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 /**

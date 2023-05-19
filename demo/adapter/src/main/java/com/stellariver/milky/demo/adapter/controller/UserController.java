@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.adapter.controller;
 
-import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.common.base.Result;
+import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

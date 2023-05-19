@@ -3,7 +3,10 @@ package com.stellariver.milky.common.tool.state.machine;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * This a very simple state machine implementation, I have ever use squirrel state machine and spring state machine,

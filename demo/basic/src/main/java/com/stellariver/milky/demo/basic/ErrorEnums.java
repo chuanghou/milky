@@ -1,8 +1,8 @@
 package com.stellariver.milky.demo.basic;
 
 import com.stellariver.milky.common.base.ErrorEnum;
-import com.stellariver.milky.common.base.Message;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
+import com.stellariver.milky.common.base.Message;
 import com.stellariver.milky.common.tool.common.Kit;
 
 import java.lang.reflect.Field;

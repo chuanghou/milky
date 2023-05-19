@@ -1,7 +1,8 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.common.tool.common.Typed;
+import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
@@ -10,7 +11,6 @@ import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.demo.infrastructure.database.entity.InventoryDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
-import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.TransactionSupport;
 import lombok.CustomLog;
