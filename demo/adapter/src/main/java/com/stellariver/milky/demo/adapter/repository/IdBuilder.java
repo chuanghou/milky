@@ -105,7 +105,6 @@ public class IdBuilder implements UniqueIdGetter {
             if (value >= section.getRight()) {
                 synchronized (this) {
                     if (value >= section.getRight()) {
-                        section = queue.take();
                         CompletableFuture.runAsync(() -> {
                             try {
                                 queue.put(doLoadSectionFromDB(sequence.getNameSpace()));
@@ -113,6 +112,7 @@ public class IdBuilder implements UniqueIdGetter {
                                 log.arg0(sequence.getNameSpace()).error("NEXT_LOAD_SECTION", throwable);
                             }
                         }, executor);
+                        section = queue.take();
                     }
                 }
             }

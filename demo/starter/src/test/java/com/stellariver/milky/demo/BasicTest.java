@@ -2,8 +2,10 @@ package com.stellariver.milky.demo;
 
 
 import com.stellariver.milky.common.base.Employee;
+import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
+import com.stellariver.milky.demo.adapter.repository.IdBuilder;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
@@ -147,14 +149,13 @@ public class BasicTest {
     }
 
 
-//    @Test
-//    // 下面这个代码，竟然会导致死锁，尼玛。。。。
-//    public void idBuilderTest() {
-//        IdBuilder bean = BeanUtil.getBean(IdBuilder.class);
-//        long l = System.nanoTime();
-//        for (int i = 0; i < 1000; i++) {
-//            bean.get("default");
-//        }
-//        System.out.println(System.nanoTime() - l);
-//    }
+    @Test
+    public void idBuilderTest() {
+        IdBuilder bean = BeanUtil.getBean(IdBuilder.class);
+        long l = System.nanoTime();
+        for (int i = 0; i < 1000000000; i++) {
+            bean.get();
+        }
+        System.out.println(System.nanoTime() - l);
+    }
 }

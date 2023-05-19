@@ -48,7 +48,7 @@ public class IdGenerator {
     }
 
     char[] host;
-    final char[] prefix;
+    final char[] suffix;
     final ZoneId zoneId = ZoneId.systemDefault();
     final int startYear;
 
@@ -58,8 +58,8 @@ public class IdGenerator {
     int seq;
 
     @SneakyThrows
-    public IdGenerator(char[] prefix) {
-        this.prefix = prefix;
+    public IdGenerator(String suffix) {
+        this.suffix = suffix.toCharArray();
         this.lastTime = Clock.currentTimeMillis();
         this.seq = 0;
         this.startYear = Integer.parseInt(new String(BUFFER_YEAR[0]));
@@ -94,14 +94,11 @@ public class IdGenerator {
     public String next() {
         char[] chars = map.computeIfAbsent(Thread.currentThread(), k -> {
             char[] rawChars = new char[64];
-            rawChars[4] = '-';
-            rawChars[13] = '-';
-            rawChars[20] = '-';
-            rawChars[27] = '-';
+            rawChars[8] = '-';
+            rawChars[15] = '-';
+            rawChars[22] = '-';
             return rawChars;
         });
-        System.arraycopy(prefix, 0, chars, 0, 4);
-
         long time;
         int s = 0;
         time = Clock.currentTimeMillis();
@@ -114,16 +111,18 @@ public class IdGenerator {
             }
         }
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.lastTime), zoneId);
-        System.arraycopy(BUFFER_YEAR[localDateTime.getYear() - startYear], 0, chars, 5, 4);
-        System.arraycopy(BUFFER_CHRONO[localDateTime.getMonthValue()], 0, chars, 9, 2);
-        System.arraycopy(BUFFER_CHRONO[localDateTime.getDayOfMonth()], 0, chars, 11, 2);
-        System.arraycopy(BUFFER_CHRONO[localDateTime.getHour()], 0, chars, 14, 2);
-        System.arraycopy(BUFFER_CHRONO[localDateTime.getMinute()], 0, chars, 16, 2);
-        System.arraycopy(BUFFER_CHRONO[localDateTime.getSecond()], 0, chars, 18, 2);
-        System.arraycopy(BUFFER_THOUSAND[(int) (lastTime%1000)], 0, chars, 21, 3);
-        System.arraycopy(BUFFER_THOUSAND[s], 0, chars, 24, 3);
-        System.arraycopy(host, 0, chars, 28, host.length);
-        return new String(chars, 0, 28 + host.length);
-    }
+        System.arraycopy(BUFFER_YEAR[localDateTime.getYear() - startYear], 0, chars, 0, 4);
+        System.arraycopy(BUFFER_CHRONO[localDateTime.getMonthValue()], 0, chars, 4, 2);
+        System.arraycopy(BUFFER_CHRONO[localDateTime.getDayOfMonth()], 0, chars, 6, 2);
+        System.arraycopy(BUFFER_CHRONO[localDateTime.getHour()], 0, chars, 9, 2);
+        System.arraycopy(BUFFER_CHRONO[localDateTime.getMinute()], 0, chars, 11, 2);
+        System.arraycopy(BUFFER_CHRONO[localDateTime.getSecond()], 0, chars, 13, 2);
+        System.arraycopy(BUFFER_THOUSAND[(int) (lastTime%1000)], 0, chars, 16, 3);
+        System.arraycopy(BUFFER_THOUSAND[s], 0, chars, 19, 3);
+        System.arraycopy(host, 0, chars, 23, host.length);
+        System.arraycopy("-".toCharArray(), 0, chars, 23 + host.length, 1);
+        System.arraycopy(suffix, 0, chars, 24 + host.length, suffix.length);
 
+        return new String(chars, 0, 24 + host.length + suffix.length);
+    }
 }
