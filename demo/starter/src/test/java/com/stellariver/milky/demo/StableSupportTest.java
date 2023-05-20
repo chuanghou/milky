@@ -13,11 +13,13 @@ import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
-import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.logging.LogLevel;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Duration;
@@ -29,10 +31,14 @@ public class StableSupportTest {
     @Mock
     StableConfigReader stableConfigReader;
 
+    @Autowired
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    LoggingSystem loggingSystem;
+
     @Test
     @SneakyThrows
     public void test() {
-        LogUtil.setLogLevel(Runner.class, Level.OFF);
+        loggingSystem.setLogLevel(Runner.class.getName(), LogLevel.OFF);
         RlConfig rlConfig = RlConfig.builder().ruleId(UKs.stableTest.getKey()).qps(10.0).build();
         CbConfig cbConfig = CbConfig.builder().ruleId(UKs.stableTest.getKey())
                 .minimumNumberOfCalls(10)
@@ -97,7 +103,7 @@ public class StableSupportTest {
             }
         }
         Assertions.assertEquals(circuitBreaker.getState(), CircuitBreaker.State.CLOSED);
-        LogUtil.setLogLevel(Runner.class, Level.WARN);
+        loggingSystem.setLogLevel(Runner.class.getName(), LogLevel.WARN);
     }
 
     static private Result<String> stableTest(int i) {
