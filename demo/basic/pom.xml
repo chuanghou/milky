@@ -19,10 +19,6 @@
     <dependencies>
         <dependency>
             <groupId>com.stellariver.milky.demo</groupId>
-            <artifactId>aspects</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.stellariver.milky.demo</groupId>
             <artifactId>common</artifactId>
         </dependency>
         <dependency>

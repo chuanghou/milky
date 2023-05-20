@@ -65,10 +65,6 @@
         </dependency>
         <dependency>
             <groupId>com.stellariver.milky.demo</groupId>
-            <artifactId>aspects</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.stellariver.milky.demo</groupId>
             <artifactId>basic</artifactId>
         </dependency>
         <dependency>

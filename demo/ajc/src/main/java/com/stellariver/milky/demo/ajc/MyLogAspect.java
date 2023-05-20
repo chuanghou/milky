@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.aspects;
+package com.stellariver.milky.demo.ajc;
 
 import com.stellariver.milky.aspectj.tool.log.AbstractLogAspect;
 import org.aspectj.lang.annotation.Aspect;

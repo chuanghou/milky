@@ -1,8 +1,14 @@
 package com.stellariver.milky.demo;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.common.tool.util.Json;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,5 +36,26 @@ public class CollectTest {
         Assertions.assertEquals(set5, union);
 
 
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    static class Student {
+
+        @JsonSetter(nulls = Nulls.SKIP)
+        String name = "Jack";
+        Integer age;
+
+    }
+
+    @Test
+    public void test() {
+        Student build = Student.builder().age(11).build();
+        String s = Json.toJson(build);
+        Student parse = Json.parse(s, Student.class);
+        System.out.println(parse.toString());
     }
 }

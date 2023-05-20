@@ -45,10 +45,6 @@
                             <groupId>com.stellariver.milky</groupId>
                             <artifactId>aspectj-tool</artifactId>
                         </aspectLibrary>
-                        <aspectLibrary>
-                            <groupId>com.stellariver.milky.demo</groupId>
-                            <artifactId>aspects</artifactId>
-                        </aspectLibrary>
                     </aspectLibraries>
                     <weaveDependencies>
                         <weaveDependency>

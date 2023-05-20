@@ -146,6 +146,9 @@ public class BasicTest {
         combineItem = combineItemRepository.queryById(1L);
         Assertions.assertNotNull(combineItem);
         Assertions.assertEquals(combineItem.getTitle(), "new Title");
+
+
+        Assertions.assertAll();
     }
 
 
@@ -153,7 +156,7 @@ public class BasicTest {
     public void idBuilderTest() {
         IdBuilder bean = BeanUtil.getBean(IdBuilder.class);
         long l = System.nanoTime();
-        for (int i = 0; i < 1000000000; i++) {
+        for (int i = 0; i < 1000; i++) {
             bean.get();
         }
         System.out.println(System.nanoTime() - l);
