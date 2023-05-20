@@ -21,7 +21,6 @@ import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.demo.domain.service.ItemCreatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;
-import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -37,7 +36,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
-import java.util.List;
 
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.verify;
