@@ -118,11 +118,6 @@ public class BasicTest {
         Assertions.assertNotNull(after);
         Assertions.assertTrue(before < handle);
         Assertions.assertTrue(handle < after);
-
-        List<ItemDO> itemDOS = itemDOMapper.selectList(null);
-
-        log.arg0("1").arg1(233).error("test");
-
     }
 
     @Test
@@ -147,8 +142,6 @@ public class BasicTest {
         Assertions.assertNotNull(combineItem);
         Assertions.assertEquals(combineItem.getTitle(), "new Title");
 
-
-        Assertions.assertAll();
     }
 
 

@@ -5,7 +5,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 @Aspect
-@SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
+@SuppressWarnings({"aspect"})
 public class MyValidateAspect extends AbstractValidateAspect {
 
     @Pointcut("within(com.stellariver.milky.demo.adapter.ajc.custom..*) && execution(* *(..))")

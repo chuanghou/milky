@@ -34,7 +34,7 @@ public class ValidateUtilTest {
         }
         Assertions.assertNotNull(ex);
         Assertions.assertTrue(ex instanceof BizEx);
-        Assertions.assertEquals(ex.getMessage(), "id 不能为空");
+        Assertions.assertEquals(ex.getMessage(), "myTest.arg0id 不能为空");
 
         ex = null;
         try {
@@ -44,7 +44,7 @@ public class ValidateUtilTest {
         }
         Assertions.assertNotNull(ex);
         Assertions.assertTrue(ex instanceof BizEx);
-        Assertions.assertEquals(ex.getMessage(), "id 不能为空");
+        Assertions.assertEquals(ex.getMessage(), "myTest.arg0id 不能为空");
 
 
         ex = null;
@@ -79,7 +79,7 @@ public class ValidateUtilTest {
         }
         Assertions.assertNotNull(ex);
         Assertions.assertTrue(ex instanceof BizEx);
-        Assertions.assertEquals(ex.getMessage(), "default");
+        Assertions.assertEquals(ex.getMessage(), "myTestDefaultGroup.arg1default");
 
         ex = null;
         try {
@@ -89,7 +89,7 @@ public class ValidateUtilTest {
         }
         Assertions.assertNotNull(ex);
         Assertions.assertTrue(ex instanceof BizEx);
-        Assertions.assertEquals(ex.getMessage(), "myGroup");
+        Assertions.assertEquals(ex.getMessage(), "myTestDefaultGroup.arg0myGroup");
 
         ValidParam validParam = new ValidParam();
         validParam.setParam(new NestValidParam());
@@ -101,7 +101,7 @@ public class ValidateUtilTest {
         }
         Assertions.assertNotNull(ex);
         Assertions.assertTrue(ex instanceof BizEx);
-        Assertions.assertEquals(ex.getMessage(), "NESTED");
+        Assertions.assertEquals(ex.getMessage(), "param.stringNESTED");
 
         NotValidParam notValidParam = new NotValidParam();
         notValidParam.setParam(new NestValidParam());

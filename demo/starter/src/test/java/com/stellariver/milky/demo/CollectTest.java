@@ -8,7 +8,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.Arrays;
 import java.util.Collections;
