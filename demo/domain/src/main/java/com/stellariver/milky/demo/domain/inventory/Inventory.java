@@ -23,11 +23,9 @@ import lombok.experimental.SuperBuilder;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Inventory extends AggregateRoot {
 
-    private Long itemId;
-
-    private Long amount;
-
-    private String storeCode;
+    Long itemId;
+    Long amount;
+    String storeCode;
 
     @Override
     public String getAggregateId() {
@@ -53,6 +51,7 @@ public class Inventory extends AggregateRoot {
     @MethodHandler
     public void handleInventoryUpdateCommand(InventoryUpdateCommand command, Context context) {
         Long originalAmount = this.amount;
+        System.out.println("Auto build project");
         this.amount = command.getUpdateAmount();
         InventoryUpdateEvent event = InventoryUpdateEvent.builder().itemId(itemId)
                 .originalAmount(originalAmount).updateAmount(amount).build();

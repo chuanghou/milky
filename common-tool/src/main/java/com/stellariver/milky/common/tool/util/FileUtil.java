@@ -14,7 +14,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public abstract class Files {
+public abstract class FileUtil {
 
     static public String readFromClassPath(String path) throws IOException {
         return readFromClassPath(path, StandardCharsets.UTF_8);
@@ -32,7 +32,7 @@ public abstract class Files {
         try {
             uri = new URI(StringUtils.replace(url.toString(), " ", "%20"));
         } catch (URISyntaxException ignore) {}
-        File file = new File(Objects.requireNonNull(uri).getSchemeSpecificPart());
+        java.io.File file = new java.io.File(Objects.requireNonNull(uri).getSchemeSpecificPart());
         return FileUtils.readFileToString(file, charset.name());
     }
 
