@@ -24,11 +24,11 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
 
     default Aggregate toAggregateWrapper(Object dataObject) {
         Aggregate aggregate = toAggregate(dataObject);
-        List<FieldAccessor> fieldAccessors = FieldAccessor.resolveAccessors(aggregate.getClass());
-        for (FieldAccessor fA: fieldAccessors) {
+        List<NulliableReplacer> nulliableReplacers = NulliableReplacer.resolveReplacer(aggregate.getClass());
+        for (NulliableReplacer fA: nulliableReplacers) {
             Object value = fA.get(aggregate);
-            if (fA.getStrategy() != null && fA.getStrategy() != Strategy.IGNORE) {
-                if (Kit.eq(fA.getReplacer(), value)) {
+            if (fA.isConfig() && !fA.isIgnore()) {
+                if (Kit.eq(fA.getReplaceValue(), value)) {
                     fA.set(aggregate, null);
                 }
             }
@@ -46,24 +46,32 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
     @SuppressWarnings("unchecked")
     default Object toDataObjectWrapper(Object aggregate) {
         Aggregate aggregateRoot = (Aggregate) aggregate;
-        List<FieldAccessor> fieldAccessors = FieldAccessor.resolveAccessors(aggregateRoot.getClass());
-        for (FieldAccessor fA : fieldAccessors) {
-            Object value = fA.get(aggregate);
-            if (value != null) {
-                if (fA.getStrategy() != null && Kit.eq(fA.getReplacer(), value)) {
-                    String message = String.format("%s in %s equal null holder value", fA.getFieldName(), fA.getClassName());
-                    throw new SysEx(CONFIG_ERROR.message(message));
-                }
-            } else {
-                if (fA.getStrategy() == null) {
-                    String message = String.format("%s in %s is null of class %s, " +
-                            "consider an annotation NullReplacer at corresponding field to assign a non null value stand null in database ",
-                            fA.getFieldName(), fA.getClassName(), aggregate.getClass());
-                    throw new SysEx(CONFIG_ERROR.message(message));
-                } else if (fA.getStrategy() != Strategy.IGNORE){
-                    fA.set(aggregate, fA.getReplacer());
+        List<NulliableReplacer> nulliableReplacers = NulliableReplacer.resolveReplacer(aggregateRoot.getClass());
+        for (NulliableReplacer nulliableReplacer : nulliableReplacers) {
+
+            if (nulliableReplacer.isIgnore()) {
+                continue;
+            }
+
+            Object o = nulliableReplacer.get(aggregate);
+            if (!nulliableReplacer.isConfig() & o == null) {
+                String message = String.format("%s in %s is null of class %s, " +
+                                "consider an annotation NullReplacer at corresponding field to assign a non null value stand null in database ",
+                        nulliableReplacer.getFieldName(), nulliableReplacer.getClassName(), aggregate.getClass());
+                throw new SysEx(CONFIG_ERROR.message(message));
+            }
+
+            if (nulliableReplacer.isConfig()) {
+                if (o == null) {
+                    nulliableReplacer.set(aggregateRoot, nulliableReplacer.getReplaceValue());
+                } else {
+                    if (Kit.eq(o, nulliableReplacer.getReplaceValue())) {
+                        String message = String.format("%s in %s equal null holder value", nulliableReplacer.getFieldName(), nulliableReplacer.getClassName());
+                        throw new SysEx(CONFIG_ERROR.message(message));
+                    }
                 }
             }
+
         }
         return toDataObject(aggregateRoot, dataObjectInfo(aggregateRoot.getAggregateId()));
     }
