@@ -71,8 +71,10 @@ public class FieldAccessor {
                 if (strategy == Strategy.CUSTOM) {
                     replacer = annotation.holderSupplier().newInstance().get();
                 }
-                boolean assignableFrom = f.getType().isAssignableFrom(replacer.getClass());
-                SysEx.falseThrow(assignableFrom, CONFIG_ERROR.message("the class of replacer is not appropriate!"));
+                if (strategy != Strategy.IGNORE) {
+                    boolean assignableFrom = f.getType().isAssignableFrom(replacer.getClass());
+                    SysEx.falseThrow(assignableFrom, CONFIG_ERROR.message("the class of replacer is not appropriate!"));
+                }
             }
 
             FieldAccessor fieldAccessor = new FieldAccessor(name, clazz.getName(), strategy, getMethod, setMethod, replacer);
