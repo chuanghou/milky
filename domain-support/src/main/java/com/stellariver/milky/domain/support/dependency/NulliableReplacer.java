@@ -45,15 +45,17 @@ public class NulliableReplacer {
 
     @SneakyThrows
     static public List<NulliableReplacer> replacerOf(Class<?> clazz) {
-        return map.computeIfAbsent(clazz, NulliableReplacer::resolve);
+        return map.computeIfAbsent(clazz, c -> Reflect.ancestorClasses(clazz)
+                .stream().map(NulliableReplacer::resolve).flatMap(Collection::stream).collect(Collectors.toList()));
     }
 
     @SneakyThrows
     static private List<NulliableReplacer> resolve(Class<?> clazz) {
-        List<NulliableReplacer> nulliableReplacers = new ArrayList<>();
-        List<Class<?>> classes = Reflect.ancestorClasses(clazz);
-        classes = classes.subList(0, classes.size() - 1);
-        classes.forEach(c -> nulliableReplacers.addAll(replacerOf(c)));
+        List<NulliableReplacer> nulliableReplacers = map.get(clazz);
+        if (nulliableReplacers != null) {
+            return nulliableReplacers;
+        }
+        nulliableReplacers = new ArrayList<>();
         List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
         fields.forEach(f -> SysEx.trueThrow(FORBIDDEN.contains(f.getType()),
                 CONFIG_ERROR.message(f.getType().getSimpleName() + " belongs to forbidden type!")));
