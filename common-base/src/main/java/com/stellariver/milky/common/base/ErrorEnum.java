@@ -30,7 +30,7 @@ public class ErrorEnum {
     }
 
     public ErrorEnum message(Object object) {
-        return new ErrorEnum(code, object.toString());
+        return new ErrorEnum(code, object == null ? "NULL" : object.toString());
     }
 
     public ErrorEnum params(Map<String, Object> params) {
