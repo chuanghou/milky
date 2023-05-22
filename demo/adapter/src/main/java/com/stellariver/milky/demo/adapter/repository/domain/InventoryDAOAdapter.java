@@ -18,13 +18,19 @@ public class InventoryDAOAdapter implements DaoAdapter<Inventory> {
     @Override
     public Inventory toAggregate(@NonNull Object dataObject) {
         InventoryDO inventoryDO = (InventoryDO) dataObject;
-        return Inventory.builder().itemId(inventoryDO.getItemId())
-                .amount(inventoryDO.getAmount()).storeCode(inventoryDO.getStoreCode()).build();
+        return Inventory.builder()
+                .version(inventoryDO.getVersion())
+                .itemId(inventoryDO.getItemId())
+                .amount(inventoryDO.getAmount())
+                .storeCode(inventoryDO.getStoreCode())
+                .build();
     }
 
     @Override
     public InventoryDO toDataObject(Inventory inventory, DataObjectInfo dataObjectInfo) {
-        return InventoryDO.builder().itemId(inventory.getItemId())
+        return InventoryDO.builder()
+                .version(inventory.getVersion())
+                .itemId(inventory.getItemId())
                 .amount(inventory.getAmount())
                 .storeCode(inventory.getStoreCode())
                 .build();

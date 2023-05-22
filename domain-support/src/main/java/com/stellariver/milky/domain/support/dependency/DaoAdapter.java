@@ -24,12 +24,12 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
 
     default Aggregate toAggregateWrapper(Object dataObject) {
         Aggregate aggregate = toAggregate(dataObject);
-        List<NulliableReplacer> nulliableReplacers = NulliableReplacer.resolveReplacer(aggregate.getClass());
-        for (NulliableReplacer fA: nulliableReplacers) {
-            Object value = fA.get(aggregate);
-            if (fA.isConfig() && !fA.isIgnore()) {
-                if (Kit.eq(fA.getReplaceValue(), value)) {
-                    fA.set(aggregate, null);
+        List<NulliableReplacer> nulliableReplacers = NulliableReplacer.replacerOf(aggregate.getClass());
+        for (NulliableReplacer replacer: nulliableReplacers) {
+            Object value = replacer.get(aggregate);
+            if (replacer.isConfig() && !replacer.isIgnore()) {
+                if (Kit.eq(replacer.getReplaceValue(), value)) {
+                    replacer.set(aggregate, null);
                 }
             }
         }
@@ -46,30 +46,29 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
     @SuppressWarnings("unchecked")
     default Object toDataObjectWrapper(Object aggregate) {
         Aggregate aggregateRoot = (Aggregate) aggregate;
-        List<NulliableReplacer> nulliableReplacers = NulliableReplacer.resolveReplacer(aggregateRoot.getClass());
-        for (NulliableReplacer nulliableReplacer : nulliableReplacers) {
+        List<NulliableReplacer> nulliableReplacers = NulliableReplacer.replacerOf(aggregateRoot.getClass());
+        for (NulliableReplacer replacer : nulliableReplacers) {
 
-            if (nulliableReplacer.isIgnore()) {
+            Object o = replacer.get(aggregate);
+            if (!replacer.isConfig()) {
+                if (o == null) {
+                    String template = "%s in %s is null, but have not been config @Nulliable!";
+                    String message = String.format(template, replacer.getFieldName(), replacer.getClassName());
+                    throw new SysEx(CONFIG_ERROR.message(message));
+                }
+                continue;
+            }
+            if (replacer.isIgnore()) {
                 continue;
             }
 
-            Object o = nulliableReplacer.get(aggregate);
-            if (!nulliableReplacer.isConfig() & o == null) {
-                String message = String.format("%s in %s is null of class %s, " +
-                                "consider an annotation NullReplacer at corresponding field to assign a non null value stand null in database ",
-                        nulliableReplacer.getFieldName(), nulliableReplacer.getClassName(), aggregate.getClass());
+            if (o == null) {
+                Object replaceValue = replacer.getReplaceValue();
+                replacer.set(aggregate, replaceValue);
+            } else if (Kit.eq(o, replacer.getReplaceValue())) {
+                String template = "%s in %s equal null replace value";
+                String message = String.format(template, replacer.getFieldName(), replacer.getClassName());
                 throw new SysEx(CONFIG_ERROR.message(message));
-            }
-
-            if (nulliableReplacer.isConfig()) {
-                if (o == null) {
-                    nulliableReplacer.set(aggregateRoot, nulliableReplacer.getReplaceValue());
-                } else {
-                    if (Kit.eq(o, nulliableReplacer.getReplaceValue())) {
-                        String message = String.format("%s in %s equal null holder value", nulliableReplacer.getFieldName(), nulliableReplacer.getClassName());
-                        throw new SysEx(CONFIG_ERROR.message(message));
-                    }
-                }
             }
 
         }

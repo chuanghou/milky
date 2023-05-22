@@ -18,6 +18,7 @@ import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.Milkywired;
+import com.stellariver.milky.domain.support.dependency.Nulliable;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
@@ -43,6 +44,8 @@ public class Item extends AggregateRoot {
     String userName;
     Long amount;
     String storeCode;
+    @Nulliable
+    String price;
     ChannelEnum channelEnum;
 
     @StaticWire

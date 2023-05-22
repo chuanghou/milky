@@ -23,11 +23,12 @@ public class NulliableReplacer {
 
     boolean config;
     boolean ignore;
-    Object replaceValue;
     String fieldName;
     String className;
     Method getMethod;
     Method setMethod;
+    Object replaceValue;
+
 
     public Object get(Object bean) {
         return Reflect.invoke(getMethod, bean);
@@ -37,21 +38,28 @@ public class NulliableReplacer {
         Reflect.invoke(setMethod, bean, value);
     }
 
-    static Set<Class<?>> primitives = new HashSet<>(Arrays.asList(boolean.class, byte.class, short.class, int.class, long.class));
+    static Set<Class<?>> FORBIDDEN = new HashSet<>(Arrays.asList(
+            Boolean.class, boolean.class, Character.class, byte.class, Short.class, short.class, int.class, long.class));
+
     static Map<Class<?>, List<NulliableReplacer>> map = new ConcurrentHashMap<>();
 
     @SneakyThrows
-    static public List<NulliableReplacer> resolveReplacer(Class<?> clazz) {
-        return map.computeIfAbsent(clazz, NulliableReplacer::build);
+    static public List<NulliableReplacer> replacerOf(Class<?> clazz) {
+        return map.computeIfAbsent(clazz, NulliableReplacer::resolve);
     }
 
     @SneakyThrows
-    static private List<NulliableReplacer> build(Class<?> clazz) {
+    static private List<NulliableReplacer> resolve(Class<?> clazz) {
         List<NulliableReplacer> nulliableReplacers = new ArrayList<>();
+        List<Class<?>> classes = Reflect.ancestorClasses(clazz);
+        classes = classes.subList(0, classes.size() - 1);
+        classes.forEach(c -> nulliableReplacers.addAll(replacerOf(c)));
         List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
-        fields.forEach(f -> SysEx.trueThrow(primitives.contains(f.getType()),
-                CONFIG_ERROR.message("primitive could not be a field of an aggregate")));
+        fields.forEach(f -> SysEx.trueThrow(FORBIDDEN.contains(f.getType()),
+                CONFIG_ERROR.message(f.getType().getSimpleName() + " belongs to forbidden type!")));
+
         for (Field f: fields) {
+
             if (f.isSynthetic() || Modifier.isStatic(f.getModifiers())) {
                 continue;
             }
@@ -62,12 +70,12 @@ public class NulliableReplacer {
             Method getMethod = clazz.getMethod(get);
             Method setMethod = clazz.getMethod(set, f.getType());
             NulliableReplacerBuilder builder = NulliableReplacer.builder()
-                    .className(f.getDeclaringClass().getSimpleName())
                     .fieldName(name)
+                    .className(f.getDeclaringClass().getSimpleName())
                     .getMethod(getMethod)
                     .setMethod(setMethod);
-            Object replaceValue;
 
+            Object replaceValue;
             Nulliable nulliable = f.getAnnotation(Nulliable.class);
             if (nulliable == null) {
                 NulliableReplacer nulliableReplacer = builder.config(false).build();

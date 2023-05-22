@@ -35,6 +35,8 @@ public class ItemDO extends AbstractMpDO implements BaseDataObject<Long> {
 
     String storeCode;
 
+    String price;
+
     ChannelEnum channelEnum;
 
     Long ratio;

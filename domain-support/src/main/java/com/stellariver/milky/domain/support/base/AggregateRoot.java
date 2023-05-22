@@ -1,6 +1,7 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.common.tool.common.Typed;
+import com.stellariver.milky.domain.support.dependency.Nulliable;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,8 +20,9 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public abstract class AggregateRoot{
 
-    long version;
+    Integer version = 0;
 
+    @Nulliable(ignore = true)
     Map<Typed<?>, Object> metadata;
 
     abstract public String getAggregateId();

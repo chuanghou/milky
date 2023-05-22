@@ -51,7 +51,8 @@ create table item
     user_id   bigint not null,
     user_name   varchar(100) not null,
     amount bigint not null,
-    store_code varchar(100),
+    store_code varchar(100) not null,
+    price varchar(100) not null,
     version int not null,
     deleted int not null,
     channel_enum varchar(20) not null,
@@ -71,7 +72,7 @@ create table inventory
 (
     item_id bigint not null,
     amount bigint not null,
-    store_code varchar(100),
+    store_code varchar(100) not null,
     version int not null,
     deleted int not null,
     gmt_create datetime not null,
