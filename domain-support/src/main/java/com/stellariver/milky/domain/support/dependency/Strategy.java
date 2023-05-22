@@ -12,6 +12,7 @@ public enum Strategy {
     LONG_MINUS_ONE(-1L),
     STRING_NULL_STR("NULL"),
     STRING_BLANK(""),
+    IGNORE("There are some fields which won't be persisted, so the null value of these field won't be care!"),
     CUSTOM(null);
 
     @Getter

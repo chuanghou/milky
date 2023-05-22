@@ -27,7 +27,7 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
         List<FieldAccessor> fieldAccessors = FieldAccessor.resolveAccessors(aggregate.getClass());
         for (FieldAccessor fA: fieldAccessors) {
             Object value = fA.get(aggregate);
-            if (fA.getStrategy() != null) {
+            if (fA.getStrategy() != null && fA.getStrategy() != Strategy.IGNORE) {
                 if (Kit.eq(fA.getReplacer(), value)) {
                     fA.set(aggregate, null);
                 }
@@ -60,7 +60,7 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
                             "consider an annotation NullReplacer at corresponding field to assign a non null value stand null in database ",
                             fA.getFieldName(), fA.getClassName(), aggregate.getClass());
                     throw new SysEx(CONFIG_ERROR.message(message));
-                } else {
+                } else if (fA.getStrategy() != Strategy.IGNORE){
                     fA.set(aggregate, fA.getReplacer());
                 }
             }
