@@ -1,3 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.stellariver.milky.spring.partner.SpringPartnerAutoConfiguration
+com.stellariver.milky.spring.partner.SpringPartnerAutoConfiguration,\
+com.stellariver.milky.spring.partner.StaticWireAutoConfiguration
 
