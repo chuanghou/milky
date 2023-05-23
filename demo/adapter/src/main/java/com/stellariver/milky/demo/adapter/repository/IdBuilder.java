@@ -33,7 +33,7 @@ public class IdBuilder implements UniqueIdGetter {
 
     enum Duty {NOT_WORK, MONTH, WEEK, DAY}
     static final int maxTimes = 10;
-    static long NULL_HOLDER_OF_LONG = -1L;
+    static long NULL_HOLDER_OF_LONG = Long.MIN_VALUE;
 
     static final Set<String> SUPPORTABLE_DUTIES = new HashSet<>(Arrays.asList(Duty.MONTH.name(), Duty.WEEK.name(), Duty.DAY.name()));
 
@@ -146,9 +146,8 @@ public class IdBuilder implements UniqueIdGetter {
             if (autoReset(idBuilderDO)) {
                 idBuilderDO.setUniqueId(NULL_HOLDER_OF_LONG);
             }
-            Long start = idBuilderDO.getUniqueId();
             if (eq(idBuilderDO.getUniqueId(), NULL_HOLDER_OF_LONG)) {
-                idBuilderDO.setUniqueId(start);
+                idBuilderDO.setUniqueId(idBuilderDO.getStart());
             }
             AtomicLong atomicStart = new AtomicLong(idBuilderDO.getUniqueId());
             long tail = idBuilderDO.getUniqueId() + idBuilderDO.getStep();
