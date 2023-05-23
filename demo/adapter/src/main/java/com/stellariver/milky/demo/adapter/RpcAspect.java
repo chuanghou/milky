@@ -4,28 +4,21 @@ import com.stellariver.milky.aspectj.tool.validate.AnnotationValidateAspect;
 import com.stellariver.milky.aspectj.tool.validate.Validate;
 import com.stellariver.milky.common.base.*;
 import com.stellariver.milky.common.tool.common.BeanUtil;
-import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import com.stellariver.milky.domain.support.ErrorEnums;
-import lombok.CustomLog;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.IntStream;
 
 /**
@@ -91,11 +84,13 @@ public class RpcAspect {
             }
             t = throwable;
         } finally {
-            ExceptionType exceptionType = t instanceof BizEx ? ExceptionType.BIZ : ExceptionType.SYS;
-            if (t != null && returnType == Result.class) {
-                result = Result.error(errorEnums, exceptionType);
-            } else if (t != null && returnType == PageResult.class) {
-                result = PageResult.pageError(errorEnums, exceptionType);
+            if (t != null) {
+                ExceptionType exceptionType = t instanceof BizEx ? ExceptionType.BIZ : ExceptionType.SYS;
+                if (returnType == Result.class) {
+                    result = Result.error(errorEnums, exceptionType);
+                } else {
+                    result = PageResult.pageError(errorEnums, exceptionType);
+                }
             }
             IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
             String logTag = ((MethodSignature) pjp.getSignature()).getMethod().getName();
