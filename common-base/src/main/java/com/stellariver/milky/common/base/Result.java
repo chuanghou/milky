@@ -2,6 +2,7 @@ package com.stellariver.milky.common.base;
 
 import lombok.Data;
 import lombok.NonNull;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -16,11 +17,6 @@ import java.util.Map;
 @Data
 public class Result<T> implements Serializable {
 
-    static private TraceIdGetter traceIdGetter;
-
-    static public void setTraceIdGetter(TraceIdGetter traceIdGetterImpl) {
-        traceIdGetter = traceIdGetterImpl;
-    }
 
     protected Boolean success = true;
 
@@ -58,9 +54,7 @@ public class Result<T> implements Serializable {
     }
 
     public Result() {
-        if (traceIdGetter != null) {
-            this.traceId = traceIdGetter.getTraceId();
-        }
+        TraceIdGetterWrapper.setTraceId(this);
     }
 
     public static <T> Result<T> success() {
@@ -88,4 +82,16 @@ public class Result<T> implements Serializable {
         return result;
     }
 
+    public static class TraceIdGetterWrapper {
+
+        @Setter
+        static private TraceIdGetter traceIdGetter;
+
+        public static void setTraceId(Result<?> result) {
+            if (traceIdGetter != null) {
+                result.setTraceId(traceIdGetter.getTraceId());
+            }
+        }
+
+    }
 }
