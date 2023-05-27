@@ -1,14 +1,10 @@
 package com.stellariver.milky.domain.support.base;
 
-import com.stellariver.milky.common.tool.common.Typed;
-import com.stellariver.milky.domain.support.dependency.Nulliable;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-
-import java.util.Map;
 
 /**
  * 聚合根父类
@@ -22,11 +18,6 @@ public abstract class AggregateRoot{
 
     Integer version = 0;
 
-    @Nulliable(ignore = true)
-    Map<Typed<?>, Object> metadata;
-
     abstract public String getAggregateId();
-
-
 
 }

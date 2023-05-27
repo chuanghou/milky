@@ -54,7 +54,7 @@ public class Result<T> implements Serializable {
     }
 
     public Result() {
-        TraceIdGetterWrapper.setTraceId(this);
+        TraceIdGetterHolder.setTraceId(this);
     }
 
     public static <T> Result<T> success() {
@@ -82,7 +82,11 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static class TraceIdGetterWrapper {
+    public static void setTraceIdGetter(TraceIdGetter traceIdGetter) {
+        TraceIdGetterHolder.setTraceIdGetter(traceIdGetter);
+    }
+
+    private static class TraceIdGetterHolder{
 
         @Setter
         static private TraceIdGetter traceIdGetter;

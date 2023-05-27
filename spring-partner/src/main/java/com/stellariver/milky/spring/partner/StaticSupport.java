@@ -19,14 +19,14 @@ public class StaticSupport {
                          BeanLoader beanLoader) {
         Optional.ofNullable(milkyStableSupport).ifPresent(Runner::setMilkyStableSupport);
         Optional.ofNullable(runnerExtension).ifPresent(Runner::setFailureExtendable);
-        Optional.ofNullable(traceIdGetter).ifPresent(Result.TraceIdGetterWrapper::setTraceIdGetter);
+        Optional.ofNullable(traceIdGetter).ifPresent(Result::setTraceIdGetter);
         BeanUtil.setBeanLoader(beanLoader);
     }
 
     public void close() {
         Runner.setMilkyStableSupport(null);
         Runner.setFailureExtendable(null);
-        Result.TraceIdGetterWrapper.setTraceIdGetter(null);
+        Result.setTraceIdGetter(null);
         BeanUtil.setBeanLoader(null);
     }
 
