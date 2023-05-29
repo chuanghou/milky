@@ -1,4 +1,4 @@
-package com.stellariver.milky.spring.partner;
+package com.stellariver.milky.spring.partner.wire;
 
 import lombok.NonNull;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -29,6 +29,7 @@ public class StaticWireScanPackagesDefinitionRegistrar implements ImportBeanDefi
         BeanDefinitionBuilder scanPackagesBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(StaticWireScanPackages.class);
         scanPackagesBeanBuilder.addPropertyValue("scanPackages", scanPackages);
         registry.registerBeanDefinition("staticWireScanPackages", scanPackagesBeanBuilder.getBeanDefinition());
+
     }
 
 }

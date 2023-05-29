@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.spring.partner.EnableStaticWire;
+import com.stellariver.milky.spring.partner.wire.EnableStaticWire;
 import com.stellariver.milky.starter.EnableMilky;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.stellariver.milky.spring.partner;
+package com.stellariver.milky.spring.partner.wire;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;

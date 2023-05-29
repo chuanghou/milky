@@ -1,4 +1,4 @@
-package com.stellariver.milky.spring.partner;
+package com.stellariver.milky.spring.partner.wire;
 
 import com.stellariver.milky.common.tool.wire.StaticWireSupport;
 import lombok.AllArgsConstructor;
