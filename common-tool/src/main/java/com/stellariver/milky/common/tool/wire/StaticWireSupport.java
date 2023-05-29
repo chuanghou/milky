@@ -6,6 +6,7 @@ import com.stellariver.milky.common.tool.common.BeanUtil;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
+import org.reflections.scanners.FieldAnnotationsScanner;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -18,6 +19,10 @@ public class StaticWireSupport {
     @SuppressWarnings("unchecked")
     @SneakyThrows
     public static void wire(Reflections reflections) {
+        boolean contains = reflections.getStore().keySet().contains(FieldAnnotationsScanner.class.getName());
+        if (!contains) {
+            return;
+        }
         List<Field> fields = reflections.getFieldsAnnotatedWith(StaticWire.class).stream()
                 .peek(field -> SysEx.falseThrow(Modifier.isStatic(field.getModifiers()),
                                 ErrorEnumsBase.CONFIG_ERROR.message("StaticWire should be annotated a static field!")))
@@ -44,6 +49,10 @@ public class StaticWireSupport {
 
     @SneakyThrows
     public static void unWire(Reflections reflections) {
+        boolean contains = reflections.getStore().keySet().contains(FieldAnnotationsScanner.class.getName());
+        if (!contains) {
+            return;
+        }
         reflections.getFieldsAnnotatedWith(StaticWire.class).stream().peek(field -> field.setAccessible(true))
                 .forEach(field -> {
                     try {

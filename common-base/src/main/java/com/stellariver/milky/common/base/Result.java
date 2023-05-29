@@ -82,7 +82,7 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static void setTraceIdGetter(TraceIdGetter traceIdGetter) {
+    public static void initTraceIdGetter(TraceIdGetter traceIdGetter) {
         TraceIdGetterHolder.setTraceIdGetter(traceIdGetter);
     }
 

@@ -30,7 +30,7 @@ public class SpringPartnerAutoConfiguration {
                                        BeanLoader beanLoader) {
         Optional.ofNullable(milkyStableSupport).ifPresent(Runner::setMilkyStableSupport);
         Optional.ofNullable(runnerExtension).ifPresent(Runner::setFailureExtendable);
-        Optional.ofNullable(traceIdGetter).ifPresent(Result::setTraceIdGetter);
+        Optional.ofNullable(traceIdGetter).ifPresent(Result::initTraceIdGetter);
         BeanUtil.setBeanLoader(beanLoader);
         return new StaticSupport(milkyStableSupport, runnerExtension, traceIdGetter, beanLoader);
     }
