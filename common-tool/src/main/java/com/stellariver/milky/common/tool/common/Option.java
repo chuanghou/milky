@@ -31,7 +31,7 @@ public class Option<R, T> {
     Function<R, String> rSelector;
 
     @Builder.Default
-    @SuppressWarnings("all")
+    @SuppressWarnings("unchecked")
     T defaultValue = (T) NULL_OBJECT;
 
     UK lambdaId;
