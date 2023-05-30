@@ -129,7 +129,8 @@
             <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
-                <version>0.9.12</version>
+                <!--https://github.com/ronmamo/reflections/issues/279 why downgrade to 0.9.11-->
+                <version>0.9.11</version>
             </dependency>
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
