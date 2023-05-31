@@ -21,7 +21,7 @@ public @interface Nulliable {
      * {@link Integer#MIN_VALUE} + 1 as null replacer when the field is an Integer
      * {@link Long#MIN_VALUE} + 1 as null replacer when the field is a Long
      * NULL_REPLACER as null replacer when the field is a String
-     *
+     * @return the assigned supplier
      */
     Class<? extends Supplier<Object>> replacerSupplier() default PlaceHolder.class;
 

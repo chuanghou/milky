@@ -19,6 +19,7 @@ public @interface Milkywired {
     /**
      * Declares whether the annotated dependency is required.
      * <p>Defaults to {@code true}.
+     * @return true means the dependency is required, or else exception
      */
     boolean required() default true;
 

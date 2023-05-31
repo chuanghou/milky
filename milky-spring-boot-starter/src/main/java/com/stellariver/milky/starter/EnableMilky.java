@@ -20,6 +20,7 @@ public @interface EnableMilky {
 
     /**
      * Base packages to scan for milky annotated components.
+     * @return scan packages
      */
     String[] scanPackages() default {};
 

@@ -7,7 +7,6 @@ import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.Range;
-import sun.misc.Contended;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -54,9 +53,9 @@ public class IdGenerator {
 
 
     volatile long lastTime;
-    @Contended
+    long p0, p1, p2, p3, p4, p5, p6, p7;
     int seq;
-
+    long p8, p9, p10, p11, p12, p13, p14, p15;
     @SneakyThrows
     public IdGenerator(String suffix) {
         this.suffix = suffix.toCharArray();

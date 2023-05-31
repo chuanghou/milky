@@ -47,10 +47,16 @@ public class ValidateUtil {
 
     final static Map<Class<?>, Map<Class<?>, Method>> customValidMap = new ConcurrentHashMap<>();
 
-
     /**
+     *
      * Because JSR 303 doesn't support static method, this method omit constraints in method signature, but
      * the constraint inside java bean will be checked always
+     * @param object target bean
+     * @param method target method
+     * @param returnValue the return value
+     * @param failFast true or false
+     * @param type exception type
+     * @param groups the selected group
      */
     //TODO search on internet are there extend supports for static method ?
     public static void validate(Object object, Method method, Object returnValue, boolean failFast, ExceptionType type, Class<?>... groups) {
@@ -67,7 +73,14 @@ public class ValidateUtil {
     }
 
     /**
-     * the same to above comment
+     *
+     * Because JSR 303 doesn't support static method, this method omit constraints in method signature, but
+     * the constraint inside java bean will be checked always
+     * @param object target bean
+     * @param method target method
+     * @param failFast true or false
+     * @param type exception type
+     * @param groups the selected group
      */
     public static void validate(Object object, Method method, Object[] params, boolean failFast, ExceptionType type, Class<?>... groups) {
         if (!Modifier.isStatic(method.getModifiers())) {
