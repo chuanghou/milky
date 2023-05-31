@@ -104,6 +104,14 @@ public class DomainSupportAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
+    public MilkyTraceRepository traceRepository() {
+        return (context, success) -> {};
+    }
+
+
+
+    @Bean
     public ApplicationRunner milkyApplicationRunner() {
         return args -> CommandBus.wire();
     }
