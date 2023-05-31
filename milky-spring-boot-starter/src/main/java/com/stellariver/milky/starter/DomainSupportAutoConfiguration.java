@@ -105,7 +105,7 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public MilkyTraceRepository traceRepository() {
+    public MilkyTraceRepository milkyTraceRepository() {
         return (context, success) -> {};
     }
 
