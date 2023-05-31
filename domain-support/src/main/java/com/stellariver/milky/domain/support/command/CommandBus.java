@@ -88,7 +88,7 @@ public class CommandBus {
 
     private final EventBus eventBus;
 
-    private final TraceRepository traceRepository;
+    private final MilkyTraceRepository milkyTraceRepository;
 
     private final ThreadLocalTransferableExecutor threadLocalTransferableExecutor;
 
@@ -106,7 +106,7 @@ public class CommandBus {
     public CommandBus(MilkySupport milkySupport, EventBus eventBus) {
 
         this.concurrentOperate = milkySupport.getConcurrentOperate();
-        this.traceRepository = milkySupport.getTraceRepository();
+        this.milkyTraceRepository = milkySupport.getMilkyTraceRepository();
         this.transactionSupport = milkySupport.getTransactionSupport();
         this.threadLocalTransferableExecutor = milkySupport.getThreadLocalTransferableExecutor();
         this.eventBus = eventBus;
@@ -328,9 +328,9 @@ public class CommandBus {
                 });
             }
             eventBus.postFinalRoute(context.getFinalEvents(), context);
-            threadLocalTransferableExecutor.submit(() -> traceRepository.record(context, true));
+            threadLocalTransferableExecutor.submit(() -> milkyTraceRepository.record(context, true));
         } catch (Throwable throwable) {
-            threadLocalTransferableExecutor.submit(() -> traceRepository.record(context, false));
+            threadLocalTransferableExecutor.submit(() -> milkyTraceRepository.record(context, false));
             if (memoryTx) {
                 transactionSupport.rollback();
             }

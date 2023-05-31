@@ -25,7 +25,7 @@ public class MilkySupport {
 
     ConcurrentOperate concurrentOperate;
 
-    TraceRepository traceRepository;
+    MilkyTraceRepository milkyTraceRepository;
 
     ThreadLocalTransferableExecutor threadLocalTransferableExecutor;
 
@@ -44,7 +44,7 @@ public class MilkySupport {
     TransactionSupport transactionSupport;
 
     public MilkySupport(ConcurrentOperate concurrentOperate,
-                        TraceRepository traceRepository,
+                        MilkyTraceRepository milkyTraceRepository,
                         ThreadLocalTransferableExecutor threadLocalTransferableExecutor,
                         List<Interceptors> interceptors,
                         List<EventRouters> eventRouters,
@@ -54,7 +54,7 @@ public class MilkySupport {
                         BeanLoader beanLoader,
                         TransactionSupport transactionSupport) {
         this.concurrentOperate = concurrentOperate;
-        this.traceRepository = traceRepository;
+        this.milkyTraceRepository = milkyTraceRepository;
         this.threadLocalTransferableExecutor = threadLocalTransferableExecutor;
         this.interceptors = Kit.op(interceptors).orElseGet(ArrayList::new);
         this.eventRouters = Kit.op(eventRouters).orElseGet(ArrayList::new);

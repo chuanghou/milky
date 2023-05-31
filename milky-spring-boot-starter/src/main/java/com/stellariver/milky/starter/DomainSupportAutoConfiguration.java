@@ -42,7 +42,7 @@ public class DomainSupportAutoConfiguration {
     @Bean
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public MilkySupport milkySupport(ConcurrentOperate concurrentOperate,
-                                     TraceRepository traceRepository,
+                                     MilkyTraceRepository milkyTraceRepository,
                                      @Autowired(required = false)
                                      TransactionSupport transactionSupport,
                                      ThreadLocalTransferableExecutor threadLocalTransferableExecutor,
@@ -64,7 +64,7 @@ public class DomainSupportAutoConfiguration {
         ConfigurationBuilder configuration = new ConfigurationBuilder().forPackages(scanPackages).addScanners(new SubTypesScanner());
         Reflections reflections = new Reflections(configuration);
         return new MilkySupport(concurrentOperate,
-                traceRepository,
+                milkyTraceRepository,
                 threadLocalTransferableExecutor,
                 interceptors,
                 eventRouters,
@@ -105,7 +105,7 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public TraceRepository traceRepository() {
+    public MilkyTraceRepository traceRepository() {
         return (context, success) -> {};
     }
 
