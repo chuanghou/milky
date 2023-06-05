@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
  * @author houchuang
  */
 @Data
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("item")
