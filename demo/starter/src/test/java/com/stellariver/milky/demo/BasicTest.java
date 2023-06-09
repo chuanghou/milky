@@ -5,7 +5,6 @@ import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
-import com.stellariver.milky.demo.adapter.repository.IdBuilder;
 import com.stellariver.milky.demo.basic.TypedEnums;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.domain.inventory.Inventory;
@@ -26,6 +25,7 @@ import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
+import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import lombok.CustomLog;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,6 +35,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 
 import static org.mockito.Mockito.argThat;
@@ -69,6 +70,9 @@ public class BasicTest {
 
     @Autowired
     ItemDOMapper itemDOMapper;
+
+    @Autowired
+    DataSource dataSource;
 
     @Test
     public void publishItemDOTest() {
@@ -145,7 +149,7 @@ public class BasicTest {
 
     @Test
     public void idBuilderTest() {
-        IdBuilder bean = BeanUtil.getBean(IdBuilder.class);
+        UniqueIdGetter bean = BeanUtil.getBean(UniqueIdGetter.class);
         long l = System.nanoTime();
         for (int i = 0; i < 1000; i++) {
             bean.get();

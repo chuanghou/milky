@@ -9,10 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInt
 import com.baomidou.mybatisplus.extension.plugins.inner.ReplacePlaceholderInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
-import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.demo.basic.UKs;
 import com.stellariver.milky.infrastructure.base.database.BlockDeepPagingInnerInterceptor;
-import com.stellariver.milky.infrastructure.base.database.RateLimiterInnerInterceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -23,8 +20,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * @author houchuang
@@ -35,7 +30,6 @@ import java.util.regex.Pattern;
 @MapperScan(basePackages = "com.stellariver.milky.demo.infrastructure.database.mapper")
 public class MyBatisPlusConfiguration {
 
-    static private final Pattern PATTERN = Pattern.compile("id_builder");
 
     @Bean
     public SqlSessionFactory sqlSessionFactory(
@@ -69,10 +63,6 @@ public class MyBatisPlusConfiguration {
         mybatisPlusInterceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
         mybatisPlusInterceptor.addInnerInterceptor(new ReplacePlaceholderInnerInterceptor());
         mybatisPlusInterceptor.addInnerInterceptor(new BlockDeepPagingInnerInterceptor(true, 1000L));
-        Map<Pattern, String> patternMap = Collect.asMap(PATTERN, UKs.sqlRateLimiter.getKey());
-        if (milkyStableSupport != null) {
-            mybatisPlusInterceptor.addInnerInterceptor(new RateLimiterInnerInterceptor(milkyStableSupport, patternMap));
-        }
         sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor);
 
         return sqlSessionFactoryBean.getObject();

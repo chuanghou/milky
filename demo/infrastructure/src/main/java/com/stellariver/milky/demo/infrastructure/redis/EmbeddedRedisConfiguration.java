@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.infrastructure.database.redis;
+package com.stellariver.milky.demo.infrastructure.redis;
 
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import com.stellariver.milky.spring.partner.NotWindowsCondition;
@@ -23,7 +23,6 @@ public class EmbeddedRedisConfiguration {
 
 
     @Bean
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public ConcurrentOperate concurrentOperate(RedissonClient redissonClient) {
         return new RedissionConcurrentOperateImpl(redissonClient);
     }

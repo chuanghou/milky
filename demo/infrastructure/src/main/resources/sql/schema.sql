@@ -103,3 +103,18 @@ create table message_store
 
 alter table message_store
     add primary key (id);
+
+-- auto-generated definition
+drop table if exists unique_id;
+
+create table unique_id
+(
+    name_space varchar(50) not null,
+    id bigint not null,
+    step bigint not null,
+    version int not null,
+    constraint namespace_uk_index unique (name_space)
+);
+
+alter table unique_id
+    add primary key (name_space);

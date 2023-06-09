@@ -2,10 +2,17 @@ package com.stellariver.milky.demo.infrastructure.database;
 
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
+import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
+import com.stellariver.milky.spring.partner.UniqueIdBuilder;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.sql.DataSource;
 
 /**
  * @author houchuang
@@ -39,4 +46,26 @@ public class DruidConfiguration {
         webStatFilter.setSessionStatEnable(true);
         return webStatFilter;
     }
+
+
+    @Bean
+    public UniqueIdGetter uniqueIdGetter(DataSource dataSource) {
+        UniqueIdBuilder uniqueIdBuilder = new UniqueIdBuilder(dataSource, "unique_id", "test");
+        return new UniqueIdGetterImpl(uniqueIdBuilder);
+
+    }
+
+
+    @RequiredArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    static class UniqueIdGetterImpl implements UniqueIdGetter{
+
+        final UniqueIdBuilder uniqueIdBuilder;
+
+        @Override
+        public Long get() {
+            return uniqueIdBuilder.get();
+        }
+    }
+
 }

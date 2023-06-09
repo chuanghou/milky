@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.infrastructure.database.redis;
+package com.stellariver.milky.demo.infrastructure.redis;
 
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
