@@ -40,7 +40,7 @@
             </dependency>
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
-                <artifactId>validate-tool</artifactId>
+                <artifactId>aspectj-tool</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
@@ -66,54 +66,69 @@
 
             <!--utils start need to be update dependencies-->
             <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjtools</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
-                <version>3.4.4</version>
+                <version>${disruptor.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
-                <version>0.9.11</version>
+                <version>${refelctions.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
                 <artifactId>reflectasm</artifactId>
-                <version>1.11.9</version>
+                <version>${reflectasm.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.12.0</version>
+                <version>${apache.lang3.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.15</version>
+                <version>${commons.codec.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.11.0</version>
+                <version>${commons.io.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
-                <version>4.4</version>
+                <version>${apache.collections4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.10.0</version>
+                <version>${apache.text.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>30.1.1-jre</version>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib-nodep</artifactId>
-                <version>3.3.0</version>
+                <version>${cglib.nodep.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.github.resilience4j</groupId>
@@ -123,12 +138,17 @@
             <dependency>
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
-                <version>3.3</version>
+                <version>${objenesis.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.vertical-blank</groupId>
                 <artifactId>sql-formatter</artifactId>
-                <version>2.0.3</version>
+                <version>${sql.formatter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${plexus.utils}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
