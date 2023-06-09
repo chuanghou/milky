@@ -148,7 +148,7 @@
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
-                <version>${plexus.utils}</version>
+                <version>${plexus.utils.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
