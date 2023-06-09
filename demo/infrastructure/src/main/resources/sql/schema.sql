@@ -1,29 +1,6 @@
--- auto-generated definition
-drop table if exists id_builder;
-
-create table id_builder
-(
-    id bigint auto_increment,
-    name_space varchar(50) not null,
-    start bigint not null,
-    unique_id bigint not null,
-    step int not null,
-    ceiling bigint not null,
-    duty char(16) not null,
-    alarm_threshold bigint not null,
-    version int not null,
-    deleted int not null,
-    gmt_create datetime not null,
-    gmt_modified datetime not null,
-    constraint id_builder_namespace_uk_index
-        unique (name_space)
-);
-
-alter table id_builder
-    add primary key (id);
 
 drop table if exists invocation_store;
--- auto-generated definition
+
 create table invocation_store
 (
     id            bigint      not null,
@@ -43,7 +20,7 @@ alter table invocation_store
     add primary key (id);
 
 drop table if exists item;
--- auto-generated definition
+
 create table item
 (
     item_id bigint not null,
@@ -67,7 +44,7 @@ alter table item
     add primary key (item_id);
 
 drop table if exists inventory;
--- auto-generated definition
+
 create table inventory
 (
     item_id bigint not null,
@@ -85,7 +62,7 @@ alter table inventory
     add primary key (item_id);
 
 drop table if exists message_store;
--- auto-generated definition
+
 create table message_store
 (
     id            bigint       not null,
@@ -104,7 +81,6 @@ create table message_store
 alter table message_store
     add primary key (id);
 
--- auto-generated definition
 drop table if exists unique_id;
 
 create table unique_id
