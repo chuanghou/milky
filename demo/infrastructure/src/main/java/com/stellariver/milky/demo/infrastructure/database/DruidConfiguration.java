@@ -12,8 +12,6 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.sql.DataSource;
-
 /**
  * @author houchuang
  */
@@ -47,12 +45,14 @@ public class DruidConfiguration {
         return webStatFilter;
     }
 
+    @Bean
+    public UniqueIdBuilder uniqueIdBuilder() {
+        return new UniqueIdBuilder("unique_id", "test");
+    }
 
     @Bean
-    public UniqueIdGetter uniqueIdGetter(DataSource dataSource) {
-        UniqueIdBuilder uniqueIdBuilder = new UniqueIdBuilder(dataSource, "unique_id", "test");
+    public UniqueIdGetter uniqueIdGetter(UniqueIdBuilder uniqueIdBuilder) {
         return new UniqueIdGetterImpl(uniqueIdBuilder);
-
     }
 
 

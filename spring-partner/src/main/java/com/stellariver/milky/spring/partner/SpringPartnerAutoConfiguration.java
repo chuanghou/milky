@@ -7,10 +7,13 @@ import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.util.RunnerExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.sql.DataSource;
+import java.util.List;
 import java.util.Optional;
 
 @Configuration
@@ -31,6 +34,14 @@ public class SpringPartnerAutoConfiguration {
         Optional.ofNullable(runnerExtension).ifPresent(Runner::setFailureExtendable);
         Optional.ofNullable(traceIdGetter).ifPresent(Result::initTraceIdGetter);
         return new StaticSupport(milkyStableSupport, runnerExtension, traceIdGetter, beanLoader);
+    }
+
+    @Bean
+    @ConditionalOnBean(UniqueIdBuilder.class)
+    public SectionLoader sectionLoader(List<UniqueIdBuilder> builders, DataSource dataSource) {
+        SectionLoader sectionLoader = new SectionLoader(dataSource);
+        builders.forEach(builder -> builder.setSectionLoader(sectionLoader));
+        return sectionLoader;
     }
 
 }
