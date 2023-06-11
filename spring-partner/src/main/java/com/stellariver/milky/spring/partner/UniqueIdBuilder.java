@@ -27,7 +27,7 @@ public class UniqueIdBuilder{
 
     public UniqueIdBuilder(String tableName, String nameSpace) {
         if (StringUtils.isBlank(tableName)) {
-            throw new RuntimeException("nameSpace should not be blank!");
+            throw new RuntimeException("table name should not be blank!");
         }
         this.tableName = tableName;
         if (StringUtils.isBlank(nameSpace)) {
