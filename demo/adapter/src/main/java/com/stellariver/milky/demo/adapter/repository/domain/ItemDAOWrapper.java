@@ -41,7 +41,7 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
     }
 
     @Override
-    public ItemDO merge(@NonNull ItemDO priority, @NonNull ItemDO original) {
+    public ItemDO merge(ItemDO priority, ItemDO original) {
         return Merger.INST.merge(priority, original);
     }
 

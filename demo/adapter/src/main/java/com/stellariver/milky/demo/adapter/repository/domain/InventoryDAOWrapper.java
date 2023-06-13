@@ -42,7 +42,7 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
     }
 
     @Override
-    public InventoryDO merge(@NonNull InventoryDO priority, @Nullable InventoryDO original) {
+    public InventoryDO merge(InventoryDO priority, InventoryDO original) {
         return Merger.INST.merge(priority, original);
     }
 

@@ -50,6 +50,6 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
         return original == null ? (BaseDataObject<?>) priority : merge((DataObject) priority, (DataObject) original);
     }
 
-    DataObject merge(DataObject priority, @NonNull DataObject original);
+    DataObject merge(DataObject priority, DataObject original);
 
 }
