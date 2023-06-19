@@ -3,6 +3,7 @@ package com.stellariver.milky.demo.infrastructure.database;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
+import com.stellariver.milky.spring.partner.SectionLoader;
 import com.stellariver.milky.spring.partner.UniqueIdBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.sql.DataSource;
 
 /**
  * @author houchuang
@@ -46,8 +49,13 @@ public class DruidConfiguration {
     }
 
     @Bean
-    public UniqueIdBuilder uniqueIdBuilder() {
-        return new UniqueIdBuilder("unique_id", "test");
+    public SectionLoader sectionLoader(DataSource dataSource) {
+        return new SectionLoader(dataSource);
+    }
+
+    @Bean
+    public UniqueIdBuilder uniqueIdBuilder(SectionLoader sectionLoader) {
+        return new UniqueIdBuilder("unique_id", "test", sectionLoader);
     }
 
     @Bean

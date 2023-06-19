@@ -19,21 +19,24 @@ public class UniqueIdBuilder{
     final BlockingQueue<Pair<AtomicLong, Long>> queue = new ArrayBlockingQueue<>(1);
     volatile Pair<AtomicLong, Long> section;
 
-    @Setter
-    SectionLoader sectionLoader;
+    final SectionLoader sectionLoader;
 
     static final Executor executor = Executors.newSingleThreadExecutor();
     static final int MAX_TIMES = 5;
 
-    public UniqueIdBuilder(String tableName, String nameSpace) {
+    public UniqueIdBuilder(String tableName, String nameSpace, SectionLoader sectionLoader) {
+
         if (StringUtils.isBlank(tableName)) {
             throw new RuntimeException("table name should not be blank!");
         }
         this.tableName = tableName;
+
         if (StringUtils.isBlank(nameSpace)) {
             throw new RuntimeException("nameSpace should not be blank!");
         }
         this.nameSpace = nameSpace;
+
+        this.sectionLoader = sectionLoader;
     }
 
     @SneakyThrows
@@ -45,9 +48,9 @@ public class UniqueIdBuilder{
                     CompletableFuture.runAsync(() -> {
                         try {
                             Pair<AtomicLong, Long> section0 = sectionLoader.load(tableName, nameSpace);
-                            boolean offered0 = queue.offer(section0, 1000, TimeUnit.MILLISECONDS);
+                            boolean offered0 = queue.offer(section0, 3000, TimeUnit.MILLISECONDS);
                             Pair<AtomicLong, Long> section1 = sectionLoader.load(tableName, nameSpace);
-                            boolean offered1 = queue.offer(section1, 1000, TimeUnit.MILLISECONDS);
+                            boolean offered1 = queue.offer(section1, 5000, TimeUnit.MILLISECONDS);
                             if (!offered0 || !offered1) {
                                 throw new ShouldNotAppearException("it should not appear! namespace " + nameSpace);
                             }
@@ -55,7 +58,7 @@ public class UniqueIdBuilder{
                             log.error("uniqueIdGetter error", throwable);
                         }
                     }, executor);
-                    section = queue.poll(1000, TimeUnit.MILLISECONDS);
+                    section = queue.poll(4000, TimeUnit.MILLISECONDS);
                     if (section == null) {
                         throw new ShouldNotAppearException("it should not appear! namespace is " + nameSpace);
                     }
