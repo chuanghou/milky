@@ -104,19 +104,19 @@ public class Runner {
                     args = SLambda.resolveArgs(sCallable);
                     Function<R, String> printer = Kit.op(option.getRSelector()).orElse(Objects::toString);
                     for (int i = 0; i < args.size() - 1; i++) {
-                        log.with("arg" + i, args.get(i - 1));
+                        log.with("arg" + i, args.get(i + 1));
                     }
                     log.result(printer.apply(result)).success(true).cost(Clock.currentTimeMillis() - now).info(lambdaId.getKey());
                 } else if (throwableBackup != null){
                     args = SLambda.resolveArgs(sCallable);
                     if (retryTimes == 0) {
                         for (int i = 0; i < args.size() - 1; i++) {
-                            log.with("arg" + i, args.get(i - 1));
+                            log.with("arg" + i, args.get(i + 1));
                         }
                         log.success(true).cost(Clock.currentTimeMillis() - now).error(logTag, throwableBackup);
                     } else {
                         for (int i = 0; i < args.size() - 1; i++) {
-                            log.with("arg" + i, args.get(i - 1));
+                            log.with("arg" + i, args.get(i + 1));
                         }
                         log.success(true).cost(Clock.currentTimeMillis() - now).warn(logTag, throwableBackup);
                     }
