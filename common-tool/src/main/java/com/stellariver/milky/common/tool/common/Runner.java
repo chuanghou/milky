@@ -103,22 +103,22 @@ public class Runner {
                 if (throwableBackup == null && option.isAlwaysLog()) {
                     args = SLambda.resolveArgs(sCallable);
                     Function<R, String> printer = Kit.op(option.getRSelector()).orElse(Objects::toString);
-                    for (int i = 1; i < args.size(); i++) {
-                        log.with("arg" + i, args.get(i));
+                    for (int i = 0; i < args.size() - 1; i++) {
+                        log.with("arg" + i, args.get(i - 1));
                     }
-                    log.result(printer.apply(result)).cost(Clock.currentTimeMillis() - now).info(lambdaId.getKey());
+                    log.result(printer.apply(result)).success(true).cost(Clock.currentTimeMillis() - now).info(lambdaId.getKey());
                 } else if (throwableBackup != null){
                     args = SLambda.resolveArgs(sCallable);
                     if (retryTimes == 0) {
-                        for (int i = 1; i < args.size(); i++) {
-                            log.with("arg" + i, args.get(i));
+                        for (int i = 0; i < args.size() - 1; i++) {
+                            log.with("arg" + i, args.get(i - 1));
                         }
-                        log.cost(Clock.currentTimeMillis() - now).error(logTag, throwableBackup);
+                        log.success(true).cost(Clock.currentTimeMillis() - now).error(logTag, throwableBackup);
                     } else {
-                        for (int i = 1; i < args.size(); i++) {
-                            log.with("arg" + i, args.get(i));
+                        for (int i = 0; i < args.size() - 1; i++) {
+                            log.with("arg" + i, args.get(i - 1));
                         }
-                        log.cost(Clock.currentTimeMillis() - now).warn(logTag, throwableBackup);
+                        log.success(true).cost(Clock.currentTimeMillis() - now).warn(logTag, throwableBackup);
                     }
                 }
                 if (runnerExtension != null) {
