@@ -2,6 +2,8 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.tool.common.BeanLoader;
+import com.stellariver.milky.domain.support.base.DomainTunnel;
+import com.stellariver.milky.domain.support.base.DomainTunnelImpl;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -109,6 +111,11 @@ public class DomainSupportAutoConfiguration {
         return (context, success) -> {};
     }
 
+
+    @Bean
+    public DomainTunnel domainTunnel() {
+        return new DomainTunnelImpl();
+    }
 
 
     @Bean

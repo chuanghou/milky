@@ -22,6 +22,7 @@ import com.stellariver.milky.demo.domain.service.ItemCreatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
+import com.stellariver.milky.domain.support.base.DomainTunnel;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
@@ -74,6 +75,9 @@ public class BasicTest {
     @Autowired
     DataSource dataSource;
 
+    @Autowired
+    DomainTunnel domainTunnel;
+
     @Test
     public void publishItemDOTest() {
 
@@ -85,9 +89,10 @@ public class BasicTest {
         parameters.put(TypedEnums.EMPLOYEE.class, new Employee("110", "小明"));
         CommandBus.accept(itemCreateCommand, parameters);
 
-        Item item = itemRepository.queryById(1L);
+
+        Item item = domainTunnel.getByAggregateId(Item.class, "1");
         Assertions.assertNotNull(item);
-        Inventory inventory = inventoryRepository.queryById(1L);
+        Inventory inventory = domainTunnel.getByAggregateId(Inventory.class, "1");
         Assertions.assertNotNull(inventory);
         Assertions.assertEquals(item.getStoreCode(), inventory.getStoreCode());
         Assertions.assertEquals(item.getAmount(), inventory.getAmount());
@@ -102,10 +107,10 @@ public class BasicTest {
 
         InventoryUpdateCommand command = InventoryUpdateCommand.builder().itemId(1L).updateAmount(100L).build();
         CommandBus.accept(command, parameters);
-        item = itemRepository.queryById(1L);
+        item = domainTunnel.getByAggregateId(Item.class, "1");
         Assertions.assertNotNull(item);
         Assertions.assertEquals(100L, (long) item.getAmount());
-        inventory = inventoryRepository.queryById(1L);
+        inventory = domainTunnel.getByAggregateId(Inventory.class, "1");
         Assertions.assertNotNull(inventory);
         Assertions.assertEquals(100L, (long) inventory.getAmount());
 

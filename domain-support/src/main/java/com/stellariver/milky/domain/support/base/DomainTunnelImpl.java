@@ -1,0 +1,30 @@
+package com.stellariver.milky.domain.support.base;
+
+import com.stellariver.milky.domain.support.command.CommandBus;
+import com.stellariver.milky.domain.support.dependency.DAOWrapper;
+import com.stellariver.milky.domain.support.dependency.DaoAdapter;
+import com.stellariver.milky.domain.support.dependency.DataObjectInfo;
+
+import java.util.Optional;
+
+public class DomainTunnelImpl implements DomainTunnel{
+
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends AggregateRoot> T getByAggregateId(Class<T> aggregateClazz, String aggregateId) {
+
+        DaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(aggregateClazz);
+
+        DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
+
+        Class<? extends BaseDataObject<?>> dataObjectInfoClazz = dataObjectInfo.getClazz();
+
+        DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = CommandBus.getDaoWrapper(dataObjectInfoClazz);
+
+        Optional<Object> dataObjectOptional = daoWrapper.getByPrimaryIdOptionalWrapper(dataObjectInfo.getPrimaryId());
+
+        return (T) dataObjectOptional.map(daoAdapter::toAggregate).orElse(null);
+
+    }
+}
