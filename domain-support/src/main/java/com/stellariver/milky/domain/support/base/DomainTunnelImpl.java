@@ -9,10 +9,9 @@ import java.util.Optional;
 
 public class DomainTunnelImpl implements DomainTunnel{
 
-
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends AggregateRoot> T getByAggregateId(Class<T> aggregateClazz, String aggregateId) {
+    public <T extends AggregateRoot> Optional<T> getByAggregateIdOptional(Class<T> aggregateClazz, String aggregateId) {
 
         DaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(aggregateClazz);
 
@@ -24,7 +23,9 @@ public class DomainTunnelImpl implements DomainTunnel{
 
         Optional<Object> dataObjectOptional = daoWrapper.getByPrimaryIdOptionalWrapper(dataObjectInfo.getPrimaryId());
 
-        return (T) dataObjectOptional.map(daoAdapter::toAggregate).orElse(null);
+        T t = (T) dataObjectOptional.map(daoAdapter::toAggregate).orElse(null);
+
+        return Optional.ofNullable(t);
 
     }
 }
