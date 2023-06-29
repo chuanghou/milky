@@ -2,6 +2,7 @@ package com.stellariver.milky.common.tool.common;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.slambda.SFunction;
 import com.stellariver.milky.common.tool.slambda.SLambda;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -90,7 +91,17 @@ public class Kit {
         return Kit.op(o);
     }
 
-
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    public static <E extends Enum<E>, V> E enumOfMightEx(SFunction<E, V> getter, V value) {
+        Class<? extends SFunction<E, V>> getterC = (Class<? extends SFunction<E, V>>) getter.getClass();
+        E o = (E) enumValueMap.get(getterC, () -> {
+            E[] enumConstants = ((Class<E>)SLambda.extract(getter).getInstantiatedClass()).getEnumConstants();
+            return new HashMap<>(Collect.toMapMightEx(enumConstants, getter));
+        }).get(value);
+        SysEx.nullThrow(o);
+        return o;
+    }
 
     static public <T> T whenNull(T t, T defaultValue) {
         return t == null ? defaultValue : t;
