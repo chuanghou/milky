@@ -4,6 +4,7 @@ import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.CustomValid;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.SysEx;
+import com.stellariver.milky.common.tool.common.BeanUtil;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -144,7 +145,10 @@ public class ValidateUtil {
 
         List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
-            Kit.op(customValidMap.get(clazz)).map(map -> map.get(g)).ifPresent(m -> Reflect.invoke(m, param));
+            Kit.op(customValidMap.get(clazz)).map(map -> map.get(g)).ifPresent(m -> {
+                boolean b = m.getAnnotation(CustomValid.class).implementBySubClass();
+                Reflect.invoke(m, b ? BeanUtil.getBean(param.getClass()) : param);
+            });
         }
 
     }

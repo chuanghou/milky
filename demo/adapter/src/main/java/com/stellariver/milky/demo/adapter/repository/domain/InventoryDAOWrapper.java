@@ -11,7 +11,6 @@ import lombok.experimental.FieldDefaults;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

@@ -22,7 +22,6 @@ public class ValidEntity {
     @CustomValid
     public void numberTest() {
         BizEx.trueThrow(number == null, PARAM_IS_NULL.message("number不能为空"), false);
-
     }
 
     @CustomValid(groups = NameGroup.class)

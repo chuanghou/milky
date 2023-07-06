@@ -15,6 +15,6 @@ public class Enumeration {
 
     String code;
 
-    String name;
+    String desc;
 
 }

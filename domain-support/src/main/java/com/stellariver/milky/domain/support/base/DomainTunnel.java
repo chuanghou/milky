@@ -3,7 +3,6 @@ package com.stellariver.milky.domain.support.base;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.domain.support.ErrorEnums;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 public interface DomainTunnel {

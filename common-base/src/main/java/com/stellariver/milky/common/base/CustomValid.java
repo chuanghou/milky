@@ -46,4 +46,9 @@ public @interface CustomValid {
      */
     Class<?>[] groups() default {};
 
+    /**
+     * some circumstance, we need in another module to finish the test
+     */
+    boolean implementBySubClass() default false;
+
 }
