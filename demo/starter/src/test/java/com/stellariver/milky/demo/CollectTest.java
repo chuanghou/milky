@@ -6,6 +6,7 @@ import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -56,5 +57,18 @@ public class CollectTest {
         String s = Json.toJson(build);
         Student parse = Json.parse(s, Student.class);
         System.out.println(parse.toString());
+    }
+
+
+    @Test
+    public void testLevenshteinDistance() {
+        LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
+        System.out.println(levenshteinDistance.apply("中国", "他的测试内码"));
+        System.out.println(levenshteinDistance.apply( "他的测试内码", "内码"));
+        System.out.println(levenshteinDistance.apply("中国", "中国人"));
+        System.out.println(levenshteinDistance.apply("你好", "我很好"));
+        System.out.println(levenshteinDistance.apply("abcdef", "def"));
+        System.out.println(levenshteinDistance.apply("测试内码", "他的测试内码"));
+
     }
 }
