@@ -2,18 +2,18 @@ package com.stellariver.milky.common.tool.util;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.stellariver.milky.common.base.Result;
+import com.stellariver.milky.common.tool.common.Kit;
 import lombok.CustomLog;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author houchuang
@@ -34,6 +34,8 @@ public class Json {
     static {
         MAPPER.registerModule(new JavaTimeModule());
     }
+
+
 
     @SneakyThrows(JsonProcessingException.class)
     public static String toJson(@NonNull Object target) {
@@ -179,6 +181,11 @@ public class Json {
     public static <T> Result<T> parseResult(@NonNull JsonNode jsonNode, @NonNull Class<T> clazz, @NonNull JsonMapper jsonMapper) {
         JavaType type = jsonMapper.getTypeFactory().constructParametricType(Result.class, clazz);
         return jsonMapper.treeToValue(jsonNode, type);
+    }
+
+    @SneakyThrows(JsonProcessingException.class)
+    public static <T> T parse(@NonNull String json, @NonNull TypeReference<T> typeReference) {
+        return MAPPER.readValue(json, typeReference);
     }
 
 }
