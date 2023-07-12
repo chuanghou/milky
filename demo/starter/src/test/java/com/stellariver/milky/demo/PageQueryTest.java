@@ -2,7 +2,7 @@ package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.IteratableResult;
 import com.stellariver.milky.demo.client.entity.ItemDTO;
-import com.stellariver.milky.demo.client.entity.ItemDTOPageQuery;
+import com.stellariver.milky.demo.client.entity.ItemDTOIterableQuery;
 import com.stellariver.milky.demo.client.service.ItemQueryService;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
@@ -40,7 +40,7 @@ public class PageQueryTest {
             builder = itemDO.toBuilder();
         }
 
-        ItemDTOPageQuery query = ItemDTOPageQuery.builder().userId(10001L).pageSize(10L).build();
+        ItemDTOIterableQuery query = ItemDTOIterableQuery.builder().userId(10001L).pageSize(10L).build();
 
         IteratableResult<ItemDTO> itemDTOIteratableResult = itemQueryService.pageQueryItemDTO(query);
 

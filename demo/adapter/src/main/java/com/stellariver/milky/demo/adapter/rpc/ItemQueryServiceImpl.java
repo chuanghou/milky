@@ -6,7 +6,7 @@ import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.demo.client.entity.ItemDTO;
-import com.stellariver.milky.demo.client.entity.ItemDTOPageQuery;
+import com.stellariver.milky.demo.client.entity.ItemDTOIterableQuery;
 import com.stellariver.milky.demo.client.service.ItemQueryService;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
@@ -39,7 +39,7 @@ public class ItemQueryServiceImpl implements ItemQueryService {
     }
 
     @Override
-    public IteratableResult<ItemDTO> pageQueryItemDTO(ItemDTOPageQuery query) {
+    public IteratableResult<ItemDTO> pageQueryItemDTO(ItemDTOIterableQuery query) {
         LambdaQueryWrapper<ItemDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ItemDO::getUserId, query.getUserId());
         wrapper.orderBy(true, false, ItemDO::getItemId);
