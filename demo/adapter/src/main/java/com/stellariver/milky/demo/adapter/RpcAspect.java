@@ -89,7 +89,7 @@ public class RpcAspect {
                 if (returnType == Result.class) {
                     result = Result.error(errorEnums, exceptionType);
                 } else {
-                    result = PageResult.pageError(errorEnums, exceptionType);
+                    result = IteratableResult.pageError(errorEnums, exceptionType);
                 }
             }
             IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));

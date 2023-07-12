@@ -13,39 +13,34 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PageResult<T> extends Result<List<T>> {
+public class IteratableResult<T> extends Result<List<T>> {
 
     private String nextPageKey;
 
-    @NotNull
-    @PositiveOrZero
-    private Long total;
-
-    private PageResult() {
+    private IteratableResult() {
         super();
     }
 
-    private PageResult(List<T> data, long total, String nextPageKey) {
+    private IteratableResult(List<T> data, String nextPageKey) {
         this.success = true;
         this.data = data;
-        this.total = total;
         this.nextPageKey = nextPageKey;
     }
 
-    public static <T> PageResult<T> success(List<T> data, long total,String pageKey) {
-        return new PageResult<>(data, total, pageKey);
+    public static <T> IteratableResult<T> success(List<T> data, String pageKey) {
+        return new IteratableResult<>(data, pageKey);
     }
 
-    public static <T> PageResult<T> empty() {
-        return success(Collections.emptyList(), 0L, null);
+    public static <T> IteratableResult<T> empty() {
+        return success(Collections.emptyList(), null);
     }
 
-    public static <T> PageResult<T> pageError(ErrorEnum errorEnum, ExceptionType type) {
+    public static <T> IteratableResult<T> pageError(ErrorEnum errorEnum, ExceptionType type) {
         return pageError(Collections.singletonList(errorEnum), type);
     }
 
-    public static <T> PageResult<T> pageError(List<ErrorEnum> errorEnums, ExceptionType exceptionType) {
-        PageResult<T> result = new PageResult<>();
+    public static <T> IteratableResult<T> pageError(List<ErrorEnum> errorEnums, ExceptionType exceptionType) {
+        IteratableResult<T> result = new IteratableResult<>();
         result.success = false;
         result.code = errorEnums.get(0).getCode();
         result.detailMessage = errorEnums.get(0).getMessage();

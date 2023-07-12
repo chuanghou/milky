@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.adapter.rpc;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.stellariver.milky.common.base.PageResult;
+import com.stellariver.milky.common.base.IteratableResult;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -39,12 +39,11 @@ public class ItemQueryServiceImpl implements ItemQueryService {
     }
 
     @Override
-    public PageResult<ItemDTO> pageQueryItemDTO(ItemDTOPageQuery query) {
+    public IteratableResult<ItemDTO> pageQueryItemDTO(ItemDTOPageQuery query) {
         LambdaQueryWrapper<ItemDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ItemDO::getUserId, query.getUserId());
         wrapper.orderBy(true, false, ItemDO::getItemId);
 //        Long count = itemDOMapper.selectCount(wrapper);
-        Long count = 0L;
         if (StringUtils.isNotBlank(query.getNexPageKey())) {
             Long lastMinItemId = nexKeyService.apply(query.getNexPageKey());
             wrapper.lt(true, ItemDO::getItemId, lastMinItemId);
@@ -54,9 +53,9 @@ public class ItemQueryServiceImpl implements ItemQueryService {
         List<ItemDTO> itemDTOs = itemDOS.stream().map(Convertor.INST::to).collect(Collectors.toList());
         if (Collect.isNotEmpty(itemDTOs)) {
             String nextPageKey = itemDOS.get(itemDOS.size() - 1).getItemId().toString();
-            return PageResult.success(itemDTOs, count, nextPageKey);
+            return IteratableResult.success(itemDTOs, nextPageKey);
         } else {
-            return PageResult.empty();
+            return IteratableResult.empty();
         }
     }
 

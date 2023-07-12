@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.base.PageResult;
+import com.stellariver.milky.common.base.IteratableResult;
 import com.stellariver.milky.demo.client.entity.ItemDTO;
 import com.stellariver.milky.demo.client.entity.ItemDTOPageQuery;
 import com.stellariver.milky.demo.client.service.ItemQueryService;
@@ -42,13 +42,13 @@ public class PageQueryTest {
 
         ItemDTOPageQuery query = ItemDTOPageQuery.builder().userId(10001L).pageSize(10L).build();
 
-        PageResult<ItemDTO> itemDTOPageResult = itemQueryService.pageQueryItemDTO(query);
+        IteratableResult<ItemDTO> itemDTOIteratableResult = itemQueryService.pageQueryItemDTO(query);
 
-        query.setNexPageKey(itemDTOPageResult.getNextPageKey());
+        query.setNexPageKey(itemDTOIteratableResult.getNextPageKey());
 
-        itemDTOPageResult = itemQueryService.pageQueryItemDTO(query);
+        itemDTOIteratableResult = itemQueryService.pageQueryItemDTO(query);
 
-        Optional<Long> reduce = itemDTOPageResult.getData().stream().map(ItemDTO::getItemId).reduce(Long::sum);
+        Optional<Long> reduce = itemDTOIteratableResult.getData().stream().map(ItemDTO::getItemId).reduce(Long::sum);
         Assertions.assertTrue(reduce.isPresent());
         Assertions.assertEquals(reduce.get(), (81 + 90) * 10 / 2);
 
