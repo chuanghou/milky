@@ -1,1 +1,2 @@
 com.stellariver.milky.common.tool.validate.OfEnumValidator
+com.stellariver.milky.common.tool.validate.TimeFormatValidator
