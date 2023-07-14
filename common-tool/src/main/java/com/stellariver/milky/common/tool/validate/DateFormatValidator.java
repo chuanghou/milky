@@ -1,6 +1,8 @@
 package com.stellariver.milky.common.tool.validate;
 
-import com.stellariver.milky.common.base.TimeFormat;
+import com.stellariver.milky.common.base.Compare;
+import com.stellariver.milky.common.base.DateFormat;
+import com.stellariver.milky.common.tool.common.Clock;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -9,16 +11,20 @@ import org.hibernate.validator.constraintvalidation.HibernateConstraintValidator
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.text.ParseException;
+import java.time.Duration;
 import java.util.Date;
 
-public class TimeFormatValidator implements ConstraintValidator<TimeFormat, Object> {
+public class DateFormatValidator implements ConstraintValidator<DateFormat, Object> {
 
     private String format;
-    private boolean checkNotEarlier;
+    private Compare compare;
+    private Duration delay;
+
     @Override
-    public void initialize(TimeFormat anno) {
+    public void initialize(DateFormat anno) {
         format = anno.format();
-        checkNotEarlier = anno.checkNotEarlier();
+        compare = anno.compare();
+        delay = Duration.of(anno.delay(), anno.unit());
     }
 
     @Override
@@ -34,11 +40,15 @@ public class TimeFormatValidator implements ConstraintValidator<TimeFormat, Obje
             return false;
         }
 
-        if (checkNotEarlier) {
-            Date now = DateUtils.parseDate(DateFormatUtils.format(new Date(), format), format);
-            return !param.before(now);
+        if (compare == Compare.NOT_CHECK) {
+            return true;
         }
-        return true;
+
+        String formattedNow = DateFormatUtils.format(Clock.now(), format);
+        Date formattedNowDate = DateUtils.parseDate(formattedNow, format);
+        long l = formattedNowDate.getTime() + delay.toMillis();
+
+        return compare.compare(param, new Date(l));
     }
 
 }

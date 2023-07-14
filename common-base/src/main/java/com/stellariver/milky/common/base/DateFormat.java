@@ -6,6 +6,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author houchuang
@@ -14,11 +16,15 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = { })
-public @interface TimeFormat {
+public @interface DateFormat {
 
     String format() default "yyyyMMdd";
 
-    boolean checkNotEarlier() default false;
+    Compare compare() default Compare.NOT_CHECK;
+
+    long delay() default 0L;
+
+    ChronoUnit unit() default ChronoUnit.DAYS;
 
     String message() default "时间数据不满足要求";
 

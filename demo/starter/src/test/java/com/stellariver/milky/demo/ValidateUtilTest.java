@@ -1,14 +1,13 @@
 package com.stellariver.milky.demo;
 
 import com.stellariver.milky.aspectj.tool.validate.Validate;
-import com.stellariver.milky.common.base.BizEx;
-import com.stellariver.milky.common.base.ExceptionType;
-import com.stellariver.milky.common.base.OfEnum;
+import com.stellariver.milky.common.base.*;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.financial.base.ExactDivision;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.hibernate.validator.constraints.Range;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,6 +16,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.lang.reflect.Method;
+import java.util.Date;
 
 public class ValidateUtilTest {
 
@@ -323,6 +323,65 @@ public class ValidateUtilTest {
         }
         Assertions.assertNotNull(backup);
         Assertions.assertTrue(backup instanceof BizEx);
+    }
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    static class DateFormatParam0 {
+        @DateFormat(format = "yyyyMMdd", delay = 1L)
+        String value;
+    }
+
+    @Test
+    public void test0() {
+        String today = DateFormatUtils.format(new Date(), "yyyyMMdd");
+        DateFormatParam0 dateFormatParam = DateFormatParam0.builder().value(today).build();
+        Throwable throwable = null;
+        try {
+            ValidateUtil.validate(dateFormatParam);
+        } catch (BizEx bizEx) {
+            throwable = bizEx;
+        }
+        Assertions.assertNull(throwable);
+
+        dateFormatParam = DateFormatParam0.builder().value("202011").build();
+        try {
+            ValidateUtil.validate(dateFormatParam);
+        } catch (BizEx bizEx) {
+            throwable = bizEx;
+        }
+        Assertions.assertNotNull(throwable);
+
+    }
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    static class DateFormatParam1 {
+        @DateFormat(compare = Compare.SMALLER)
+        String value;
+    }
+
+    @Test
+    public void test1() {
+        String today = DateFormatUtils.format(new Date(), "yyyyMMdd");
+        DateFormatParam1 dateFormatParam = DateFormatParam1.builder().value(today).build();
+        Throwable throwable = null;
+        try {
+            ValidateUtil.validate(dateFormatParam);
+        } catch (BizEx bizEx) {
+            throwable = bizEx;
+        }
+        Assertions.assertNotNull(throwable);
+        System.out.println(throwable.getMessage());
+
     }
 
 
