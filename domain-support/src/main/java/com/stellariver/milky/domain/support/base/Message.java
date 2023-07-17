@@ -1,7 +1,7 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.stellariver.milky.common.tool.common.BeanUtil;
+import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;

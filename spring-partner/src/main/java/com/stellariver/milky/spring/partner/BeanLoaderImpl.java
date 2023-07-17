@@ -1,6 +1,6 @@
 package com.stellariver.milky.spring.partner;
 
-import com.stellariver.milky.common.tool.common.BeanLoader;
+import com.stellariver.milky.common.base.BeanLoader;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 

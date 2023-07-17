@@ -2,7 +2,7 @@ package com.stellariver.milky.demo;
 
 
 import com.stellariver.milky.common.base.Employee;
-import com.stellariver.milky.common.tool.common.BeanUtil;
+import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.test.ParameterMatcher;
 import com.stellariver.milky.demo.basic.TypedEnums;

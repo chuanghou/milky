@@ -2,7 +2,7 @@ package com.stellariver.milky.aspectj.tool.tlc;
 
 import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.tool.common.BaseQuery;
-import com.stellariver.milky.common.tool.common.BeanUtil;
+import com.stellariver.milky.common.base.BeanUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

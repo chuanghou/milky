@@ -1,7 +1,4 @@
-package com.stellariver.milky.common.tool.common;
-
-import com.stellariver.milky.common.base.SysEx;
-import net.sf.cglib.beans.BeanMap;
+package com.stellariver.milky.common.base;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -56,11 +53,6 @@ public class BeanUtil {
             return Optional.empty();
         }
         return beanLoader.getBeanOptional(beanName);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Map<String, Object> beanToMap(Object bean) {
-        return null == bean ? new HashMap<>() : BeanMap.create(bean);
     }
 
 }

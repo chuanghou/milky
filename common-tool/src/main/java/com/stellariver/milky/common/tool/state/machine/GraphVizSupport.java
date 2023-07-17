@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.state.machine;
 
-import com.stellariver.milky.common.tool.common.BeanUtil;
+import com.stellariver.milky.common.base.BeanUtil;
 
 import java.util.ArrayList;
 import java.util.List;

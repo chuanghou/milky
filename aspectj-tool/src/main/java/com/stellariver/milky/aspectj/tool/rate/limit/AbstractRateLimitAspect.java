@@ -1,7 +1,7 @@
 package com.stellariver.milky.aspectj.tool.rate.limit;
 
 import com.stellariver.milky.aspectj.tool.BaseAspect;
-import com.stellariver.milky.common.tool.common.BeanUtil;
+import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import org.aspectj.lang.ProceedingJoinPoint;

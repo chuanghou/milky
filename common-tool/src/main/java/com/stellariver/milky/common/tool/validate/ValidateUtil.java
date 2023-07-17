@@ -4,7 +4,7 @@ import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.CustomValid;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.SysEx;
-import com.stellariver.milky.common.tool.common.BeanUtil;
+import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Collect;
