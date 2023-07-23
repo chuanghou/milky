@@ -39,6 +39,7 @@ public abstract class ConcurrentOperate {
 
     public boolean unLockAll() {
         Map<String, Result<Void>> unLockResult = batchUnLock(lockedIds.get());
+        lockedIds.remove();
         return unLockResult.values().stream().map(Result::getSuccess).reduce((b0, b1) -> b0 && b1).orElse(false);
     }
 
