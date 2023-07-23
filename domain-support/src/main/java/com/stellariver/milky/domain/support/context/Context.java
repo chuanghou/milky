@@ -82,8 +82,8 @@ public class Context{
         events.add(0, event);
     }
 
-    public void publishPlaceHolderEvent(@NonNull PlaceHolderEvent event) {
-        publish(event);
+    public void publishPlaceHolderEvent(@NonNull String aggregateId) {
+        publish(new PlaceHolderEvent(aggregateId));
     }
 
     public void record(@NonNull Record record) {
