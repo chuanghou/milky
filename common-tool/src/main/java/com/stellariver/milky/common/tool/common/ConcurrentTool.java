@@ -29,7 +29,26 @@ public class ConcurrentTool {
         return Collect.toMap(result.get(), Pair::getKey, Pair::getValue);
     }
 
+    @SneakyThrows({ExecutionException.class, InterruptedException.class})
+    static public <P, V> Map<P, V> batchCall(List<P> params, Function<P, V> function, Executor executor) {
+        List<CompletableFuture<Pair<P, V>>> batchFutures = params.stream()
+                .map(param -> CompletableFuture.supplyAsync(() -> Pair.of(param, function.apply(param)), executor))
+                .collect(Collectors.toList());
+        CompletableFuture<List<Pair<P, V>>> result = CompletableFuture.allOf(batchFutures.toArray(new CompletableFuture[0]))
+                .thenApply(v -> batchFutures.stream().map(CompletableFuture::join).collect(Collectors.toList()));
+        return Collect.toMap(result.get(), Pair::getKey, Pair::getValue);
+    }
+
     static public <P, V> Future<Map<P, V>> batchCallFuture(Set<P> params, Function<P, V> function, Executor executor) {
+        List<CompletableFuture<Pair<P, V>>> batchFutures = params.stream()
+                .map(param -> CompletableFuture.supplyAsync(() -> Pair.of(param, function.apply(param)), executor))
+                .collect(Collectors.toList());
+        return CompletableFuture.allOf(batchFutures.toArray(new CompletableFuture[0]))
+                .thenApply(v -> batchFutures.stream().map(CompletableFuture::join))
+                .thenApply(s -> Collect.toMap(s.collect(Collectors.toList()), Pair::getKey, Pair::getValue));
+    }
+
+    static public <P, V> Future<Map<P, V>> batchCallFuture(List<P> params, Function<P, V> function, Executor executor) {
         List<CompletableFuture<Pair<P, V>>> batchFutures = params.stream()
                 .map(param -> CompletableFuture.supplyAsync(() -> Pair.of(param, function.apply(param)), executor))
                 .collect(Collectors.toList());
