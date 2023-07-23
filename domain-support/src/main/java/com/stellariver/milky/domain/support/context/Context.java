@@ -17,6 +17,7 @@ import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.dependency.Trace;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import com.stellariver.milky.domain.support.event.Event;
+import com.stellariver.milky.domain.support.event.PlaceHolderEvent;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -79,6 +80,10 @@ public class Context{
 
     public void publish(@NonNull Event event) {
         events.add(0, event);
+    }
+
+    public void publishPlaceHolderEvent(@NonNull PlaceHolderEvent event) {
+        publish(event);
     }
 
     public void record(@NonNull Record record) {
