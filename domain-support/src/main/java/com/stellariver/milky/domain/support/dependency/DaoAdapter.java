@@ -24,14 +24,10 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
 
     default Aggregate toAggregateWrapper(Object dataObject) {
         Aggregate aggregate = toAggregate(dataObject);
-        List<NulliableReplacer> nulliableReplacers = NulliableReplacer.replacerOf(aggregate.getClass());
-        for (NulliableReplacer replacer: nulliableReplacers) {
-            Object value = replacer.get(aggregate);
-            if (replacer.isConfig() && !replacer.isIgnore()) {
-                if (Kit.eq(replacer.getReplaceValue(), value)) {
-                    replacer.set(aggregate, null);
-                }
-            }
+        List<Getter> getters = Getter.getGetters(aggregate.getClass());
+        for (Getter replacer: getters) {
+            Object value = replacer.getValue(aggregate);
+            SysEx.nullThrow(value, CONFIG_ERROR.message("milky not accepted null field of aggregate, please user Optional.empty()!"));
         }
         return aggregate;
     }
@@ -46,32 +42,6 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
     @SuppressWarnings("unchecked")
     default Object toDataObjectWrapper(Object aggregate) {
         Aggregate aggregateRoot = (Aggregate) aggregate;
-        List<NulliableReplacer> nulliableReplacers = NulliableReplacer.replacerOf(aggregateRoot.getClass());
-        for (NulliableReplacer replacer : nulliableReplacers) {
-
-            Object o = replacer.get(aggregate);
-            if (!replacer.isConfig()) {
-                if (o == null) {
-                    String template = "%s in %s is null, but have not been config @Nulliable!";
-                    String message = String.format(template, replacer.getFieldName(), replacer.getClassName());
-                    throw new SysEx(CONFIG_ERROR.message(message));
-                }
-                continue;
-            }
-            if (replacer.isIgnore()) {
-                continue;
-            }
-
-            if (o == null) {
-                Object replaceValue = replacer.getReplaceValue();
-                replacer.set(aggregate, replaceValue);
-            } else if (Kit.eq(o, replacer.getReplaceValue())) {
-                String template = "%s in %s equal null replace value";
-                String message = String.format(template, replacer.getFieldName(), replacer.getClassName());
-                throw new SysEx(CONFIG_ERROR.message(message));
-            }
-
-        }
         return toDataObject(aggregateRoot, dataObjectInfo(aggregateRoot.getAggregateId()));
     }
 

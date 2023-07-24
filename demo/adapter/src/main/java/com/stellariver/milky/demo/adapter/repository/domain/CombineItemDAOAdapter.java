@@ -38,17 +38,16 @@ public class CombineItemDAOAdapter implements DaoAdapter<CombineItem> {
 
     @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
             nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    public interface Convertor {
+    public interface Convertor extends OptionalConvertor {
 
         Convertor INST = Mappers.getMapper(Convertor.class);
 
         @BeanMapping(builder = @Builder(disableBuilder = true))
         CombineItem to(ItemDO itemDO);
 
-
         @BeanMapping(builder = @Builder(disableBuilder = true))
         ItemDO to(CombineItem item);
 
-
     }
+
 }

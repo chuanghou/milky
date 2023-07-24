@@ -37,7 +37,7 @@ public class ItemDAOAdapter implements DaoAdapter<Item> {
 
     @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
             nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    public interface Convertor {
+    public interface Convertor extends OptionalConvertor {
 
         Convertor INST = Mappers.getMapper(Convertor.class);
 

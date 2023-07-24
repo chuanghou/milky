@@ -29,7 +29,7 @@ create table item
     user_name   varchar(100) not null,
     amount bigint not null,
     store_code varchar(100) not null,
-    price varchar(100) not null,
+    price varchar(100),
     version int not null,
     deleted int not null,
     channel_enum varchar(20) not null,
