@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.adapter.repository.domain;
+package com.stellariver.milky.common.base;
 
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Builder;
