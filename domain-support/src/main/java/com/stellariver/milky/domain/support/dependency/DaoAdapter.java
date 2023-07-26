@@ -24,8 +24,8 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
 
     default Aggregate toAggregateWrapper(Object dataObject) {
         Aggregate aggregate = toAggregate(dataObject);
-        List<Getter> getters = Getter.getGetters(aggregate.getClass());
-        for (Getter replacer: getters) {
+        List<Accessor> accessors = Accessor.resolveAccessors(aggregate.getClass());
+        for (Accessor replacer: accessors) {
             Object value = replacer.getValue(aggregate);
             SysEx.nullThrow(value, CONFIG_ERROR.message("milky not accepted null field of aggregate, please user Optional.empty()!"));
         }
@@ -87,7 +87,7 @@ public interface DaoAdapter<Aggregate extends AggregateRoot> {
             DataObjectInfo dataObjectInfo = dataObjectInfo(aggregateId);
             Object dataObject = doMap.getOrDefault(dataObjectInfo.getClazz(), new HashMap<>(10)).get(dataObjectInfo.getPrimaryId());
             if (dataObject != null) {
-                resultMap.put(aggregateId, toAggregateWrapper(dataObject));
+                resultMap.put(aggregateId, toAggregate(dataObject));
             }
         });
         return resultMap;

@@ -16,46 +16,55 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Getter {
+public class Accessor {
 
-    boolean config;
-    boolean ignore;
     String fieldName;
     String className;
     Method getMethod;
+    Method setMethod;
 
     public Object getValue(Object bean) {
         return Reflect.invoke(getMethod, bean);
     }
 
-    static Map<Class<?>, List<Getter>> map = new ConcurrentHashMap<>();
+    public void setValue(Object bean, Object value) {
+        Reflect.invoke(setMethod, bean, value);
+    }
+
+    static Map<Class<?>, List<Accessor>> map = new ConcurrentHashMap<>();
 
     @SneakyThrows
-    static public List<Getter> getGetters(Class<?> clazz) {
-        List<Getter> getters = map.get(clazz);
-        if (getters != null) {
-            return getters;
+    static public List<Accessor> resolveAccessors(Class<?> clazz) {
+        List<Accessor> accessors = map.get(clazz);
+        if (accessors != null) {
+            return accessors;
         }
-        getters = new ArrayList<>();
+        accessors = new ArrayList<>();
         List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
         for (Field f: fields) {
 
-            if (f.isSynthetic() || Modifier.isStatic(f.getModifiers()) || f.getType() == boolean.class) {
+            if (f.isSynthetic() || Modifier.isStatic(f.getModifiers())) {
                 continue;
             }
 
             String name = f.getName();
             String get = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            if (f.getType() == boolean.class) {
+                get = "is" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            }
+            String set = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
             Method getMethod = clazz.getMethod(get);
-            Getter getter = Getter.builder()
+            Method setMethod = clazz.getMethod(set, f.getType());
+            Accessor accessor = Accessor.builder()
                     .fieldName(name)
                     .className(f.getDeclaringClass().getSimpleName())
                     .getMethod(getMethod)
+                    .setMethod(setMethod)
                     .build();
-            getters.add(getter);
+            accessors.add(accessor);
 
         }
-        return Collections.unmodifiableList(getters);
+        return Collections.unmodifiableList(accessors);
     }
 
 }

@@ -45,7 +45,7 @@ public class Item extends AggregateRoot {
     String userName;
     Long amount;
     String storeCode;
-    Optional<String> price;
+    String price;
     ChannelEnum channelEnum;
 
     @StaticWire
@@ -63,7 +63,6 @@ public class Item extends AggregateRoot {
         this.channelEnum = command.getChannelEnum();
         UserInfo userInfo = userInfoRepository.getUserInfo(command.getUserId());
         this.userName = userInfo.getUserName();
-        this.price = Optional.empty();
     }
 
     @ConstructorHandler
@@ -103,7 +102,6 @@ public class Item extends AggregateRoot {
                 .itemId(itemId).initStoreCode(this.storeCode).initAmount(command.getInitAmount()).build();
         this.amount = command.getInitAmount();
         this.storeCode = command.getStoreCode();
-        this.price = Optional.empty();
         context.publish(event);
     }
 

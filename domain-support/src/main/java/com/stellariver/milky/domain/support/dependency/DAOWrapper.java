@@ -45,11 +45,4 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
         return Kit.op(map.get(primaryId));
     }
 
-    @SuppressWarnings("unchecked")
-    default BaseDataObject<?> mergeWrapper(Object priority, Object original) {
-        return original == null ? (BaseDataObject<?>) priority : merge((DataObject) priority, (DataObject) original);
-    }
-
-    DataObject merge(DataObject priority, DataObject original);
-
 }

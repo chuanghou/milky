@@ -40,19 +40,4 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
         return Collect.toMap(inventoryDOs, InventoryDO::getItemId);
     }
 
-    @Override
-    public InventoryDO merge(InventoryDO priority, InventoryDO original) {
-        return Merger.INST.merge(priority, original);
-    }
-
-    @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
-            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    public interface Merger {
-
-        Merger INST = Mappers.getMapper(Merger.class);
-
-        @BeanMapping(builder = @Builder(disableBuilder = true))
-        InventoryDO merge(InventoryDO priority, @MappingTarget InventoryDO original);
-
-    }
 }

@@ -40,19 +40,4 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
         return Collect.toMap(itemDOs, ItemDO::getItemId);
     }
 
-    @Override
-    public ItemDO merge(ItemDO priority, ItemDO original) {
-        return Merger.INST.merge(priority, original);
-    }
-
-    @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
-            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    public interface Merger {
-
-        Merger INST = Mappers.getMapper(Merger.class);
-
-        @BeanMapping(builder = @Builder(disableBuilder = true))
-        ItemDO merge(ItemDO priority, @MappingTarget ItemDO original);
-
-    }
 }

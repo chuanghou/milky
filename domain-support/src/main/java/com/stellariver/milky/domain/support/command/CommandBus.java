@@ -408,8 +408,8 @@ public class CommandBus {
         Object result;
         AggregateRoot aggregate;
         AggregateStatus aggregateStatus = AggregateStatus.KEEP;
+        BaseDataObject<?> dataObjectOld = null;
         if (commandHandler.handlerType == CONSTRUCTOR_HANDLER) {
-
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
@@ -430,6 +430,7 @@ public class CommandBus {
 
             // from db or context get aggregate
             aggregate = daoAdapter.getByAggregateId(aggregateId, context);
+            dataObjectOld = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
 
             // run command before interceptors, it is corresponding to a common command, an instance method
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
@@ -468,17 +469,23 @@ public class CommandBus {
             Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
             // according primaryId, find corresponding data object
             Object original = Kit.op(doMap.get(dataObjectClazz)).map(map -> map.get(primaryId)).orElse(null);
-
             // aggregate to data object
-            BaseDataObject<?> dataObject = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
+            BaseDataObject<?> dataObjectNew = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
 
-            // merge new data object to the old one, the old one is null when the command which is handling is a create command
-            DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
-            BaseDataObject<?> mergeResult = daoWrapper.mergeWrapper(dataObject, original);
+            if (original != null && dataObjectOld != null) {
+                for (Accessor accessor : Accessor.resolveAccessors(dataObjectClazz)) {
+                    Object oldValue = accessor.getValue(dataObjectOld);
+                    Object newValue = accessor.getValue(dataObjectNew);
+                    if (Kit.eq(oldValue, newValue)) {
+                        accessor.setValue(dataObjectNew, newValue);
+                    }
+                }
+            }
+            DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = CommandBus.getDaoWrapper(dataObjectClazz);
 
             Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
             if (memoryTx) {
-                doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>(16)).put(primaryId, mergeResult);
+                doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>(16)).put(primaryId, dataObjectNew);
             } else {
                 Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
             }
@@ -488,13 +495,13 @@ public class CommandBus {
                 if (memoryTx) {
                     context.getCreatedAggregateIds().get(dataObjectClazz).add(primaryId);
                 } else {
-                    daoWrapper.batchSaveWrapper(Collect.asList(mergeResult));
+                    daoWrapper.batchSaveWrapper(Collect.asList(dataObjectNew));
                 }
             } else {
                 if (memoryTx) {
                     context.getChangedAggregateIds().get(dataObjectClazz).add(primaryId);
                 } else {
-                    daoWrapper.batchUpdateWrapper(Collect.asList(mergeResult));
+                    daoWrapper.batchUpdateWrapper(Collect.asList(dataObjectNew));
                 }
             }
         }

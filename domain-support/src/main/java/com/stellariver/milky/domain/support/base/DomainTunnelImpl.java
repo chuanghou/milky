@@ -23,7 +23,7 @@ public class DomainTunnelImpl implements DomainTunnel{
 
         Optional<Object> dataObjectOptional = daoWrapper.getByPrimaryIdOptionalWrapper(dataObjectInfo.getPrimaryId());
 
-        T t = (T) dataObjectOptional.map(daoAdapter::toAggregateWrapper).orElse(null);
+        T t = (T) dataObjectOptional.map(daoAdapter::toAggregate).orElse(null);
 
 
         return Optional.ofNullable(t);
