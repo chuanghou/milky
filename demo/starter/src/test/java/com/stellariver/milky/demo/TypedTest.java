@@ -11,7 +11,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.plaf.IconUIResource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

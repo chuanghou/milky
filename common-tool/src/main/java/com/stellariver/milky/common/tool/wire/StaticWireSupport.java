@@ -1,8 +1,8 @@
 package com.stellariver.milky.common.tool.wire;
 
+import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
-import com.stellariver.milky.common.base.BeanUtil;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;

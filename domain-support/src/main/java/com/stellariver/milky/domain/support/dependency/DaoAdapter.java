@@ -15,22 +15,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
-
 /**
  * @author houchuang
  */
 public interface DaoAdapter<Aggregate extends AggregateRoot> {
-
-    default Aggregate toAggregateWrapper(Object dataObject) {
-        Aggregate aggregate = toAggregate(dataObject);
-        List<Accessor> accessors = Accessor.resolveAccessors(aggregate.getClass());
-        for (Accessor replacer: accessors) {
-            Object value = replacer.getValue(aggregate);
-            SysEx.nullThrow(value, CONFIG_ERROR.message("milky not accepted null field of aggregate, please user Optional.empty()!"));
-        }
-        return aggregate;
-    }
 
     /**
      * 实现数据库对象到聚合根转化

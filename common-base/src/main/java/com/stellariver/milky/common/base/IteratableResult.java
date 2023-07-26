@@ -3,8 +3,6 @@ package com.stellariver.milky.common.base;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.Collections;
 import java.util.List;
 

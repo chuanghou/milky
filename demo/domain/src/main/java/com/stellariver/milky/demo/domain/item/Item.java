@@ -22,8 +22,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Optional;
-
 import static com.stellariver.milky.demo.basic.TypedEnums.MARK_HANDLE;
 
 /**

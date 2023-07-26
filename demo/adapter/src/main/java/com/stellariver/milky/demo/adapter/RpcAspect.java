@@ -3,7 +3,6 @@ package com.stellariver.milky.demo.adapter;
 import com.stellariver.milky.aspectj.tool.validate.AnnotationValidateAspect;
 import com.stellariver.milky.aspectj.tool.validate.Validate;
 import com.stellariver.milky.common.base.*;
-import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
