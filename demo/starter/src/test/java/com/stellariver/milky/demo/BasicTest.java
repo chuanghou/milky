@@ -40,7 +40,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -92,7 +91,7 @@ public class BasicTest {
         DemoMetaUnit build = DemoMetaUnit.builder()
                 .name("test")
                 .unitType(new UnitType("work"))
-                .generatorType(Arrays.asList("11", "22"))
+                .generatorType(Arrays.asList("111", "2211"))
                 .province("test")
                 .metaUnitId(1)
                 .capacity("1")
@@ -101,7 +100,7 @@ public class BasicTest {
 
         demoMetaUnitMapper.insert(build);
         DemoMetaUnit demoMetaUnit = demoMetaUnitMapper.selectById(1);
-        System.out.println("ss");
+        Assertions.assertEquals(build, demoMetaUnit);
 
     }
 

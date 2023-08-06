@@ -95,6 +95,8 @@ create table unique_id
 alter table unique_id
     add primary key (name_space);
 
+drop table if exists demo_meta_unit;
+
 -- auto-generated definition
 create table demo_meta_unit
 (

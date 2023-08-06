@@ -1,6 +1,5 @@
 package com.stellariver.milky.infrastructure.base.database;
 
-import com.stellariver.milky.common.base.ErrorEnum;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.infrastructure.base.ErrorEnums;
 import org.apache.commons.lang3.StringUtils;
@@ -11,7 +10,6 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
