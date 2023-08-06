@@ -13,6 +13,7 @@ import com.intellij.database.util.DasUtil
 
 packageName = "com.sample;"
 typeMapping = [
+   (~/(?i)tinyint/)                 : "Boolean",
   (~/(?i)int|smallint unsigned/)    : "Integer",
   (~/(?i)bigint/)                   : "Long",
   (~/(?i)float|double|decimal|real/): "Double",
