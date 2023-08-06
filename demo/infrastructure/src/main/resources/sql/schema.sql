@@ -94,3 +94,15 @@ create table unique_id
 
 alter table unique_id
     add primary key (name_space);
+
+-- auto-generated definition
+create table demo_meta_unit
+(
+    meta_unit_id   int          null,
+    name           varchar(64)  null,
+    province       varchar(16)  null,
+    unit_type      varchar(16)  null,
+    source_id      int          null,
+    capacity       varchar(256) null,
+    generator_type varchar(16)  null
+);
