@@ -123,7 +123,8 @@ public class ValidateUtil {
         Class<?> clazz = param.getClass();
         Map<Class<?>, Method> customValidations = customValidMap.get(clazz);
         if (customValidations == null){
-            List<Method> methods = Arrays.stream(param.getClass().getDeclaredMethods())
+
+            List<Method> methods = Reflect.ancestorClasses(param.getClass()).stream().flatMap(c -> Arrays.stream(c.getDeclaredMethods()))
                     .filter(m -> m.isAnnotationPresent(CustomValid.class)).peek(CUSTOM_VALID_FORMAT).collect(Collectors.toList());
 
             customValidations = new HashMap<>();

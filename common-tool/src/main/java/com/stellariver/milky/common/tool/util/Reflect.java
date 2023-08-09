@@ -17,16 +17,16 @@ public class Reflect {
 
     @SuppressWarnings("unchecked")
     static public <T> List<Class<? extends T>> ancestorClasses(Class<? extends T> clazz) {
-        List<Class<? extends T>> classes = new ArrayList<>(Collections.singletonList(clazz));
-        Class<?> superClazz = clazz.getSuperclass();
-        while (!Objects.equals(superClazz, Object.class)) {
+        List<Class<? extends T>> classes = new ArrayList<>();
+        Class<?> superClazz = clazz;
+        do {
             classes.add((Class<? extends T>) superClazz);
             superClazz = superClazz.getSuperclass();
-        }
-        classes.add((Class<? extends T>) superClazz);
+        } while (superClazz != null);
         Collections.reverse(classes);
         return classes;
     }
+
 
     public static <T extends AccessibleObject> T setAccessible(T object) {
         return AccessController.doPrivileged(new SetAccessibleAction<>(object));
