@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.wire;
+package com.stellariver.milky.common.base;
 
 import java.lang.annotation.*;
 
