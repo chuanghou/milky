@@ -21,8 +21,8 @@ import java.lang.annotation.*;
  *   private Long number0;
  *   private Long number1
  *
- *   &#64;CustomValid
- *   public void customValid() {
+ *   &#64;AfterValidation
+ *   public void afterValidation() {
  *     if (number0 == null || number1 == null) {
  *         throw new BizException("number 0 or number 1 is null")
  *     }

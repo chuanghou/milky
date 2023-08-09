@@ -42,7 +42,7 @@ public class ValidateUtil {
 
     static final private ExecutableValidator EXECUTABLE_VALIDATOR = VALIDATOR.forExecutables();
 
-    final static Map<Class<?>, Map<Class<?>, Method>> customValidMap = new ConcurrentHashMap<>();
+    final static Map<Class<?>, Map<Class<?>, Method>> afterValidationMap = new ConcurrentHashMap<>();
 
     /**
      *
@@ -121,28 +121,28 @@ public class ValidateUtil {
 
 
         Class<?> clazz = param.getClass();
-        Map<Class<?>, Method> customValidations = customValidMap.get(clazz);
-        if (customValidations == null){
+        Map<Class<?>, Method> afterValidations = afterValidationMap.get(clazz);
+        if (afterValidations == null){
 
             List<Method> methods = Reflect.ancestorClasses(param.getClass()).stream().flatMap(c -> Arrays.stream(c.getDeclaredMethods()))
                     .filter(m -> m.isAnnotationPresent(AfterValidation.class)).peek(CUSTOM_VALID_FORMAT).collect(Collectors.toList());
 
-            customValidations = new HashMap<>();
+            afterValidations = new HashMap<>();
             for (Method method : methods) {
                 AfterValidation anno = method.getAnnotation(AfterValidation.class);
                 List<Class<?>> groupList =  anno.groups().length == 0 ? Collect.asList(Default.class) : Collect.asList(anno.groups());
                 for (Class<?> group : groupList) {
-                    Method oldValue = customValidations.put(group, method);
+                    Method oldValue = afterValidations.put(group, method);
                     SysEx.trueThrow(oldValue != null,
                             REPEAT_VALIDATE_GROUP.message(format("repeat group %s validation", group)));
                 }
             }
-            customValidMap.put(clazz, customValidations);
+            afterValidationMap.put(clazz, afterValidations);
         }
 
         List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
-            Kit.op(customValidMap.get(clazz)).map(map -> map.get(g)).ifPresent(m -> {
+            Kit.op(afterValidationMap.get(clazz)).map(map -> map.get(g)).ifPresent(m -> {
                 boolean b = m.getAnnotation(AfterValidation.class).implementBySubClass();
                 Reflect.invoke(m, b ? BeanUtil.getBean(param.getClass()) : param);
             });
