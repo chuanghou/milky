@@ -3,7 +3,6 @@ package com.stellariver.milky.domain.support.command;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.stellariver.milky.common.base.BeanLoader;
-import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Kit;
@@ -26,17 +25,19 @@ import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor
 import lombok.CustomLog;
 import lombok.Data;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.stellariver.milky.common.base.ErrorEnumsBase.*;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.CONCURRENCY_VIOLATION;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
 import static com.stellariver.milky.domain.support.command.HandlerType.CONSTRUCTOR_HANDLER;
 import static com.stellariver.milky.domain.support.command.HandlerType.INSTANCE_HANDLER;
 
@@ -66,10 +67,6 @@ public class CommandBus {
                     && Command.class.isAssignableFrom(method.getParameterTypes()[0])
                     && AggregateRoot.class.isAssignableFrom(method.getParameterTypes()[1])
                     && method.getParameterTypes()[2] == Context.class;
-
-
-    private static final Predicate<Field> MILKY_WIRED_FIELD =
-            field -> Modifier.isStatic(field.getModifiers()) && field.getType().isInterface();
 
 
     volatile private static CommandBus instance;
@@ -521,87 +518,6 @@ public class CommandBus {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
-    static public void wire() {
-
-        List<Field> fields0 = instance.aggregateClasses.stream()
-                .flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
-        List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream()
-                .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
-        List<Field> fields2 = instance.eventBus.getFinalRouters().stream()
-                .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
-
-        Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
-                .filter(field -> field.isAnnotationPresent(Milkywired.class))
-                .peek(field -> SysEx.falseThrowGet(MILKY_WIRED_FIELD.test(field), () -> FIELD_FORMAT_WRONG.param("field", field.getName())))
-                .forEach(field -> {
-                    Class<?> type = field.getType();
-                    Milkywired annotation = field.getAnnotation(Milkywired.class);
-                    String name = annotation.name();
-                    Optional<Object> beanOptional;
-                    if (StringUtils.isNotBlank(name)) {
-                        beanOptional = BeanUtil.getBeanOptional(name);
-                    } else {
-                        beanOptional = (Optional<Object>) BeanUtil.getBeanOptional(type);
-                    }
-
-                    if (beanOptional.isPresent()) {
-                        boolean fit = type.isAssignableFrom(beanOptional.get().getClass());
-                        SysEx.falseThrow(fit, CONFIG_ERROR.message("found bean "));
-                    } else {
-                        SysEx.trueThrow(annotation.required(), MILKY_WIRED_FAILURE.message(name));
-                    }
-
-                    if (beanOptional.isPresent()) {
-                        List<Method> methods = Collect.filter(type.getMethods(), m -> m.isAnnotationPresent(Traced.class));
-                        Object bean = beanOptional.get();
-                        if (!methods.isEmpty()) {
-                            bean = buildProxyBean(type, bean);
-                        }
-                        try {
-                            Reflect.setAccessible(field);
-                            field.set(null, bean);
-                        } catch (IllegalAccessException ignore) {}
-                    }
-                });
-
-    }
-
-    private static Object buildProxyBean(Class<?> type, Object bean) {
-        return Proxy.newProxyInstance(bean.getClass().getClassLoader(), new Class[]{type},
-                (proxy, method, args) -> {
-                    Object result = Reflect.invoke(method, bean, args);
-                    Traced traced = method.getAnnotation(Traced.class);
-                    if (traced != null) {
-                        List<Trace> traces = THREAD_LOCAL_CONTEXT.get().getTraces();
-                        Trace trace = Trace.builder().bean(bean).method(method).params(args).result(result).build();
-                        traces.add(trace);
-                    }
-                    return result;
-                });
-    }
-
-
-    static public void unwWire() {
-
-        List<Field> fields0 = instance.aggregateClasses.stream()
-                .flatMap(c -> Arrays.stream(c.getDeclaredFields())).collect(Collectors.toList());
-        List<Field> fields1 = instance.eventBus.getEventRouterMap().values().stream()
-                .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
-        List<Field> fields2 = instance.eventBus.getFinalRouters().stream()
-                .flatMap(e -> Arrays.stream(e.getClass().getDeclaredFields())).collect(Collectors.toList());
-
-        Stream.of(fields0, fields1, fields2).flatMap(Collection::stream)
-                .filter(field -> field.isAnnotationPresent(Milkywired.class))
-                .forEach(field -> {
-                    field.setAccessible(true);
-                    try {
-                        field.set(null, null);
-                    } catch (IllegalAccessException ignore) {}
-                });
-
-    }
-
     @Data
     static private class Handler {
 
@@ -623,7 +539,6 @@ public class CommandBus {
 
 
     public void close() {
-        unwWire();
         instance = null;
     }
 

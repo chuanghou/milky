@@ -14,12 +14,11 @@ import com.stellariver.milky.domain.support.interceptor.Interceptors;
 import com.stellariver.milky.domain.support.util.AsyncExecutorConfiguration;
 import com.stellariver.milky.domain.support.util.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +30,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * @author houchuang
  */
-@CustomLog
+@Slf4j
 @EnableConfigurationProperties(MilkProperties.class)
 public class DomainSupportAutoConfiguration {
 
@@ -91,7 +90,7 @@ public class DomainSupportAutoConfiguration {
     @ConditionalOnMissingBean
     public ThreadLocalTransferableExecutor asyncExecutor(@Autowired(required = false) List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setUncaughtExceptionHandler((t, e) -> log.with("threadName", t.getName()).error(e.getMessage(), e))
+                .setUncaughtExceptionHandler((t, e) -> log.error("ThreadLocalTransferableExecutor", e))
                 .setNameFormat("async-thread-%d")
                 .build();
 
@@ -115,12 +114,6 @@ public class DomainSupportAutoConfiguration {
     @Bean
     public DomainTunnel domainTunnel() {
         return new DomainTunnelImpl();
-    }
-
-
-    @Bean
-    public ApplicationRunner milkyApplicationRunner() {
-        return args -> CommandBus.wire();
     }
 
 }

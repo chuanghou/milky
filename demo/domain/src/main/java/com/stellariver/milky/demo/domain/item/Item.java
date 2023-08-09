@@ -17,7 +17,6 @@ import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.command.ConstructorHandler;
 import com.stellariver.milky.domain.support.command.MethodHandler;
 import com.stellariver.milky.domain.support.context.Context;
-import com.stellariver.milky.domain.support.dependency.Milkywired;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
@@ -49,7 +48,7 @@ public class Item extends AggregateRoot {
     @StaticWire
     static UserInfoRepository staticUserInfoRepository;
 
-    @Milkywired
+    @StaticWire
     static UserInfoRepository userInfoRepository;
 
     protected Item(ItemCreateCommand command, Context context) {
