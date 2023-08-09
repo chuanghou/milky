@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.BizEx;
-import com.stellariver.milky.common.base.CustomValid;
+import com.stellariver.milky.common.base.AfterValidation;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,12 +19,12 @@ public class ValidEntity {
     String name;
 
 
-    @CustomValid
+    @AfterValidation
     public void numberTest() {
         BizEx.trueThrow(number == null, PARAM_IS_NULL.message("number不能为空"), false);
     }
 
-    @CustomValid(groups = NameGroup.class)
+    @AfterValidation(groups = NameGroup.class)
     public void nameTest() {
         BizEx.trueThrow(name == null, PARAM_IS_NULL.message("name不能为空"), false);
     }

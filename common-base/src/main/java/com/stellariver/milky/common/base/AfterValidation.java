@@ -3,7 +3,7 @@ package com.stellariver.milky.common.base;
 import java.lang.annotation.*;
 
 /**
- * Milky tool ValidateUtil could recognize a method with annotation {@link CustomValid} inside a param class
+ * Milky tool ValidateUtil could recognize a method with annotation {@link AfterValidation} inside a param class
  * and invoke the method when the param instance is being checked its validity.
  * The method should be with void return type, public access and empty parameters.
  * if the param is not valid, a runtime exception should be thrown
@@ -39,7 +39,7 @@ import java.lang.annotation.*;
 @Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CustomValid {
+public @interface AfterValidation {
 
     /**
      * JSR 303 group implementation

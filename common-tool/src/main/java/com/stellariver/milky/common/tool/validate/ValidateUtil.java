@@ -125,11 +125,11 @@ public class ValidateUtil {
         if (customValidations == null){
 
             List<Method> methods = Reflect.ancestorClasses(param.getClass()).stream().flatMap(c -> Arrays.stream(c.getDeclaredMethods()))
-                    .filter(m -> m.isAnnotationPresent(CustomValid.class)).peek(CUSTOM_VALID_FORMAT).collect(Collectors.toList());
+                    .filter(m -> m.isAnnotationPresent(AfterValidation.class)).peek(CUSTOM_VALID_FORMAT).collect(Collectors.toList());
 
             customValidations = new HashMap<>();
             for (Method method : methods) {
-                CustomValid anno = method.getAnnotation(CustomValid.class);
+                AfterValidation anno = method.getAnnotation(AfterValidation.class);
                 List<Class<?>> groupList =  anno.groups().length == 0 ? Collect.asList(Default.class) : Collect.asList(anno.groups());
                 for (Class<?> group : groupList) {
                     Method oldValue = customValidations.put(group, method);
@@ -143,7 +143,7 @@ public class ValidateUtil {
         List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
             Kit.op(customValidMap.get(clazz)).map(map -> map.get(g)).ifPresent(m -> {
-                boolean b = m.getAnnotation(CustomValid.class).implementBySubClass();
+                boolean b = m.getAnnotation(AfterValidation.class).implementBySubClass();
                 Reflect.invoke(m, b ? BeanUtil.getBean(param.getClass()) : param);
             });
         }
