@@ -20,6 +20,9 @@ import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
 import com.stellariver.milky.demo.domain.service.ItemCreatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;
+import com.stellariver.milky.demo.infrastructure.database.entity.DemoMetaUnit;
+import com.stellariver.milky.demo.infrastructure.database.entity.UnitType;
+import com.stellariver.milky.demo.infrastructure.database.mapper.DemoMetaUnitMapper;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
 import com.stellariver.milky.domain.support.base.DomainTunnel;
@@ -37,6 +40,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static org.mockito.Mockito.argThat;
@@ -77,6 +81,28 @@ public class BasicTest {
 
     @Autowired
     DomainTunnel domainTunnel;
+
+
+    @Autowired
+    DemoMetaUnitMapper demoMetaUnitMapper;
+
+    @Test
+    public void testFullTextHandler() {
+        DemoMetaUnit build = DemoMetaUnit.builder()
+                .name("test")
+                .unitType(new UnitType("work"))
+                .generatorType(Arrays.asList("111", "2211"))
+                .province("test")
+                .metaUnitId(1)
+                .capacity("1")
+                .sourceId(1)
+                .build();
+
+        demoMetaUnitMapper.insert(build);
+        DemoMetaUnit demoMetaUnit = demoMetaUnitMapper.selectById(1);
+        Assertions.assertEquals(build, demoMetaUnit);
+
+    }
 
     @Test
     public void publishItemDOTest() {
