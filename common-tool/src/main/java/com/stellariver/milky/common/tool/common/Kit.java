@@ -128,4 +128,10 @@ public class Kit {
         return defaultValue;
     }
 
+
+    static public <T> T q(Boolean b, T trueValue, T falseValue) {
+        SysEx.nullThrow(b);
+        return b ? trueValue : falseValue;
+    }
+
 }
