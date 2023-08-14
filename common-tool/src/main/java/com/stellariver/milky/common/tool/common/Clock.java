@@ -11,12 +11,14 @@ public class Clock {
 
     private final long period;
     volatile private long now;
-    volatile int today;
+    volatile int todayInteger;
+    volatile String todayString;
 
     private Clock(long period) {
         this.period = period;
         this.now = System.currentTimeMillis();
-        this.today = Integer.parseInt(DateFormatUtils.format(new Date(now), "yyyyMMdd"));
+        this.todayString = DateFormatUtils.format(new Date(now), "yyyyMMdd");
+        this.todayInteger = Integer.parseInt(this.todayString);
         scheduleClockUpdating();
     }
 
@@ -28,7 +30,8 @@ public class Clock {
         });
         scheduler.scheduleAtFixedRate(() -> {
             now = System.currentTimeMillis();
-            today = Integer.parseInt(DateFormatUtils.format(new Date(now), "yyyyMMdd"));
+            todayString = DateFormatUtils.format(new Date(now), "yyyyMMdd");
+            todayInteger = Integer.parseInt(todayString);
         }, period, period, TimeUnit.MILLISECONDS);
     }
 
@@ -46,12 +49,15 @@ public class Clock {
         return new Date(currentTimeMillis() - 1000L * 3600 * 24 * days);
     }
 
-    public static int today() {
-        return INSTANCE.today;
+    public static int todayInteger() {
+        return INSTANCE.todayInteger;
+    }
+    public static String todayString() {
+        return INSTANCE.todayString;
     }
 
     public static int beforeToday(int days) {
-        return INSTANCE.today - days;
+        return INSTANCE.todayInteger - days;
     }
 
 }

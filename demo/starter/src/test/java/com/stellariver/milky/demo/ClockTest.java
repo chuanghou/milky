@@ -8,6 +8,6 @@ public class ClockTest {
 
     @Test
     public void testClock() {
-        Assertions.assertNotEquals(Clock.today(), 0);
+        Assertions.assertNotEquals(Clock.todayInteger(), 0);
     }
 }
