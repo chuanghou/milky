@@ -32,6 +32,7 @@ public class Option<R, T> {
 
     Function<R, String> rSelector;
 
+    @Builder.Default
     List<Function<Object, String>> argsSelectors = new ArrayList<>();
 
     @Builder.Default
