@@ -3,6 +3,7 @@ package com.stellariver.milky.common.tool.common;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -29,6 +30,8 @@ public class Option<R, T> {
     Function<R, T> transfer;
 
     Function<R, String> rSelector;
+
+    List<Function<Object, String>> argsSelectors;
 
     @Builder.Default
     @SuppressWarnings("unchecked")
