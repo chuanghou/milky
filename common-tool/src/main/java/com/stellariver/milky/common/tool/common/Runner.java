@@ -105,8 +105,9 @@ public class Runner {
                     args = SLambda.resolveArgs(sCallable);
                     Function<R, String> printer = Kit.op(option.getRSelector()).orElse(Objects::toString);
                     for (int i = 0; i < args.size() - 1; i++) {
+                        Object arg = args.get(i + 1);
                         boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
-                        String arg = b ? args.get(i + 1).toString() : argsSelectors.get(i).apply(args.get(i));
+                        String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
                         log.with("arg" + i, arg);
                     }
                     log.result(printer.apply(result)).success(true).cost(Clock.currentTimeMillis() - now).info(lambdaId.getKey());
@@ -114,15 +115,17 @@ public class Runner {
                     args = SLambda.resolveArgs(sCallable);
                     if (retryTimes == 0) {
                         for (int i = 0; i < args.size() - 1; i++) {
+                            Object arg = args.get(i + 1);
                             boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
-                            String arg = b ? args.get(i + 1).toString() : argsSelectors.get(i).apply(args.get(i));
+                            String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
                             log.with("arg" + i, arg);
                         }
                         log.success(true).cost(Clock.currentTimeMillis() - now).error(logTag, throwableBackup);
                     } else {
                         for (int i = 0; i < args.size() - 1; i++) {
+                            Object arg = args.get(i + 1);
                             boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
-                            String arg = b ? args.get(i + 1).toString() : argsSelectors.get(i).apply(args.get(i));
+                            String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
                             log.with("arg" + i, arg);
                         }
                         log.success(true).cost(Clock.currentTimeMillis() - now).warn(logTag, throwableBackup);
