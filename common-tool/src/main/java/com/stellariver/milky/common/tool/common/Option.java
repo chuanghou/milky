@@ -3,6 +3,7 @@ package com.stellariver.milky.common.tool.common;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -31,7 +32,7 @@ public class Option<R, T> {
 
     Function<R, String> rSelector;
 
-    List<Function<Object, String>> argsSelectors;
+    List<Function<Object, String>> argsSelectors = new ArrayList<>();
 
     @Builder.Default
     @SuppressWarnings("unchecked")
