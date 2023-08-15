@@ -108,7 +108,7 @@ public class Runner {
                         Object arg = args.get(i + 1);
                         boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
                         String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
-                        log.with("arg" + i, arg);
+                        log.with("arg" + i, argString);
                     }
                     log.result(printer.apply(result)).success(true).cost(Clock.currentTimeMillis() - now).info(lambdaId.getKey());
                 } else if (throwableBackup != null){
@@ -118,7 +118,7 @@ public class Runner {
                             Object arg = args.get(i + 1);
                             boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
                             String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
-                            log.with("arg" + i, arg);
+                            log.with("arg" + i, argString);
                         }
                         log.success(true).cost(Clock.currentTimeMillis() - now).error(logTag, throwableBackup);
                     } else {
@@ -126,7 +126,7 @@ public class Runner {
                             Object arg = args.get(i + 1);
                             boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
                             String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
-                            log.with("arg" + i, arg);
+                            log.with("arg" + i, argString);
                         }
                         log.success(true).cost(Clock.currentTimeMillis() - now).warn(logTag, throwableBackup);
                     }
