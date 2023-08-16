@@ -106,6 +106,7 @@ public class Runner {
                     Function<R, String> printer = Kit.op(option.getRSelector()).orElse(Objects::toString);
                     for (int i = 0; i < args.size() - 1; i++) {
                         Object arg = args.get(i + 1);
+                        arg = Kit.whenNull(arg, "NULL_ARG");
                         boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
                         String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
                         log.with("arg" + i, argString);
@@ -125,6 +126,7 @@ public class Runner {
                     } else {
                         for (int i = 0; i < args.size() - 1; i++) {
                             Object arg = args.get(i + 1);
+                            arg = Kit.whenNull(arg, "NULL_ARG");
                             boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
                             String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
                             log.with("arg" + i, argString);
