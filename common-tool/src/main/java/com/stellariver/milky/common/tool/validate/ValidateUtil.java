@@ -6,7 +6,6 @@ import com.stellariver.milky.common.base.AfterValidation;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.SysEx;
-import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -144,11 +143,12 @@ public class ValidateUtil {
 
         List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
         for (Class<?> g : groupList) {
-            Kit.op(afterValidationMap.get(clazz)).map(map -> map.get(g)).ifPresent(ms -> ms.forEach(m -> Reflect.invoke(m, param)));
+            afterValidations.get(g).forEach(m -> Reflect.invoke(m, param));
         }
 
 
     }
+
 
     private static void check(Set<ConstraintViolation<Object>> validateResult, ExceptionType type) {
         if (Collect.isNotEmpty(validateResult)) {
