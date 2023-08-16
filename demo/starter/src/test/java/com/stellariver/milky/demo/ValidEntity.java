@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.AfterValidation;
+import com.stellariver.milky.common.base.BizEx;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
