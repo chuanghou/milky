@@ -19,10 +19,10 @@ public abstract class AbstractPageQuery {
 
     @NotNull
     @Positive
-    Long pageIndex;
+    Integer pageIndex;
 
     @NotNull
     @Positive
-    Long pageSize;
+    Integer pageSize;
 
 }
