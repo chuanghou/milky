@@ -5,7 +5,7 @@ import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
-import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
+import com.stellariver.milky.common.tool.executor.ThreadLocalTransferableExecutor;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;

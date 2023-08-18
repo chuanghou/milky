@@ -1,4 +1,4 @@
-package com.stellariver.milky.domain.support.util;
+package com.stellariver.milky.common.tool.executor;
 
 import com.stellariver.milky.common.tool.common.Kit;
 import lombok.NonNull;

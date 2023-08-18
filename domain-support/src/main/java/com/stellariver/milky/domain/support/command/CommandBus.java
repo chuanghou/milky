@@ -21,7 +21,7 @@ import com.stellariver.milky.domain.support.interceptor.Intercept;
 import com.stellariver.milky.domain.support.interceptor.Interceptor;
 import com.stellariver.milky.domain.support.interceptor.PosEnum;
 import com.stellariver.milky.domain.support.invocation.InvokeTrace;
-import com.stellariver.milky.domain.support.util.ThreadLocalTransferableExecutor;
+import com.stellariver.milky.common.tool.executor.ThreadLocalTransferableExecutor;
 import lombok.CustomLog;
 import lombok.Data;
 import lombok.NonNull;

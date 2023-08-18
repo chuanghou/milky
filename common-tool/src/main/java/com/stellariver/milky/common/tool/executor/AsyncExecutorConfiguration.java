@@ -1,4 +1,4 @@
-package com.stellariver.milky.domain.support.util;
+package com.stellariver.milky.common.tool.executor;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
