@@ -11,11 +11,11 @@ public class DomainTunnelImpl implements DomainTunnel{
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends AggregateRoot> Optional<T> getByAggregateIdOptional(Class<T> aggregateClazz, String aggregateId) {
+    public <T extends AggregateRoot> Optional<T> getByAggregateIdOptional(Class<T> aggregateClazz, Object aggregateId) {
 
         DaoAdapter<? extends AggregateRoot> daoAdapter = CommandBus.getDaoAdapter(aggregateClazz);
 
-        DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
+        DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId.toString());
 
         Class<? extends BaseDataObject<?>> dataObjectInfoClazz = dataObjectInfo.getClazz();
 
