@@ -15,12 +15,12 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Paginator implements Serializable {
 
-    long total;
+    Integer total;
 
-    long pageNo;
+    Integer pageNo;
 
-    long pageSize;
+    Integer pageSize;
 
-    long pageCount;
+    Integer pageCount;
 
 }

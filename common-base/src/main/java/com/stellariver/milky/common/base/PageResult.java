@@ -19,7 +19,7 @@ public class PageResult<T> extends Result<List<T>> {
         super();
     }
 
-    private PageResult(List<T> data, long total, long pageNo, long pageSize) {
+    private PageResult(List<T> data, Integer total, Integer pageNo, Integer pageSize) {
         this.success = true;
         this.data = data;
         paginator.setPageNo(pageNo);
@@ -32,12 +32,12 @@ public class PageResult<T> extends Result<List<T>> {
         return this.paginator;
     }
 
-    public static <T> PageResult<T> success(List<T> data, long total, long pageNo, long pageSize) {
+    public static <T> PageResult<T> success(List<T> data, Integer total, Integer pageNo, Integer pageSize) {
         return new PageResult<>(data, total, pageNo, pageSize);
     }
 
-    public static <T> PageResult<T> empty(long pageSize) {
-        return success(Collections.emptyList(), 0L, 1, pageSize);
+    public static <T> PageResult<T> empty(Integer pageSize) {
+        return success(Collections.emptyList(), 0, 1, pageSize);
     }
 
     public static <T> PageResult<T> pageError(ErrorEnum errorEnum, ExceptionType type) {
