@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.text.StringSubstitutor;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -15,7 +16,7 @@ import java.util.function.Supplier;
  */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ErrorEnum {
+public class ErrorEnum implements Serializable {
 
     String code;
     String message;
