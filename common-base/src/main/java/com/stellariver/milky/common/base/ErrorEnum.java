@@ -2,6 +2,7 @@ package com.stellariver.milky.common.base;
 
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.text.StringSubstitutor;
@@ -15,6 +16,7 @@ import java.util.function.Supplier;
  * @author houchuang
  */
 @Data
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ErrorEnum implements Serializable {
 
