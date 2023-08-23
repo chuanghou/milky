@@ -32,7 +32,7 @@ public class SshClient {
         session.connect(30000);
         this.channel = (ChannelExec) session.openChannel("exec");
         InputStream in = channel.getInputStream();
-        channel.setCommand("ipconfig");
+        channel.setCommand("dir");
         channel.setErrStream(System.err);
         channel.connect();
         String result = IOUtils.toString(in, "GBK");
