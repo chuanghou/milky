@@ -83,7 +83,7 @@
             <groupId>com.stellariver.milky.demo</groupId>
             <artifactId>infrastructure</artifactId>
         </dependency>
-        <!--for jacoco report start-->
+        <!--for jacoco report end-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
