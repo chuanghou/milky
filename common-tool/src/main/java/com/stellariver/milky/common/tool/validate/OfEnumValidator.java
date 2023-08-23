@@ -22,6 +22,8 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
 
     private final Set<Object> enumKeys = new HashSet<>();
 
+    private boolean blankAsNull = false;
+
     @Override
     public void initialize(OfEnum anno) {
         Class<? extends Enum<?>> clazz = anno.enumType();
@@ -50,11 +52,17 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
             enumKeys.add(key);
         }
 
+        if (anno.blankAsNull()) {
+            blankAsNull = true;
+        }
+
     }
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext constraintValidatorContext) {
         if (value == null) {
+            return true;
+        } else if (value instanceof String && StringUtils.isBlank((String)value) && blankAsNull) {
             return true;
         }
         boolean valid = enumKeys.contains(value);

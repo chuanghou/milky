@@ -28,6 +28,8 @@ public @interface OfEnum {
      */
     String field() default "";
 
+    boolean blankAsNull() default false;
+
     /**
      * when the check key is enum name or the field selected is String type
      * the selected values could be a subset code of selected enum values
