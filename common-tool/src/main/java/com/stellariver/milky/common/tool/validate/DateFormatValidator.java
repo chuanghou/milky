@@ -4,6 +4,7 @@ import com.stellariver.milky.common.base.Compare;
 import com.stellariver.milky.common.base.DateFormat;
 import com.stellariver.milky.common.tool.common.Clock;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -18,18 +19,23 @@ public class DateFormatValidator implements ConstraintValidator<DateFormat, Obje
     private String format;
     private Compare compare;
     private Duration delay;
+    private boolean blankAsNull;
 
     @Override
     public void initialize(DateFormat anno) {
         format = anno.format();
         compare = anno.compare();
         delay = Duration.of(anno.delay(), anno.unit());
+        blankAsNull = anno.blankAsNull();
     }
 
     @Override
     @SneakyThrows
     public boolean isValid(Object value, ConstraintValidatorContext constraintValidatorContext) {
         if (value == null) {
+            return true;
+        }
+        if (value instanceof String && StringUtils.isBlank((String) value) && blankAsNull) {
             return true;
         }
         Date param;

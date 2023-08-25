@@ -31,4 +31,6 @@ public @interface DateFormat {
 
     Class<? extends Payload>[] payload() default {};
 
+    boolean blankAsNull() default false;
+
 }
