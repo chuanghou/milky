@@ -16,8 +16,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ValidateUtilTest {
 
@@ -389,19 +388,26 @@ public class ValidateUtilTest {
     @Data
     @FieldDefaults(level = AccessLevel.PRIVATE)
     static public class Entity {
-        @NotNull
+        @NotNull(message = "不可为空")
         Long number;
     }
     static public class TestCollection {
-        @Valid
-        private List<Entity> entities;
+        @Valids
+        private List<Entity> entities = Collections.singletonList(new Entity());
 
     }
 
     @Test
     public void test() {
         TestCollection testCollection = new TestCollection();
-        ValidateUtil.validate(testCollection);
+         String message = null;
+        try {
+            ValidateUtil.validate(testCollection);
+        } catch (BizEx bizEx) {
+            message = bizEx.getMessage();
+        }
+        Assertions.assertEquals(message, "不可为空");
+
     }
 
 }
