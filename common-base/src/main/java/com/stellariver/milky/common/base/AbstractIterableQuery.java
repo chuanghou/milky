@@ -20,8 +20,7 @@ public abstract class AbstractIterableQuery implements Serializable {
 
     String nexPageKey;
 
-    @NotNull
-    @Positive
-    Long pageSize;
+    @NotNull @Positive
+    Integer pageSize;
 
 }

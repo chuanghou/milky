@@ -40,7 +40,7 @@ public class PageQueryTest {
             builder = itemDO.toBuilder();
         }
 
-        ItemDTOIterableQuery query = ItemDTOIterableQuery.builder().userId(10001L).pageSize(10L).build();
+        ItemDTOIterableQuery query = ItemDTOIterableQuery.builder().userId(10001L).pageSize(10).build();
 
         IteratableResult<ItemDTO> itemDTOIteratableResult = itemQueryService.pageQueryItemDTO(query);
 
