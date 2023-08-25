@@ -2,10 +2,7 @@ package com.stellariver.milky.common.tool.validate;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.stellariver.milky.common.base.AfterValidation;
-import com.stellariver.milky.common.base.BizEx;
-import com.stellariver.milky.common.base.ExceptionType;
-import com.stellariver.milky.common.base.SysEx;
+import com.stellariver.milky.common.base.*;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -59,14 +56,13 @@ public class ValidateUtil {
      * @param type exception type
      * @param groups the selected group
      */
-    //TODO search on internet are there extend supports for static method ?
     public static void validate(Object object, Method method, Object returnValue, boolean failFast, ExceptionType type, Class<?>... groups) {
         if (!Modifier.isStatic(method.getModifiers())) {
             ExecutableValidator executableValidator = failFast ? EXECUTABLE_FAIL_FAST_VALIDATOR : EXECUTABLE_VALIDATOR;
             Set<ConstraintViolation<Object>> validateResult = executableValidator.validateReturnValue(object, method, returnValue, groups);
             check(validateResult, type);
         } else {
-            logger.arg0(method.toGenericString()).warn("NOT_SUPPORT_STATIC_METHOD");
+            throw new SysEx(ErrorEnumsBase.NOT_SUPPORT_STATIC_METHOD);
         }
         if (returnValue != null) {
             validate(returnValue, type, failFast, groups);
@@ -89,7 +85,7 @@ public class ValidateUtil {
             Set<ConstraintViolation<Object>> validateResult = executableValidator.validateParameters(object, method, params, groups);
             check(validateResult, type);
         } else {
-            logger.arg0(method.toGenericString()).warn("NOT_SUPPORT_STATIC_METHOD");
+            throw new SysEx(ErrorEnumsBase.NOT_SUPPORT_STATIC_METHOD);
         }
         Arrays.stream(params).filter(Objects::nonNull).forEach(param -> validate(param, type, failFast, groups));
     }
@@ -152,7 +148,6 @@ public class ValidateUtil {
 
     private static void check(Set<ConstraintViolation<Object>> validateResult, ExceptionType type) {
         if (Collect.isNotEmpty(validateResult)) {
-
             List<String> messages = Collect.transfer(validateResult, ConstraintViolation::getMessage);
             String message = StringUtils.join(messages, ';');
             if (type == ExceptionType.BIZ) {

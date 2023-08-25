@@ -24,9 +24,9 @@ public class ErrorEnumsBase {
 
     public static ErrorEnum NOT_VALID_NET_ADDRESS;
 
-    public static ErrorEnum REPEAT_VALIDATE_GROUP;
+    public static ErrorEnum NOT_SUPPORT_STATIC_METHOD;
 
-    public static ErrorEnum MILKY_WIRED_FAILURE;
+    public static ErrorEnum VALIDATED_SUPPORT_COLLECTION_MAP;
 
     public static ErrorEnum LOAD_NEXT_SECTION_LIMIT;
 

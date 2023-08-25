@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.List;
 
 public class ValidateUtilTest {
 
@@ -384,5 +385,23 @@ public class ValidateUtilTest {
 
     }
 
+
+    @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    static public class Entity {
+        @NotNull
+        Long number;
+    }
+    static public class TestCollection {
+        @Valid
+        private List<Entity> entities;
+
+    }
+
+    @Test
+    public void test() {
+        TestCollection testCollection = new TestCollection();
+        ValidateUtil.validate(testCollection);
+    }
 
 }
