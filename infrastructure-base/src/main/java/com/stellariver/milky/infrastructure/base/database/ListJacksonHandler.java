@@ -45,6 +45,6 @@ public abstract class ListJacksonHandler<T> extends BaseTypeHandler<List<T>> {
         return cs.wasNull() ? new ArrayList<>() : Json.parseList(result, getElementType());
     }
 
-    abstract Class<T> getElementType();
+    abstract protected Class<T> getElementType();
 
 }
