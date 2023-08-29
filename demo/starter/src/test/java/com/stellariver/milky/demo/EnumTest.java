@@ -1,9 +1,8 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.common.Kit;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.junit.jupiter.api.Assertions;
+import com.stellariver.milky.common.tool.Translate;
+import com.stellariver.milky.common.tool.util.Json;
+import lombok.*;
 import org.junit.jupiter.api.Test;
 
 public class EnumTest {
@@ -11,12 +10,20 @@ public class EnumTest {
     @Test
     @SuppressWarnings("all")
     public void enumOfTest() {
-        Season season0 = Kit.enumOf(Season::getOrder, 0).get();
-        Assertions.assertEquals(season0, Season.SPRING);
-        Season season1 = Kit.enumOf(Season::getName, "夏天").get();
-        Assertions.assertEquals(season1, Season.SUMMER);
+        MyItem myItem = new MyItem(Season.SPRING);
+        System.out.println(Json.toJson(myItem));
     }
 
+    @Data
+    @AllArgsConstructor
+    static public class MyItem {
+
+        @Translate
+        Season season;
+    }
+
+
+    @Getter
     @AllArgsConstructor
     enum Season {
         SPRING(0, "春天"),
@@ -24,7 +31,7 @@ public class EnumTest {
         @Getter
         final private Integer order;
         @Getter
-        final private String name;
+        final private String desc;
     }
 
 }
