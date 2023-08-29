@@ -28,7 +28,7 @@ public class Translator extends JsonSerializer<Enum<?>> implements ContextualSer
     @Override
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
+    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) {
         Translate translate = property.getAnnotation(Translate.class);
         Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) property.getType().getRawClass();
         String fieldName = translate.field();
