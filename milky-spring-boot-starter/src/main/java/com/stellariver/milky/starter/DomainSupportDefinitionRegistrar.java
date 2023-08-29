@@ -1,11 +1,11 @@
 package com.stellariver.milky.starter;
 
+import com.stellariver.milky.common.tool.executor.ThreadLocalPasser;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
 import com.stellariver.milky.domain.support.dependency.DAOWrapper;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
-import com.stellariver.milky.common.tool.executor.ThreadLocalPasser;
 import lombok.NonNull;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;

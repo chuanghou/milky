@@ -1,17 +1,17 @@
 package com.stellariver.milky.common.tool.ssh;
 
-import com.jcraft.jsch.*;
-import lombok.*;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import lombok.AccessLevel;
+import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
