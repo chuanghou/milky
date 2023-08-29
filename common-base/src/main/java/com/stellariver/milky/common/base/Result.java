@@ -41,7 +41,7 @@ public class Result<T> implements Serializable {
 
     protected String traceId;
 
-    protected Date date = new Date();
+    protected Long date = new Date().getTime();
     /**
      * extend info may include some extent info
      */
