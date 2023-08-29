@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.util;
+package com.stellariver.milky.common.base;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -6,10 +6,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
-import com.stellariver.milky.common.tool.Translate;
 import lombok.SneakyThrows;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 
 public class Translator extends JsonSerializer<Enum<?>> implements ContextualSerializer {
@@ -17,8 +15,9 @@ public class Translator extends JsonSerializer<Enum<?>> implements ContextualSer
     private Method method;
 
     @Override
-    public void serialize(Enum<?> enumValue, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        Object value = Reflect.invoke(method, enumValue);
+    @SneakyThrows
+    public void serialize(Enum<?> enumValue, JsonGenerator gen, SerializerProvider serializers) {
+        Object value = method.invoke(enumValue);
         if (value instanceof String) {
             gen.writeString((String) value);
             return;

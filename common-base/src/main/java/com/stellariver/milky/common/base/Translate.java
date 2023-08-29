@@ -1,8 +1,7 @@
-package com.stellariver.milky.common.tool;
+package com.stellariver.milky.common.base;
 
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.stellariver.milky.common.tool.util.Translator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

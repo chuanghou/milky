@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.tool.Translate;
+import com.stellariver.milky.common.base.Translate;
 import com.stellariver.milky.common.tool.util.Json;
 import lombok.*;
 import org.junit.jupiter.api.Test;
