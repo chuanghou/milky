@@ -42,16 +42,6 @@ public class Result<T> implements Serializable {
     protected String traceId;
 
     protected Long date = new Date().getTime();
-    /**
-     * extend info may include some extent info
-     */
-    protected Map<String, Object> extendInfo;
-
-
-    public Result<T> extendInfo(Map<String, Object> extendInfo) {
-        this.extendInfo = extendInfo;
-        return this;
-    }
 
     public Result() {
         TraceIdGetterHolder.setTraceId(this);
