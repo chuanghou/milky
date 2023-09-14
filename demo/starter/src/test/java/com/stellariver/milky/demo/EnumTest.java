@@ -11,7 +11,6 @@ public class EnumTest {
     @SuppressWarnings("all")
     public void enumOfTest() {
         MyItem myItem = new MyItem(Season.SPRING);
-        System.out.println(Json.toJson(myItem));
     }
 
     @Data
