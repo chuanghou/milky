@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -62,7 +63,8 @@ public class DomainSupportAutoConfiguration {
         if (scanPackages == null) {
             scanPackages = milkyScanPackages.getScanPackages();
         }
-        ConfigurationBuilder configuration = new ConfigurationBuilder().forPackages(scanPackages).addScanners(new SubTypesScanner());
+        ConfigurationBuilder configuration = new ConfigurationBuilder().forPackages(scanPackages)
+                .addScanners(new SubTypesScanner()).filterInputsBy(new FilterBuilder().include(".*class"));
         Reflections reflections = new Reflections(configuration);
         return new MilkySupport(concurrentOperate,
                 milkyTraceRepository,

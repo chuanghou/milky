@@ -3,6 +3,7 @@ package com.stellariver.milky.spring.partner.wire;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +27,8 @@ public class StaticWireAutoConfiguration {
             packages.addAll(Arrays.asList(scanPackages));
         }
         ConfigurationBuilder configuration = new ConfigurationBuilder()
-                .forPackages(packages.toArray(new String[0])).addScanners(new FieldAnnotationsScanner());
+                .forPackages(packages.toArray(new String[0])).addScanners(new FieldAnnotationsScanner())
+                .filterInputsBy(new FilterBuilder().include(".*class"));
         Reflections reflections = new Reflections(configuration);
         return new StaticWireApplicationRunner(reflections);
     }
