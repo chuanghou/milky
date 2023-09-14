@@ -35,9 +35,19 @@ public class DateFormatValidator implements ConstraintValidator<DateFormat, Obje
         if (value == null) {
             return true;
         }
-        if (value instanceof String && StringUtils.isBlank((String) value) && blankAsNull) {
+
+        if (!(value instanceof String)) {
+            return false;
+        }
+
+        if (StringUtils.isBlank((String) value) && blankAsNull) {
             return true;
         }
+
+        if (format.length() != ((String) value).length()) {
+            return false;
+        }
+
         Date param;
         try {
              param = DateUtils.parseDate((String) value, format);
