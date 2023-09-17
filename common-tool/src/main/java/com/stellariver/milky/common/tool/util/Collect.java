@@ -268,6 +268,54 @@ public class Collect {
         };
     }
 
+    public static <T> Collector<T, List<List<T>>, List<List<T>>> select(List<Predicate<T>> predicates) {
+        return new Collector<T, List<List<T>>, List<List<T>>>() {
+            @Override
+            public Supplier<List<List<T>>> supplier() {
+                return () -> {
+                    List<List<T>> container = new ArrayList<>();
+                    for (int i = 0; i < predicates.size(); i++) {
+                        container.add(new ArrayList<>());
+                    }
+                    return container;
+                };
+            }
+
+            @Override
+            public BiConsumer<List<List<T>>, T> accumulator() {
+                return (container, t) -> {
+                    for (int i = 0; i < predicates.size(); i++) {
+                        boolean test = predicates.get(i).test(t);
+                        if (test) {
+                            container.get(i).add(t);
+                        }
+                    }
+                };
+            }
+
+            @Override
+            public BinaryOperator<List<List<T>>> combiner() {
+                return (container0, container1) -> {
+                    for (int i = 0; i < predicates.size(); i++) {
+                        container0.get(i).addAll(container1.get(i));
+                    }
+                    return container0;
+                };
+            }
+
+            @Override
+            public Function<List<List<T>>, List<List<T>>> finisher() {
+                return Function.identity();
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return Collections.singleton(Characteristics.IDENTITY_FINISH);
+            }
+
+        };
+    }
+
     public static <T, K> Collector<T, SetMultimap<K, T>, SetMultimap<K, T>> setMultiMap(Function<? super T, ? extends K> keyMapper) {
         return setMultiMap(keyMapper, Function.identity());
     }
