@@ -1,5 +1,7 @@
 package com.stellariver.milky.common.base;
 
+import com.sun.istack.internal.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,13 +40,13 @@ public class SysEx extends BaseEx {
         }
     }
 
-    static public void nullThrow(Object param) {
+    static public void nullThrow(@Nullable Object param) {
         if (param == null) {
             throw new SysEx(ErrorEnumsBase.PARAM_IS_NULL);
         }
     }
 
-    static public void nullThrow(Object param, Object message) {
+    static public void nullThrow(@Nullable Object param, Object message) {
         if (param == null) {
             throw new SysEx(ErrorEnumsBase.PARAM_IS_NULL.message(message));
         }
