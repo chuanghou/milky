@@ -69,6 +69,7 @@ public class Runner {
         int retryTimes = option.getRetryTimes();
         boolean retryable;
         do {
+            retryable = false;
             long now = Clock.currentTimeMillis();
             try {
                 if (circuitBreaker != null) {
@@ -91,7 +92,10 @@ public class Runner {
                 } else {
                     throwableBackup = throwable;
                 }
-                if (retryTimes == 0 || throwableBackup instanceof CallNotPermittedException) {
+                retryable = option.getRetryable().apply(result, throwableBackup);
+                boolean notRetry = (!retryable) || retryTimes == 0;
+
+                if (notRetry || throwableBackup instanceof CallNotPermittedException) {
                     retryTimes = 0;
                     if (!option.hasDefaultValue()) {
                         throw throwableBackup;
