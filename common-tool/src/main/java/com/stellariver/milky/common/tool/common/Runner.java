@@ -146,7 +146,6 @@ public class Runner {
                     runnerExtension.watch(args, result, lambdaId, throwableBackup);
                 }
             }
-            retryable = option.getRetryable().apply(result, throwableBackup);
             throwableBackup = null;
         } while (retryTimes-- > 0 && retryable);
         throw new SysEx("unreached part!");
