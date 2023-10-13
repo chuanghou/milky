@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -24,6 +25,9 @@ public class Option<R, T> {
 
     @Builder.Default
     int retryTimes = 0;
+
+    @Builder.Default
+    BiFunction<R, Throwable, Boolean> retryable = (r, t) -> false;
 
     @Builder.Default
     Function<R, Boolean> check = r -> true;

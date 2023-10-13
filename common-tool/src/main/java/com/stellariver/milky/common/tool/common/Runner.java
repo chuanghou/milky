@@ -67,6 +67,7 @@ public class Runner {
         R result = null;
         Throwable throwableBackup = null;
         int retryTimes = option.getRetryTimes();
+        boolean retryable;
         do {
             long now = Clock.currentTimeMillis();
             try {
@@ -141,8 +142,9 @@ public class Runner {
                     runnerExtension.watch(args, result, lambdaId, throwableBackup);
                 }
             }
+            retryable = option.getRetryable().apply(result, throwableBackup);
             throwableBackup = null;
-        } while (retryTimes-- > 0);
+        } while (retryTimes-- > 0 && retryable);
         throw new SysEx("unreached part!");
     }
 
