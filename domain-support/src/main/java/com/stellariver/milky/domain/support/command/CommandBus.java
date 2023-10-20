@@ -4,6 +4,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.base.BizEx;
+import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.Typed;
@@ -25,6 +26,7 @@ import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import lombok.CustomLog;
 import lombok.Data;
 import lombok.NonNull;
+import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
@@ -338,9 +340,9 @@ public class CommandBus {
             throw throwable;
         } finally {
             THREAD_LOCAL_CONTEXT.remove();
-            boolean b = concurrentOperate.unLockAll();
-            if (!b) {
-                log.error("UNLOCK_ALL_FAILURE");
+            Pair<Boolean, Map<String, Result<Void>>> unLockedAll = concurrentOperate.unLockAll();
+            if (!unLockedAll.getLeft()) {
+                log.arg0(unLockedAll.getRight()).error("UNLOCK_ALL_FAILURE");
             }
         }
         if (memoryTx) {
