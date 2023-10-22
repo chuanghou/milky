@@ -50,17 +50,15 @@ public class SectionLoader {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Pair<AtomicLong, Long> load(String tableName, String nameSpace) {
 
-
         String SELECT_SQL_TEMPLATE = "SELECT name_space, id, step, version FROM %s WHERE name_space = '%s';";
         String selectSql = String.format(SELECT_SQL_TEMPLATE, tableName, nameSpace);
         String UPDATE_SQL_TEMPLATE = "UPDATE %s SET id = ?, version = ? WHERE name_space = '%s' AND version = ?;";
         String updateSql = String.format(UPDATE_SQL_TEMPLATE, tableName, nameSpace);
 
-        int count;
+        int optimisticCount, times = 0;
         Pair<AtomicLong, Long> section;
-        int times = 0;
         do {
-            UniqueIdBuilder.IdBuilderDO idBuilderDO = null;
+            UniqueIdBuilder.IdBuilderDO idBuilderDO;
             try {
                 idBuilderDO = jdbcTemplate.query(selectSql, extractor);
             } catch (BadSqlGrammarException ex) {
@@ -73,12 +71,13 @@ public class SectionLoader {
                             "  `version` int(11) DEFAULT NULL,\n" +
                             "  PRIMARY KEY (`name_space`)\n" +
                             ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+                } else {
+                    throw ex;
                 }
             }
 
             if (idBuilderDO == null) {
-                String INSERT_SQL_TEMPLATE = "INSERT INTO %s VALUES('%s', %s, %s, %s);";
-                String insertSql = String.format(INSERT_SQL_TEMPLATE, tableName, nameSpace, 1, 100, 1);
+                String insertSql = String.format("INSERT INTO %s VALUES('%s', %s, %s, %s);", tableName, nameSpace, 1, 100, 1);
                 try {
                     jdbcTemplate.execute(insertSql);
                 } catch (DuplicateKeyException ignore) {}
@@ -89,23 +88,16 @@ public class SectionLoader {
                 throw new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
             }
 
-            if (idBuilderDO.getId() < 0 || idBuilderDO.getStep() < 100 || idBuilderDO.getVersion() < 0) {
-                String message = String.format("idBuildDO %s not valid", idBuilderDO);
-                throw new UniqueIdBuilder.NamespaceInitFormatException(message);
-            }
-
             AtomicLong start = new AtomicLong(idBuilderDO.getId());
             long end = idBuilderDO.getId() + idBuilderDO.getStep();
             section = Pair.of(start, end);
-            idBuilderDO.setId(idBuilderDO.getId() + idBuilderDO.getStep());
-            long newStart = idBuilderDO.getId() + idBuilderDO.getStep();
             long version = idBuilderDO.getVersion();
-            count = jdbcTemplate.update(updateSql, newStart, version + 1, version);
+            optimisticCount = jdbcTemplate.update(updateSql, end, version + 1, version);
             if (times++ > UniqueIdBuilder.MAX_TIMES) {
                 String message = String.format("uniqueIdBuilder %s optimistic lock exception", nameSpace);
                 throw new UniqueIdBuilder.OptimisticLockException(message);
             }
-        } while (count < 1);
+        } while (optimisticCount < 1);
         return section;
     }
 

@@ -38,7 +38,6 @@ public class UniqueIdBuilder{
             throw new RuntimeException("nameSpace should not be blank!");
         }
         this.nameSpace = nameSpace;
-
         this.sectionLoader = sectionLoader;
     }
 
@@ -97,14 +96,6 @@ public class UniqueIdBuilder{
         Long id;
         Long step;
         Long version;
-    }
-
-    public static class NamespaceInitFormatException extends RuntimeException{
-
-        public NamespaceInitFormatException(String message) {
-            super((message));
-        }
-
     }
 
     public static class OptimisticLockException extends RuntimeException{
