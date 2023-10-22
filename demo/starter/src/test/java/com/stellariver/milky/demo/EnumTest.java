@@ -1,8 +1,9 @@
 package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.Translate;
-import com.stellariver.milky.common.tool.util.Json;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
 import org.junit.jupiter.api.Test;
 
 public class EnumTest {

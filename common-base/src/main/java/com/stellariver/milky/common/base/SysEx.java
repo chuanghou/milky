@@ -1,7 +1,6 @@
 package com.stellariver.milky.common.base;
 
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

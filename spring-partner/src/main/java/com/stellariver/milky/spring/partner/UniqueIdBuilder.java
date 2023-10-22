@@ -48,23 +48,8 @@ public class UniqueIdBuilder{
         if (null == section) {
             synchronized (this) {
                 if (null == section) {
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            Pair<AtomicLong, Long> section0 = sectionLoader.load(tableName, nameSpace);
-                            boolean offered0 = queue.offer(section0, 3000, TimeUnit.MILLISECONDS);
-                            Pair<AtomicLong, Long> section1 = sectionLoader.load(tableName, nameSpace);
-                            boolean offered1 = queue.offer(section1, 5000, TimeUnit.MILLISECONDS);
-                            if (!offered0 || !offered1) {
-                                throw new ShouldNotAppearException("it should not appear! namespace " + nameSpace);
-                            }
-                        } catch (Throwable throwable) {
-                            log.error("uniqueIdGetter error", throwable);
-                        }
-                    }, executor);
-                    section = queue.poll(4000, TimeUnit.MILLISECONDS);
-                    if (section == null) {
-                        throw new ShouldNotAppearException("it should not appear! namespace is " + nameSpace);
-                    }
+                    section = sectionLoader.load(tableName, nameSpace);
+                    queue.put(sectionLoader.load(tableName, nameSpace));
                 }
             }
         }
@@ -112,14 +97,6 @@ public class UniqueIdBuilder{
         Long id;
         Long step;
         Long version;
-    }
-
-    public static class HavenNotCreateTableException extends RuntimeException{
-
-        public HavenNotCreateTableException(String message) {
-            super((message));
-        }
-
     }
 
     public static class NamespaceInitFormatException extends RuntimeException{

@@ -1,8 +1,12 @@
 package com.stellariver.milky.spring.partner;
 
+import com.stellariver.milky.common.base.ErrorEnumsBase;
+import com.stellariver.milky.common.base.SysEx;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -12,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SectionLoader {
 
@@ -37,12 +42,7 @@ public class SectionLoader {
                     return idBuilderDO;
                 }
             } else {
-                String message = String.format("the namespace %s haven't been initialized, " +
-                                "please execute sql like  \"insert into %s values ('%s', start, step, 1)\"" +
-                                "'start' stands for the first id to be got, and 'step' means the section length, " +
-                                "at least 100, or else this idGetter will be meaningless ",
-                        "nameSpace", "tableName", "nameSpace");
-                throw new UniqueIdBuilder.NamespaceInitFormatException(message);
+                return null;
             }
         };
     }
@@ -50,7 +50,8 @@ public class SectionLoader {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Pair<AtomicLong, Long> load(String tableName, String nameSpace) {
 
-        String SELECT_SQL_TEMPLATE = "SELECT name_space, id, step, version FROM %s WHERE name_space = '%s'; ";
+
+        String SELECT_SQL_TEMPLATE = "SELECT name_space, id, step, version FROM %s WHERE name_space = '%s';";
         String selectSql = String.format(SELECT_SQL_TEMPLATE, tableName, nameSpace);
         String UPDATE_SQL_TEMPLATE = "UPDATE %s SET id = ?, version = ? WHERE name_space = '%s' AND version = ?;";
         String updateSql = String.format(UPDATE_SQL_TEMPLATE, tableName, nameSpace);
@@ -59,20 +60,35 @@ public class SectionLoader {
         Pair<AtomicLong, Long> section;
         int times = 0;
         do {
-            UniqueIdBuilder.IdBuilderDO idBuilderDO;
+            UniqueIdBuilder.IdBuilderDO idBuilderDO = null;
             try {
                 idBuilderDO = jdbcTemplate.query(selectSql, extractor);
             } catch (BadSqlGrammarException ex) {
                 if (ex.getMessage() != null && ex.getMessage().contains("not found")) {
-                    String message = String.format("uniqueIdGetter need a table %s to hold the id record", tableName);
-                    throw new UniqueIdBuilder.HavenNotCreateTableException(message);
+                    throw new RuntimeException("unique_id table not exist, please execute sql in your db" +
+                            "CREATE TABLE `unique_id` (\n" +
+                            "  `name_space` varchar(50) NOT NULL,\n" +
+                            "  `id` bigint(20) DEFAULT NULL,\n" +
+                            "  `step` bigint(20) DEFAULT NULL,\n" +
+                            "  `version` int(11) DEFAULT NULL,\n" +
+                            "  PRIMARY KEY (`name_space`)\n" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
                 }
-                throw ex;
             }
 
             if (idBuilderDO == null) {
-                throw new UniqueIdBuilder.NamespaceInitFormatException("unreachable code, because if there is not a valid row, the extractor will find it before");
+                String INSERT_SQL_TEMPLATE = "INSERT INTO %s VALUES('%s', %s, %s, %s);";
+                String insertSql = String.format(INSERT_SQL_TEMPLATE, tableName, nameSpace, 1, 100, 1);
+                try {
+                    jdbcTemplate.execute(insertSql);
+                } catch (DuplicateKeyException ignore) {}
+                idBuilderDO = jdbcTemplate.query(selectSql, extractor);
             }
+
+            if (idBuilderDO == null) {
+                throw new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
+            }
+
             if (idBuilderDO.getId() < 0 || idBuilderDO.getStep() < 100 || idBuilderDO.getVersion() < 0) {
                 String message = String.format("idBuildDO %s not valid", idBuilderDO);
                 throw new UniqueIdBuilder.NamespaceInitFormatException(message);
