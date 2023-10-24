@@ -51,7 +51,7 @@
         <objenesis.version>3.3</objenesis.version>
         <sql.formatter.version>2.0.3</sql.formatter.version>
         <plexus.utils.version>3.4.2</plexus.utils.version>
-        <jsch.version>0.1.55</jsch.version>
+        <sshj.version>0.37.0</sshj.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -207,12 +207,12 @@
                 <artifactId>plexus-utils</artifactId>
                 <version>${plexus.utils.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.jcraft</groupId>
-                <artifactId>jsch</artifactId>
-                <version>${jsch.version}</version>
-            </dependency>
 
+            <dependency>
+                <groupId>com.hierynomus</groupId>
+                <artifactId>sshj</artifactId>
+                <version>${sshj.version}</version>
+            </dependency>
             <!--infrastructure-base start-->
             <dependency>
                 <groupId>com.aliyun.openservices</groupId>
