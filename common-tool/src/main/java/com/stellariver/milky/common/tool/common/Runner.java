@@ -147,7 +147,12 @@ public class Runner {
                 }
             }
             throwableBackup = null;
-        } while (retryTimes-- > 0 && retryable);
+            retryable = retryTimes-- > 0 && retryable;
+            if (retryable) {
+                String retryRecord = String.format("Th %sth retry!", option.getRetryTimes() - retryTimes - 1);
+                log.arg0(retryRecord).error("TO_RETRY", throwableBackup);
+            }
+        } while (retryable);
         throw new SysEx("unreached part!");
     }
 
