@@ -56,6 +56,13 @@ public class Result<T> implements Serializable {
         return result;
     }
 
+    public static <T> Result<T> success(T data, String message) {
+        Result<T> result = new Result<>();
+        result.data = data;
+        result.message = message;
+        return result;
+    }
+
     public static <T> Result<T> error(@NonNull ErrorEnum errorEnum, @NonNull ExceptionType exceptionType) {
         return error(Collections.singletonList(errorEnum), exceptionType);
     }
