@@ -19,7 +19,7 @@ public class PageResult<T> extends Result<List<T>> {
         super();
     }
 
-    private PageResult(List<T> data, Integer total, Integer pageNo, Integer pageSize) {
+    public PageResult(List<T> data, Integer total, Integer pageNo, Integer pageSize) {
         this.success = true;
         this.data = data;
         paginator.setPageNo(pageNo);
