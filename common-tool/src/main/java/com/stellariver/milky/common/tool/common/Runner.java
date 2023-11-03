@@ -66,6 +66,7 @@ public class Runner {
         SysEx.anyNullThrow(option.getCheck(), option.getTransfer());
         R result = null;
         Throwable throwableBackup = null;
+        String logTag = Kit.op(lambdaId).map(UK::getKey).orElse("NOT_SET");
         int retryTimes = option.getRetryTimes();
         boolean retryable;
         do {
@@ -103,7 +104,7 @@ public class Runner {
                     return option.getDefaultValue();
                 }
             } finally {
-                String logTag = Kit.op(lambdaId).map(UK::getKey).orElse("NOT_SET");
+
                 List<Object> args = null;
                 List<Function<Object, String>> argsSelectors = option.getArgsSelectors();
                 if (throwableBackup == null && option.isAlwaysLog()) {
@@ -127,7 +128,7 @@ public class Runner {
                             String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
                             log.with("arg" + i, argString);
                         }
-                        log.success(true).cost(Clock.currentTimeMillis() - now).error(logTag, throwableBackup);
+                        log.success(true).cost(Clock.currentTimeMillis() - now).position(logTag).error(logTag, throwableBackup);
                     } else {
                         for (int i = 0; i < args.size() - 1; i++) {
                             Object arg = args.get(i + 1);
@@ -136,7 +137,7 @@ public class Runner {
                             String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
                             log.with("arg" + i, argString);
                         }
-                        log.success(true).cost(Clock.currentTimeMillis() - now).warn(logTag, throwableBackup);
+                        log.success(true).cost(Clock.currentTimeMillis() - now).position(logTag).warn(logTag, throwableBackup);
                     }
                 }
                 if (runnerExtension != null) {
@@ -150,7 +151,7 @@ public class Runner {
             retryable = retryTimes-- > 0 && retryable;
             if (retryable) {
                 String retryRecord = String.format("Th %sth retry!", option.getRetryTimes() - retryTimes - 1);
-                log.arg0(retryRecord).error("TO_RETRY", throwableBackup);
+                log.arg0(retryRecord).position("retry_" + logTag).error("TO_RETRY", throwableBackup);
             }
         } while (retryable);
         throw new SysEx("unreached part!");
