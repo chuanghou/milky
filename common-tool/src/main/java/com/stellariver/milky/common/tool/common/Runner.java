@@ -117,7 +117,7 @@ public class Runner {
                         String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
                         log.with("arg" + i, argString);
                     }
-                    log.result(printer.apply(result)).success(true).cost(Clock.currentTimeMillis() - now).info(lambdaId.getKey());
+                    log.result(printer.apply(result)).success(true).cost(Clock.currentTimeMillis() - now).position(logTag).info(logTag);
                 } else if (throwableBackup != null){
                     args = SLambda.resolveArgs(sCallable);
                     if (retryTimes == 0) {
