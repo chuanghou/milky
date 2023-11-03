@@ -114,6 +114,11 @@ public class Logger implements org.slf4j.Logger {
         return this;
     }
 
+    public Logger position(String value) {
+        with("position", value);
+        return this;
+    }
+
     public Logger with(String key, Object value) {
         if (key == null) {
             log.error("log key shouldn't be null");
