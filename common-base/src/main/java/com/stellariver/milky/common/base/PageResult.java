@@ -15,7 +15,7 @@ public class PageResult<T> extends Result<List<T>> {
 
     private final Paginator paginator = new Paginator();
 
-    private PageResult() {
+    public PageResult() {
         super();
     }
 
