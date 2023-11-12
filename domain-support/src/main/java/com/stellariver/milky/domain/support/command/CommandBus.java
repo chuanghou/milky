@@ -551,6 +551,7 @@ public class CommandBus {
     }
 
 
+    @SuppressWarnings("unused")
     public void close() {
         instance = null;
     }
