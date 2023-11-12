@@ -551,6 +551,9 @@ public class CommandBus {
     }
 
 
+    /**
+     * When use @DirtyContext to clear, the instance need to be clear when the application context was close
+     */
     @SuppressWarnings("unused")
     public void close() {
         instance = null;
