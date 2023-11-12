@@ -44,8 +44,6 @@ public class Runner {
         runnerExtension = runnerExtensionImpl;
     }
 
-
-    @SuppressWarnings("all")
     @SneakyThrows
     static public <R, T> T checkout(Option<R, T> option, SCallable<R> sCallable) {
 
@@ -94,6 +92,7 @@ public class Runner {
                 } else {
                     backup = throwable;
                 }
+
                 retryable = option.getRetryable().apply(result, backup);
                 boolean notRetry = (!retryable) || retryTimes == 0;
 
@@ -106,12 +105,14 @@ public class Runner {
                 }
             } finally {
                 try {
-                    long cost = Clock.currentTimeMillis() - now;
+
+                    log.position(position).cost(Clock.currentTimeMillis() - now);
+
                     IntStream.of(serializedLambda.getCapturedArgCount() - 1).forEach(i -> {
                         Object capturedArg = serializedLambda.getCapturedArg(i + 1);
                         log.with("arg" + i, capturedArg);
                     });
-                    log.position(position);
+
                     if (backup == null && option.isAlwaysLog()) {
                         log.success(true).info("HOLDER");
                     } else if (backup != null){
@@ -121,11 +122,13 @@ public class Runner {
                             log.success(false).warn(backup.getMessage(), backup);
                         }
                     }
+
                     log.clear();
 
                     if (runnerExtension != null) {
                         runnerExtension.watch(serializedLambda, result, null, backup);
                     }
+
                 } catch (Throwable throwable) {
                     log.position("THROW_IN_FINALLY").error(throwable.getMessage(), throwable);
                     if (backup != null) {

@@ -26,6 +26,7 @@ import com.stellariver.milky.domain.support.invocation.InvokeTrace;
 import lombok.CustomLog;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
@@ -284,6 +285,7 @@ public class CommandBus {
      * @param <T>     命令泛型
      * @return 总结结果
      */
+    @SneakyThrows
     private <T extends Command> Object doSend(T command, Map<Class<? extends Typed<?>>, Object> parameters,
                                               @Nullable Class<? extends AggregateRoot> clazz,
                                               @Nullable Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
@@ -297,6 +299,7 @@ public class CommandBus {
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
         command.setInvokeTrace(invokeTrace);
         Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
+        Throwable backup = null;
         try {
             result = route(command, clazz);
             eventBus.preFinalRoute(context.getFinalEvents(), context);
@@ -337,12 +340,20 @@ public class CommandBus {
             if (memoryTx) {
                 transactionSupport.rollback();
             }
+            backup = throwable;
             throw throwable;
         } finally {
-            THREAD_LOCAL_CONTEXT.remove();
-            Pair<Boolean, Map<String, Result<Void>>> unLockedAll = concurrentOperate.unLockAll();
-            if (!unLockedAll.getLeft()) {
-                log.arg0(unLockedAll.getRight()).error("UNLOCK_ALL_FAILURE");
+            try {
+                THREAD_LOCAL_CONTEXT.remove();
+                Pair<Boolean, Map<String, Result<Void>>> unLockedAll = concurrentOperate.unLockAll();
+                if (!unLockedAll.getLeft()) {
+                    log.arg0(unLockedAll.getRight()).error("UNLOCK_ALL_FAILURE");
+                }
+            } catch (Throwable throwable) {
+                log.position("THROW_IN_FINALLY").error(throwable.getMessage(), throwable);
+                if (backup != null) {
+                    throw backup;
+                }
             }
         }
         if (memoryTx) {
