@@ -31,10 +31,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -340,8 +337,12 @@ public class CommandBus {
             if (memoryTx) {
                 transactionSupport.rollback();
             }
-            backup = throwable;
-            throw throwable;
+            if (throwable instanceof InvocationTargetException) {
+                backup = ((InvocationTargetException) throwable).getTargetException();
+            } else {
+                backup = throwable;
+            }
+            throw backup;
         } finally {
             try {
                 THREAD_LOCAL_CONTEXT.remove();
