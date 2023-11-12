@@ -1,9 +1,11 @@
 package com.stellariver.milky.domain.support.dependency;
 
+import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.UK;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.RetryParameter;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -15,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * @author houchuang
@@ -38,10 +41,10 @@ public abstract class ConcurrentOperate {
     }
 
     public Pair<Boolean, Map<String, Result<Void>>> unLockAll() {
-        Map<String, Result<Void>> unLockResult = batchUnLock(lockedIds.get());
+        Set<String> lockedKey = lockedIds.get();
         lockedIds.remove();
-        Boolean unlocked = unLockResult.values().stream()
-                .map(Result::getSuccess).reduce((b0, b1) -> b0 && b1).orElseThrow(SysEx::unreachable);
+        Map<String, Result<Void>> unLockResult = batchUnLockWrapper(lockedKey);
+        Boolean unlocked = unLockResult.values().stream().map(Result::getSuccess).reduce(true, Boolean::logicalAnd);
         return Pair.of(unlocked, unLockResult);
     }
 
@@ -54,6 +57,14 @@ public abstract class ConcurrentOperate {
 
     abstract protected Map<String, Result<Void>> batchTryLock(List<Pair<String, Duration>> lockParams);
 
+    private Map<String, Result<Void>> batchUnLockWrapper(Set<String> unlockIds) {
+        try {
+            return batchUnLock(unlockIds);
+        } catch (Throwable throwable) {
+            log.position("batchUnLockWrapper").error(throwable.getMessage(), throwable);
+        }
+        return Collect.toMap(unlockIds, Function.identity(), unlockId -> Result.error(ErrorEnums.SYS_EX, ExceptionType.SYS));
+    }
     abstract protected Map<String, Result<Void>> batchUnLock(Set<String> unlockIds);
 
     @SneakyThrows(InterruptedException.class)

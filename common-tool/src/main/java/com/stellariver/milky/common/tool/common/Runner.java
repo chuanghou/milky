@@ -1,5 +1,6 @@
 package com.stellariver.milky.common.tool.common;
 
+import com.stellariver.milky.common.base.BaseEx;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.slambda.SCallable;
@@ -13,11 +14,11 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nullable;
+import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.stream.IntStream;
 
 @CustomLog
 @SuppressWarnings("all")
@@ -28,7 +29,6 @@ public class Runner {
      */
     @Nullable
     static private MilkyStableSupport milkyStableSupport;
-
 
     /**
      * need to be instaniate by a failureExtendableImpl
@@ -45,29 +45,30 @@ public class Runner {
     }
 
 
+    @SuppressWarnings("all")
+    @SneakyThrows
     static public <R, T> T checkout(Option<R, T> option, SCallable<R> sCallable) {
+
+        UK lambdaId = option.getLambdaId();
+        SerializedLambda serializedLambda = SLambda.resolveArgs(sCallable);
+        String position = Kit.op(lambdaId).map(UK::getKey).orElse(serializedLambda.getImplMethodSignature());
+
         RateLimiterWrapper rateLimiter = null;
         CircuitBreaker circuitBreaker = null;
-        UK lambdaId = option.getLambdaId();
+
         if (milkyStableSupport != null && lambdaId != null) {
             rateLimiter = milkyStableSupport.rateLimiter(lambdaId.getKey());
             circuitBreaker = milkyStableSupport.circuitBreaker(lambdaId.getKey());
         }
-        return checkout(option, sCallable, circuitBreaker, rateLimiter, lambdaId);
-    }
 
-    @SuppressWarnings("all")
-    @SneakyThrows
-    static public <R, T> T checkout(Option<R, T> option, SCallable<R> sCallable,
-                                    @Nullable CircuitBreaker circuitBreaker, @Nullable RateLimiterWrapper rateLimiter, @Nullable UK lambdaId) {
         if (rateLimiter != null) {
             rateLimiter.acquire();
         }
-        SysEx.anyNullThrow(option.getCheck(), option.getTransfer());
+
         R result = null;
-        Throwable throwableBackup = null;
-        String logTag = Kit.op(lambdaId).map(UK::getKey).orElse("NOT_SET");
+        Throwable backup = null;
         int retryTimes = option.getRetryTimes();
+        String printableResult = null;
         boolean retryable;
         do {
             retryable = false;
@@ -78,83 +79,69 @@ public class Runner {
                 } else {
                     result = sCallable.call();
                 }
-                Boolean success = option.getCheck().apply(result);
-                if (!success) {
-                    SysEx sysEx = new SysEx(ErrorEnumsBase.SYS_EX.message(result));
+                BaseEx baseEx = option.getCheck().apply(result);
+                printableResult = Kit.op(option.getRSelector()).orElse(Objects::toString).apply(result);
+                if (baseEx != null) {
                     if (circuitBreaker != null) {
-                        circuitBreaker.onError(Clock.currentTimeMillis() - now, TimeUnit.MILLISECONDS, sysEx);
+                        circuitBreaker.onError(Clock.currentTimeMillis() - now, TimeUnit.MILLISECONDS, baseEx);
                     }
-                    throw sysEx;
+                    throw baseEx;
                 }
                 return option.getTransfer().apply(result);
             } catch (Throwable throwable) {
                 if (throwable instanceof InvocationTargetException) {
-                    throwableBackup = ((InvocationTargetException) throwable).getTargetException();
+                    backup = ((InvocationTargetException) throwable).getTargetException();
                 } else {
-                    throwableBackup = throwable;
+                    backup = throwable;
                 }
-                retryable = option.getRetryable().apply(result, throwableBackup);
+                retryable = option.getRetryable().apply(result, backup);
                 boolean notRetry = (!retryable) || retryTimes == 0;
 
-                if (notRetry || throwableBackup instanceof CallNotPermittedException) {
+                if (notRetry || backup instanceof CallNotPermittedException) {
                     retryTimes = 0;
                     if (!option.hasDefaultValue()) {
-                        throw throwableBackup;
+                        throw backup;
                     }
                     return option.getDefaultValue();
                 }
             } finally {
+                try {
+                    long cost = Clock.currentTimeMillis() - now;
+                    IntStream.of(serializedLambda.getCapturedArgCount() - 1).forEach(i -> {
+                        Object capturedArg = serializedLambda.getCapturedArg(i + 1);
+                        log.with("arg" + i, capturedArg);
+                    });
+                    log.position(position);
+                    if (backup == null && option.isAlwaysLog()) {
+                        log.success(true).info("HOLDER");
+                    } else if (backup != null){
+                        if (retryTimes == 0) {
+                            log.success(false).error(backup.getMessage(), backup);
+                        } else {
+                            log.success(false).warn(backup.getMessage(), backup);
+                        }
+                    }
+                    log.clear();
 
-                List<Object> args = null;
-                List<Function<Object, String>> argsSelectors = option.getArgsSelectors();
-                if (throwableBackup == null && option.isAlwaysLog()) {
-                    args = SLambda.resolveArgs(sCallable);
-                    Function<R, String> printer = Kit.op(option.getRSelector()).orElse(Objects::toString);
-                    for (int i = 0; i < args.size() - 1; i++) {
-                        Object arg = args.get(i + 1);
-                        arg = Kit.whenNull(arg, "NULL_ARG");
-                        boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
-                        String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
-                        log.with("arg" + i, argString);
+                    if (runnerExtension != null) {
+                        runnerExtension.watch(serializedLambda, result, null, backup);
                     }
-                    log.result(printer.apply(result)).success(true).cost(Clock.currentTimeMillis() - now).position(logTag).info(logTag);
-                } else if (throwableBackup != null){
-                    args = SLambda.resolveArgs(sCallable);
-                    if (retryTimes == 0) {
-                        for (int i = 0; i < args.size() - 1; i++) {
-                            Object arg = args.get(i + 1);
-                            arg = Kit.whenNull(arg, "NULL_ARG");
-                            boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
-                            String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
-                            log.with("arg" + i, argString);
-                        }
-                        log.success(true).cost(Clock.currentTimeMillis() - now).position(logTag).error(logTag, throwableBackup);
-                    } else {
-                        for (int i = 0; i < args.size() - 1; i++) {
-                            Object arg = args.get(i + 1);
-                            arg = Kit.whenNull(arg, "NULL_ARG");
-                            boolean b = argsSelectors.size() <= i || argsSelectors.get(i) == null;
-                            String argString = b ? arg.toString() : argsSelectors.get(i).apply(arg);
-                            log.with("arg" + i, argString);
-                        }
-                        log.success(true).cost(Clock.currentTimeMillis() - now).position(logTag).warn(logTag, throwableBackup);
+                } catch (Throwable throwable) {
+                    log.position("THROW_IN_FINALLY").error(throwable.getMessage(), throwable);
+                    if (backup != null) {
+                        throw backup;
                     }
-                }
-                if (runnerExtension != null) {
-                    if (args == null) {
-                        args = SLambda.resolveArgs(sCallable);
-                    }
-                    runnerExtension.watch(args, result, lambdaId, throwableBackup);
                 }
             }
-            throwableBackup = null;
+            backup = null;
             retryable = retryTimes-- > 0 && retryable;
             if (retryable) {
                 String retryRecord = String.format("Th %sth retry!", option.getRetryTimes() - retryTimes - 1);
-                log.arg0(retryRecord).position("retry_" + logTag).error("TO_RETRY", throwableBackup);
+                log.arg0(retryRecord).position("retry_" + position).error(backup.getMessage(), backup);
             }
         } while (retryable);
-        throw new SysEx("unreached part!");
+        throw new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
     }
+
 
 }

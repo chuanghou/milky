@@ -1,10 +1,10 @@
 package com.stellariver.milky.common.tool.common;
 
+import com.stellariver.milky.common.base.BaseEx;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -15,6 +15,7 @@ import java.util.function.Function;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SuppressWarnings("unchecked")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Option<R, T> {
 
@@ -30,18 +31,16 @@ public class Option<R, T> {
     BiFunction<R, Throwable, Boolean> retryable = (r, t) -> false;
 
     @Builder.Default
-    Function<R, Boolean> check = r -> true;
-
-    Function<R, T> transfer;
-
-    Function<R, String> rSelector;
+    Function<R, ? extends BaseEx> check = r -> null;
 
     @Builder.Default
-    List<Function<Object, String>> argsSelectors = new ArrayList<>();
-
-    @Builder.Default
-    @SuppressWarnings("unchecked")
     T defaultValue = (T) NULL_OBJECT;
+
+    @Builder.Default
+    Function<R, T> transfer = r -> (T) r;
+
+    @Builder.Default
+    Function<R, String> rSelector = Objects::toString;
 
     UK lambdaId;
 

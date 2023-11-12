@@ -2,6 +2,7 @@ package com.stellariver.milky.demo;
 
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.Result;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.common.Option;
 import com.stellariver.milky.common.tool.common.Runner;
@@ -52,7 +53,7 @@ public class StableSupportTest {
         Mockito.when(stableConfigReader.read()).thenReturn(stableConfig);
         MilkyStableSupport milkyStableSupport = new MilkyStableSupport(stableConfigReader);
         Runner.setMilkyStableSupport(milkyStableSupport);
-        Option<Result<String>, String> option = Option.<Result<String>, String>builder().check(Result::getSuccess)
+        Option<Result<String>, String> option = Option.<Result<String>, String>builder().check(r -> r.getSuccess() ? null : new SysEx(ErrorEnums.SYS_EX))
                 .lambdaId(UKs.stableTest)
                 .transfer(Result::getData)
                 .build();
