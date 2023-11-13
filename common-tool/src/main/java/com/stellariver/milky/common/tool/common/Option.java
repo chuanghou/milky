@@ -31,7 +31,7 @@ public class Option<R, T> {
     BiFunction<R, Throwable, Boolean> retryable = (r, t) -> false;
 
     @Builder.Default
-    Function<R, ? extends BaseEx> check = r -> null;
+    Function<R, ? extends BaseEx> checker = r -> null;
 
     @Builder.Default
     T defaultValue = (T) NULL_OBJECT;
@@ -40,7 +40,7 @@ public class Option<R, T> {
     Function<R, T> transfer = r -> (T) r;
 
     @Builder.Default
-    Function<R, String> rSelector = Objects::toString;
+    Function<R, String> resultPrinter = Objects::toString;
 
     UK lambdaId;
 

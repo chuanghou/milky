@@ -77,8 +77,8 @@ public class Runner {
                 } else {
                     result = sCallable.call();
                 }
-                BaseEx baseEx = option.getCheck().apply(result);
-                printableResult = Kit.op(option.getRSelector()).orElse(Objects::toString).apply(result);
+                BaseEx baseEx = option.getChecker().apply(result);
+                printableResult = Kit.op(option.getResultPrinter()).orElse(Objects::toString).apply(result);
                 if (baseEx != null) {
                     if (circuitBreaker != null) {
                         circuitBreaker.onError(Clock.currentTimeMillis() - now, TimeUnit.MILLISECONDS, baseEx);
