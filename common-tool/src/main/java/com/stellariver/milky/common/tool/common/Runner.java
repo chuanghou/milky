@@ -106,7 +106,7 @@ public class Runner {
             } finally {
                 try {
 
-                    log.position(position).cost(Clock.currentTimeMillis() - now);
+                    log.result(printableResult).position(position).cost(Clock.currentTimeMillis() - now);
 
                     IntStream.of(serializedLambda.getCapturedArgCount() - 1).forEach(i -> {
                         Object capturedArg = serializedLambda.getCapturedArg(i + 1);
