@@ -129,7 +129,7 @@ public class Runner {
                     }
 
                 } catch (Throwable throwable) {
-                    log.position("THROW_IN_FINALLY").error(position, throwable);
+                    log.position("THROW_IN_FINALLY_" + position).error(position, throwable);
                     if (backup != null) {
                         throw backup;
                     }
@@ -139,7 +139,7 @@ public class Runner {
             retryable = retryTimes-- > 0 && retryable;
             if (retryable) {
                 String retryRecord = String.format("Th %sth retry!", option.getRetryTimes() - retryTimes - 1);
-                log.arg0(retryRecord).position("retry_" + position).error(position, backup);
+                log.arg0(retryRecord).position("RETRY_" + position).error(position, backup);
             }
         } while (retryable);
         throw new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
