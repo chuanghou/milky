@@ -18,7 +18,6 @@ import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 @CustomLog
 @SuppressWarnings("all")
@@ -114,12 +113,12 @@ public class Runner {
                     }
 
                     if (backup == null && option.isAlwaysLog()) {
-                        log.success(true).info("HOLDER");
+                        log.success(true).info(position);
                     } else if (backup != null){
                         if (retryTimes == 0) {
-                            log.success(false).error(backup.getMessage(), backup);
+                            log.success(false).error(position, backup);
                         } else {
-                            log.success(false).warn(backup.getMessage(), backup);
+                            log.success(false).warn(position, backup);
                         }
                     }
 
@@ -130,7 +129,7 @@ public class Runner {
                     }
 
                 } catch (Throwable throwable) {
-                    log.position("THROW_IN_FINALLY").error(throwable.getMessage(), throwable);
+                    log.position("THROW_IN_FINALLY").error(position, throwable);
                     if (backup != null) {
                         throw backup;
                     }
@@ -140,7 +139,7 @@ public class Runner {
             retryable = retryTimes-- > 0 && retryable;
             if (retryable) {
                 String retryRecord = String.format("Th %sth retry!", option.getRetryTimes() - retryTimes - 1);
-                log.arg0(retryRecord).position("retry_" + position).error(backup.getMessage(), backup);
+                log.arg0(retryRecord).position("retry_" + position).error(position, backup);
             }
         } while (retryable);
         throw new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
