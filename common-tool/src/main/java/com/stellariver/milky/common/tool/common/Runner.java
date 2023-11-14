@@ -108,10 +108,10 @@ public class Runner {
 
                     log.result(printableResult).position(position).cost(Clock.currentTimeMillis() - now);
 
-                    IntStream.of(0, serializedLambda.getCapturedArgCount() - 1).forEach(i -> {
+                    for (int i = 0; i < serializedLambda.getCapturedArgCount() - 1; i++) {
                         Object capturedArg = serializedLambda.getCapturedArg(i + 1);
                         log.with("arg" + i, capturedArg);
-                    });
+                    }
 
                     if (backup == null && option.isAlwaysLog()) {
                         log.success(true).info("HOLDER");
