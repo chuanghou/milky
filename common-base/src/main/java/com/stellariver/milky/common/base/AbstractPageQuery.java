@@ -18,12 +18,12 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public abstract class AbstractPageQuery implements Serializable {
 
-    @NotNull
-    @Positive
+    @NotNull(message = "分页查询页码必传")
+    @Positive(message = "页面必须大于，从1开始")
     Integer pageIndex;
 
-    @NotNull
-    @Positive
+    @NotNull(message = "页面条数必传")
+    @Positive(message = "页面条数必为正数")
     Integer pageSize;
 
 }
