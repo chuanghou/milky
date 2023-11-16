@@ -56,8 +56,4 @@ public class Clock {
         return INSTANCE.todayString;
     }
 
-    public static int beforeToday(int days) {
-        return INSTANCE.todayInteger - days;
-    }
-
 }
