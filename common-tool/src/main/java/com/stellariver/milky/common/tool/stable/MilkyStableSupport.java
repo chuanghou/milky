@@ -8,6 +8,7 @@ import com.stellariver.milky.common.tool.util.If;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 import javax.annotation.Nullable;
@@ -62,30 +63,25 @@ public class MilkyStableSupport {
     }
 
     @Nullable
+    @SneakyThrows
     @SuppressWarnings("all")
     public RateLimiterWrapper rateLimiter(@NonNull String ruleId, @Nullable String key) {
 
-        String id = String.format("%s_%s", ruleId, key);
-        RateLimiterWrapper rateLimiterWrapper = rateLimiters.getIfPresent(id);
-        if (rateLimiterWrapper != null) {
-            return rateLimiterWrapper;
-        }
-
         Map<String, RlConfig> rlConfigs = stableConfig.getRlConfigs();
-        boolean contains = rlConfigs.containsKey(ruleId);
-        if (!contains)  {
+        RlConfig rlConfig = rlConfigs.get(ruleId);
+        if (rlConfig == null)  {
             return null;
         }
 
-        RlConfig rlConfig = rlConfigs.get(ruleId);
-        RateLimiter rateLimiter = RateLimiter.create(rlConfigs.get(ruleId).getQps());
-        rateLimiterWrapper = RateLimiterWrapper.builder().id(id).rateLimiter(rateLimiter)
-                .strategy(Kit.op(rlConfig.getStrategy()).orElse(RlConfig.Strategy.FAIL_WAITING))
-                .timeout(Kit.op(rlConfig.getTimeOut()).orElseGet(() -> Duration.ofSeconds(3)))
-                .warningThreshold(Kit.op(rlConfig.getWarningThreshold()).orElseGet(() -> Duration.ofSeconds(3)))
-                .build();
-        rateLimiters.put(id, rateLimiterWrapper);
-        return rateLimiterWrapper;
+        String id = String.format("%s_%s", ruleId, key);
+        return rateLimiters.get(id, () -> {
+            RateLimiter rateLimiter = RateLimiter.create(rlConfig.getQps());
+            return RateLimiterWrapper.builder().id(id).rateLimiter(rateLimiter)
+                    .strategy(Kit.op(rlConfig.getStrategy()).orElse(RlConfig.Strategy.FAIL_TIME_OUT))
+                    .timeout(Kit.op(rlConfig.getTimeOut()).orElseGet(() -> Duration.ofSeconds(3)))
+                    .warningThreshold(Kit.op(rlConfig.getWarningThreshold()).orElseGet(() -> Duration.ofSeconds(2)))
+                    .build();
+        });
     }
 
     @Nullable
@@ -94,38 +90,35 @@ public class MilkyStableSupport {
     }
 
     @Nullable
+    @SneakyThrows
     public CircuitBreaker circuitBreaker(@NonNull String ruleId, @Nullable String key) {
 
-        String id = String.format("%s_%s", ruleId, key);
-        CircuitBreaker circuitBreaker = circuitBreakers.getIfPresent(id);
-        if (circuitBreaker != null) {
-            return circuitBreaker;
-        }
-
         Map<String, CbConfig> cbConfigs = stableConfig.getCbConfigs();
-        if (!cbConfigs.containsKey(ruleId)) {
+        CbConfig cbConfig = cbConfigs.get(ruleId);
+        if (cbConfig == null) {
             return null;
         }
 
-        CbConfig cbConfig = cbConfigs.get(ruleId);
-        CircuitBreakerConfig.Builder builder = CircuitBreakerConfig.custom();
-        If.isTrue(cbConfig.getSlidingWindowType() != null, () -> builder.slidingWindowType(cbConfig.getSlidingWindowType()));
-        If.isTrue(cbConfig.getSlidingWindowSize() != null, () -> builder.slidingWindowSize(cbConfig.getSlidingWindowSize()));
-        If.isTrue(cbConfig.getMinimumNumberOfCalls() != null, () -> builder.minimumNumberOfCalls(cbConfig.getMinimumNumberOfCalls()));
-        If.isTrue(cbConfig.getFailureRateThreshold() != null, () -> builder.failureRateThreshold(cbConfig.getFailureRateThreshold()));
-        If.isTrue(cbConfig.getSlowCallRateThreshold() != null, () -> builder.slowCallDurationThreshold(cbConfig.getSlowCallDurationThreshold()));
-        If.isTrue(cbConfig.getSlowCallRateThreshold() == null, () -> builder.slowCallDurationThreshold(Duration.ofSeconds(5L)));
-        If.isTrue(cbConfig.getWaitIntervalInOpenState() != null, () -> builder.waitDurationInOpenState(cbConfig.getWaitIntervalInOpenState()));
-        If.isTrue(cbConfig.getPermittedNumberOfCallsInHalfOpenState() != null,
-                () -> builder.permittedNumberOfCallsInHalfOpenState(cbConfig.getPermittedNumberOfCallsInHalfOpenState()));
-        If.isTrue(cbConfig.getAutomaticTransitionFromOpenToHalfOpenEnabled() != null,
-                () -> builder.automaticTransitionFromOpenToHalfOpenEnabled(cbConfig.getAutomaticTransitionFromOpenToHalfOpenEnabled()));
-        If.isTrue(cbConfig.getAutomaticTransitionFromOpenToHalfOpenEnabled() == null,
-                () -> builder.automaticTransitionFromOpenToHalfOpenEnabled(true));
+        String id = String.format("%s_%s", ruleId, key);
+        return circuitBreakers.get(id, () -> {
+            CircuitBreakerConfig.Builder builder = CircuitBreakerConfig.custom();
+            If.isTrue(cbConfig.getSlidingWindowType() != null, () -> builder.slidingWindowType(cbConfig.getSlidingWindowType()));
+            If.isTrue(cbConfig.getSlidingWindowSize() != null, () -> builder.slidingWindowSize(cbConfig.getSlidingWindowSize()));
+            If.isTrue(cbConfig.getMinimumNumberOfCalls() != null, () -> builder.minimumNumberOfCalls(cbConfig.getMinimumNumberOfCalls()));
+            If.isTrue(cbConfig.getFailureRateThreshold() != null, () -> builder.failureRateThreshold(cbConfig.getFailureRateThreshold()));
+            If.isTrue(cbConfig.getSlowCallRateThreshold() != null, () -> builder.slowCallDurationThreshold(cbConfig.getSlowCallDurationThreshold()));
+            If.isTrue(cbConfig.getSlowCallRateThreshold() == null, () -> builder.slowCallDurationThreshold(Duration.ofSeconds(5L)));
+            If.isTrue(cbConfig.getWaitIntervalInOpenState() != null, () -> builder.waitDurationInOpenState(cbConfig.getWaitIntervalInOpenState()));
+            If.isTrue(cbConfig.getPermittedNumberOfCallsInHalfOpenState() != null,
+                    () -> builder.permittedNumberOfCallsInHalfOpenState(cbConfig.getPermittedNumberOfCallsInHalfOpenState()));
+            If.isTrue(cbConfig.getAutomaticTransitionFromOpenToHalfOpenEnabled() != null,
+                    () -> builder.automaticTransitionFromOpenToHalfOpenEnabled(cbConfig.getAutomaticTransitionFromOpenToHalfOpenEnabled()));
+            If.isTrue(cbConfig.getAutomaticTransitionFromOpenToHalfOpenEnabled() == null,
+                    () -> builder.automaticTransitionFromOpenToHalfOpenEnabled(true));
 
-        circuitBreaker = CircuitBreaker.of(cbConfig.getRuleId(), builder.build());
-        circuitBreakers.put(id, circuitBreaker);
-        return circuitBreaker;
+            return CircuitBreaker.of(cbConfig.getRuleId(), builder.build());
+        });
+
     }
 
 }
