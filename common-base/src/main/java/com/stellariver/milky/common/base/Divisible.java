@@ -19,7 +19,15 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = { })
 public @interface Divisible {
 
+    /**
+     * divisor
+     */
     int value();
+
+    /**
+     * delta default 1e-8
+     */
+    double delta() default 1e-8;
 
     String message() default "${dividend}不能被${divisor}整除";
 
