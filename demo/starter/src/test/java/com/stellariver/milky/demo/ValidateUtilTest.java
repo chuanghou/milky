@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -410,6 +411,53 @@ public class ValidateUtilTest {
         }
         Assertions.assertEquals(message, "不可为空");
 
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static public class Divisor {
+
+        @Divisible(100)
+        Integer dividend;
+
+        @Divisible(100)
+        BigDecimal bigDecimal;
+
+    }
+
+
+    @Test
+    public void testDivisor() {
+        Divisor divisor = new Divisor();
+        Throwable throwable = null;
+        try {
+            ValidateUtil.validate(divisor);
+        } catch (BizEx bizEx) {
+            throwable = bizEx;
+        }
+        Assertions.assertNull(throwable);
+
+
+        divisor.setDividend(107);
+        String message = null;
+        try {
+            ValidateUtil.validate(divisor);
+        } catch (BizEx bizEx) {
+            message = bizEx.getMessage();
+        }
+        Assertions.assertEquals(message, "107不能被100整除");
+
+
+        divisor.setDividend(null);
+        divisor.setBigDecimal(BigDecimal.valueOf(108));
+
+        try {
+            ValidateUtil.validate(divisor);
+        } catch (BizEx bizEx) {
+            message = bizEx.getMessage();
+        }
+        Assertions.assertEquals(message, "108不能被100整除");
     }
 
 }

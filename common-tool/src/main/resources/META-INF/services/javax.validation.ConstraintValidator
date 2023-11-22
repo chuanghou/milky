@@ -1,3 +1,4 @@
 com.stellariver.milky.common.tool.validate.OfEnumValidator
 com.stellariver.milky.common.tool.validate.DateFormatValidator
 com.stellariver.milky.common.tool.validate.ValidsValidator
+com.stellariver.milky.common.tool.validate.DivisibleValidator
