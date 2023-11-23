@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -14,8 +15,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Employee implements Serializable {
 
+    @NotBlank(message = "id不可为空")
     private String id;
 
+    @NotBlank(message = "姓名不可为空")
     private String name;
 
     public static final Employee SYSTEM = new Employee("system", "system");
