@@ -20,6 +20,7 @@ public class PageResult<T> extends Result<List<T>> {
     }
 
     public PageResult(List<T> data, Integer total, Integer pageNo, Integer pageSize) {
+        super();
         this.success = true;
         this.data = data;
         paginator.setPageNo(pageNo);
