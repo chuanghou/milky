@@ -23,11 +23,4 @@ public class Employee implements Serializable {
 
     public static final Employee SYSTEM = new Employee("system", "system");
 
-    public String getId() {
-        return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
 }
