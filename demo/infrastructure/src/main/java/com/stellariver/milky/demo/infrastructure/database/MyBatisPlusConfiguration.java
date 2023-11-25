@@ -39,7 +39,6 @@ public class MyBatisPlusConfiguration {
         sqlSessionFactoryBean.setDataSource(dataSource);
 
         sqlSessionFactoryBean.setTypeAliasesPackage("com.stellariver.milky.demo.infrastructure.database.entity");
-        sqlSessionFactoryBean.setTypeEnumsPackage("com.stellariver.milky.demo.common.enums");
         sqlSessionFactoryBean.setTypeHandlersPackage("com.stellariver.milky.demo.infrastructure.database.handler");
 
         //驼峰转化开启
