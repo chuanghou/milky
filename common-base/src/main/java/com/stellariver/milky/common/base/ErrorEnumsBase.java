@@ -51,9 +51,11 @@ public class ErrorEnumsBase {
     @Message("参数为空")
     public static ErrorEnum PARAM_IS_NULL;
 
-
     @Message("并发操作失败")
     public static ErrorEnum CONCURRENCY_VIOLATION;
+
+    @Message("编译错误")
+    public static ErrorEnum COMPILE_FAILURE;
 
     static {
         for (Field field : ErrorEnumsBase.class.getDeclaredFields()) {

@@ -270,7 +270,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
+            <dependency>
+                <groupId>org.jooq</groupId>
+                <artifactId>joor-java-8</artifactId>
+                <version>0.9.15</version>
+            </dependency>
             <!--infrastructure-base end-->
         </dependencies>
     </dependencyManagement>

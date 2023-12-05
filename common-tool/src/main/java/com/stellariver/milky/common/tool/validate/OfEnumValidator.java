@@ -10,10 +10,7 @@ import org.hibernate.validator.constraintvalidation.HibernateConstraintValidator
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
@@ -60,18 +57,25 @@ public class OfEnumValidator implements ConstraintValidator<OfEnum, Object> {
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext constraintValidatorContext) {
+        List<Object> vs = Collect.asList(value);
         if (value == null) {
             return true;
         } else if (value instanceof String && StringUtils.isBlank((String)value) && blankAsNull) {
             return true;
+        } else if (value instanceof Collection) {
+            vs = new ArrayList<>((Collection<?>) value);
         }
-        boolean valid = enumKeys.contains(value);
-        if (!valid) {
-            HibernateConstraintValidatorContext hibernateContext
-                    = constraintValidatorContext.unwrap(HibernateConstraintValidatorContext.class);
-            hibernateContext.addExpressionVariable("enumKeys", enumKeys.toString());
+
+        for (Object v : vs) {
+            boolean valid = enumKeys.contains(v);
+            if (!valid) {
+                HibernateConstraintValidatorContext hibernateContext
+                        = constraintValidatorContext.unwrap(HibernateConstraintValidatorContext.class);
+                hibernateContext.addExpressionVariable("enumKeys", enumKeys.toString());
+                return false;
+            }
         }
-        return valid;
+        return true;
     }
 
 }

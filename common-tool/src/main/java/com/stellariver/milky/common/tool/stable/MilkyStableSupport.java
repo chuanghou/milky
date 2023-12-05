@@ -37,7 +37,7 @@ public class MilkyStableSupport {
             return thread;
         });
         updateConfig();
-        scheduler.scheduleAtFixedRate(this::updateConfig, 10, 10, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::updateConfig, 10, 30, TimeUnit.SECONDS);
     }
 
     private void updateConfig() {
@@ -58,22 +58,18 @@ public class MilkyStableSupport {
     }
 
     @Nullable
-    public RateLimiterWrapper rateLimiter(@NonNull String ruleId) {
-        return rateLimiter(ruleId, null);
-    }
-
-    @Nullable
     @SneakyThrows
-    @SuppressWarnings("all")
-    public RateLimiterWrapper rateLimiter(@NonNull String ruleId, @Nullable String key) {
+    public RateLimiterWrapper rateLimiter(@NonNull String key) {
 
         Map<String, RlConfig> rlConfigs = stableConfig.getRlConfigs();
+        String ruleId = stableConfig.matchRuleId(key);
+
         RlConfig rlConfig = rlConfigs.get(ruleId);
         if (rlConfig == null)  {
             return null;
         }
 
-        String id = String.format("%s_%s", ruleId, key);
+        String id = Kit.eq(ruleId, key) ? key : String.format("%s_%s", ruleId, key);
         return rateLimiters.get(id, () -> {
             RateLimiter rateLimiter = RateLimiter.create(rlConfig.getQps());
             return RateLimiterWrapper.builder().id(id).rateLimiter(rateLimiter)
@@ -85,15 +81,11 @@ public class MilkyStableSupport {
     }
 
     @Nullable
-    public CircuitBreaker circuitBreaker(@NonNull String ruleId) {
-        return circuitBreaker(ruleId,null);
-    }
-
-    @Nullable
     @SneakyThrows
-    public CircuitBreaker circuitBreaker(@NonNull String ruleId, @Nullable String key) {
+    public CircuitBreaker circuitBreaker(@NonNull String key) {
 
         Map<String, CbConfig> cbConfigs = stableConfig.getCbConfigs();
+        String ruleId = stableConfig.matchRuleId(key);
         CbConfig cbConfig = cbConfigs.get(ruleId);
         if (cbConfig == null) {
             return null;

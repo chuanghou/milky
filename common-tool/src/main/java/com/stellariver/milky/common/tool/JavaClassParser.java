@@ -1,6 +1,5 @@
-package com.htsc.matic.lipton.basic;
+package com.stellariver.milky.common.tool;
 
-import com.htsc.matic.lipton.common.enums.ErrorEnums;
 import com.stellariver.milky.common.base.BizEx;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import static com.stellariver.milky.common.base.ErrorEnumsBase.COMPILE_FAILURE;
 
 /**
  * 复制自org.joor.Compile三方库的代码, 修复内存泄露的问题
@@ -98,7 +99,7 @@ public class JavaClassParser {
             Class<?> result = fileManager.loadAndReturnMainClass(className,
                     (name, bytes) -> Reflect.on(cl).call("defineClass", name, bytes, 0, bytes.length).get());
 
-            BizEx.nullThrow(result, ErrorEnums.COMPILE_FAILURE.param("code", content).param("compile_out", compileOut));
+            BizEx.nullThrow(result, COMPILE_FAILURE.param("code", content).param("compile_out", compileOut));
 
             return result;
         }
