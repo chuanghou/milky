@@ -1,5 +1,6 @@
 package com.stellariver.milky.infrastructure.base.database;
 
+import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.util.Json;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
@@ -10,6 +11,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,14 +42,14 @@ public abstract class ListJsonHandler<T> extends BaseTypeHandler<List<T>> {
     public List<T> getNullableResult(ResultSet rs, String columnName)
             throws SQLException {
         String result = rs.getString(columnName);
-        return rs.wasNull() ? null : Json.parseList(result, clazz);
+        return (rs.wasNull() || Kit.isBlank(result))  ? new ArrayList<>() : Json.parseList(result, clazz);
     }
 
     @Override
     public List<T> getNullableResult(ResultSet rs, int columnIndex)
             throws SQLException {
         String result = rs.getString(columnIndex);
-        return rs.wasNull() ? null: Json.parseList(result, clazz);
+        return (rs.wasNull() || Kit.isBlank(result))  ? new ArrayList<>(): Json.parseList(result, clazz);
 
     }
 
@@ -55,7 +57,7 @@ public abstract class ListJsonHandler<T> extends BaseTypeHandler<List<T>> {
     public List<T> getNullableResult(CallableStatement cs, int columnIndex)
             throws SQLException {
         String result = cs.getString(columnIndex);
-        return cs.wasNull() ? null : Json.parseList(result, clazz);
+        return (cs.wasNull() || Kit.isBlank(result)) ? new ArrayList<>() : Json.parseList(result, clazz);
     }
 
 }
