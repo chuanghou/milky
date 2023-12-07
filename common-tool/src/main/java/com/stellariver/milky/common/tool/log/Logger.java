@@ -7,6 +7,7 @@ import org.slf4j.Marker;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -129,9 +130,10 @@ public class Logger implements org.slf4j.Logger {
             MDC.put("error_duplicate_key", String.format("%s:%s", key, value));
         }
         withKeys.get().add(key);
-        MDC.put(key, value == null ? null : value.toString());
+        MDC.put(key, Objects.toString(value));
         return this;
     }
+
 
     public void clear() {
         withKeys.get().forEach(MDC::remove);
