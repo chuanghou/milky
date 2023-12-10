@@ -17,6 +17,6 @@ public @interface FinalEventRouter {
 
     String executor() default "asyncExecutor";
 
-    double order() default Double.MAX_VALUE;
+    long order() default Long.MAX_VALUE;
 
 }

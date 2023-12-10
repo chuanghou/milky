@@ -11,10 +11,11 @@ import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.base.MilkySupport;
-import com.stellariver.milky.domain.support.base.Record;
+import com.stellariver.milky.domain.support.base.Trail;
 import com.stellariver.milky.domain.support.context.Context;
 import lombok.Data;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
@@ -69,7 +70,7 @@ public class EventBus {
         methods.forEach(method -> {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
-            Router router = new Router(bean, method);
+            Router router = new Router(bean, method, method.getAnnotation(EventRouter.class).order());
             tempRouterMap.get(eventClass).add(router);
         });
 
@@ -77,7 +78,7 @@ public class EventBus {
         Set<Class<? extends Event>> eventClasses = reflections.getSubTypesOf(Event.class);
         eventClasses.forEach(eventClass -> Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
                 .forEach(aC -> {
-                    List<Router> routers = tempRouterMap.get(aC);
+                    List<Router> routers = tempRouterMap.get(aC).stream().sorted(Comparator.comparing(Router::getOrder)).collect(Collectors.toList());
                     eventRouterMap.putAll(eventClass, routers);
                 }));
 
@@ -99,7 +100,7 @@ public class EventBus {
         }).collect(Collectors.toList());
         List<FinalRouter<Class<? extends Event>>> notDefaultOrderRouters = tempFinalRouters.stream()
                 .filter(fR -> !Kit.eq(fR.getOrder(), Double.MAX_VALUE)).collect(Collectors.toList());
-        Set<Double> orders = Collect.transfer(notDefaultOrderRouters, FinalRouter::getOrder, HashSet::new);
+        Set<Long> orders = Collect.transfer(notDefaultOrderRouters, FinalRouter::getOrder, HashSet::new);
         SysEx.falseThrow(Kit.eq(orders.size(), notDefaultOrderRouters.size()),
                 CONFIG_ERROR.message("exists finalEventRouters share same order!"));
         finalRouters.addAll(tempFinalRouters);
@@ -108,12 +109,12 @@ public class EventBus {
     public void route(Event event, Context context) {
         eventRouterMap.get(event.getClass()).forEach(router -> {
             router.route(event, context);
-            Record record = Record.builder()
+            Trail trail = Trail.builder()
                     .beanName(router.getClass().getSimpleName())
                     .messages(Collections.singletonList(event))
                     .traces(context.getTraces())
                     .build();
-            context.record(record);
+            context.record(trail);
             context.clearTraces();
         });
     }
@@ -131,15 +132,12 @@ public class EventBus {
     }
 
     @Data
+    @RequiredArgsConstructor
     static public class Router {
 
         private final Object bean;
         private final Method method;
-
-        public Router(Object bean, Method method) {
-            this.bean = bean;
-            this.method = method;
-        }
+        private final Long order;
 
         public void route(Event event, Context context) {
             Reflect.invoke(method, bean, event, context);
@@ -153,10 +151,10 @@ public class EventBus {
         private final Object bean;
         private final Method method;
         private boolean asyncable;
-        private double order;
+        private Long order;
         private ExecutorService executorService;
 
-        public FinalRouter(T eventClass, Object bean, Method method, boolean asyncable, double order, ExecutorService executorService) {
+        public FinalRouter(T eventClass, Object bean, Method method, boolean asyncable, Long order, ExecutorService executorService) {
             this.eventClass = eventClass;
             this.bean = bean;
             this.method = method;
@@ -179,9 +177,9 @@ public class EventBus {
             } else {
                 Reflect.invoke(method, bean, events, context);
             }
-            Record record = Record.builder().beanName(this.getClass().getSimpleName())
+            Trail trail = Trail.builder().beanName(this.getClass().getSimpleName())
                     .messages(new ArrayList<>(events)).traces(context.getTraces()).build();
-            context.record(record);
+            context.record(trail);
             context.clearTraces();
         }
     }

@@ -426,9 +426,9 @@ public class CommandBus {
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
-                Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
+                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName())
                         .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
-                context.record(record);
+                context.record(trail);
                 context.clearTraces();
             });
 
@@ -448,9 +448,9 @@ public class CommandBus {
             // run command before interceptors, it is corresponding to a common command, an instance method
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, aggregate, context);
-                Record record = Record.builder().beanName(interceptor.getClass().getSimpleName())
+                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName())
                         .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
-                context.record(record);
+                context.record(trail);
                 context.clearTraces();
             });
 
@@ -465,11 +465,11 @@ public class CommandBus {
             throw new SysEx("unreached part!");
         }
 
-        Record record = Record.builder().beanName(aggregate.getClass().getSimpleName())
+        Trail trail = Trail.builder().beanName(aggregate.getClass().getSimpleName())
                 .messages(Collections.singletonList(command)).traces(context.getTraces())
                 .result(result)
                 .build();
-        context.record(record);
+        context.record(trail);
 
         // process context cache for aggregate
         DataObjectInfo dataObjectInfo = daoAdapter.dataObjectInfo(aggregateId);
@@ -523,9 +523,9 @@ public class CommandBus {
         List<Interceptor> interceptors = afterCommandInterceptors.get(command.getClass());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
-            record = Record.builder().beanName(interceptor.getClass().getSimpleName())
+            trail = Trail.builder().beanName(interceptor.getClass().getSimpleName())
                     .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
-            context.record(record);
+            context.record(trail);
             context.clearTraces();
         }
 

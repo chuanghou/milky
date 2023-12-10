@@ -13,4 +13,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 public @interface EventRouter {
 
+    long order() default Long.MAX_VALUE;
 }

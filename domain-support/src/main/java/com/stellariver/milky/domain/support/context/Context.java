@@ -11,7 +11,7 @@ import com.stellariver.milky.common.tool.util.If;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
-import com.stellariver.milky.domain.support.base.Record;
+import com.stellariver.milky.domain.support.base.Trail;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
 import com.stellariver.milky.domain.support.dependency.Trace;
@@ -54,7 +54,7 @@ public class Context{
     private final List<Event> finalEvents = new ArrayList<>();
 
     @Getter
-    private final List<Record> records = new ArrayList<>();
+    private final List<Trail> trails = new ArrayList<>();
 
     public void clearTraces() {
         traces.clear();
@@ -86,8 +86,8 @@ public class Context{
         publish(new PlaceHolderEvent(aggregateId));
     }
 
-    public void record(@NonNull Record record) {
-        records.add(record);
+    public void record(@NonNull Trail trail) {
+        trails.add(trail);
     }
 
     public List<Event> popEvents() {

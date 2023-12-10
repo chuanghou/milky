@@ -16,7 +16,7 @@ import java.util.List;
 @SuperBuilder
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class Record {
+public class Trail {
 
     String beanName;
 
