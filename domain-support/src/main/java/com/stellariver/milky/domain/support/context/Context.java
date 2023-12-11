@@ -14,7 +14,6 @@ import com.stellariver.milky.domain.support.base.BaseDataObject;
 import com.stellariver.milky.domain.support.base.Trail;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
-import com.stellariver.milky.domain.support.dependency.Trace;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.PlaceHolderEvent;
@@ -45,8 +44,6 @@ public class Context{
     private final Map<Class<? extends Typed<?>>, Object> parameters = new HashMap<>();
 
     private final Map<Class<? extends Typed<?>>, Object> metaData = new HashMap<>();
-    @Getter
-    private final List<Trace> traces = new ArrayList<>();
 
     private final List<Event> events = new ArrayList<>();
 
@@ -55,10 +52,6 @@ public class Context{
 
     @Getter
     private final List<Trail> trails = new ArrayList<>();
-
-    public void clearTraces() {
-        traces.clear();
-    }
 
     public <T> void addMetaData(Class<? extends Typed<T>> key, T value) {
         boolean contains = metaData.containsKey(key);

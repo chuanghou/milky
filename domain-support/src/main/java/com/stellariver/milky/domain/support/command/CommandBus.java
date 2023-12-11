@@ -426,10 +426,8 @@ public class CommandBus {
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
-                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName())
-                        .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
+                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName()).messages(Collect.asList(command)).build();
                 context.record(trail);
-                context.clearTraces();
             });
 
             // // run command handlers
@@ -448,10 +446,8 @@ public class CommandBus {
             // run command before interceptors, it is corresponding to a common command, an instance method
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, aggregate, context);
-                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName())
-                        .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
+                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName()).messages(Collect.asList(command)).build();
                 context.record(trail);
-                context.clearTraces();
             });
 
             // run command handlers
@@ -465,10 +461,7 @@ public class CommandBus {
             throw new SysEx("unreached part!");
         }
 
-        Trail trail = Trail.builder().beanName(aggregate.getClass().getSimpleName())
-                .messages(Collections.singletonList(command)).traces(context.getTraces())
-                .result(result)
-                .build();
+        Trail trail = Trail.builder().beanName(aggregate.getClass().getSimpleName()).messages(Collect.asList(command)).result(result).build();
         context.record(trail);
 
         // process context cache for aggregate
@@ -523,10 +516,8 @@ public class CommandBus {
         List<Interceptor> interceptors = afterCommandInterceptors.get(command.getClass());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
-            trail = Trail.builder().beanName(interceptor.getClass().getSimpleName())
-                    .messages(Collections.singletonList(command)).traces(context.getTraces()).build();
+            trail = Trail.builder().beanName(interceptor.getClass().getSimpleName()).messages(Collections.singletonList(command)).build();
             context.record(trail);
-            context.clearTraces();
         }
 
         return result;

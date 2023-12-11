@@ -1,7 +1,6 @@
 package com.stellariver.milky.domain.support.base;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.stellariver.milky.domain.support.dependency.Trace;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -21,8 +20,6 @@ public class Trail {
     String beanName;
 
     List<Message> messages;
-
-    List<Trace> traces;
 
     Object result;
 

@@ -109,13 +109,8 @@ public class EventBus {
     public void route(Event event, Context context) {
         eventRouterMap.get(event.getClass()).forEach(router -> {
             router.route(event, context);
-            Trail trail = Trail.builder()
-                    .beanName(router.getClass().getSimpleName())
-                    .messages(Collections.singletonList(event))
-                    .traces(context.getTraces())
-                    .build();
+            Trail trail = Trail.builder().beanName(router.getClass().getSimpleName()).messages(Collect.asList(event)).build();
             context.record(trail);
-            context.clearTraces();
         });
     }
 
@@ -177,10 +172,8 @@ public class EventBus {
             } else {
                 Reflect.invoke(method, bean, events, context);
             }
-            Trail trail = Trail.builder().beanName(this.getClass().getSimpleName())
-                    .messages(new ArrayList<>(events)).traces(context.getTraces()).build();
+            Trail trail = Trail.builder().beanName(this.getClass().getSimpleName()).messages(new ArrayList<>(events)).build();
             context.record(trail);
-            context.clearTraces();
         }
     }
 
