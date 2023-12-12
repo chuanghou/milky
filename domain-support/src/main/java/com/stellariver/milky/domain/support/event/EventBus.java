@@ -34,11 +34,9 @@ import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
  */
 public class EventBus {
 
-    static final private Predicate<Method> FORMAT =
-            method -> Modifier.isPublic(method.getModifiers())
-                    && method.getParameterTypes().length == 2
-                    && Event.class.isAssignableFrom(method.getParameterTypes()[0])
-                    && method.getParameterTypes()[1] == Context.class;
+    static final private Predicate<Method> FORMAT = method ->
+            Modifier.isPublic(method.getModifiers()) && method.getParameterTypes().length == 2
+                    && Event.class.isAssignableFrom(method.getParameterTypes()[0]) && method.getParameterTypes()[1] == Context.class;
 
     static final private Predicate<Method> FINAL_EVENT_ROUTER_FORMAT = method -> {
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -165,10 +163,7 @@ public class EventBus {
             }
             if (asyncable) {
                 List<? extends Event> finalEvents = events;
-                executorService.submit(() -> {
-                    Reflect.invoke(method, bean, finalEvents, context);
-                    //TODO record 问题 因为context传过去了，如果进行一般意义上的dependency 填充会有 线程安全性问题
-                });
+                executorService.submit(() -> Reflect.invoke(method, bean, finalEvents, context));
             } else {
                 Reflect.invoke(method, bean, events, context);
             }
