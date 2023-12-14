@@ -20,7 +20,7 @@ public abstract class AbstractIterableQuery implements Serializable {
 
     String nexPageKey;
 
-    @NotNull @Positive
+    @NotNull(message = "需要填写一页数量") @Positive(message = "一页数量需要大于0")
     Integer pageSize;
 
 }
