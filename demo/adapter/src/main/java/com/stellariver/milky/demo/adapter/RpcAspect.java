@@ -88,7 +88,7 @@ public class RpcAspect {
                 if (returnType == Result.class) {
                     result = Result.error(errorEnums, exceptionType);
                 } else {
-                    result = IteratableResult.pageError(errorEnums, exceptionType);
+                    result = IterableResult.pageError(errorEnums, exceptionType);
                 }
                 if (exceptionType == ExceptionType.BIZ) {
                     ((Result<?>) result).setMessage(t.getMessage());

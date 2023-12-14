@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo.client.service;
 
-import com.stellariver.milky.common.base.IteratableResult;
+import com.stellariver.milky.common.base.IterableResult;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.demo.client.entity.ItemDTO;
 import com.stellariver.milky.demo.client.entity.ItemDTOIterableQuery;
@@ -12,5 +12,5 @@ public interface ItemQueryService {
 
     Result<ItemDTO> queryItemDTO(Long itemId);
 
-    IteratableResult<ItemDTO> pageQueryItemDTO(ItemDTOIterableQuery query);
+    IterableResult<ItemDTO> pageQueryItemDTO(ItemDTOIterableQuery query);
 }

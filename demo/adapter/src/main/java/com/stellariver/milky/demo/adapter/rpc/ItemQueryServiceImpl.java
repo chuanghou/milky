@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.adapter.rpc;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.stellariver.milky.common.base.IteratableResult;
+import com.stellariver.milky.common.base.IterableResult;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.util.Collect;
@@ -39,7 +39,7 @@ public class ItemQueryServiceImpl implements ItemQueryService {
     }
 
     @Override
-    public IteratableResult<ItemDTO> pageQueryItemDTO(ItemDTOIterableQuery query) {
+    public IterableResult<ItemDTO> pageQueryItemDTO(ItemDTOIterableQuery query) {
         LambdaQueryWrapper<ItemDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ItemDO::getUserId, query.getUserId());
         wrapper.orderBy(true, false, ItemDO::getItemId);
@@ -53,9 +53,9 @@ public class ItemQueryServiceImpl implements ItemQueryService {
         List<ItemDTO> itemDTOs = itemDOS.stream().map(Convertor.INST::to).collect(Collectors.toList());
         if (Collect.isNotEmpty(itemDTOs)) {
             String nextPageKey = itemDOS.get(itemDOS.size() - 1).getItemId().toString();
-            return IteratableResult.success(itemDTOs, nextPageKey);
+            return IterableResult.success(itemDTOs, nextPageKey);
         } else {
-            return IteratableResult.empty();
+            return IterableResult.empty();
         }
     }
 
