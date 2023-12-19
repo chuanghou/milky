@@ -44,7 +44,7 @@ public class PageQueryTest {
 
         IterableResult<ItemDTO> itemDTOIterableResult = itemQueryService.pageQueryItemDTO(query);
 
-        query.setNexPageKey(itemDTOIterableResult.getNextPageKey());
+        query.setNextPageKey(itemDTOIterableResult.getNextPageKey());
 
         itemDTOIterableResult = itemQueryService.pageQueryItemDTO(query);
 

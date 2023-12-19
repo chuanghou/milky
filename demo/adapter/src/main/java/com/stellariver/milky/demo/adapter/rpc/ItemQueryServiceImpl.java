@@ -44,8 +44,8 @@ public class ItemQueryServiceImpl implements ItemQueryService {
         wrapper.eq(ItemDO::getUserId, query.getUserId());
         wrapper.orderBy(true, false, ItemDO::getItemId);
 //        Long count = itemDOMapper.selectCount(wrapper);
-        if (StringUtils.isNotBlank(query.getNexPageKey())) {
-            Long lastMinItemId = nexKeyService.apply(query.getNexPageKey());
+        if (StringUtils.isNotBlank(query.getNextPageKey())) {
+            Long lastMinItemId = nexKeyService.apply(query.getNextPageKey());
             wrapper.lt(true, ItemDO::getItemId, lastMinItemId);
         }
         wrapper.last("limit " + query.getPageSize());
