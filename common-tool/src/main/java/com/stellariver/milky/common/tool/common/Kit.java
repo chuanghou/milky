@@ -11,16 +11,20 @@ import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
  * @author houchuang
  */
 public class Kit {
+
+    public static <T> T last(List<T> ts) {
+        if (ts == null || ts.size() == 0) {
+            throw new IllegalStateException("The target list is empty!");
+        }
+        return ts.get(ts.size() - 1);
+    }
 
     public static boolean eq(Object a, Object b) {
         return Objects.equals(a, b);
