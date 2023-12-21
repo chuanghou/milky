@@ -97,7 +97,7 @@ public class EventBus {
                     bean, method, annotation.asyncable(), annotation.order(), milkySupport.getThreadLocalTransferableExecutor());
         }).collect(Collectors.toList());
         List<FinalRouter<Class<? extends Event>>> notDefaultOrderRouters = tempFinalRouters.stream()
-                .filter(fR -> !Kit.eq(fR.getOrder(), Double.MAX_VALUE)).collect(Collectors.toList());
+                .filter(fR -> !Kit.eq(fR.getOrder(), Long.MAX_VALUE)).collect(Collectors.toList());
         Set<Long> orders = Collect.transfer(notDefaultOrderRouters, FinalRouter::getOrder, HashSet::new);
         SysEx.falseThrow(Kit.eq(orders.size(), notDefaultOrderRouters.size()),
                 CONFIG_ERROR.message("exists finalEventRouters share same order!"));
