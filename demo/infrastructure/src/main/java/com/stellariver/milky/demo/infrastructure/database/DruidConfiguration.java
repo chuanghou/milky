@@ -1,17 +1,26 @@
 package com.stellariver.milky.demo.infrastructure.database;
 
+import com.alibaba.druid.pool.ha.DataSourceCreator;
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceWrapper;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
+import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import com.stellariver.milky.spring.partner.SectionLoader;
 import com.stellariver.milky.spring.partner.UniqueIdBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
 
@@ -20,6 +29,38 @@ import javax.sql.DataSource;
  */
 @Configuration
 public class DruidConfiguration {
+
+
+    @Bean
+    @ConfigurationProperties(prefix = "spring.datasource.a")
+    public DataSource dataSourceA() {
+        return DruidDataSourceBuilder.create().build();
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = "spring.datasource.b")
+    public DataSource dataSourceB() {
+        return DruidDataSourceBuilder.create().build();
+    }
+
+    @Bean
+    @Primary
+    public DataSource dataSource(@Qualifier("dataSourceA") DataSource dataSourceA, @Qualifier("dataSourceB") DataSource dataSourceB) {
+        return new RoutingDataSource(dataSourceA, dataSourceB);
+    }
+
+    static public class RoutingDataSource extends AbstractRoutingDataSource {
+
+        public RoutingDataSource(DataSource dataSourceA, DataSource dataSourceB)  {
+            setTargetDataSources(Collect.asMap("dataSourceA", dataSourceA, "dataSourceB", dataSourceB));
+        }
+
+        @Override
+        protected Object determineCurrentLookupKey() {
+            return "dataSourceA";
+        }
+
+    }
 
     @Bean
     public ServletRegistrationBean<StatViewServlet> servletRegistrationBean() {

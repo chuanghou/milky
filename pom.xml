@@ -250,11 +250,6 @@
                 <version>3.5.3.1</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>druid-spring-boot-starter</artifactId>
-                <version>1.2.15</version>
-            </dependency>
-            <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>3.19.1</version>
@@ -274,6 +269,11 @@
                 <groupId>org.jooq</groupId>
                 <artifactId>joor-java-8</artifactId>
                 <version>0.9.15</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>1.2.20</version>
             </dependency>
             <!--infrastructure-base end-->
         </dependencies>
