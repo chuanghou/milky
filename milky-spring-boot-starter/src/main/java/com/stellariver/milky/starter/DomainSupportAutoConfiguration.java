@@ -92,7 +92,7 @@ public class DomainSupportAutoConfiguration {
     @ConditionalOnMissingBean
     public ThreadLocalTransferableExecutor threadLocalTransferableExecutor(@Autowired(required = false) List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setUncaughtExceptionHandler((t, e) -> log.error("ThreadLocalTransferableExecutor", e))
+                .setUncaughtExceptionHandler((t, e) -> log.error("uncaught exception from executor", e))
                 .setNameFormat("async-thread-%d")
                 .build();
 
