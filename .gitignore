@@ -37,3 +37,5 @@ nbdist/
 .flattened-pom.xml
 
 arthas-output
+
+*.jar

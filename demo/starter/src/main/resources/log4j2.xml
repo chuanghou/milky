@@ -8,48 +8,10 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d %p %c{1.} [%t] %m%n"/>
         </Console>
-
-        <RollingRandomAccessFile name="Application" immediateFlush="true"
-                                 fileName="${LOG_PATH}/application.log"
-                                 filePattern="${LOG_PATH}/backup/msg.%d{yyyyMMddHH}.zip">
-
-            <Filters>
-                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-
-            <JsonLayout compact="true" eventEol="true" objectMessageAsJsonObject="true" locationInfo="true">
-                <KeyValuePair key="error_duplicate_key" value="$${ctx:error_duplicate_key:-null}"/>
-                <KeyValuePair key="milky_class" value="$${ctx:milky_class:-null}"/>
-                <KeyValuePair key="milky_method" value="$${ctx:milky_method:-null}"/>
-                <KeyValuePair key="milky_line" value="$${ctx:milky_line:-null}"/>
-                <KeyValuePair key="success" value="$${ctx:success:-null}"/>
-                <KeyValuePair key="cost" value="$${ctx:cost:-null}"/>
-                <KeyValuePair key="trace_id" value="$${ctx:traceId:-null}"/>
-                <KeyValuePair key="invocation_id" value="$${ctx:invocationId:-null}"/>
-                <KeyValuePair key="arg0" value="$${ctx:arg0:-null}"/>
-                <KeyValuePair key="arg1" value="$${ctx:arg1:-null}"/>
-                <KeyValuePair key="arg2" value="$${ctx:arg2:-null}"/>
-                <KeyValuePair key="arg3" value="$${ctx:arg3:-null}"/>
-                <KeyValuePair key="arg4" value="$${ctx:arg4:-null}"/>
-                <KeyValuePair key="result" value="$${ctx:result:-null}"/>
-                <KeyValuePair key="test" value="$${ctx:_test:-null}"/>
-            </JsonLayout>
-            <Policies>
-                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-            </Policies>
-
-            <DefaultRolloverStrategy max="24">
-                <Delete basePath="${LOG_PATH}" maxDepth="2">
-                    <IfFileName glob="*/msg.*.zip" />
-                    <IfLastModified age="24H" />
-                </Delete>
-            </DefaultRolloverStrategy>
-        </RollingRandomAccessFile>
     </Appenders>
 
     <Loggers>
         <AsyncRoot level="INFO">
-            <AppenderRef ref="Application"/>
             <AppenderRef ref="Console"/>
         </AsyncRoot>
     </Loggers>

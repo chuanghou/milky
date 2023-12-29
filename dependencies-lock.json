@@ -1,0 +1,19 @@
+{
+  "dependencies" : [ {
+    "groupId" : "org.mapstruct",
+    "artifactId" : "mapstruct",
+    "version" : "1.4.2.Final",
+    "scope" : "compile",
+    "type" : "jar",
+    "optional" : false,
+    "integrity" : "sha512:8BupK4xLwe2cIWlX/R44lzB5W8dYIh0D6iU1uG+u0witjCEvPVvtL6+jKf1O+2h3XpaSPk5dZ+/2O0sGf2ncJw=="
+  }, {
+    "groupId" : "org.projectlombok",
+    "artifactId" : "lombok",
+    "version" : "1.18.22",
+    "scope" : "compile",
+    "type" : "jar",
+    "optional" : true,
+    "integrity" : "sha512:OAFkhuGe3oj/DDI1aTXJrRHWvdiIlAFttqIcMc9o5zxsrwVQTNcUh1nZvKUVL2Bovi1tJpOPDzKe2QhQhPHZhA=="
+  } ]
+}

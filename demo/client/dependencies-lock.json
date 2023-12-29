@@ -1,0 +1,59 @@
+{
+  "dependencies" : [ {
+    "groupId" : "com.stellariver.milky.demo",
+    "artifactId" : "common",
+    "version" : "0.2.1-SNAPSHOT",
+    "scope" : "compile",
+    "type" : "jar",
+    "optional" : false,
+    "integrity" : "sha512:cZzc14r23yJ3ihZqwBBJVQnQ0Zz2XEpr+wwA6J4OHC3nQKolONsgT/JodPl1o5WOoe5v8LgdS51p8wNk1XlvSA=="
+  }, {
+    "groupId" : "com.stellariver.milky",
+    "artifactId" : "common-base",
+    "version" : "0.2.1-SNAPSHOT",
+    "scope" : "compile",
+    "type" : "jar",
+    "optional" : false,
+    "integrity" : "sha512:q0KeR5FsI9of8cxSxx3vwE6xzR6576s4Kf3MP5odOddBDyOS6mTj0BVdqadEbpRdpSPv60lz+5Rh2imgP+UTcA=="
+  }, {
+    "groupId" : "javax.validation",
+    "artifactId" : "validation-api",
+    "version" : "2.0.1.Final",
+    "scope" : "compile",
+    "type" : "jar",
+    "optional" : false,
+    "integrity" : "sha512:LxNtM3xJqD3A7/HKrnS6EUEyabd5JXrgt2hk4ger1ymyOSqyrjo9x6bQZdYLrvhErXl6EfaViRGagnzO5cIIQA=="
+  }, {
+    "groupId" : "org.apache.commons",
+    "artifactId" : "commons-lang3",
+    "version" : "3.12.0",
+    "scope" : "compile",
+    "type" : "jar",
+    "optional" : false,
+    "integrity" : "sha512:+9vAlDyzSYsBSOhqObdz+XyOYBN0D3Lbxyf66r6kAgc+LMjE1oGY5fxrCKE7dwAjYpLpnUeF8smYny5frBH9gQ=="
+  }, {
+    "groupId" : "org.apache.commons",
+    "artifactId" : "commons-text",
+    "version" : "1.10.0",
+    "scope" : "compile",
+    "type" : "jar",
+    "optional" : false,
+    "integrity" : "sha512:r9g2oQlESeCnkf7mc2NmbEe20krP81OlCJuDezMsD0r4lWXDVGglIeNwYtIOa1LXDHe7TyTMqblTLCdPxwioMQ=="
+  }, {
+    "groupId" : "org.mapstruct",
+    "artifactId" : "mapstruct",
+    "version" : "1.4.2.Final",
+    "scope" : "compile",
+    "type" : "jar",
+    "optional" : false,
+    "integrity" : "sha512:8BupK4xLwe2cIWlX/R44lzB5W8dYIh0D6iU1uG+u0witjCEvPVvtL6+jKf1O+2h3XpaSPk5dZ+/2O0sGf2ncJw=="
+  }, {
+    "groupId" : "org.projectlombok",
+    "artifactId" : "lombok",
+    "version" : "1.18.22",
+    "scope" : "compile",
+    "type" : "jar",
+    "optional" : true,
+    "integrity" : "sha512:OAFkhuGe3oj/DDI1aTXJrRHWvdiIlAFttqIcMc9o5zxsrwVQTNcUh1nZvKUVL2Bovi1tJpOPDzKe2QhQhPHZhA=="
+  } ]
+}
