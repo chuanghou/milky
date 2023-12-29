@@ -6,7 +6,7 @@ public class Script implements Callable<Object> {
 
     @Override
     public Object call() {
-        return null;
+        return "Hello World";
     }
 
 }
