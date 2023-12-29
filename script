@@ -13,5 +13,5 @@ mvn clean install '-DskipTests' '-Dgpg.skip'
 
 mvn clean install '-Dmaven.test.skip=true'
 
-mvn dependency:copy-dependencies -DoutputDirectory=lib -DincludeScope=compile
+mvn dependency:copy-dependencies "-DexcludeGroupIds=com.stellariver.milky.demo"
 
