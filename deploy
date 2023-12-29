@@ -15,3 +15,7 @@ mvn clean install '-Dmaven.test.skip=true'
 
 mvn dependency:copy-dependencies "-DexcludeGroupIds=com.stellariver.milky.demo"
 
+1. mvn clean install '-DskipTests' '-Dgpg.skip' 刷新milky依赖到本地库
+2. cd demo/starter & mvn dependency:copy-dependencies "-DexcludeGroupIds=com.stellariver.milky.demo"
+3. 上传 demo/target ---> 服务器/bin目录，上传 demo/starter/dependency ---> dependency 目录
+
