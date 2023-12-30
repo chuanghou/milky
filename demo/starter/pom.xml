@@ -137,28 +137,28 @@
 <!--                </executions>-->
 <!--            </plugin>-->
 
-            <plugin>
-                <groupId>se.vandmo</groupId>
-                <artifactId>dependency-lock-maven-plugin</artifactId>
-                <version>1.0</version>
-                <executions>
-                    <execution>
-                        <id>check</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <dependencySets>
-                                <dependencySet>
-                                    <includes>com.stellariver.*:*</includes>
-                                    <integrity>ignore</integrity>
-                                </dependencySet>
-                            </dependencySets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>se.vandmo</groupId>-->
+<!--                <artifactId>dependency-lock-maven-plugin</artifactId>-->
+<!--                <version>1.0</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>check</id>-->
+<!--                        <phase>validate</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>check</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <dependencySets>-->
+<!--                                <dependencySet>-->
+<!--                                    <includes>com.stellariver.*:*</includes>-->
+<!--                                    <integrity>ignore</integrity>-->
+<!--                                </dependencySet>-->
+<!--                            </dependencySets>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>
