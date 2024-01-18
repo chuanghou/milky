@@ -51,7 +51,7 @@ public class ErrorEnumsBase {
     @Message("参数为空")
     public static ErrorEnum PARAM_IS_NULL;
 
-    @Message("并发操作失败")
+    @Message("操作太快，请稍后再试")
     public static ErrorEnum CONCURRENCY_VIOLATION;
 
     @Message("编译错误")

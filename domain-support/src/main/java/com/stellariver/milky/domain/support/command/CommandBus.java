@@ -400,7 +400,7 @@ public class CommandBus {
                     .sleepTimeMils(sleepTimeMs)
                     .build();
             locked = concurrentOperate.tryRetryLock(retryParameter);
-            BizEx.falseThrow(locked, CONCURRENCY_VIOLATION.message(command));
+            BizEx.falseThrow(locked, CONCURRENCY_VIOLATION);
         }
         Object result = doRoute(command, context, commandHandler);
         context.popEvents().forEach(event -> {
