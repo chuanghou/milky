@@ -1,6 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.base.Translate;
+import com.stellariver.milky.common.base.EnumSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class EnumTest {
     @AllArgsConstructor
     static public class MyItem {
 
-        @Translate
+        @EnumSerializer
         Season season;
     }
 
