@@ -7,16 +7,28 @@ import java.math.RoundingMode;
 
 public class Doubles {
 
-    public static double add(double left, double right) {
-        return BigDecimal.valueOf(left).add(BigDecimal.valueOf(right)).doubleValue();
+    public static double add(double left, double... right) {
+        BigDecimal l = BigDecimal.valueOf(left);
+        for (double r : right) {
+            l = l.add(BigDecimal.valueOf(r));
+        }
+        return l.doubleValue();
     }
 
-    public static double subtract(double left, double right) {
-        return BigDecimal.valueOf(left).subtract(BigDecimal.valueOf(right)).doubleValue();
+    public static double subtract(double left, double... right) {
+        BigDecimal l = BigDecimal.valueOf(left);
+        for (double r : right) {
+            l = l.subtract(BigDecimal.valueOf(r));
+        }
+        return l.doubleValue();
     }
 
-    public static double multiply(double left, double right) {
-        return BigDecimal.valueOf(left).multiply(BigDecimal.valueOf(right)).doubleValue();
+    public static double multiply(double left, double... right) {
+        BigDecimal l = BigDecimal.valueOf(left);
+        for (double r : right) {
+            l = l.multiply(BigDecimal.valueOf(r));
+        }
+        return l.doubleValue();
     }
 
     public static double divide(double left, double right, int scale, RoundingMode roundingMode) {
@@ -40,12 +52,12 @@ public class Doubles {
         return BigDecimal.valueOf(left).remainder(BigDecimal.valueOf(right)).doubleValue();
     }
 
-    public static double scale(double value, int number, RoundingMode roundingMode) {
-        return BigDecimal.valueOf(value).setScale(number, roundingMode).doubleValue();
+    public static double scale(double value, int bits, RoundingMode roundingMode) {
+        return BigDecimal.valueOf(value).setScale(bits, roundingMode).doubleValue();
     }
 
-    public static double scale(double value, int number) {
-        return BigDecimal.valueOf(value).setScale(number, RoundingMode.HALF_UP).doubleValue();
+    public static double scale(double value, int bits) {
+        return BigDecimal.valueOf(value).setScale(bits, RoundingMode.HALF_UP).doubleValue();
     }
 
 }
