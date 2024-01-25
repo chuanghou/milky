@@ -11,6 +11,8 @@ mvn clean test -am -Dtest=BasicTest -pl demo/starter -DfailIfNoTests=false
 # in linux or macOs the quotation is not necessary, but windows, garbage
 mvn clean install '-DskipTests' '-Dgpg.skip'
 
+mvn clean deploy "-DskipTests"
+
 mvn clean install '-Dmaven.test.skip=true'
 
 mvn dependency:copy-dependencies "-DexcludeGroupIds=com.stellariver.milky.demo"
