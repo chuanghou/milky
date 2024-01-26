@@ -26,7 +26,7 @@
     </modules>
 
     <properties>
-        <revision>0.2.3</revision>
+        <revision>0.2.4-SNAPSHOT</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <spring.boot.version>2.7.7</spring.boot.version>
@@ -288,22 +288,6 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-extension</artifactId>
                 <version>3.5.3.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.redisson</groupId>
-                <artifactId>redisson-spring-boot-starter</artifactId>
-                <version>3.19.1</version>
-            </dependency>
-            <dependency>
-                <groupId>it.ozimov</groupId>
-                <artifactId>embedded-redis</artifactId>
-                <version>0.7.3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-simple</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jooq</groupId>

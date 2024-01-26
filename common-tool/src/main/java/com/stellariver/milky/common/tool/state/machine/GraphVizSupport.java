@@ -9,12 +9,12 @@ import java.util.regex.Pattern;
 
 public class GraphVizSupport {
 
-    static private final Pattern patternS = Pattern.compile("\\\"\\w+\\\"\\s*->");
-    static private final Pattern patternT = Pattern.compile("->\\s*\\\"\\w+\\\"");
-    static private final Pattern patternL = Pattern.compile("\\[\\s*label\\s*=\\s*\\\".+\\\"\\]");
-    static private final Pattern patternE = Pattern.compile("\\\"\\s*\\w+(,|\\\")");
-    static private final Pattern patternC = Pattern.compile("c\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
-    static private final Pattern patternR = Pattern.compile("r\\s*\\:\\s*\\w+\\s*(\\,|\\\")");
+    static private final Pattern patternS = Pattern.compile("\"\\w+\"\\s*->");
+    static private final Pattern patternT = Pattern.compile("->\\s*\"\\w+\"");
+    static private final Pattern patternL = Pattern.compile("\\[\\s*label\\s*=\\s*\".+\"]");
+    static private final Pattern patternE = Pattern.compile("\"\\s*\\w+([,\"])");
+    static private final Pattern patternC = Pattern.compile("c\\s*:\\s*\\w+\\s*([,\"])");
+    static private final Pattern patternR = Pattern.compile("r\\s*:\\s*\\w+\\s*([,\"])");
 
     @SuppressWarnings("unchecked")
     public static StateMachine<String, String> fromGraphViz(String dot) {
