@@ -2,7 +2,7 @@ package com.stellariver.milky.domain.support.base;
 
 import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.tool.common.Kit;
-import com.stellariver.milky.common.tool.executor.ThreadLocalTransferableExecutor;
+import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventRouters;
 import com.stellariver.milky.domain.support.interceptor.Interceptors;
@@ -27,7 +27,7 @@ public class MilkySupport {
 
     MilkyTraceRepository milkyTraceRepository;
 
-    ThreadLocalTransferableExecutor threadLocalTransferableExecutor;
+    EnhancedExecutor enhancedExecutor;
 
     List<Interceptors> interceptors;
 
@@ -45,7 +45,7 @@ public class MilkySupport {
 
     public MilkySupport(ConcurrentOperate concurrentOperate,
                         MilkyTraceRepository milkyTraceRepository,
-                        ThreadLocalTransferableExecutor threadLocalTransferableExecutor,
+                        EnhancedExecutor enhancedExecutor,
                         List<Interceptors> interceptors,
                         List<EventRouters> eventRouters,
                         List<DaoAdapter<?>> daoAdapters,
@@ -55,7 +55,7 @@ public class MilkySupport {
                         TransactionSupport transactionSupport) {
         this.concurrentOperate = concurrentOperate;
         this.milkyTraceRepository = milkyTraceRepository;
-        this.threadLocalTransferableExecutor = threadLocalTransferableExecutor;
+        this.enhancedExecutor = enhancedExecutor;
         this.interceptors = Kit.op(interceptors).orElseGet(ArrayList::new);
         this.eventRouters = Kit.op(eventRouters).orElseGet(ArrayList::new);
         this.daoAdapters = Kit.op(daoAdapters).orElseGet(ArrayList::new);

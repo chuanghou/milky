@@ -9,7 +9,7 @@ import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.common.UK;
-import com.stellariver.milky.common.tool.executor.ThreadLocalTransferableExecutor;
+import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
@@ -91,7 +91,7 @@ public class CommandBus {
 
     private final MilkyTraceRepository milkyTraceRepository;
 
-    private final ThreadLocalTransferableExecutor threadLocalTransferableExecutor;
+    private final EnhancedExecutor enhancedExecutor;
 
     private final Reflections reflections;
 
@@ -109,7 +109,7 @@ public class CommandBus {
         this.concurrentOperate = milkySupport.getConcurrentOperate();
         this.milkyTraceRepository = milkySupport.getMilkyTraceRepository();
         this.transactionSupport = milkySupport.getTransactionSupport();
-        this.threadLocalTransferableExecutor = milkySupport.getThreadLocalTransferableExecutor();
+        this.enhancedExecutor = milkySupport.getEnhancedExecutor();
         this.eventBus = eventBus;
         this.reflections = milkySupport.getReflections();
         this.beanLoader = milkySupport.getBeanLoader();
@@ -331,9 +331,9 @@ public class CommandBus {
                 });
             }
             eventBus.postFinalRoute(context.getFinalEvents(), context);
-            threadLocalTransferableExecutor.submit(() -> milkyTraceRepository.record(context, true));
+            enhancedExecutor.submit(() -> milkyTraceRepository.record(context, true));
         } catch (Throwable throwable) {
-            threadLocalTransferableExecutor.submit(() -> milkyTraceRepository.record(context, false));
+            enhancedExecutor.submit(() -> milkyTraceRepository.record(context, false));
             if (memoryTx) {
                 transactionSupport.rollback();
             }

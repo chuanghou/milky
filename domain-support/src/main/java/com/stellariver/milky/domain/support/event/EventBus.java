@@ -94,7 +94,7 @@ public class EventBus {
             Class<? extends Event> eventClass = (Class<? extends Event>) typeArgument;
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             return new FinalRouter<Class<? extends Event>>(eventClass,
-                    bean, method, annotation.asyncable(), annotation.order(), milkySupport.getThreadLocalTransferableExecutor());
+                    bean, method, annotation.asyncable(), annotation.order(), milkySupport.getEnhancedExecutor());
         }).collect(Collectors.toList());
         List<FinalRouter<Class<? extends Event>>> notDefaultOrderRouters = tempFinalRouters.stream()
                 .filter(fR -> !Kit.eq(fR.getOrder(), Long.MAX_VALUE)).collect(Collectors.toList());

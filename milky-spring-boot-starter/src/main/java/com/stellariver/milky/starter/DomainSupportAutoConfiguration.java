@@ -2,9 +2,9 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.base.BeanLoader;
-import com.stellariver.milky.common.tool.executor.AsyncExecutorConfiguration;
+import com.stellariver.milky.common.tool.executor.ExecutorConfiguration;
 import com.stellariver.milky.common.tool.executor.ThreadLocalPasser;
-import com.stellariver.milky.common.tool.executor.ThreadLocalTransferableExecutor;
+import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.domain.support.base.DomainTunnel;
 import com.stellariver.milky.domain.support.base.DomainTunnelImpl;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
@@ -47,7 +47,7 @@ public class DomainSupportAutoConfiguration {
                                      MilkyTraceRepository milkyTraceRepository,
                                      @Autowired(required = false)
                                      TransactionSupport transactionSupport,
-                                     ThreadLocalTransferableExecutor threadLocalTransferableExecutor,
+                                     EnhancedExecutor enhancedExecutor,
                                      @Autowired(required = false)
                                      List<Interceptors> interceptors,
                                      @Autowired(required = false)
@@ -68,7 +68,7 @@ public class DomainSupportAutoConfiguration {
         Reflections reflections = new Reflections(configuration);
         return new MilkySupport(concurrentOperate,
                 milkyTraceRepository,
-                threadLocalTransferableExecutor,
+                enhancedExecutor,
                 interceptors,
                 eventRouters,
                 daoAdapters,
@@ -90,20 +90,21 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ThreadLocalTransferableExecutor threadLocalTransferableExecutor(@Autowired(required = false) List<ThreadLocalPasser<?>> threadLocalPassers, MilkProperties properties) {
+    public EnhancedExecutor enhancedExecutor(MilkProperties properties,
+                                             @Autowired(required = false) List<ThreadLocalPasser<?>> threadLocalPassers) {
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((t, e) -> log.error("uncaught exception from executor", e))
                 .setNameFormat("async-thread-%d")
                 .build();
 
-        AsyncExecutorConfiguration configuration = AsyncExecutorConfiguration.builder()
+        ExecutorConfiguration configuration = ExecutorConfiguration.builder()
                 .corePoolSize(properties.getCorePoolSize())
                 .maximumPoolSize(properties.getMaximumPoolSize())
                 .keepAliveTimeMinutes(properties.getKeepAliveTimeMinutes())
                 .blockingQueueCapacity(properties.getBlockingQueueCapacity())
                 .build();
 
-        return new ThreadLocalTransferableExecutor(configuration, threadFactory, threadLocalPassers);
+        return new EnhancedExecutor(configuration, threadFactory, threadLocalPassers);
     }
 
     @Bean
