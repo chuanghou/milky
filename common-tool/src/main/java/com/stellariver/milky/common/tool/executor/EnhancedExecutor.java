@@ -6,7 +6,6 @@ import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Kit;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
@@ -131,23 +130,6 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
 
     public Profile profile(String identify) {
         return forward.get(identify);
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    static public class Profile {
-
-        String identify;
-        Thread thread;
-        Runnable runnable;
-        LocalTime start;
-        LocalTime end;
-        Throwable throwable;
-        Object result;
-
     }
 
 }
