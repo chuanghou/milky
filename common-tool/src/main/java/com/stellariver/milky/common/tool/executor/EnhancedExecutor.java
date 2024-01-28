@@ -1,22 +1,52 @@
 package com.stellariver.milky.common.tool.executor;
 
-import com.stellariver.milky.common.base.BizEx;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Kit;
-import lombok.NonNull;
-import lombok.SneakyThrows;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.lang3.Range;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
+
+import static org.apache.commons.lang3.time.DateFormatUtils.ISO_8601_EXTENDED_TIME_FORMAT;
 
 /**
  * @author houchuang
  */
+@Slf4j
 public class EnhancedExecutor extends ThreadPoolExecutor {
+
+    static private Field futureTaskCallable;
+    static private Field runnableAdapterTask;
+
+    private final Map<String, Profile> forward = new ConcurrentHashMap<>();
+    private final Map<Runnable, String> backward = new ConcurrentHashMap<>();
+    private final Cache<String, Profile> history = CacheBuilder.newBuilder().maximumSize(100).build();
+
+    private final AtomicInteger atomicInteger = new AtomicInteger();
+
+    static {
+        try {
+            futureTaskCallable = FutureTask.class.getDeclaredField("callable");
+            futureTaskCallable.setAccessible(true);
+            runnableAdapterTask = Class.forName("java.util.concurrent.Executors.RunnableAdapter").getDeclaredField("task");
+            runnableAdapterTask.setAccessible(true);
+        } catch (Throwable ignore) {}
+    }
 
     private final List<ThreadLocalPasser<?>> threadLocalPassers;
 
@@ -59,6 +89,44 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     }
 
     @Override
+    @SneakyThrows
+    protected void beforeExecute(Thread t, Runnable runnable) {
+
+        String identify;
+        if (runnable instanceof FutureTask){
+            FutureTask<?> futureTask = (FutureTask<?>) runnable;
+            Callable<?> callable = (Callable<?>) futureTaskCallable.get(futureTask);
+            if (callable.getClass().getName().equals("java.util.concurrent.Executors.RunnableAdapter")) {
+                identify = ((IdentifiedRunnable) runnableAdapterTask.get(callable)).getIdentify();
+            } else {
+                identify = ((IdentifiedCallable<?>) callable).getIdentify();
+            }
+        } else if ((runnable instanceof IdentifiedRunnable)){
+            identify = ((IdentifiedRunnable) runnable).getIdentify();
+        } else {
+            throw new RuntimeException();
+        }
+
+        if (forward.containsKey(identify)) {
+            String time = ISO_8601_EXTENDED_TIME_FORMAT.format(new Date());
+            identify = String.format("%s_%s_%s", identify, time, atomicInteger.incrementAndGet() ^ 0x00ff);
+            log.error("repeat identify: {}", identify);
+        }
+
+        forward.put(identify, runnable);
+        backward.put(runnable, identify);
+
+    }
+
+    @Override
+    protected void afterExecute(Runnable runnable, Throwable t) {
+        String identify = backward.remove(runnable);
+        Profile profile = forward.remove(identify);
+        history.put(identify, profile);
+    }
+
+    @Override
+    @SneakyThrows
     public void execute(@NonNull Runnable runnable) {
         final Thread superThread = Thread.currentThread();
         HashMap<Class<?>, Object> threadLocalMap = new HashMap<>(16);
@@ -75,55 +143,28 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
                 threadLocalPassers.forEach(ThreadLocalPasser::clearThreadLocal);
             }
         });
-    }
-
-
-    @NonNull @Override
-    public Future<?> submit(@NonNull Runnable task) {
-        if (task instanceof IdentifiedRunnable) {
-
-        } else {
-
-        }
-        return super.submit(task);
-    }
-
-
-    @NonNull @Override
-    public <T> Future<T> submit(@NonNull Runnable task, T result) {
-        if (task instanceof IdentifiedRunnable) {
-
-        } else {
-
-        }
-
-        return super.submit(task, result);
-    }
-
-    @NonNull @Override
-    public <T> Future<T> submit(@NonNull Callable<T> task) {
-        if (task instanceof IdentifiedCallable) {
-
-        } else {
-
-        }
-        return super.submit(task);
-    }
-
-
-    @Override
-    protected void beforeExecute(Thread t, Runnable r) {
-
-        if (r instanceof FutureTask) {
-            FutureTask<?> futureTask = (FutureTask<?>) r;
-            futureT
-        }
 
     }
 
-    @Override
-    protected void afterExecute(Runnable r, Throwable t) {
+
+    public Profile profile(String identify) {
+
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    static public class Profile {
+
+        Thread thread;
+        Runnable runnable;
+        LocalTime start;
+        LocalTime end;
+        Throwable throwable;
+        Object result;
+
+    }
 
 }

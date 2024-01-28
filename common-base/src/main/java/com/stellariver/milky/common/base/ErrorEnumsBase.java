@@ -57,6 +57,9 @@ public class ErrorEnumsBase {
     @Message("编译错误")
     public static ErrorEnum COMPILE_FAILURE;
 
+    @Message("重复标识")
+    public static ErrorEnum REPEAT_IDENTIFY;
+
     static {
         for (Field field : ErrorEnumsBase.class.getDeclaredFields()) {
             try {
