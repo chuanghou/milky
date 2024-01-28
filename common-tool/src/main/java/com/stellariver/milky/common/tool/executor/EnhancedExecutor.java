@@ -8,21 +8,11 @@ import com.stellariver.milky.common.tool.common.Kit;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.lang3.Range;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.LongAdder;
-
-import static org.apache.commons.lang3.time.DateFormatUtils.ISO_8601_EXTENDED_TIME_FORMAT;
 
 /**
  * @author houchuang
@@ -37,8 +27,6 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     private final Map<Runnable, String> backward = new ConcurrentHashMap<>();
     private final Cache<String, Profile> history = CacheBuilder.newBuilder().maximumSize(100).build();
 
-    private final AtomicInteger atomicInteger = new AtomicInteger();
-
     static {
         try {
             futureTaskCallable = FutureTask.class.getDeclaredField("callable");
@@ -49,8 +37,6 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     }
 
     private final List<ThreadLocalPasser<?>> threadLocalPassers;
-
-    private final Map<String, Runnable> tasks = new ConcurrentHashMap<>();
 
     /**
      * The threadFactory parameter need a unCaughtExceptionHandler like follows
@@ -64,7 +50,7 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
      * }</pre>
      */
     @SneakyThrows
-    public EnhancedExecutor(ExecutorConfiguration configuration,
+    public EnhancedExecutor(EnhancedExecutorConfiguration configuration,
                             ThreadFactory threadFactory,
                             CallerRunsPolicy callerRunsPolicy,
                             List<ThreadLocalPasser<?>> threadLocalPassers) {
@@ -82,7 +68,7 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         SysEx.trueThrow(b, ErrorEnumsBase.CONFIG_ERROR.message("应该手动指定异常处理器"));
     }
 
-    public EnhancedExecutor(ExecutorConfiguration configuration,
+    public EnhancedExecutor(EnhancedExecutorConfiguration configuration,
                             ThreadFactory threadFactory,
                             List<ThreadLocalPasser<?>> threadLocalPassers) {
         this(configuration, threadFactory, new ThreadPoolExecutor.CallerRunsPolicy(), threadLocalPassers);
@@ -107,13 +93,9 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
             throw new RuntimeException();
         }
 
-        if (forward.containsKey(identify)) {
-            String time = ISO_8601_EXTENDED_TIME_FORMAT.format(new Date());
-            identify = String.format("%s_%s_%s", identify, time, atomicInteger.incrementAndGet() ^ 0x00ff);
-            log.error("repeat identify: {}", identify);
-        }
-
-        forward.put(identify, runnable);
+        SysEx.trueThrow(forward.containsKey(identify), ErrorEnumsBase.REPEAT_IDENTIFY);
+        Profile profile = Profile.builder().identify(identify).runnable(runnable).start(LocalTime.now()).build();
+        forward.put(identify, profile);
         backward.put(runnable, identify);
 
     }
@@ -148,7 +130,7 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
 
 
     public Profile profile(String identify) {
-
+        return forward.get(identify);
     }
 
     @Data
@@ -158,6 +140,7 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     static public class Profile {
 
+        String identify;
         Thread thread;
         Runnable runnable;
         LocalTime start;

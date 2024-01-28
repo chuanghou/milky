@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ExecutorConfiguration {
+public class EnhancedExecutorConfiguration {
 
     int corePoolSize;
 

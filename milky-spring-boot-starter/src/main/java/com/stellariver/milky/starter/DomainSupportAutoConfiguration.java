@@ -2,7 +2,7 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.base.BeanLoader;
-import com.stellariver.milky.common.tool.executor.ExecutorConfiguration;
+import com.stellariver.milky.common.tool.executor.EnhancedExecutorConfiguration;
 import com.stellariver.milky.common.tool.executor.ThreadLocalPasser;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.domain.support.base.DomainTunnel;
@@ -97,7 +97,7 @@ public class DomainSupportAutoConfiguration {
                 .setNameFormat("async-thread-%d")
                 .build();
 
-        ExecutorConfiguration configuration = ExecutorConfiguration.builder()
+        EnhancedExecutorConfiguration configuration = EnhancedExecutorConfiguration.builder()
                 .corePoolSize(properties.getCorePoolSize())
                 .maximumPoolSize(properties.getMaximumPoolSize())
                 .keepAliveTimeMinutes(properties.getKeepAliveTimeMinutes())
