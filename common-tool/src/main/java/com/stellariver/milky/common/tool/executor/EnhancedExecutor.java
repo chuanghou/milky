@@ -9,6 +9,7 @@ import com.stellariver.milky.common.tool.common.Kit;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalTime;
@@ -21,22 +22,9 @@ import java.util.concurrent.*;
 @Slf4j
 public class EnhancedExecutor extends ThreadPoolExecutor {
 
-    static private Field futureTaskCallable;
-    static private Field runnableAdapterTask;
-
-    private final Map<String, Profile> forward = new ConcurrentHashMap<>();
-    private final Map<Runnable, String> backward = new ConcurrentHashMap<>();
+    private final ThreadLocal<String> taskIdentify = new ThreadLocal<>();
+    private final Map<String, Profile> profiles = new ConcurrentHashMap<>();
     private final Cache<String, Profile> history = CacheBuilder.newBuilder().maximumSize(100).build();
-
-    static {
-        try {
-            futureTaskCallable = FutureTask.class.getDeclaredField("callable");
-            futureTaskCallable.setAccessible(true);
-            runnableAdapterTask = Class.forName("java.util.concurrent.Executors.RunnableAdapter").getDeclaredField("task");
-            runnableAdapterTask.setAccessible(true);
-        } catch (Throwable ignore) {}
-    }
-
     private final List<ThreadLocalPasser<?>> threadLocalPassers;
 
     /**
@@ -50,7 +38,6 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
      *     .build();
      * }</pre>
      */
-    @SneakyThrows
     public EnhancedExecutor(EnhancedExecutorConfiguration configuration,
                             ThreadFactory threadFactory,
                             CallerRunsPolicy callerRunsPolicy,
@@ -61,12 +48,11 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
                 TimeUnit.MINUTES,
                 new ArrayBlockingQueue<>(configuration.getBlockingQueueCapacity()),
                 threadFactory, callerRunsPolicy);
+        Thread.UncaughtExceptionHandler exceptionHandler = threadFactory.newThread(() -> {}).getUncaughtExceptionHandler();
+        if (exceptionHandler.getClass().equals(ThreadGroup.class)) {
+            throw new IllegalArgumentException("A customized Thread.UncaughtExceptionHandler is recommended!");
+        }
         this.threadLocalPassers = Kit.op(threadLocalPassers).orElseGet(ArrayList::new);
-//        Boolean b = CompletableFuture.supplyAsync(() -> {
-//            Thread.UncaughtExceptionHandler handler = Thread.currentThread().getUncaughtExceptionHandler();
-//            return handler instanceof ThreadGroup;
-//        }, this).get();
-//        SysEx.trueThrow(b, ErrorEnumsBase.CONFIG_ERROR.message("应该手动指定异常处理器"));
     }
 
     public EnhancedExecutor(EnhancedExecutorConfiguration configuration,
@@ -75,36 +61,13 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         this(configuration, threadFactory, new ThreadPoolExecutor.CallerRunsPolicy(), threadLocalPassers);
     }
 
-    @Override
-    @SneakyThrows
-    protected void beforeExecute(Thread t, Runnable runnable) {
 
-        String identify;
-        if (runnable instanceof FutureTask){
-            FutureTask<?> futureTask = (FutureTask<?>) runnable;
-            Callable<?> callable = (Callable<?>) futureTaskCallable.get(futureTask);
-            if (callable.getClass().getName().equals("java.util.concurrent.Executors.RunnableAdapter")) {
-                identify = ((IdentifiedRunnable) runnableAdapterTask.get(callable)).getIdentify();
-            } else {
-                identify = ((IdentifiedCallable<?>) callable).getIdentify();
-            }
-        } else if ((runnable instanceof IdentifiedRunnable)){
-            identify = ((IdentifiedRunnable) runnable).getIdentify();
-        } else {
-            throw new RuntimeException();
-        }
-
-        SysEx.trueThrow(forward.containsKey(identify), ErrorEnumsBase.REPEAT_IDENTIFY);
-        Profile profile = Profile.builder().identify(identify).runnable(runnable).start(LocalTime.now()).build();
-        forward.put(identify, profile);
-        backward.put(runnable, identify);
-
-    }
 
     @Override
     protected void afterExecute(Runnable runnable, Throwable t) {
-        String identify = backward.remove(runnable);
-        Profile profile = forward.remove(identify);
+        String identify = taskIdentify.get();
+        Profile profile = profiles.remove(identify);
+        profile.setThrowable(t);
         history.put(identify, profile);
     }
 
@@ -114,49 +77,63 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         final Thread superThread = Thread.currentThread();
         HashMap<Class<?>, Object> threadLocalMap = new HashMap<>(16);
         threadLocalPassers.forEach(passer -> threadLocalMap.put(passer.getClass(), passer.prepareThreadLocal()));
+
+        String identify = taskIdentify.get();
+        if (identify == null) {
+            throw new IllegalArgumentException("task identify is null");
+        }
+        Profile profile = Profile.builder().identify(identify).submitTime(LocalTime.now()).build();
+        Profile shouldNull = profiles.putIfAbsent(identify, profile);
+        if (shouldNull != null) {
+            throw new IllegalArgumentException("task identify repeat: " + identify);
+        }
+
         super.execute(() -> {
+
             if (superThread == Thread.currentThread()) {
                 runnable.run();
                 return;
             }
+
+            Profile currentProfile = profiles.get(identify);
+            taskIdentify.set(identify);
+            currentProfile.setThread(Thread.currentThread());
+            currentProfile.setStartTime(LocalTime.now());
             threadLocalPassers.forEach(passer -> passer.pass(threadLocalMap.get(passer.getClass())));
             try {
+                if (Boolean.TRUE.equals(currentProfile.getManualStop())) {
+                    log.info("Manual stop task " + identify + "success!" );
+                    return;
+                }
                 runnable.run();
             } finally {
+                currentProfile.setEndTime(LocalTime.now());
                 threadLocalPassers.forEach(ThreadLocalPasser::clearThreadLocal);
             }
+
         });
 
     }
 
-
+    @Nullable
     public Profile profile(String identify) {
-        return forward.get(identify);
+        return Optional.ofNullable(profiles.get(identify)).orElse(history.getIfPresent(identify));
     }
 
+    public void stop(String identify) {
 
-    public static void main(String[] args) throws IOException {
+        Profile profile = profiles.get(identify);
+        if (profile == null) {
+            return;
+        }
 
-        ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setUncaughtExceptionHandler((t, e) -> log.error("uncaught exception from executor", e))
-                .setNameFormat("async-thread-%d")
-                .build();
+        Thread profileThread = profile.getThread();
+        if (profileThread == null) {
+            profile.setManualStop(true);
+        }
 
-        EnhancedExecutorConfiguration configuration = EnhancedExecutorConfiguration.builder()
-                .corePoolSize(2)
-                .maximumPoolSize(2)
-                .keepAliveTimeMinutes(10)
-                .blockingQueueCapacity(10)
-                .build();
-
-
-        EnhancedExecutor enhancedExecutor = new EnhancedExecutor(configuration, threadFactory, new ArrayList<>());
-
-        enhancedExecutor.execute(() -> {
-            System.out.println("HelloWord");
-        });
-
-        System.in.read();
-
+        Thread thread = profile.getThread();
+        thread.interrupt();
     }
+
 }

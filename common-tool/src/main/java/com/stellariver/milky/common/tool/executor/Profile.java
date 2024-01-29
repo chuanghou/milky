@@ -14,10 +14,11 @@ public class Profile {
 
     String identify;
     Thread thread;
+    volatile Boolean manualStop;
     Runnable runnable;
-    LocalTime start;
-    LocalTime end;
+    LocalTime submitTime;
+    LocalTime startTime;
+    LocalTime endTime;
     Throwable throwable;
-    Object result;
 
 }
