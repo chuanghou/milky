@@ -2,12 +2,14 @@ package com.stellariver.milky.common.tool.executor;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Kit;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalTime;
 import java.util.*;
@@ -60,11 +62,11 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
                 new ArrayBlockingQueue<>(configuration.getBlockingQueueCapacity()),
                 threadFactory, callerRunsPolicy);
         this.threadLocalPassers = Kit.op(threadLocalPassers).orElseGet(ArrayList::new);
-        Boolean b = CompletableFuture.supplyAsync(() -> {
-            Thread.UncaughtExceptionHandler handler = Thread.currentThread().getUncaughtExceptionHandler();
-            return handler instanceof ThreadGroup;
-        }, this).get();
-        SysEx.trueThrow(b, ErrorEnumsBase.CONFIG_ERROR.message("应该手动指定异常处理器"));
+//        Boolean b = CompletableFuture.supplyAsync(() -> {
+//            Thread.UncaughtExceptionHandler handler = Thread.currentThread().getUncaughtExceptionHandler();
+//            return handler instanceof ThreadGroup;
+//        }, this).get();
+//        SysEx.trueThrow(b, ErrorEnumsBase.CONFIG_ERROR.message("应该手动指定异常处理器"));
     }
 
     public EnhancedExecutor(EnhancedExecutorConfiguration configuration,
@@ -132,4 +134,29 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         return forward.get(identify);
     }
 
+
+    public static void main(String[] args) throws IOException {
+
+        ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                .setUncaughtExceptionHandler((t, e) -> log.error("uncaught exception from executor", e))
+                .setNameFormat("async-thread-%d")
+                .build();
+
+        EnhancedExecutorConfiguration configuration = EnhancedExecutorConfiguration.builder()
+                .corePoolSize(2)
+                .maximumPoolSize(2)
+                .keepAliveTimeMinutes(10)
+                .blockingQueueCapacity(10)
+                .build();
+
+
+        EnhancedExecutor enhancedExecutor = new EnhancedExecutor(configuration, threadFactory, new ArrayList<>());
+
+        enhancedExecutor.execute(() -> {
+            System.out.println("HelloWord");
+        });
+
+        System.in.read();
+
+    }
 }
