@@ -21,3 +21,7 @@ mvn dependency:copy-dependencies "-DexcludeGroupIds=com.stellariver.milky.demo"
 2. cd demo/starter & mvn dependency:copy-dependencies "-DexcludeGroupIds=com.stellariver.milky.demo"
 3. 上传 demo/target ---> 服务器/bin目录，上传 demo/starter/dependency ---> dependency 目录
 
+
+git config --global http.proxy 'socks5://127.0.0.1:23456'
+git config --global https.proxy 'socks5://127.0.0.1:23456'
+
