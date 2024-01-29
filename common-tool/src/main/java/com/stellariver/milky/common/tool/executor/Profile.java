@@ -14,7 +14,6 @@ public class Profile {
 
     String identify;
     Thread thread;
-    volatile Boolean manualStop;
     Runnable runnable;
     LocalTime submitTime;
     LocalTime startTime;

@@ -2,9 +2,9 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.base.BeanLoader;
+import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutorConfiguration;
 import com.stellariver.milky.common.tool.executor.ThreadLocalPasser;
-import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.domain.support.base.DomainTunnel;
 import com.stellariver.milky.domain.support.base.DomainTunnelImpl;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;

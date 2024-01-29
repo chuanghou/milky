@@ -331,9 +331,9 @@ public class CommandBus {
                 });
             }
             eventBus.postFinalRoute(context.getFinalEvents(), context);
-            enhancedExecutor.submit(() -> milkyTraceRepository.record(context, true));
+            enhancedExecutor.submit(() -> milkyTraceRepository.record(context, true), UUID.randomUUID().toString());
         } catch (Throwable throwable) {
-            enhancedExecutor.submit(() -> milkyTraceRepository.record(context, false));
+            enhancedExecutor.submit(() -> milkyTraceRepository.record(context, false),  UUID.randomUUID().toString());
             if (memoryTx) {
                 transactionSupport.rollback();
             }

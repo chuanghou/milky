@@ -2,16 +2,12 @@ package com.stellariver.milky.common.tool.executor;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.stellariver.milky.common.base.ErrorEnumsBase;
-import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Kit;
-import lombok.*;
+import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.*;
@@ -62,6 +58,32 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     }
 
 
+    public Future<?> submit(Runnable task, @NonNull String identify) {
+        taskIdentify.set(identify);
+        try {
+            return super.submit(task);
+        } finally {
+            taskIdentify.remove();
+        }
+    }
+
+    public <T> Future<T> submit(Runnable task, T result, @NonNull String identify) {
+        taskIdentify.set(identify);
+        try {
+            return super.submit(task, result);
+        } finally {
+            taskIdentify.remove();
+        }
+    }
+
+    public <T> Future<T> submit(Callable<T> task, @NonNull String identify) {
+        taskIdentify.set(identify);
+        try {
+            return super.submit(task);
+        } finally {
+            taskIdentify.remove();
+        }
+    }
 
     @Override
     protected void afterExecute(Runnable runnable, Throwable t) {
@@ -80,12 +102,12 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
 
         String identify = taskIdentify.get();
         if (identify == null) {
-            throw new IllegalArgumentException("task identify is null");
+            throw new IllegalArgumentException("Task identify is null");
         }
         Profile profile = Profile.builder().identify(identify).submitTime(LocalTime.now()).build();
         Profile shouldNull = profiles.putIfAbsent(identify, profile);
         if (shouldNull != null) {
-            throw new IllegalArgumentException("task identify repeat: " + identify);
+            throw new IllegalArgumentException("Task identify: " + identify + " repeat!");
         }
 
         super.execute(() -> {
@@ -101,8 +123,7 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
             currentProfile.setStartTime(LocalTime.now());
             threadLocalPassers.forEach(passer -> passer.pass(threadLocalMap.get(passer.getClass())));
             try {
-                if (Boolean.TRUE.equals(currentProfile.getManualStop())) {
-                    log.info("Manual stop task " + identify + "success!" );
+                if (Thread.interrupted()) {
                     return;
                 }
                 runnable.run();
@@ -124,16 +145,9 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
 
         Profile profile = profiles.get(identify);
         if (profile == null) {
-            return;
+            throw new IllegalStateException("This task " + identify + " not exists!");
         }
-
-        Thread profileThread = profile.getThread();
-        if (profileThread == null) {
-            profile.setManualStop(true);
-        }
-
-        Thread thread = profile.getThread();
-        thread.interrupt();
+//        profileThread.interrupt();
     }
 
 }
