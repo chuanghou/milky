@@ -14,8 +14,6 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Arrays;
 
-import static org.mockito.Mockito.verify;
-
 @CustomLog
 @SpringBootTest
 @DirtiesContext

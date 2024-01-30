@@ -1,6 +1,5 @@
 package com.stellariver.milky.demo.infrastructure.database;
 
-import com.alibaba.druid.filter.logging.LogFilter;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
@@ -22,7 +21,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
-
 import java.sql.SQLException;
 
 /**
