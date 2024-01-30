@@ -9,6 +9,7 @@ import com.alibaba.druid.proxy.jdbc.ResultSetProxy;
 import com.alibaba.druid.proxy.jdbc.StatementProxy;
 import com.alibaba.druid.sql.SQLUtils;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -95,6 +96,7 @@ public class MilkyLogFilter extends LogFilter {
         print(statement, sql);
     }
 
+    @SneakyThrows
     public void print(StatementProxy statement, String sql) {
 
         int parametersSize = statement.getParametersSize();
@@ -112,9 +114,9 @@ public class MilkyLogFilter extends LogFilter {
         statement.setLastExecuteTimeNano();
         double nanos = statement.getLastExecuteTimeNano();
         double cost = nanos / (1000 * 1000);
-
+        int updateCount = statement.getUpdateCount();
+        sql = sql + " ==>> " + "[" + updateCount + "]";
         log.cost(cost).info(sql);
-
     }
 
     private static final ThreadLocal<Boolean> enable = ThreadLocal.withInitial(() -> false);
