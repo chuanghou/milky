@@ -4,13 +4,14 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.stellariver.milky.common.tool.common.Kit;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author houchuang
@@ -22,6 +23,7 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     private final Map<String, Profile> profiles = new ConcurrentHashMap<>();
     private final Cache<String, Profile> history = CacheBuilder.newBuilder().maximumSize(100).build();
     private final List<ThreadLocalPasser<?>> threadLocalPassers;
+    private final Map<String, Pattern> byPassPatterns = new ConcurrentHashMap<>();
 
     /**
      * The threadFactory parameter need a unCaughtExceptionHandler like follows
@@ -94,7 +96,6 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     }
 
     @Override
-    @SneakyThrows
     public void execute(@NonNull Runnable runnable) {
         final Thread superThread = Thread.currentThread();
         HashMap<Class<?>, Object> threadLocalMap = new HashMap<>(16);
@@ -104,6 +105,14 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         if (identify == null) {
             throw new IllegalArgumentException("Task identify is null");
         }
+
+        for (Map.Entry<String, Pattern> entry : byPassPatterns.entrySet()) {
+            Matcher matcher = entry.getValue().matcher(identify);
+            if (matcher.find()) {
+                log.warn("Task: " + identify + " has been by passed by pattern " + entry.getKey() + " !");
+            }
+        }
+
         Profile profile = Profile.builder().identify(identify).submitTime(LocalTime.now()).build();
         Profile shouldNull = profiles.putIfAbsent(identify, profile);
         if (shouldNull != null) {
@@ -111,7 +120,6 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         }
 
         super.execute(() -> {
-
             if (superThread == Thread.currentThread()) {
                 runnable.run();
                 return;
@@ -123,9 +131,6 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
             currentProfile.setStartTime(LocalTime.now());
             threadLocalPassers.forEach(passer -> passer.pass(threadLocalMap.get(passer.getClass())));
             try {
-                if (Thread.interrupted()) {
-                    return;
-                }
                 runnable.run();
             } finally {
                 currentProfile.setEndTime(LocalTime.now());
@@ -141,13 +146,19 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         return Optional.ofNullable(profiles.get(identify)).orElse(history.getIfPresent(identify));
     }
 
-    public void stop(String identify) {
+    public List<String> byPassPatterns() {
+        return new ArrayList<>(byPassPatterns.keySet());
+    }
 
-        Profile profile = profiles.get(identify);
-        if (profile == null) {
-            throw new IllegalStateException("This task " + identify + " not exists!");
+    public void addByPassPattern(String pattern) {
+        if (byPassPatterns.size() > 100) {
+            throw new IllegalArgumentException("Already have 100 patterns");
         }
-//        profileThread.interrupt();
+        byPassPatterns.put(pattern, Pattern.compile(pattern));
+    }
+
+    public void removeByPassPattern(String pattern) {
+        byPassPatterns.remove(pattern);
     }
 
 }
