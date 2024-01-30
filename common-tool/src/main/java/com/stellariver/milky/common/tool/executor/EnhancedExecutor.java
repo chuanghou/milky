@@ -91,9 +91,10 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     protected void afterExecute(Runnable runnable, Throwable t) {
         String identify = taskIdentify.get();
         Profile profile = profiles.remove(identify);
-        profile.setThrowable(t);
+        profile.setHistory(true);
         history.put(identify, profile);
     }
+
 
     @Override
     public void execute(@NonNull Runnable runnable) {
@@ -110,10 +111,11 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
             Matcher matcher = entry.getValue().matcher(identify);
             if (matcher.find()) {
                 log.warn("Task: " + identify + " has been by passed by pattern " + entry.getKey() + " !");
+                return;
             }
         }
 
-        Profile profile = Profile.builder().identify(identify).submitTime(LocalTime.now()).build();
+        Profile profile = Profile.builder().identify(identify).submitTime(LocalTime.now()).history(false).build();
         Profile shouldNull = profiles.putIfAbsent(identify, profile);
         if (shouldNull != null) {
             throw new IllegalArgumentException("Task identify: " + identify + " repeat!");

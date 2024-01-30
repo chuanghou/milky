@@ -14,10 +14,9 @@ public class Profile {
 
     String identify;
     Thread thread;
-    Runnable runnable;
     LocalTime submitTime;
     LocalTime startTime;
     LocalTime endTime;
-    Throwable throwable;
+    Boolean history;
 
 }
