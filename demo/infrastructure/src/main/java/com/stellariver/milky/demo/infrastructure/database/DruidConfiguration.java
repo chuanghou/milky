@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo.infrastructure.database;
 
+import com.alibaba.druid.filter.logging.LogFilter;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
@@ -31,18 +32,24 @@ import java.sql.SQLException;
 public class DruidConfiguration {
 
     @Bean
+    public MilkyLogFilter milkyLogFilter() {
+        return new MilkyLogFilter();
+    }
+
+
+    @Bean
     @ConfigurationProperties(prefix = "spring.datasource.a")
-    public DataSource dataSourceA() throws SQLException {
+    public DataSource dataSourceA(MilkyLogFilter milkyLogFilter) throws SQLException {
         DruidDataSource druidDataSource = new DruidDataSource();
-        druidDataSource.addFilters(MilkyLogFilter.class.getName());
+        druidDataSource.getProxyFilters().add(milkyLogFilter);
         return druidDataSource;
     }
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.b")
-    public DataSource dataSourceB() throws SQLException {
+    public DataSource dataSourceB(MilkyLogFilter milkyLogFilter) throws SQLException {
         DruidDataSource druidDataSource = new DruidDataSource();
-        druidDataSource.addFilters(MilkyLogFilter.class.getName());
+        druidDataSource.getProxyFilters().add(milkyLogFilter);
         return druidDataSource;
     }
 

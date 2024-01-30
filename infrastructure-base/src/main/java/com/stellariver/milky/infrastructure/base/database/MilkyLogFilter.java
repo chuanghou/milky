@@ -1,6 +1,7 @@
 package com.stellariver.milky.infrastructure.base.database;
 
 import com.alibaba.druid.DbType;
+import com.alibaba.druid.filter.FilterChain;
 import com.alibaba.druid.filter.logging.LogFilter;
 import com.alibaba.druid.proxy.jdbc.JdbcParameter;
 import com.alibaba.druid.proxy.jdbc.PreparedStatementProxy;
@@ -9,38 +10,30 @@ import com.alibaba.druid.proxy.jdbc.StatementProxy;
 import com.alibaba.druid.sql.SQLUtils;
 import lombok.CustomLog;
 
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 @CustomLog
 public class MilkyLogFilter extends LogFilter {
 
-    private final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, false);
+    @Override
+    protected void connectionLog(String message) {}
 
     @Override
-    protected void connectionLog(String message) {
-
-    }
+    protected void statementLog(String message) {}
 
     @Override
-    protected void statementLog(String message) {
-
-    }
+    protected void statementLogError(String message, Throwable error) {}
 
     @Override
-    protected void statementLogError(String message, Throwable error) {
-
-    }
+    protected void resultSetLog(String message) {}
 
     @Override
-    protected void resultSetLog(String message) {
-
-    }
-
-    @Override
-    protected void resultSetLogError(String message, Throwable error) {
-
-    }
+    protected void resultSetLogError(String message, Throwable error) {}
 
     @Override
     public String getDataSourceLoggerName() {
@@ -48,9 +41,7 @@ public class MilkyLogFilter extends LogFilter {
     }
 
     @Override
-    public void setDataSourceLoggerName(String loggerName) {
-
-    }
+    public void setDataSourceLoggerName(String loggerName) {}
 
     @Override
     public String getConnectionLoggerName() {
@@ -58,9 +49,7 @@ public class MilkyLogFilter extends LogFilter {
     }
 
     @Override
-    public void setConnectionLoggerName(String loggerName) {
-
-    }
+    public void setConnectionLoggerName(String loggerName) {}
 
     @Override
     public String getStatementLoggerName() {
@@ -68,9 +57,7 @@ public class MilkyLogFilter extends LogFilter {
     }
 
     @Override
-    public void setStatementLoggerName(String loggerName) {
-
-    }
+    public void setStatementLoggerName(String loggerName) {}
 
     @Override
     public String getResultSetLoggerName() {
@@ -78,10 +65,9 @@ public class MilkyLogFilter extends LogFilter {
     }
 
     @Override
-    public void setResultSetLoggerName(String loggerName) {
+    public void setResultSetLoggerName(String loggerName) {}
 
-    }
-
+    private final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, false);
 
     @Override
     protected void statementExecuteAfter(StatementProxy statement, String sql, boolean firstResult) {
@@ -131,4 +117,53 @@ public class MilkyLogFilter extends LogFilter {
 
     }
 
+    private static final ThreadLocal<Boolean> enable = ThreadLocal.withInitial(() -> false);
+
+    static public <T> T byPass(Supplier<T> supplier) {
+        enable.set(true);
+        try {
+            return supplier.get();
+        } finally {
+            enable.set(false);
+        }
+    }
+
+    @Override
+    public boolean resultSet_next(FilterChain chain, ResultSetProxy resultSet) throws SQLException {
+        boolean moreRows = super.resultSet_next(chain, resultSet);
+
+        if (moreRows && (!enable.get())) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("record: [");
+
+            ResultSetMetaData meta = resultSet.getMetaData();
+            for (int i = 0, size = meta.getColumnCount(); i < size; ++i) {
+                if (i != 0) {
+                    builder.append(", ");
+                }
+                int columnIndex = i + 1;
+                int type = meta.getColumnType(columnIndex);
+
+                Object value;
+                if (type == Types.TIMESTAMP) {
+                    value = resultSet.getTimestamp(columnIndex);
+                } else if (type == Types.BLOB) {
+                    value = "<BLOB>";
+                } else if (type == Types.CLOB) {
+                    value = "<CLOB>";
+                } else if (type == Types.NCLOB) {
+                    value = "<NCLOB>";
+                } else if (type == Types.BINARY) {
+                    value = "<BINARY>";
+                } else {
+                    value = resultSet.getObject(columnIndex);
+                }
+                builder.append(String.format("%s:%s", meta.getColumnName(columnIndex), value));
+            }
+            builder.append("]");
+            log.info(builder.toString());
+        }
+
+        return moreRows;
+    }
 }
