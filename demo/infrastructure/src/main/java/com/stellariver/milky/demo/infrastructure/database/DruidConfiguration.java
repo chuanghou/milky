@@ -1,10 +1,11 @@
 package com.stellariver.milky.demo.infrastructure.database;
 
-import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
+import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
+import com.stellariver.milky.infrastructure.base.database.MilkyLogFilter;
 import com.stellariver.milky.spring.partner.SectionLoader;
 import com.stellariver.milky.spring.partner.UniqueIdBuilder;
 import lombok.AccessLevel;
@@ -21,23 +22,28 @@ import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
 
+import java.sql.SQLException;
+
 /**
  * @author houchuang
  */
 @Configuration
 public class DruidConfiguration {
 
-
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.a")
-    public DataSource dataSourceA() {
-        return DruidDataSourceBuilder.create().build();
+    public DataSource dataSourceA() throws SQLException {
+        DruidDataSource druidDataSource = new DruidDataSource();
+        druidDataSource.addFilters(MilkyLogFilter.class.getName());
+        return druidDataSource;
     }
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.b")
-    public DataSource dataSourceB() {
-        return DruidDataSourceBuilder.create().build();
+    public DataSource dataSourceB() throws SQLException {
+        DruidDataSource druidDataSource = new DruidDataSource();
+        druidDataSource.addFilters(MilkyLogFilter.class.getName());
+        return druidDataSource;
     }
 
     @Bean

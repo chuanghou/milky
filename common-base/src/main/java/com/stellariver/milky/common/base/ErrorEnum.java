@@ -5,11 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
-import org.apache.commons.text.StringSubstitutor;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -34,16 +31,6 @@ public class ErrorEnum implements Serializable {
 
     public ErrorEnum message(Object object) {
         return new ErrorEnum(code, object == null ? "NULL" : object.toString());
-    }
-
-    public ErrorEnum params(Map<String, Object> params) {
-        return new ErrorEnum(code, StringSubstitutor.replace(message, params));
-    }
-
-    public ErrorEnum param(String name, Object object) {
-        Map<String, Object> params = new HashMap<>();
-        params.put(name, object);
-        return new ErrorEnum(code, StringSubstitutor.replace(message, params));
     }
 
     @Override

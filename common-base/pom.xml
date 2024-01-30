@@ -20,12 +20,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

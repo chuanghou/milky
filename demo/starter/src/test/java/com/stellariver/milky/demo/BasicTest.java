@@ -101,7 +101,7 @@ public class BasicTest {
         demoMetaUnitMapper.insert(build);
         DemoMetaUnit demoMetaUnit = demoMetaUnitMapper.selectById(1);
         Assertions.assertEquals(build, demoMetaUnit);
-
+        demoMetaUnitMapper.deleteById(1);
     }
 
     @Test

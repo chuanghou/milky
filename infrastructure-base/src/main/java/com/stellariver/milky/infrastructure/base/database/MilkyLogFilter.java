@@ -3,48 +3,19 @@ package com.stellariver.milky.infrastructure.base.database;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.filter.logging.LogFilter;
 import com.alibaba.druid.proxy.jdbc.JdbcParameter;
+import com.alibaba.druid.proxy.jdbc.PreparedStatementProxy;
+import com.alibaba.druid.proxy.jdbc.ResultSetProxy;
 import com.alibaba.druid.proxy.jdbc.StatementProxy;
 import com.alibaba.druid.sql.SQLUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import lombok.CustomLog;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@CustomLog
 public class MilkyLogFilter extends LogFilter {
 
-    private final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, true);
-
-    public String resolveSql(StatementProxy statement, String sql) {
-
-        int parametersSize = statement.getParametersSize();
-        if (parametersSize == 0) {
-            return sql;
-        }
-
-        List<Object> parameters = new ArrayList<>(parametersSize);
-        for (int i = 0; i < parametersSize; ++i) {
-            JdbcParameter jdbcParam = statement.getParameter(i);
-            parameters.add(jdbcParam != null ? jdbcParam.getValue() : null);
-        }
-
-        DbType dbType = DbType.of(statement.getConnectionProxy().getDirectDataSource().getDbType());
-        return SQLUtils.format(sql, dbType, parameters, option);
-
-    }
-
-
-    public double resolveCost(StatementProxy statement) {
-        statement.setLastExecuteTimeNano();
-        double nanos = statement.getLastExecuteTimeNano();
-        return nanos / (1000 * 1000);
-    }
-
-    public Pair<List<String>, List<List<String>>> resolveResultSets() {
-        return null;
-    }
-
-
-
+    private final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, false);
 
     @Override
     protected void connectionLog(String message) {
@@ -110,4 +81,54 @@ public class MilkyLogFilter extends LogFilter {
     public void setResultSetLoggerName(String loggerName) {
 
     }
+
+
+    @Override
+    protected void statementExecuteAfter(StatementProxy statement, String sql, boolean firstResult) {
+        print(statement, sql);
+    }
+
+    @Override
+    protected void statementExecuteBatchAfter(StatementProxy statement, int[] result) {
+        String sql;
+        if (statement instanceof PreparedStatementProxy) {
+            sql = ((PreparedStatementProxy) statement).getSql();
+        } else {
+            sql = statement.getBatchSql();
+        }
+        print(statement, sql);
+    }
+
+    @Override
+    protected void statementExecuteQueryAfter(StatementProxy statement, String sql, ResultSetProxy resultSet) {
+        print(statement, sql);
+    }
+
+    @Override
+    protected void statementExecuteUpdateAfter(StatementProxy statement, String sql, int updateCount) {
+        print(statement, sql);
+    }
+
+    public void print(StatementProxy statement, String sql) {
+
+        int parametersSize = statement.getParametersSize();
+        if (parametersSize != 0) {
+            List<Object> parameters = new ArrayList<>(parametersSize);
+            for (int i = 0; i < parametersSize; ++i) {
+                JdbcParameter jdbcParam = statement.getParameter(i);
+                parameters.add(jdbcParam != null ? jdbcParam.getValue() : null);
+            }
+
+            DbType dbType = DbType.of(statement.getConnectionProxy().getDirectDataSource().getDbType());
+            sql = SQLUtils.format(sql, dbType, parameters, option);
+        }
+
+        statement.setLastExecuteTimeNano();
+        double nanos = statement.getLastExecuteTimeNano();
+        double cost = nanos / (1000 * 1000);
+
+        log.cost(cost).info(sql);
+
+    }
+
 }

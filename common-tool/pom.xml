@@ -40,10 +40,6 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -98,20 +94,6 @@
         <dependency>
             <groupId>com.hierynomus</groupId>
             <artifactId>sshj</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>joor-java-8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.lmax</groupId>

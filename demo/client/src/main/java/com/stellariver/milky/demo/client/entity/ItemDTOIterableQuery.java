@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
-import javax.validation.constraints.NotNull;
-
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -17,7 +15,6 @@ import javax.validation.constraints.NotNull;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemDTOIterableQuery extends AbstractIterableQuery {
 
-    @NotNull
     Long userId;
 
 }
