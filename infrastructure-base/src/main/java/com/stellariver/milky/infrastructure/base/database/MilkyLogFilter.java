@@ -1,12 +1,10 @@
 package com.stellariver.milky.infrastructure.base.database;
 
 import com.alibaba.druid.filter.FilterChain;
-import com.alibaba.druid.filter.logging.LogFilter;
-import com.alibaba.druid.proxy.jdbc.JdbcParameter;
+import com.alibaba.druid.filter.FilterEventAdapter;
 import com.alibaba.druid.proxy.jdbc.PreparedStatementProxy;
 import com.alibaba.druid.proxy.jdbc.ResultSetProxy;
 import com.alibaba.druid.proxy.jdbc.StatementProxy;
-import com.alibaba.druid.sql.SQLUtils;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -14,24 +12,17 @@ import lombok.SneakyThrows;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 @CustomLog
 @NoArgsConstructor
-public class MilkyLogFilter extends LogFilter {
+public class MilkyLogFilter extends FilterEventAdapter {
 
-    //
     private Long sqlCostThreshold = 3000L;
 
     public MilkyLogFilter(long sqlCost) {
         sqlCostThreshold = sqlCost;
     }
-
-    private final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, false);
 
     @Override
     protected void statementExecuteAfter(StatementProxy statement, String sql, boolean firstResult) {
@@ -62,17 +53,7 @@ public class MilkyLogFilter extends LogFilter {
     @SneakyThrows
     public void print(StatementProxy statement, String sql) {
 
-        int parametersSize = statement.getParametersSize();
-        if (parametersSize != 0) {
-            List<Object> parameters = new ArrayList<>(parametersSize);
-            for (int i = 0; i < parametersSize; ++i) {
-                JdbcParameter jdbcParam = statement.getParameter(i);
-                parameters.add(jdbcParam != null ? jdbcParam.getValue() : null);
-            }
-
-            String dbType = statement.getConnectionProxy().getDirectDataSource().getDbType();
-            sql = SQLUtils.format(sql, dbType, parameters, option);
-        }
+        sql = DruidUtils.resolveSql(statement, sql);
 
         statement.setLastExecuteTimeNano();
         double nanos = statement.getLastExecuteTimeNano();
@@ -84,6 +65,7 @@ public class MilkyLogFilter extends LogFilter {
         } else {
             log.cost(cost).info(sql);
         }
+
     }
 
     private static final ThreadLocal<Boolean> enable = ThreadLocal.withInitial(() -> false);
@@ -135,55 +117,5 @@ public class MilkyLogFilter extends LogFilter {
 
         return moreRows;
     }
-
-
-
-
-    @Override
-    protected void connectionLog(String message) {}
-
-    @Override
-    protected void statementLog(String message) {}
-
-    @Override
-    protected void statementLogError(String message, Throwable error) {}
-
-    @Override
-    protected void resultSetLog(String message) {}
-
-    @Override
-    protected void resultSetLogError(String message, Throwable error) {}
-
-    @Override
-    public String getDataSourceLoggerName() {
-        throw new RuntimeException("MilkyLogFilter Not Supported!");
-    }
-
-    @Override
-    public void setDataSourceLoggerName(String loggerName) {throw new RuntimeException("MilkyLogFilter Not Supported!");}
-
-    @Override
-    public String getConnectionLoggerName() {
-        throw new RuntimeException("MilkyLogFilter Not Supported!");
-    }
-
-    @Override
-    public void setConnectionLoggerName(String loggerName) {throw new RuntimeException("MilkyLogFilter Not Supported!");}
-
-    @Override
-    public String getStatementLoggerName() {
-        throw new RuntimeException("MilkyLogFilter Not Supported!");
-    }
-
-    @Override
-    public void setStatementLoggerName(String loggerName) {throw new RuntimeException("MilkyLogFilter Not Supported!");}
-
-    @Override
-    public String getResultSetLoggerName() {
-        throw new RuntimeException("MilkyLogFilter Not Supported!");
-    }
-
-    @Override
-    public void setResultSetLoggerName(String loggerName) {throw new RuntimeException("MilkyLogFilter Not Supported!");}
 
 }

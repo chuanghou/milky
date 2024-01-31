@@ -1,8 +1,6 @@
 package com.stellariver.milky.demo.infrastructure.database;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.druid.support.http.StatViewServlet;
-import com.alibaba.druid.support.http.WebStatFilter;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import com.stellariver.milky.infrastructure.base.database.MilkyLogFilter;
@@ -13,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -37,7 +33,7 @@ public class DruidConfiguration {
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.a")
-    public DataSource dataSourceA(MilkyLogFilter milkyLogFilter) throws SQLException {
+    public DataSource dataSourceA(MilkyLogFilter milkyLogFilter) {
         DruidDataSource druidDataSource = new DruidDataSource();
         druidDataSource.getProxyFilters().add(milkyLogFilter);
         return druidDataSource;
@@ -45,7 +41,7 @@ public class DruidConfiguration {
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.b")
-    public DataSource dataSourceB(MilkyLogFilter milkyLogFilter) throws SQLException {
+    public DataSource dataSourceB(MilkyLogFilter milkyLogFilter) {
         DruidDataSource druidDataSource = new DruidDataSource();
         druidDataSource.getProxyFilters().add(milkyLogFilter);
         return druidDataSource;
