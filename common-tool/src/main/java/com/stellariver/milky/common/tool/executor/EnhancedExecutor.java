@@ -90,6 +90,7 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     @Override
     protected void afterExecute(Runnable runnable, Throwable t) {
         String identify = taskIdentify.get();
+        taskIdentify.remove();
         Profile profile = profiles.remove(identify);
         profile.setHistory(true);
         history.put(identify, profile);
@@ -165,6 +166,12 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
 
     public void removeByPassPattern(String pattern) {
         byPassPatterns.remove(pattern);
+    }
+
+
+    public EnhancedExecutor withIdentify(String identify) {
+        taskIdentify.set(identify);
+        return this;
     }
 
 }
