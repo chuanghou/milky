@@ -1,6 +1,5 @@
 package com.stellariver.milky.infrastructure.base.database;
 
-import com.alibaba.druid.DbType;
 import com.alibaba.druid.filter.FilterChain;
 import com.alibaba.druid.filter.logging.LogFilter;
 import com.alibaba.druid.proxy.jdbc.JdbcParameter;
@@ -71,7 +70,7 @@ public class MilkyLogFilter extends LogFilter {
                 parameters.add(jdbcParam != null ? jdbcParam.getValue() : null);
             }
 
-            DbType dbType = DbType.of(statement.getConnectionProxy().getDirectDataSource().getDbType());
+            String dbType = statement.getConnectionProxy().getDirectDataSource().getDbType();
             sql = SQLUtils.format(sql, dbType, parameters, option);
         }
 
