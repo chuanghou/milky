@@ -25,7 +25,7 @@ public class MilkyLogFilter extends FilterEventAdapter {
     }
 
     @Override
-    protected void statementExecuteAfter(StatementProxy statement, String sql, boolean firstResult) {
+    protected void statementExecuteAfter(StatementProxy statement, String sql, boolean result) {
         print(statement, sql);
     }
 
@@ -41,7 +41,7 @@ public class MilkyLogFilter extends FilterEventAdapter {
     }
 
     @Override
-    protected void statementExecuteQueryAfter(StatementProxy statement, String sql, ResultSetProxy resultSet) {
+    protected void statementExecuteQueryAfter(StatementProxy statement, String sql, ResultSetProxy resultSet)  {
         print(statement, sql);
     }
 
@@ -58,7 +58,7 @@ public class MilkyLogFilter extends FilterEventAdapter {
         statement.setLastExecuteTimeNano();
         double nanos = statement.getLastExecuteTimeNano();
         int updateCount = statement.getUpdateCount();
-        sql = sql + " ==>> " + "[" + updateCount + "]";
+        sql = sql + " ==>> " + "[affected: " + updateCount + "]";
         double cost = nanos / 1000_000L;
         if (cost > sqlCostThreshold) {
             log.cost(cost).error(sql);

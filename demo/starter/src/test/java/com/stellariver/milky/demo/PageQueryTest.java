@@ -1,6 +1,8 @@
 package com.stellariver.milky.demo;
 
+import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.IterableResult;
+import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.demo.client.entity.ItemDTO;
 import com.stellariver.milky.demo.client.entity.ItemDTOIterableQuery;
 import com.stellariver.milky.demo.client.service.ItemQueryService;
@@ -52,6 +54,21 @@ public class PageQueryTest {
         Assertions.assertTrue(reduce.isPresent());
         Assertions.assertEquals(reduce.get(), (81 + 90) * 10 / 2);
 
+
+        query = ItemDTOIterableQuery.builder().userId(10001L).pageSize(1100).build();
+
+        Throwable back = null;
+
+        try {
+            itemQueryService.pageQueryItemDTO(query);
+        } catch (Throwable sysEx) {
+            back = sysEx;
+        }
+
+        Assertions.assertNotNull(back);
+        Throwable cause = back.getCause().getCause();
+        Assertions.assertInstanceOf(SysEx.class, cause);
+        Assertions.assertEquals(((SysEx) cause).getFirstError().getCode(), ErrorEnumsBase.DEEP_PAGING.getCode());
     }
 
 }

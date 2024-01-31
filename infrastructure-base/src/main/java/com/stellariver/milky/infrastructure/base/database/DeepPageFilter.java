@@ -1,11 +1,10 @@
 package com.stellariver.milky.infrastructure.base.database;
 
 import com.alibaba.druid.filter.FilterEventAdapter;
-import com.alibaba.druid.proxy.jdbc.ResultSetProxy;
 import com.alibaba.druid.proxy.jdbc.StatementProxy;
-import com.github.vertical_blank.sqlformatter.SqlFormatter;
-import com.github.vertical_blank.sqlformatter.languages.Dialect;
-import com.stellariver.milky.common.base.BizEx;
+import com.alibaba.druid.sql.SQLUtils;
+import com.stellariver.milky.common.base.ErrorEnumsBase;
+import com.stellariver.milky.common.base.SysEx;
 import lombok.CustomLog;
 
 import java.util.HashSet;
@@ -19,14 +18,16 @@ import static com.stellariver.milky.common.base.ErrorEnumsBase.DEEP_PAGING;
 @CustomLog
 public class DeepPageFilter extends FilterEventAdapter {
 
+    private static final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, true);
     static private final Pattern LIMIT_PATTERN = Pattern.compile("limit\\s+[0-9]+(((\\s+(offset))|,)\\s+[0-9]+)?$");
-    static private final Pattern NUMBER_PATTERN = Pattern.compile("[0-9]+");
+    static private final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
 
     private boolean block = false;
 
     private long deepLimit = 5000L;
 
     private Set<Pattern> filterPatterns;
+
 
     public DeepPageFilter() {
     }
@@ -42,31 +43,40 @@ public class DeepPageFilter extends FilterEventAdapter {
         this.filterPatterns = patterns;
     }
 
+    static private final Set<Pattern> emptyPatterns = new HashSet<>();
+
     @Override
-    protected void statementExecuteQueryAfter(StatementProxy statement, String sql, ResultSetProxy resultSet) {
+    protected void statementExecuteBefore(StatementProxy statement, String sql) {
         sql = DruidUtils.resolveSql(statement, sql);
-        Set<Pattern> patterns = Optional.ofNullable(filterPatterns).orElseGet(HashSet::new);
+        Set<Pattern> patterns = Optional.ofNullable(filterPatterns).orElse(emptyPatterns);
         for (Pattern pattern : patterns) {
             boolean filter = pattern.matcher(sql).find();
             if (filter) {
                 return;
             }
         }
-        sql = sql.substring(sql.length() - 30).toLowerCase();
-        Matcher matcher = LIMIT_PATTERN.matcher(sql);
+
+        String tailSql = sql.substring(Math.max(0, sql.length() - 30)).toLowerCase();
+        Matcher matcher = LIMIT_PATTERN.matcher(tailSql);
         if (matcher.find()) {
             String value = matcher.group();
             matcher = NUMBER_PATTERN.matcher(value);
+
+            if (!matcher.find()) {
+                throw new SysEx(ErrorEnumsBase.UNREACHABLE_CODE);
+            }
+
             long max = Long.parseLong(matcher.group());
             if (matcher.find()) {
                 max = Math.max(max, Long.parseLong(matcher.group()));
             }
+
+            String dbType = statement.getConnectionProxy().getDirectDataSource().getDbType();
             if (max >= deepLimit) {
-                sql = SqlFormatter.of(Dialect.MySql).format(sql);
-                String message = String.format("fatal error, slow sql possible: \n%s ", sql);
-                log.arg0(message).error(DEEP_PAGING.getCode());
+                sql = SQLUtils.format(sql, dbType, option);
+                log.error(sql);
                 customStrategyWhenFail(sql);
-                BizEx.trueThrow(block, DEEP_PAGING.message(message));
+                SysEx.trueThrow(block, DEEP_PAGING.message("\n" + sql));
             }
         }
     }

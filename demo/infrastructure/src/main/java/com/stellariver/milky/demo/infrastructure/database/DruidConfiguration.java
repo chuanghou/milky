@@ -1,8 +1,10 @@
 package com.stellariver.milky.demo.infrastructure.database;
 
+import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
+import com.stellariver.milky.infrastructure.base.database.DeepPageFilter;
 import com.stellariver.milky.infrastructure.base.database.MilkyLogFilter;
 import com.stellariver.milky.spring.partner.SectionLoader;
 import com.stellariver.milky.spring.partner.UniqueIdBuilder;
@@ -17,7 +19,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author houchuang
@@ -30,20 +32,22 @@ public class DruidConfiguration {
         return new MilkyLogFilter();
     }
 
+    @Bean
+    public DeepPageFilter deepPageFilter() {return new DeepPageFilter(true, 1000); }
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.a")
-    public DataSource dataSourceA(MilkyLogFilter milkyLogFilter) {
+    public DataSource dataSourceA(List<Filter> filters) {
         DruidDataSource druidDataSource = new DruidDataSource();
-        druidDataSource.getProxyFilters().add(milkyLogFilter);
+        druidDataSource.getProxyFilters().addAll(filters);
         return druidDataSource;
     }
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.b")
-    public DataSource dataSourceB(MilkyLogFilter milkyLogFilter) {
+    public DataSource dataSourceB(List<Filter> filters) {
         DruidDataSource druidDataSource = new DruidDataSource();
-        druidDataSource.getProxyFilters().add(milkyLogFilter);
+        druidDataSource.getProxyFilters().addAll(filters);
         return druidDataSource;
     }
 
@@ -81,7 +85,6 @@ public class DruidConfiguration {
         return new UniqueIdGetterImpl(uniqueIdBuilder);
     }
 
-
     @RequiredArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE)
     static class UniqueIdGetterImpl implements UniqueIdGetter{
@@ -92,6 +95,7 @@ public class DruidConfiguration {
         public Long get() {
             return uniqueIdBuilder.get();
         }
+
     }
 
 }
