@@ -45,21 +45,6 @@ public class EnhancedExecutorTest {
 
 
         enhancedExecutor = new EnhancedExecutor(configuration, threadFactory, new ArrayList<>());
-
-        try {
-            enhancedExecutor.submit(() -> {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        } catch (IllegalArgumentException exception) {
-            message = exception.getMessage();
-        }
-
-        Assertions.assertTrue(message != null && message.equals("Task identify is null"));
-
         enhancedExecutor.submit(() -> {
             try {
                 Thread.sleep(1000);

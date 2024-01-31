@@ -95,11 +95,6 @@
             <groupId>com.hierynomus</groupId>
             <artifactId>sshj</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <optional>true</optional>
-        </dependency>
     </dependencies>
 
 </project>

@@ -39,8 +39,7 @@
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
-            <optional>true</optional>
+            <artifactId>druid</artifactId>
         </dependency>
     </dependencies>
 </project>
