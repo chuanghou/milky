@@ -29,7 +29,7 @@ public class MilkyLogFilter extends LogFilter {
     private Long sqlCostThreshold = 3000L;
 
     public MilkyLogFilter(Duration sqlCost) {
-        sqlCostThreshold = sqlCost.get(ChronoUnit.MILLIS);
+        sqlCostThreshold = sqlCost.get(ChronoUnit.NANOS) * 1000_000L;
     }
 
     private final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, false);
