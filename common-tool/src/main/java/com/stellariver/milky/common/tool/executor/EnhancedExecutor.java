@@ -150,6 +150,10 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         return new ArrayList<>(profiles.values());
     }
 
+    public List<Profile> listHistoryProfiles() {
+        return new ArrayList<>(history.asMap().values());
+    }
+
     public List<String> byPassPatterns() {
         return new ArrayList<>(byPassPatterns.keySet());
     }
