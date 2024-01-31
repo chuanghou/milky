@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 @NoArgsConstructor
 public class MilkyLogFilter extends LogFilter {
 
-    // MILLIS
+    //
     private Long sqlCostThreshold = 3000L;
 
     public MilkyLogFilter(long sqlCost) {
@@ -79,7 +79,7 @@ public class MilkyLogFilter extends LogFilter {
         int updateCount = statement.getUpdateCount();
         sql = sql + " ==>> " + "[" + updateCount + "]";
         double cost = nanos / 1000_000L;
-        if (nanos > sqlCostThreshold) {
+        if (cost > sqlCostThreshold) {
             log.cost(cost).error(sql);
         } else {
             log.cost(cost).info(sql);
