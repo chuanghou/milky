@@ -9,64 +9,28 @@ import com.alibaba.druid.proxy.jdbc.ResultSetProxy;
 import com.alibaba.druid.proxy.jdbc.StatementProxy;
 import com.alibaba.druid.sql.SQLUtils;
 import lombok.CustomLog;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 @CustomLog
+@NoArgsConstructor
 public class MilkyLogFilter extends LogFilter {
 
-    @Override
-    protected void connectionLog(String message) {}
+    // MILLIS
+    private Long sqlCostThreshold = 3000L;
 
-    @Override
-    protected void statementLog(String message) {}
-
-    @Override
-    protected void statementLogError(String message, Throwable error) {}
-
-    @Override
-    protected void resultSetLog(String message) {}
-
-    @Override
-    protected void resultSetLogError(String message, Throwable error) {}
-
-    @Override
-    public String getDataSourceLoggerName() {
-        return null;
+    public MilkyLogFilter(Duration sqlCost) {
+        sqlCostThreshold = sqlCost.get(ChronoUnit.MILLIS);
     }
-
-    @Override
-    public void setDataSourceLoggerName(String loggerName) {}
-
-    @Override
-    public String getConnectionLoggerName() {
-        return null;
-    }
-
-    @Override
-    public void setConnectionLoggerName(String loggerName) {}
-
-    @Override
-    public String getStatementLoggerName() {
-        return null;
-    }
-
-    @Override
-    public void setStatementLoggerName(String loggerName) {}
-
-    @Override
-    public String getResultSetLoggerName() {
-        return null;
-    }
-
-    @Override
-    public void setResultSetLoggerName(String loggerName) {}
 
     private final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, false);
 
@@ -116,12 +80,16 @@ public class MilkyLogFilter extends LogFilter {
         double cost = nanos / (1000 * 1000);
         int updateCount = statement.getUpdateCount();
         sql = sql + " ==>> " + "[" + updateCount + "]";
-        log.cost(cost).info(sql);
+        if (cost > sqlCostThreshold) {
+            log.cost(cost).error(sql);
+        } else {
+            log.cost(cost).info(sql);
+        }
     }
 
     private static final ThreadLocal<Boolean> enable = ThreadLocal.withInitial(() -> false);
 
-    static public <T> T byPass(Supplier<T> supplier) {
+    public static <T> T byPass(Supplier<T> supplier) {
         enable.set(true);
         try {
             return supplier.get();
@@ -160,7 +128,7 @@ public class MilkyLogFilter extends LogFilter {
                 } else {
                     value = resultSet.getObject(columnIndex);
                 }
-                builder.append(String.format("%s:%s", meta.getColumnName(columnIndex), value));
+                builder.append(String.format("%s:%s", meta.getColumnName(columnIndex).toLowerCase(), value));
             }
             builder.append("]");
             log.info(builder.toString());
@@ -168,4 +136,55 @@ public class MilkyLogFilter extends LogFilter {
 
         return moreRows;
     }
+
+
+
+
+    @Override
+    protected void connectionLog(String message) {}
+
+    @Override
+    protected void statementLog(String message) {}
+
+    @Override
+    protected void statementLogError(String message, Throwable error) {}
+
+    @Override
+    protected void resultSetLog(String message) {}
+
+    @Override
+    protected void resultSetLogError(String message, Throwable error) {}
+
+    @Override
+    public String getDataSourceLoggerName() {
+        throw new RuntimeException("MilkyLogFilter Not Supported!");
+    }
+
+    @Override
+    public void setDataSourceLoggerName(String loggerName) {throw new RuntimeException("MilkyLogFilter Not Supported!");}
+
+    @Override
+    public String getConnectionLoggerName() {
+        throw new RuntimeException("MilkyLogFilter Not Supported!");
+    }
+
+    @Override
+    public void setConnectionLoggerName(String loggerName) {throw new RuntimeException("MilkyLogFilter Not Supported!");}
+
+    @Override
+    public String getStatementLoggerName() {
+        throw new RuntimeException("MilkyLogFilter Not Supported!");
+    }
+
+    @Override
+    public void setStatementLoggerName(String loggerName) {throw new RuntimeException("MilkyLogFilter Not Supported!");}
+
+    @Override
+    public String getResultSetLoggerName() {
+        throw new RuntimeException("MilkyLogFilter Not Supported!");
+    }
+
+    @Override
+    public void setResultSetLoggerName(String loggerName) {throw new RuntimeException("MilkyLogFilter Not Supported!");}
+
 }
