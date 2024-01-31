@@ -144,8 +144,12 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
     }
 
     @Nullable
-    public Profile profile(String identify) {
+    public Profile getProfile(String identify) {
         return Optional.ofNullable(profiles.get(identify)).orElse(history.getIfPresent(identify));
+    }
+
+    public List<Profile> listProfiles() {
+        return new ArrayList<>(profiles.values());
     }
 
     public List<String> byPassPatterns() {

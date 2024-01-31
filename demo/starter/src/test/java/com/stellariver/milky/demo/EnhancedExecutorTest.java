@@ -129,11 +129,11 @@ public class EnhancedExecutorTest {
             }
         }, "1");
 
-        Profile profile = enhancedExecutor.profile("1");
+        Profile profile = enhancedExecutor.getProfile("1");
         Assertions.assertNotNull(profile);
 
         Thread.sleep(1500);
-        profile = enhancedExecutor.profile("1");
+        profile = enhancedExecutor.getProfile("1");
         Assertions.assertNotNull(profile);
         Assertions.assertTrue(profile.getHistory());
         AtomicReference<Boolean> executorMark = new AtomicReference<>(true);
@@ -156,7 +156,7 @@ public class EnhancedExecutorTest {
 
         Thread.sleep(10);
 
-        profile = enhancedExecutor.profile("2");
+        profile = enhancedExecutor.getProfile("2");
         Assertions.assertTrue(profile != null && profile.getSubmitTime() != null);
         Assertions.assertNotNull(profile.getStartTime());
         Assertions.assertNotNull(profile.getEndTime());
