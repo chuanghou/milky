@@ -103,10 +103,7 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         HashMap<Class<?>, Object> threadLocalMap = new HashMap<>(16);
         threadLocalPassers.forEach(passer -> threadLocalMap.put(passer.getClass(), passer.prepareThreadLocal()));
 
-        String identify = taskIdentify.get();
-        if (identify == null) {
-            throw new IllegalArgumentException("Task identify is null");
-        }
+        String identify = Optional.ofNullable(taskIdentify.get()).orElse(UUID.randomUUID().toString());
 
         for (Map.Entry<String, Pattern> entry : byPassPatterns.entrySet()) {
             Matcher matcher = entry.getValue().matcher(identify);
