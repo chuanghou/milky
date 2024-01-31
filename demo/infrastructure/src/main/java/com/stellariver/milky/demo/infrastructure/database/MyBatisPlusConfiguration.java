@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInt
 import com.baomidou.mybatisplus.extension.plugins.inner.ReplacePlaceholderInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
-import com.stellariver.milky.infrastructure.base.database.BlockDeepPagingInnerInterceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -61,7 +60,6 @@ public class MyBatisPlusConfiguration {
         mybatisPlusInterceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
         mybatisPlusInterceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
         mybatisPlusInterceptor.addInnerInterceptor(new ReplacePlaceholderInnerInterceptor());
-        mybatisPlusInterceptor.addInnerInterceptor(new BlockDeepPagingInnerInterceptor(true, 1000L));
         sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor);
 
         return sqlSessionFactoryBean.getObject();
