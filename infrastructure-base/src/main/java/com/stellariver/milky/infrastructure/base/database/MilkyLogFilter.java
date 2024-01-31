@@ -27,8 +27,8 @@ public class MilkyLogFilter extends LogFilter {
     // MILLIS
     private Long sqlCostThreshold = 3000L;
 
-    public MilkyLogFilter(Duration sqlCost) {
-        sqlCostThreshold = sqlCost.get(ChronoUnit.NANOS) * 1000_000L;
+    public MilkyLogFilter(long sqlCost) {
+        sqlCostThreshold = sqlCost;
     }
 
     private final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, false);
@@ -76,10 +76,10 @@ public class MilkyLogFilter extends LogFilter {
 
         statement.setLastExecuteTimeNano();
         double nanos = statement.getLastExecuteTimeNano();
-        double cost = nanos / (1000 * 1000);
         int updateCount = statement.getUpdateCount();
         sql = sql + " ==>> " + "[" + updateCount + "]";
-        if (cost > sqlCostThreshold) {
+        double cost = nanos / 1000_000L;
+        if (nanos > sqlCostThreshold) {
             log.cost(cost).error(sql);
         } else {
             log.cost(cost).info(sql);
