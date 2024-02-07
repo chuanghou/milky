@@ -42,8 +42,11 @@ public class RpcAspect {
     @Pointcut("execution(public com.stellariver.milky.common.base.Result com.stellariver.milky.demo.adapter.rpc..*(..))")
     private void resultPointCut() {}
 
-    @Pointcut("execution(public com.stellariver.milky.common.base.Result com.stellariver.milky.demo.adapter.rpc..*(..))")
+    @Pointcut("execution(public com.stellariver.milky.common.base.PageResult com.stellariver.milky.demo.adapter.rpc..*(..))")
     private void pageResultPointCut() {}
+
+    @Pointcut("execution(public com.stellariver.milky.common.base.IterableResult com.stellariver.milky.demo.adapter.rpc..*(..))")
+    private void iterableResultPointCut() {}
 
     MilkyStableSupport milkyStableSupport;
 
@@ -51,7 +54,7 @@ public class RpcAspect {
 
     volatile boolean init = false;
 
-    @Around("resultPointCut() || pageResultPointCut()")
+    @Around("resultPointCut() || pageResultPointCut() || iterableResultPointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
         if (!init) {
             synchronized (lock) {
