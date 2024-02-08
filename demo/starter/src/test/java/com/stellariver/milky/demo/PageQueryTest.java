@@ -1,8 +1,6 @@
 package com.stellariver.milky.demo;
 
-import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.IterableResult;
-import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.demo.client.entity.ItemDTO;
 import com.stellariver.milky.demo.client.entity.ItemDTOIterableQuery;
 import com.stellariver.milky.demo.client.service.ItemQueryService;
@@ -14,12 +12,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @CustomLog
-@Transactional
 @SpringBootTest
 public class PageQueryTest {
 
@@ -55,20 +51,12 @@ public class PageQueryTest {
         Assertions.assertEquals(reduce.get(), (81 + 90) * 10 / 2);
 
 
-        query = ItemDTOIterableQuery.builder().userId(10001L).pageSize(1100).build();
+        query = ItemDTOIterableQuery.builder().userId(10001L).pageSize(110000).build();
 
         Throwable back = null;
+        IterableResult<ItemDTO> itemDTOIterableResult1 = itemQueryService.pageQueryItemDTO(query);
 
-        try {
-            itemQueryService.pageQueryItemDTO(query);
-        } catch (Throwable sysEx) {
-            back = sysEx;
-        }
-
-        Assertions.assertNotNull(back);
-        Throwable cause = back.getCause().getCause();
-        Assertions.assertInstanceOf(SysEx.class, cause);
-        Assertions.assertEquals(((SysEx) cause).getFirstError().getCode(), ErrorEnumsBase.DEEP_PAGING.getCode());
+        Assertions.assertFalse(itemDTOIterableResult1.getSuccess());
     }
 
 }

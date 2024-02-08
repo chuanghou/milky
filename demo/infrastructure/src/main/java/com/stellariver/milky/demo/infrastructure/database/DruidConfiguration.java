@@ -33,7 +33,7 @@ public class DruidConfiguration {
     }
 
     @Bean
-    public DeepPageFilter deepPageFilter() {return new DeepPageFilter(true, 1000); }
+    public DeepPageFilter deepPageFilter() {return new DeepPageFilter(true, 100000); }
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.a")
