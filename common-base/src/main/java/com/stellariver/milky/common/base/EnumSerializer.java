@@ -24,7 +24,6 @@ public @interface EnumSerializer {
 
     String field() default "desc";
 
-
     class Serializer extends JsonSerializer<Enum<?>> implements ContextualSerializer {
 
         private Method method;

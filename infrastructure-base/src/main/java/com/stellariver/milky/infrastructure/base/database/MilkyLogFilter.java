@@ -57,7 +57,7 @@ public class MilkyLogFilter extends FilterEventAdapter {
 
         statement.setLastExecuteTimeNano();
         double nanos = statement.getLastExecuteTimeNano();
-        int updateCount = statement.getUpdateCount();
+        int updateCount = Math.max(0, statement.getUpdateCount());
         sql = sql + " ==>> " + "[affected: " + updateCount + "]";
         double cost = nanos / 1000_000L;
         if (cost > sqlCostThreshold) {
