@@ -103,12 +103,12 @@ public class EnhancedExecutor extends ThreadPoolExecutor {
         HashMap<Class<?>, Object> threadLocalMap = new HashMap<>(16);
         threadLocalPassers.forEach(passer -> threadLocalMap.put(passer.getClass(), passer.prepareThreadLocal()));
 
-        String identify = Optional.ofNullable(taskIdentify.get()).orElse(UUID.randomUUID().toString());
+        String identify = Optional.ofNullable(taskIdentify.get()).orElseGet(() -> UUID.randomUUID().toString());
 
         for (Map.Entry<String, Pattern> entry : byPassPatterns.entrySet()) {
             Matcher matcher = entry.getValue().matcher(identify);
             if (matcher.find()) {
-                log.warn("Task: " + identify + " has been by passed by pattern " + entry.getKey() + " !");
+                log.warn("Task: " + identify + " has been bypassed by pattern " + entry.getKey() + " !");
                 return;
             }
         }
