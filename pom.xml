@@ -27,7 +27,7 @@
     </modules>
 
     <properties>
-        <revision>0.2.5-SNAPSHOT</revision>
+        <revision>0.2.5</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <spring.boot.version>2.7.7</spring.boot.version>
@@ -313,6 +313,7 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
