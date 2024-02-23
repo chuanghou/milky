@@ -21,6 +21,10 @@
             <groupId>com.stellariver.milky.demo</groupId>
             <artifactId>ajc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky.frodo</groupId>
+            <artifactId>frodo-spring-boot-starter</artifactId>
+        </dependency>
 
         <!--for jacoco report start-->
         <dependency>

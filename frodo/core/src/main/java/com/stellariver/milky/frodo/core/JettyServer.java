@@ -1,4 +1,4 @@
-package com.stellariver.milky.common.tool.frodo;
+package com.stellariver.milky.frodo.core;
 
 import lombok.NonNull;
 import org.apache.commons.io.IOUtils;
