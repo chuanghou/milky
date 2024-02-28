@@ -25,3 +25,8 @@ mvn dependency:copy-dependencies "-DexcludeGroupIds=com.stellariver.milky.demo"
 git config --global http.proxy 'socks5://127.0.0.1:23456'
 git config --global https.proxy 'socks5://127.0.0.1:23456'
 
+mvn clean test -Dsurefire.failIfNoSpecifiedTests=false -Dtest=com.stellariver.milky.demo.AspectJTest#testParamValid
+
+
+
+
