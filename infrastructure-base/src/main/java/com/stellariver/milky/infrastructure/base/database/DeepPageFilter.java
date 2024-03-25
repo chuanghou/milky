@@ -1,5 +1,6 @@
 package com.stellariver.milky.infrastructure.base.database;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.filter.FilterEventAdapter;
 import com.alibaba.druid.proxy.jdbc.StatementProxy;
 import com.alibaba.druid.sql.SQLUtils;
@@ -73,7 +74,7 @@ public class DeepPageFilter extends FilterEventAdapter {
 
             String dbType = statement.getConnectionProxy().getDirectDataSource().getDbType();
             if (max >= deepLimit) {
-                sql = SQLUtils.format(sql, dbType, option);
+                sql = SQLUtils.format(sql, DbType.valueOf(dbType), option);
                 log.error(sql);
                 customStrategyWhenFail(sql);
                 SysEx.trueThrow(block, DEEP_PAGING.message("\n" + sql));

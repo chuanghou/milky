@@ -26,11 +26,17 @@ public class MilkyLogFilter extends FilterEventAdapter {
 
     @Override
     protected void statementExecuteAfter(StatementProxy statement, String sql, boolean result) {
+        if (enable.get()) {
+            return;
+        }
         print(statement, sql);
     }
 
     @Override
     protected void statementExecuteBatchAfter(StatementProxy statement, int[] result) {
+        if (enable.get()) {
+            return;
+        }
         String sql;
         if (statement instanceof PreparedStatementProxy) {
             sql = ((PreparedStatementProxy) statement).getSql();
@@ -42,11 +48,17 @@ public class MilkyLogFilter extends FilterEventAdapter {
 
     @Override
     protected void statementExecuteQueryAfter(StatementProxy statement, String sql, ResultSetProxy resultSet)  {
+        if (enable.get()) {
+            return;
+        }
         print(statement, sql);
     }
 
     @Override
     protected void statementExecuteUpdateAfter(StatementProxy statement, String sql, int updateCount) {
+        if (enable.get()) {
+            return;
+        }
         print(statement, sql);
     }
 
@@ -81,8 +93,8 @@ public class MilkyLogFilter extends FilterEventAdapter {
 
     @Override
     public boolean resultSet_next(FilterChain chain, ResultSetProxy resultSet) throws SQLException {
-        boolean moreRows = super.resultSet_next(chain, resultSet);
 
+        boolean moreRows = super.resultSet_next(chain, resultSet);
         if (moreRows && (!enable.get())) {
             StringBuilder builder = new StringBuilder();
             builder.append("record: [");

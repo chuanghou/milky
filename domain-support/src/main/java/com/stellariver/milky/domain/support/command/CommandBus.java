@@ -2,6 +2,7 @@ package com.stellariver.milky.domain.support.command;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.Result;
@@ -33,6 +34,7 @@ import org.reflections.Reflections;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -231,40 +233,35 @@ public class CommandBus {
         });
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Class<? extends Typed<?>>, Object> parameters,
+    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands, Map<Class<? extends Typed<?>>, Object> parameters,
                                                                        Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         Object result;
         instance.memoryTxTL.set(true);
         SysEx.nullThrow(instance.transactionSupport,
                 "transactionSupport is null, so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
         try {
-            result = instance.doSend(command, parameters, null, aggregateIdMap);
+            result = instance.doSend(commands, parameters, aggregateIdMap);
         } finally {
             instance.memoryTxTL.set(false);
         }
         return result;
     }
 
-    @SuppressWarnings("all")
+    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands, Map<Class<? extends Typed<?>>, Object> parameters) {
+        return acceptMemoryTransactional(commands, parameters, null);
+    }
+
     static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Class<? extends Typed<?>>, Object> parameters) {
-        return acceptMemoryTransactional(command, parameters, null);
+        return acceptMemoryTransactional(Collections.singletonList(command), parameters, null);
     }
 
-    static public <T extends Command> Object accept(T command, Map<Class<? extends Typed<?>>, Object> parameters,
-                                                    @Nullable Class<? extends AggregateRoot> clazz,
-                                                    @Nullable Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
-        return instance.doSend(command, parameters, clazz, aggregateIdMap);
-    }
-
-    @SuppressWarnings("unused")
     static public <T extends Command> Object accept(T command, Map<Class<? extends Typed<?>>, Object> parameters,
                                                     Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
-        return accept(command, parameters, null, aggregateIdMap);
+        return instance.doSend(Collections.singletonList(command), parameters, aggregateIdMap);
     }
 
-
     static public <T extends Command> Object accept(T command, Map<Class<? extends Typed<?>>, Object> parameters) {
-        return accept(command, parameters, null, null);
+        return instance.doSend(Collections.singletonList(command), parameters, null);
     }
 
     static public DaoAdapter<? extends AggregateRoot> getDaoAdapter(Class<? extends AggregateRoot> clazz) {
@@ -278,27 +275,25 @@ public class CommandBus {
     /**
      * 针对应用层调用的命令总线接口
      *
-     * @param command 外部命令
+     * @param commands 外部命令列表
      * @param <T>     命令泛型
      * @return 总结结果
      */
     @SneakyThrows
-    private <T extends Command> Object doSend(T command, Map<Class<? extends Typed<?>>, Object> parameters,
-                                              @Nullable Class<? extends AggregateRoot> clazz,
+    private <T extends Command> Object doSend(List<T> commands, Map<Class<? extends Typed<?>>, Object> parameters,
                                               @Nullable Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
-        Object result;
+        List<Object> results;
         Context shouldNull = THREAD_LOCAL_CONTEXT.get();
-        SysEx.trueThrowGet(shouldNull != null, () -> CONFIG_ERROR
-                .message("Inside a event router, you should use CommandBus.send() or CommandBus.acceptMemoryTransactional()"));
+        SysEx.trueThrow(shouldNull != null, CONFIG_ERROR.message("Inside a event router, should use CommandBus.driveByEvent"));
         Context context = Context.build(parameters, aggregateIdMap);
         THREAD_LOCAL_CONTEXT.set(context);
         Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
-        command.setInvokeTrace(invokeTrace);
+        commands.forEach(c -> c.setInvokeTrace(invokeTrace));
         Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
         Throwable backup = null;
         try {
-            result = route(command, clazz);
+            results = commands.stream().map(this::route).collect(Collectors.toList());
             eventBus.preFinalRoute(context.getFinalEvents(), context);
             if (memoryTx) {
                 transactionSupport.begin();
@@ -337,11 +332,7 @@ public class CommandBus {
             if (memoryTx) {
                 transactionSupport.rollback();
             }
-            if (throwable instanceof InvocationTargetException) {
-                backup = ((InvocationTargetException) throwable).getTargetException();
-            } else {
-                backup = throwable;
-            }
+            backup = excavate(throwable);
             throw backup;
         } finally {
             try {
@@ -360,31 +351,42 @@ public class CommandBus {
         if (memoryTx) {
             transactionSupport.commit();
         }
-        return result;
+        return commands.size() == 1 ? results.get(0) : results;
     }
 
-    static public <T extends Command> void driveByEvent(T command, Event sourceEvent,
-                                                        @Nullable Class<? extends AggregateRoot> clazz) {
-        command.setInvokeTrace(InvokeTrace.build(sourceEvent));
-        instance.route(command, clazz);
+    static private Throwable excavate(Throwable throwable) {
+        while (true) {
+            Throwable one = doExcavate(throwable);
+            if (one == throwable) {
+                return one;
+            }
+        }
+    }
+
+
+    static private Throwable doExcavate(Throwable throwable) {
+        if (throwable instanceof InvocationTargetException) {
+            return ((InvocationTargetException) throwable).getTargetException();
+        } else if (throwable instanceof ExecutionException || throwable instanceof UncheckedExecutionException) {
+            return throwable.getCause();
+        } else {
+            return throwable;
+        }
     }
 
     static public <T extends Command> void driveByEvent(T command, Event sourceEvent) {
-        driveByEvent(command, sourceEvent, null);
+        command.setInvokeTrace(InvokeTrace.build(sourceEvent));
+        instance.route(command);
     }
 
-    private <T extends Command> Object route(@NonNull T command, @Nullable Class<? extends AggregateRoot> aggregateClazz) {
-        Handler commandHandler;
+    private <T extends Command> Object route(@NonNull T command) {
+
         Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.get(command.getClass());
         SysEx.nullThrow(handlerMap, command.getClass().getSimpleName() + "could not found its handler!");
-        if (aggregateClazz == null) {
-            boolean eq = Kit.eq(handlerMap.size(), 1);
-            SysEx.falseThrow(eq, CONFIG_ERROR.message(
+        boolean eq = Kit.eq(handlerMap.size(), 1);
+        SysEx.falseThrow(eq, CONFIG_ERROR.message(
                     command.getClass().getName() + " has at least 2 handlers implementations, please assign aggregate class"));
-            commandHandler = handlerMap.values().stream().findFirst().orElseThrow(() -> new SysEx(ErrorEnums.UNREACHABLE_CODE));
-        } else {
-            commandHandler = handlerMap.get(aggregateClazz);
-        }
+        Handler commandHandler = handlerMap.values().stream().findFirst().orElseThrow(() -> new SysEx(ErrorEnums.UNREACHABLE_CODE));
         Context context = THREAD_LOCAL_CONTEXT.get();
         // command bus lock and it will be release finally
         UK nameSpace = UK.build(commandHandler.getAggregateClazz());

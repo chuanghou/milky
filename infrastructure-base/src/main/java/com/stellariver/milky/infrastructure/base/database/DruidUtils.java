@@ -1,5 +1,6 @@
 package com.stellariver.milky.infrastructure.base.database;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.proxy.jdbc.JdbcParameter;
 import com.alibaba.druid.proxy.jdbc.StatementProxy;
 import com.alibaba.druid.sql.SQLUtils;
@@ -23,7 +24,7 @@ public class DruidUtils {
             }
 
             String dbType = statement.getConnectionProxy().getDirectDataSource().getDbType();
-            sql = SQLUtils.format(sql, dbType, parameters, option);
+            sql = SQLUtils.format(sql, DbType.valueOf(dbType), parameters, option);
         }
 
         return sql;
