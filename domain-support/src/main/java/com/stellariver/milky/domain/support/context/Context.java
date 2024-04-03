@@ -22,6 +22,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author houchuang
@@ -84,6 +85,22 @@ public class Context{
 
     public void record(@NonNull Trail trail) {
         trails.add(trail);
+    }
+
+    public void cleanUpTrails() {
+        Map<Long, List<Trail>> groupTrails =
+                getTrails().stream().collect(Collectors.groupingBy(t -> t.getMessage().getInvokeTrace().getTriggerId()));
+        this.treeTrails = groupTrails.get(invocationId);
+        this.treeTrails.forEach(trail -> fill(trail, groupTrails));
+    }
+
+    public void fill(Trail trail, Map<Long, List<Trail>> groupTrails) {
+        List<Trail> trails = groupTrails.get(trail.getMessage().getId());
+        if (trails == null) {
+            return;
+        }
+        trail.setSubTrails(trails);
+        trails.forEach(t -> fill(t, groupTrails));
     }
 
     public List<Event> popEvents() {

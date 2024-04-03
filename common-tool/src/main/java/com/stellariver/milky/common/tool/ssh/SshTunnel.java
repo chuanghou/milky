@@ -1,6 +1,6 @@
 package com.stellariver.milky.common.tool.ssh;
 
-import lombok.*;
+import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.IOUtils;

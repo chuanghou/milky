@@ -5,9 +5,11 @@ import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutorConfiguration;
 import com.stellariver.milky.common.tool.executor.ThreadLocalPasser;
-import com.stellariver.milky.domain.support.base.*;
+import com.stellariver.milky.domain.support.base.DomainTunnel;
+import com.stellariver.milky.domain.support.base.DomainTunnelImpl;
+import com.stellariver.milky.domain.support.base.MilkyScanPackages;
+import com.stellariver.milky.domain.support.base.MilkySupport;
 import com.stellariver.milky.domain.support.command.CommandBus;
-import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventBus;
 import com.stellariver.milky.domain.support.event.EventRouters;
@@ -24,9 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadFactory;
-import java.util.stream.Collectors;
 
 /**
  * @author houchuang
@@ -110,32 +110,9 @@ public class DomainSupportAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MilkyTraceRepository milkyTraceRepository() {
-
-        return new MilkyTraceRepositoryImpl();
+        return (context, success) -> {};
     }
 
-    static public class MilkyTraceRepositoryImpl implements MilkyTraceRepository {
-
-        @Override
-        public void record(Context context, boolean success) {
-            Long invocationId = context.getInvocationId();
-            Map<Long, List<Trail>> groupTrails = context.getTrails().stream()
-                    .collect(Collectors.groupingBy(t -> t.getMessage().getInvokeTrace().getTriggerId()));
-            List<Trail> rootTrails = groupTrails.get(invocationId);
-            rootTrails.forEach(rootTrail -> fill(rootTrail, groupTrails));
-            context.setTreeTrails(rootTrails);
-        }
-
-
-        public void fill(Trail trail, Map<Long, List<Trail>> groupTrails) {
-            List<Trail> trails = groupTrails.get(trail.getMessage().getId());
-            if (trails == null) {
-                return;
-            }
-            trail.setSubTrails(trails);
-            trails.forEach(t -> fill(t, groupTrails));
-        }
-    }
 
 
     @Bean

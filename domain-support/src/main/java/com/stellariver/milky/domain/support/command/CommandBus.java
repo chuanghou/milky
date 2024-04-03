@@ -347,6 +347,7 @@ public class CommandBus {
             backup = excavate(throwable);
             throw backup;
         } finally {
+            context.cleanUpTrails();
             enhancedExecutor.submit(() -> milkyTraceRepository.record(context, false));
             try {
                 THREAD_LOCAL_CONTEXT.remove();
