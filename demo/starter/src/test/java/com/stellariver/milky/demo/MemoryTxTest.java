@@ -61,7 +61,7 @@ public class MemoryTxTest{
         InventoryDO test = InventoryDO.builder().itemId(1L).amount(30L).storeCode("test").build();
         inventoryDOMapper.insert(test);
         try {
-            CommandBus.acceptMemoryTransactional(itemCreateCommand, parameters);
+            Object o = CommandBus.acceptMemoryTransactional(itemCreateCommand, parameters);
         } catch (Throwable t) {
             throwable = t;
             log.error("TEST_THROWABLE", throwable);

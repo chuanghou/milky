@@ -233,43 +233,56 @@ public class CommandBus {
         });
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands, Map<Class<? extends Typed<?>>, Object> parameters,
-                                                                       Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
-        Object result;
-        instance.memoryTxTL.set(true);
-        SysEx.nullThrow(instance.transactionSupport,
-                "transactionSupport is null, so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
-        try {
-            result = instance.doSend(commands, parameters, aggregateIdMap);
-        } finally {
-            instance.memoryTxTL.set(false);
-        }
-        return result;
+    static public <T extends Command> Object acceptMemoryTransactional(T command) {
+        return acceptMemoryTransactional(Collections.singletonList(command), null, null);
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands, Map<Class<? extends Typed<?>>, Object> parameters) {
-        return acceptMemoryTransactional(commands, parameters, null);
+    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands) {
+        return acceptMemoryTransactional(commands, null, null);
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(T command, Map<Class<? extends Typed<?>>, Object> parameters) {
+    static public <T extends Command> Object acceptMemoryTransactional(T command,
+                                                                       Map<Class<? extends Typed<?>>, Object> parameters) {
         return acceptMemoryTransactional(Collections.singletonList(command), parameters, null);
     }
 
-    static public <T extends Command> Object accept(T command, Map<Class<? extends Typed<?>>, Object> parameters,
-                                                    Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
-        return instance.doSend(Collections.singletonList(command), parameters, aggregateIdMap);
+    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands,
+                                                                       Map<Class<? extends Typed<?>>, Object> parameters) {
+        return acceptMemoryTransactional(commands, parameters, null);
     }
 
-    static public <T extends Command> Object accept(T command, Map<Class<? extends Typed<?>>, Object> parameters) {
+    static public <T extends Command> Object acceptMemoryTransactional(T command,
+                                                                       Map<Class<? extends Typed<?>>, Object> parameters,
+                                                                       Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+        return acceptMemoryTransactional(Collections.singletonList(command), parameters, aggregateIdMap);
+    }
+
+    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands,
+                                                                       Map<Class<? extends Typed<?>>, Object> parameters,
+                                                                       Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+        SysEx.nullThrow(instance.transactionSupport, "transactionSupport is null, " +
+                "so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
+        instance.memoryTxTL.set(true);
+        try {
+            return instance.doSend(commands, parameters, aggregateIdMap);
+        } finally {
+            instance.memoryTxTL.set(false);
+        }
+    }
+
+    static public <T extends Command> Object accept(T command) {
+        return instance.doSend(Collections.singletonList(command), null, null);
+    }
+
+    static public <T extends Command> Object accept(T command,
+                                                    Map<Class<? extends Typed<?>>, Object> parameters) {
         return instance.doSend(Collections.singletonList(command), parameters, null);
     }
 
-    static public DaoAdapter<? extends AggregateRoot> getDaoAdapter(Class<? extends AggregateRoot> clazz) {
-        return instance.daoAdapterMap.get(clazz);
-    }
-
-    static public DAOWrapper<? extends BaseDataObject<?>, ?> getDaoWrapper(Class<? extends BaseDataObject<?>> clazz) {
-        return instance.daoWrappersMap.get(clazz);
+    static public <T extends Command> Object accept(T command,
+                                                    Map<Class<? extends Typed<?>>, Object> parameters,
+                                                    Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+        return instance.doSend(Collections.singletonList(command), parameters, aggregateIdMap);
     }
 
     /**
@@ -280,7 +293,8 @@ public class CommandBus {
      * @return 总结结果
      */
     @SneakyThrows
-    private <T extends Command> Object doSend(List<T> commands, Map<Class<? extends Typed<?>>, Object> parameters,
+    private <T extends Command> Object doSend(List<T> commands,
+                                              @Nullable Map<Class<? extends Typed<?>>, Object> parameters,
                                               @Nullable Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         List<Object> results;
         Context shouldNull = THREAD_LOCAL_CONTEXT.get();
@@ -326,15 +340,14 @@ public class CommandBus {
                 });
             }
             eventBus.postFinalRoute(context.getFinalEvents(), context);
-            enhancedExecutor.submit(() -> milkyTraceRepository.record(context, true), UUID.randomUUID().toString());
         } catch (Throwable throwable) {
-            enhancedExecutor.submit(() -> milkyTraceRepository.record(context, false),  UUID.randomUUID().toString());
             if (memoryTx) {
                 transactionSupport.rollback();
             }
             backup = excavate(throwable);
             throw backup;
         } finally {
+            enhancedExecutor.submit(() -> milkyTraceRepository.record(context, false));
             try {
                 THREAD_LOCAL_CONTEXT.remove();
                 Pair<Boolean, Map<String, Result<Void>>> unLockedAll = concurrentOperate.unLockAll();
@@ -354,6 +367,14 @@ public class CommandBus {
         return commands.size() == 1 ? results.get(0) : results;
     }
 
+    static public DaoAdapter<? extends AggregateRoot> getDaoAdapter(Class<? extends AggregateRoot> clazz) {
+        return instance.daoAdapterMap.get(clazz);
+    }
+
+    static public DAOWrapper<? extends BaseDataObject<?>, ?> getDaoWrapper(Class<? extends BaseDataObject<?>> clazz) {
+        return instance.daoWrappersMap.get(clazz);
+    }
+
     static private Throwable excavate(Throwable throwable) {
         while (true) {
             Throwable one = doExcavate(throwable);
@@ -362,7 +383,6 @@ public class CommandBus {
             }
         }
     }
-
 
     static private Throwable doExcavate(Throwable throwable) {
         if (throwable instanceof InvocationTargetException) {
@@ -428,7 +448,7 @@ public class CommandBus {
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
-                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName()).messages(Collect.asList(command)).build();
+                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName()).message(command).build();
                 context.record(trail);
             });
 
@@ -448,7 +468,7 @@ public class CommandBus {
             // run command before interceptors, it is corresponding to a common command, an instance method
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, aggregate, context);
-                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName()).messages(Collect.asList(command)).build();
+                Trail trail = Trail.builder().beanName(interceptor.getClass().getSimpleName()).message(command).build();
                 context.record(trail);
             });
 
@@ -460,10 +480,10 @@ public class CommandBus {
                 aggregateStatus = AggregateStatus.UPDATE;
             }
         } else {
-            throw new SysEx("unreached part!");
+            throw new SysEx(ErrorEnums.UNREACHABLE_CODE);
         }
 
-        Trail trail = Trail.builder().beanName(aggregate.getClass().getSimpleName()).messages(Collect.asList(command)).result(result).build();
+        Trail trail = Trail.builder().beanName(aggregate.getClass().getSimpleName()).message(command).result(result).build();
         context.record(trail);
 
         // process context cache for aggregate
@@ -518,7 +538,7 @@ public class CommandBus {
         List<Interceptor> interceptors = afterCommandInterceptors.get(command.getClass());
         for (Interceptor interceptor : interceptors) {
             interceptor.invoke(command, aggregate, context);
-            trail = Trail.builder().beanName(interceptor.getClass().getSimpleName()).messages(Collections.singletonList(command)).build();
+            trail = Trail.builder().beanName(interceptor.getClass().getSimpleName()).message(command).build();
             context.record(trail);
         }
 

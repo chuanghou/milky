@@ -19,6 +19,7 @@ import com.stellariver.milky.domain.support.event.Event;
 import com.stellariver.milky.domain.support.event.PlaceHolderEvent;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 import java.util.*;
 
@@ -53,6 +54,9 @@ public class Context{
     @Getter
     private final List<Trail> trails = new ArrayList<>();
 
+    @Getter @Setter
+    private List<Trail> treeTrails;
+
     public <T> void addMetaData(Class<? extends Typed<T>> key, T value) {
         boolean contains = metaData.containsKey(key);
         SysEx.trueThrow(contains, ErrorEnums.CONFIG_ERROR.message(key));
@@ -69,7 +73,6 @@ public class Context{
     public <T> T getMetaData(Class<? extends Typed<T>> key) {
         return (T) metaData.get(key);
     }
-
 
     public void publish(@NonNull Event event) {
         events.add(0, event);

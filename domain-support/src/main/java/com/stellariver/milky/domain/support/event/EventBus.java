@@ -32,6 +32,7 @@ import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
 /**
  * @author houchuang
  */
+@Getter
 public class EventBus {
 
     static final private Predicate<Method> FORMAT = method ->
@@ -49,10 +50,8 @@ public class EventBus {
         return actualTypeArgument instanceof Class<?> && Event.class.isAssignableFrom((Class<?>)actualTypeArgument);
     };
 
-    @Getter
-    Multimap<Class<? extends Event>, Router> eventRouterMap = ArrayListMultimap.create();
+    private final Multimap<Class<? extends Event>, Router> eventRouterMap = ArrayListMultimap.create();
 
-    @Getter
     private final List<FinalRouter<Class<? extends Event>>> finalRouters = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
@@ -107,7 +106,7 @@ public class EventBus {
     public void route(Event event, Context context) {
         eventRouterMap.get(event.getClass()).forEach(router -> {
             router.route(event, context);
-            Trail trail = Trail.builder().beanName(router.getClass().getSimpleName()).messages(Collect.asList(event)).build();
+            Trail trail = Trail.builder().beanName(router.getClass().getSimpleName()).message(event).build();
             context.record(trail);
         });
     }
@@ -167,8 +166,10 @@ public class EventBus {
             } else {
                 Reflect.invoke(method, bean, events, context);
             }
-            Trail trail = Trail.builder().beanName(this.getClass().getSimpleName()).messages(new ArrayList<>(events)).build();
-            context.record(trail);
+            events.forEach(event -> {
+                Trail trail = Trail.builder().beanName(this.getClass().getSimpleName()).message(event).build();
+                context.record(trail);
+            });
         }
     }
 

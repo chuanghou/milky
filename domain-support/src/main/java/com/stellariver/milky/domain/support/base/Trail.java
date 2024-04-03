@@ -14,13 +14,15 @@ import java.util.List;
 @Data
 @SuperBuilder
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Trail {
 
     String beanName;
 
-    List<Message> messages;
+    Message message;
 
     Object result;
+
+    List<Trail> subTrails;
 
 }
