@@ -96,11 +96,10 @@ public class Context{
 
     public void fill(Trail trail, Map<Long, List<Trail>> groupTrails) {
         List<Trail> trails = groupTrails.get(trail.getMessage().getId());
-        if (trails == null) {
-            return;
+        if (trails != null) {
+            trail.setSubTrails(trails);
+            trails.forEach(t -> fill(t, groupTrails));
         }
-        trail.setSubTrails(trails);
-        trails.forEach(t -> fill(t, groupTrails));
     }
 
     public List<Event> popEvents() {
