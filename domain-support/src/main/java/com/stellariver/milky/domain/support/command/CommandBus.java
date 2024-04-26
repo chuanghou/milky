@@ -311,10 +311,7 @@ public class CommandBus {
             eventBus.preFinalRoute(context.getFinalEvents(), context);
             if (memoryTx) {
                 transactionSupport.begin();
-            }
-            Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = context.getDoMap();
-            if (memoryTx) {
-                doMap.forEach((dataObjectClazz, map) -> {
+                context.getDoMap().forEach((dataObjectClazz, map) -> {
                     DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
 
                     // all three group of primary ids
