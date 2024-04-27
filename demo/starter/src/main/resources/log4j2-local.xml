@@ -2,6 +2,7 @@
 <Configuration status="INFO">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
+<!--            本地一般使用-->
 <!--            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>-->
 <!--            本地验证日志效果使用-->
             <JsonTemplateLayout eventTemplateUri="classpath:layout.json" locationInfoEnabled="true"/>
