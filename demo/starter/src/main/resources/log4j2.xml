@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </Console>
-        <RollingFile name="RollingFile" fileName="app.log" filePattern="logs/app-%d{yyyy-MM-dd}-%i.log.gz">
-            <JsonTemplateLayout eventTemplateUri="classpath:layout.json"/>
+        <RollingFile name="RollingFile" fileName="octopus.log" filePattern="archive/app-%d{yyyy-MM-dd}-%i.log.gz">
+            <JsonTemplateLayout eventTemplateUri="classpath:layout.json" locationInfoEnabled="true"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="100MB" />
             </Policies>

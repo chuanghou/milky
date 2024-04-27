@@ -3,14 +3,9 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+<!--            本地验证日志效果使用-->
+<!--            <JsonTemplateLayout eventTemplateUri="classpath:layout.json" locationInfoEnabled="true"/>-->
         </Console>
-        <RollingFile name="RollingFile" fileName="octopus.log" filePattern="archive/app-%d{yyyy-MM-dd}-%i.log.gz">
-            <JsonTemplateLayout eventTemplateUri="classpath:layout.json"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="100MB" />
-            </Policies>
-            <DefaultRolloverStrategy max="10" />
-        </RollingFile>
     </Appenders>
 
     <Loggers>
