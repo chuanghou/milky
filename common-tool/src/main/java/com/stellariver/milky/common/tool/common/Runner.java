@@ -121,7 +121,7 @@ public class Runner {
                             log.success(false).warn(position, backup);
                         }
                     }
-
+                    // 特殊场景，有可能上面的log函数一个都走不到，所以需要手动清理一遍mdc，防止参数串台
                     log.clear();
 
                     if (runnerExtension != null) {
