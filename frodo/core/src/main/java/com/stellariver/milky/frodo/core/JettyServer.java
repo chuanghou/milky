@@ -24,20 +24,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-public class JettyServer {
+public class JettyServer implements AutoCloseable{
 
     private final Logger logger = Log.getLogger(Server.class);
 
-
     private final Pattern scriptPattern = Pattern.compile("public\\s+class\\s+[a-zA-Z0-9_]+\\s+implements Callable<String>\\s*\\{");
+
+    private final Server server;
 
     public JettyServer() {
         this(24113);
     }
 
     public JettyServer(@NonNull Integer port) {
-        Server server = new Server(port);
-        server.setHandler(new AbstractHandler() {
+        this.server = new Server(port);
+        this.server.setHandler(new AbstractHandler() {
             @Override
             public void handle(String target, Request request,
                                HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
@@ -63,7 +64,7 @@ public class JettyServer {
         });
 
         try {
-            server.start();
+            this.server.start();
         } catch (Throwable throwable) {
             logger.warn(throwable);
         }
@@ -108,6 +109,11 @@ public class JettyServer {
         PrintWriter pw = new PrintWriter(sw);
         throwable.printStackTrace(pw);
         return sw.toString();
+    }
+
+    @Override
+    public void close() throws Exception {
+        this.server.stop();
     }
 
 }

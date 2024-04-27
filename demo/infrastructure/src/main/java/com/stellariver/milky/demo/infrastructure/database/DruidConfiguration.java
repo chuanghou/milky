@@ -9,6 +9,7 @@ import com.stellariver.milky.infrastructure.base.database.MilkyLogFilter;
 import com.stellariver.milky.spring.partner.SectionLoader;
 import com.stellariver.milky.spring.partner.UniqueIdBuilder;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,7 +34,26 @@ public class DruidConfiguration {
     }
 
     @Bean
-    public DeepPageFilter deepPageFilter() {return new DeepPageFilter(true, 100000); }
+    public MyDeepPageFilter deepPageFilter() {
+        return new MyDeepPageFilter(false, 100000);
+    }
+
+
+    @Getter
+    static public class MyDeepPageFilter extends DeepPageFilter {
+
+        private Integer triggerTimes = 0;
+
+        public MyDeepPageFilter(boolean block, int limit) {
+            super(block, limit);
+        }
+
+        @Override
+        protected void customStrategyWhenFail(String sql) {
+            triggerTimes++;
+        }
+
+    }
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.a")

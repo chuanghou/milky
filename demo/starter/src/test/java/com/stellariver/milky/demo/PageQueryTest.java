@@ -5,6 +5,7 @@ import com.stellariver.milky.demo.client.entity.ItemDTO;
 import com.stellariver.milky.demo.client.entity.ItemDTOIterableQuery;
 import com.stellariver.milky.demo.client.service.ItemQueryService;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
+import com.stellariver.milky.demo.infrastructure.database.DruidConfiguration;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
 import lombok.CustomLog;
@@ -25,6 +26,9 @@ public class PageQueryTest {
 
     @Autowired
     private ItemQueryService itemQueryService;
+
+    @Autowired
+    private DruidConfiguration.MyDeepPageFilter myDeepPageFilter;
 
     @Test
     public void testPageQuery() {
@@ -53,10 +57,8 @@ public class PageQueryTest {
 
         query = ItemDTOIterableQuery.builder().userId(10001L).pageSize(110000).build();
 
-        Throwable back = null;
-        IterableResult<ItemDTO> itemDTOIterableResult1 = itemQueryService.pageQueryItemDTO(query);
-
-        Assertions.assertFalse(itemDTOIterableResult1.getSuccess());
+        itemQueryService.pageQueryItemDTO(query);
+        Assertions.assertEquals(myDeepPageFilter.getTriggerTimes(), 1);
     }
 
 }

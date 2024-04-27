@@ -20,7 +20,7 @@ import static com.stellariver.milky.common.base.ErrorEnumsBase.DEEP_PAGING;
 public class DeepPageFilter extends FilterEventAdapter {
 
     private static final SQLUtils.FormatOption option = new SQLUtils.FormatOption(false, true);
-    static private final Pattern LIMIT_PATTERN = Pattern.compile("limit\\s+[0-9]+(((\\s+(offset))|,)\\s+[0-9]+)?$");
+    static private final Pattern LIMIT_PATTERN = Pattern.compile("(limit|LIMIT|Limit)\\s+[0-9]+(((\\s+(offset|OFFSET|Offset))|,)\\s+[0-9]+)?$");
     static private final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
 
     private boolean block = false;
