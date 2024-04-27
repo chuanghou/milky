@@ -49,7 +49,7 @@ public class ItemController {
     }
 
     private void methodB() {
-        log.error("TestT", new RuntimeException());
+        log.error("TestT", new RuntimeException("TESTroke"));
     }
 
     @GetMapping("update")

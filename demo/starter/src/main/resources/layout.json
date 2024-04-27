@@ -6,7 +6,7 @@
       "timeZone": "Asia/Shanghai"
     }
   },
-  "log.level": {
+  "level": {
     "$resolver": "level",
     "field": "name"
   },
@@ -14,11 +14,11 @@
     "$resolver": "message",
     "stringified": true
   },
-  "process.thread.name": {
+  "thread": {
     "$resolver": "thread",
     "field": "name"
   },
-  "log.logger": {
+  "logger": {
     "$resolver": "logger",
     "field": "name"
   },
@@ -27,18 +27,7 @@
     "flatten": true,
     "stringified": true
   },
-  "tags": {
-    "$resolver": "ndc"
-  },
-  "error.type": {
-    "$resolver": "exception",
-    "field": "className"
-  },
-  "error.message": {
-    "$resolver": "exception",
-    "field": "message"
-  },
-  "error.stack_trace": {
+  "stack_trace": {
     "$resolver": "exception",
     "field": "stackTrace",
     "stackTrace": {
