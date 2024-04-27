@@ -4,6 +4,6 @@ if [ -n "$pid"  ]; then
     echo "stop $pid successful!"
 fi
 
-nohup java -jar starter-0.2.6.jar --spring.profiles.active=prod > console.log 2>&1 &
+nohup java -Dspring.profiles.active=prod -jar starter-0.2.6.jar > console.log 2>&1 &
 pid=$(ps -ef | grep java | grep starter | grep -v "$pid" | awk '{print $2}')
 echo "start $pid successful!"
