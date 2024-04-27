@@ -39,7 +39,7 @@
     "flatten": true,
     "stringified": true
   },
-  "stack_trace": {
+  "exception": {
     "$resolver": "exception",
     "field": "stackTrace",
     "stackTrace": {
