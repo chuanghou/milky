@@ -17,10 +17,9 @@ import java.util.Optional;
 public class SpringPartnerAutoConfiguration {
 
     @Bean
-    BeanLoader beanLoader(ApplicationContext applicationContext) {
+    public BeanLoader beanLoader(ApplicationContext applicationContext) {
         return new BeanLoaderImpl(applicationContext);
     }
-
 
     @Bean
     public StaticSupport staticSupport(@Autowired(required = false) MilkyStableSupport milkyStableSupport,

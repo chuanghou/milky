@@ -17,7 +17,6 @@ public interface BeanLoader {
 
     Object getBean(String beanName);
 
-
     <T> Optional<T> getBeanOptional(Class<T> requiredType);
 
     Optional<Object> getBeanOptional(String beanName);

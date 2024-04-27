@@ -1,5 +1,7 @@
 package com.stellariver.milky.common.base;
 
+import lombok.Getter;
+
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
@@ -10,14 +12,11 @@ import java.util.Optional;
  */
 public class BeanUtil {
 
+    @Getter
     private static BeanLoader beanLoader;
 
     public static void setBeanLoader(BeanLoader beanLoader) {
         BeanUtil.beanLoader = beanLoader;
-    }
-
-    public static BeanLoader getBeanLoader() {
-        return beanLoader;
     }
 
     public static List<Object> getBeansForAnnotation(Class<? extends Annotation> annotationType) {

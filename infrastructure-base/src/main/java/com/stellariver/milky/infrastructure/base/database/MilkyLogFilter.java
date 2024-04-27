@@ -8,6 +8,7 @@ import com.alibaba.druid.proxy.jdbc.StatementProxy;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -18,11 +19,15 @@ import java.util.function.Supplier;
 @NoArgsConstructor
 public class MilkyLogFilter extends FilterEventAdapter {
 
-    private Long sqlCostThreshold = 3000L;
+    private Long sqlCost = 3000L;
+    private Long sqlCount = 1000L;
 
-    public MilkyLogFilter(long sqlCost) {
-        sqlCostThreshold = sqlCost;
+    public MilkyLogFilter(long sqlCost, long sqlCount) {
+        this.sqlCost = sqlCost;
+        this.sqlCount = sqlCount;
     }
+
+    private final ThreadLocal<Pair<ResultSetProxy, Long>> recordCounter = ThreadLocal.withInitial(() -> Pair.of(null, 0L));
 
     @Override
     protected void statementExecuteAfter(StatementProxy statement, String sql, boolean result) {
@@ -72,7 +77,7 @@ public class MilkyLogFilter extends FilterEventAdapter {
         int updateCount = Math.max(0, statement.getUpdateCount());
         sql = sql + " ==>> " + "[affected: " + updateCount + "]";
         double cost = nanos / 1000_000L;
-        if (cost > sqlCostThreshold) {
+        if (cost > sqlCost) {
             log.cost(cost).error(sql);
         } else {
             log.cost(cost).info(sql);
@@ -96,9 +101,16 @@ public class MilkyLogFilter extends FilterEventAdapter {
 
         boolean moreRows = super.resultSet_next(chain, resultSet);
         if (moreRows && (!enable.get())) {
+
+            Pair<ResultSetProxy, Long> proxyCounter = recordCounter.get();
+            if (proxyCounter.getKey() == null || proxyCounter.getKey() != resultSet) {
+                recordCounter.set(Pair.of(resultSet, 1L));
+            } else {
+                recordCounter.set(Pair.of(proxyCounter.getLeft(), proxyCounter.getRight() + 1));
+            }
+
             StringBuilder builder = new StringBuilder();
             builder.append("record: [");
-
             ResultSetMetaData meta = resultSet.getMetaData();
             for (int i = 0, size = meta.getColumnCount(); i < size; ++i) {
                 if (i != 0) {
@@ -124,7 +136,12 @@ public class MilkyLogFilter extends FilterEventAdapter {
                 builder.append(String.format("%s:%s", meta.getColumnName(columnIndex).toLowerCase(), value));
             }
             builder.append("]");
-            log.info(builder.toString());
+            Long countResult = recordCounter.get().getRight();
+            if (recordCounter.get().getRight() > sqlCount) {
+                log.arg0(countResult).error(builder.toString());
+            } else {
+                log.arg0(countResult).info(builder.toString());
+            }
         }
 
         return moreRows;
