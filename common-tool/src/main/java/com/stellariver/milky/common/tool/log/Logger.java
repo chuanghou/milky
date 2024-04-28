@@ -23,44 +23,6 @@ public class Logger implements org.slf4j.Logger {
         return new Logger(clazz);
     }
 
-    public void log(String logTag, Throwable throwable) {
-        if (throwable == null) {
-            this.success(true).info(logTag);
-        } else if (throwable instanceof BizEx) {
-            this.success(false).warn(logTag, throwable);
-        } else {
-            this.success(false).error(logTag, throwable);
-        }
-    }
-
-    public void withSwitch(boolean sw, String logTag) {
-        withSwitch(sw, logTag, null);
-    }
-
-    public void withSwitch(boolean sw, String logTag, Throwable throwable) {
-        if (sw || throwable != null) {
-            if (throwable == null) {
-                info(logTag);
-            } else {
-                error(logTag, throwable);
-            }
-        } else {
-            afterLog();
-        }
-    }
-
-    public void logWhenException(String logTag, Throwable throwable) {
-        if (throwable == null) {
-            afterLog();
-            return;
-        }
-        if (throwable instanceof BizEx) {
-            this.success(false).warn(logTag, throwable);
-        } else {
-            this.success(false).error(logTag, throwable);
-        }
-    }
-
     private Logger(Class<?> clazz){
         this.log = LoggerFactory.getLogger(clazz);
     }
@@ -127,7 +89,7 @@ public class Logger implements org.slf4j.Logger {
         }
         String oldValue = MDC.get(key);
         if (oldValue != null) {
-            MDC.put("error_duplicate_key", String.format("%s:%s", key, value));
+            MDC.put("error_duplicate_key", String.format("%s:%s had been put into MDC, but not been cleared by afterLog()", key, oldValue));
         }
         withKeys.get().add(key);
         MDC.put(key, Objects.toString(value));
