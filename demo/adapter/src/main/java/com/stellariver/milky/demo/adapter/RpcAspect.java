@@ -40,13 +40,16 @@ public class RpcAspect {
     static private final Logger log = Logger.getLogger(RpcAspect.class);
 
     @Pointcut("execution(public com.stellariver.milky.common.base.Result com.stellariver.milky.demo.adapter.rpc..*(..))")
-    private void resultPointCut() {}
+    private void resultPointCut() {
+    }
 
     @Pointcut("execution(public com.stellariver.milky.common.base.PageResult com.stellariver.milky.demo.adapter.rpc..*(..))")
-    private void pageResultPointCut() {}
+    private void pageResultPointCut() {
+    }
 
     @Pointcut("execution(public com.stellariver.milky.common.base.IterableResult com.stellariver.milky.demo.adapter.rpc..*(..))")
-    private void iterableResultPointCut() {}
+    private void iterableResultPointCut() {
+    }
 
     MilkyStableSupport milkyStableSupport;
 
@@ -100,9 +103,9 @@ public class RpcAspect {
                 ExceptionType exceptionType = excavated instanceof BizEx ? ExceptionType.BIZ : ExceptionType.SYS;
                 if (returnType == Result.class) {
                     result = Result.error(errorEnums, exceptionType);
-                } else if (returnType == IterableResult.class){
+                } else if (returnType == IterableResult.class) {
                     result = IterableResult.pageError(errorEnums, exceptionType);
-                } else if (returnType == PageResult.class){
+                } else if (returnType == PageResult.class) {
                     result = PageResult.pageError(errorEnums, exceptionType);
                 } else {
                     //noinspection ThrowFromFinallyBlock
@@ -118,8 +121,15 @@ public class RpcAspect {
             String className = method.getDeclaringClass().getSimpleName();
             String methodName = method.getName();
             String message = Kit.op(excavated).map(Throwable::getMessage).orElse("");
-            log.result(result).source("custom").cost(System.nanoTime() - start)
-                    .position(String.format("%s_%s", className, methodName)).log(message, excavated);
+            log.result(result).source("custom")
+                    .cost(System.nanoTime() - start).position(String.format("%s_%s", className, methodName));
+            if (excavated == null) {
+                log.info(message);
+            } else if (excavated instanceof BizEx) {
+                log.warn(message, excavated);
+            } else {
+                log.error(message, excavated);
+            }
 
             if (original != null && original != excavated) {
                 log.position("excavated").error(original.getMessage(), original);
