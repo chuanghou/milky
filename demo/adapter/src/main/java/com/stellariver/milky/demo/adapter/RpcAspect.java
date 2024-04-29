@@ -1,9 +1,9 @@
 package com.stellariver.milky.demo.adapter;
 
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.stellariver.milky.aspectj.tool.validate.AnnotationValidateAspect;
 import com.stellariver.milky.aspectj.tool.validate.Validate;
 import com.stellariver.milky.common.base.*;
+import com.stellariver.milky.common.tool.Excavator;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
@@ -11,20 +11,15 @@ import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import com.stellariver.milky.domain.support.ErrorEnums;
-import lombok.NonNull;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
 /**
@@ -90,7 +85,7 @@ public class RpcAspect {
             result = pjp.proceed();
         } catch (Throwable throwable) {
             original = throwable;
-            excavated = excavate(throwable);
+            excavated = Excavator.excavate(throwable);
             if (excavated instanceof BaseEx) {
                 errorEnums = ((BaseEx) throwable).getErrors();
             } else {
@@ -139,70 +134,6 @@ public class RpcAspect {
         return result;
     }
 
-    private Throwable excavate(@NonNull Throwable original) {
-        Throwable current = original;
-        while (true) {
-            Excavator<? extends Throwable, ? extends Throwable> excavator = excavators.get(current.getClass());
-            if (excavator == null) {
-                return current;
-            }
-            Throwable throwable = excavator.excavateWrapper(current);
-            if (throwable == null) {
-                return current;
-            } else {
-                current = throwable;
-            }
-        }
-    }
-
-
-    interface Excavator<Original extends Throwable, Cause extends Throwable> {
-
-        Cause excavate(Original original);
-
-        @SuppressWarnings("unchecked")
-        default Cause excavateWrapper(Throwable throwable) {
-            return excavate((Original) throwable);
-        }
-
-    }
-
-    static class InvocationTargetExceptionExcavator implements Excavator<InvocationTargetException, Throwable> {
-
-        @Override
-        public Throwable excavate(InvocationTargetException e) {
-            return e.getTargetException();
-        }
-
-    }
-
-
-    static class UncheckedExecutionExceptionExcavator implements Excavator<UncheckedExecutionException, Throwable> {
-
-        @Override
-        public Throwable excavate(UncheckedExecutionException e) {
-            return e.getCause();
-        }
-
-    }
-
-    static class ExecutionExceptionExcavator implements Excavator<ExecutionException, Throwable> {
-
-        @Override
-        public Throwable excavate(ExecutionException e) {
-            return e.getCause();
-        }
-
-    }
-
-    static private final Map<Class<? extends Throwable>, Excavator<? extends Throwable, ? extends Throwable>> excavators = new HashMap<>();
-
-
-    static {
-        excavators.put(UncheckedExecutionException.class, new UncheckedExecutionExceptionExcavator());
-        excavators.put(ExecutionException.class, new ExecutionExceptionExcavator());
-        excavators.put(InvocationTargetException.class, new InvocationTargetExceptionExcavator());
-    }
 
 
 }

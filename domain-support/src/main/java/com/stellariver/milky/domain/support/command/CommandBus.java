@@ -2,11 +2,11 @@ package com.stellariver.milky.domain.support.command;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.Result;
 import com.stellariver.milky.common.base.SysEx;
+import com.stellariver.milky.common.tool.Excavator;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.common.UK;
@@ -32,9 +32,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -341,10 +343,10 @@ public class CommandBus {
             if (memoryTx) {
                 transactionSupport.rollback();
             }
-            backup = excavate(throwable);
+            backup = Excavator.excavate(throwable);
             throw backup;
         } finally {
-            context.cleanUpTrails();
+            context.organizeTrails();
             enhancedExecutor.submit(() -> milkyTraceRepository.record(context, false));
             try {
                 THREAD_LOCAL_CONTEXT.remove();
@@ -373,24 +375,6 @@ public class CommandBus {
         return instance.daoWrappersMap.get(clazz);
     }
 
-    static private Throwable excavate(Throwable throwable) {
-        while (true) {
-            Throwable one = doExcavate(throwable);
-            if (one == throwable) {
-                return one;
-            }
-        }
-    }
-
-    static private Throwable doExcavate(Throwable throwable) {
-        if (throwable instanceof InvocationTargetException) {
-            return ((InvocationTargetException) throwable).getTargetException();
-        } else if (throwable instanceof ExecutionException || throwable instanceof UncheckedExecutionException) {
-            return throwable.getCause();
-        } else {
-            return throwable;
-        }
-    }
 
     static public <T extends Command> void driveByEvent(T command, Event sourceEvent) {
         command.setInvokeTrace(InvokeTrace.build(sourceEvent));

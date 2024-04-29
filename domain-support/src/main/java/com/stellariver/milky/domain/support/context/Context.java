@@ -87,7 +87,7 @@ public class Context{
         trails.add(trail);
     }
 
-    public void cleanUpTrails() {
+    public void organizeTrails() {
         Map<Long, List<Trail>> groupTrails =
                 getTrails().stream().collect(Collectors.groupingBy(t -> t.getMessage().getInvokeTrace().getTriggerId()));
         this.treeTrails = groupTrails.get(invocationId);

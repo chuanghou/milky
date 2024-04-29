@@ -7,7 +7,6 @@ import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.util.RunnerExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,10 +15,6 @@ import java.util.Optional;
 @Configuration
 public class SpringPartnerAutoConfiguration {
 
-    @Bean
-    public BeanLoader beanLoader(ApplicationContext applicationContext) {
-        return new BeanLoaderImpl(applicationContext);
-    }
 
     @Bean
     public StaticSupport staticSupport(@Autowired(required = false) MilkyStableSupport milkyStableSupport,
