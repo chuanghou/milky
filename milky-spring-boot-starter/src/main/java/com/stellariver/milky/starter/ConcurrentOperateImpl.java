@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.infrastructure.redis;
+package com.stellariver.milky.starter;
 
 import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.ExceptionType;

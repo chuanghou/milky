@@ -5,6 +5,7 @@ import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutorConfiguration;
 import com.stellariver.milky.common.tool.executor.ThreadLocalPasser;
+import com.stellariver.milky.common.tool.util.Json;
 import com.stellariver.milky.domain.support.base.DomainTunnel;
 import com.stellariver.milky.domain.support.base.DomainTunnelImpl;
 import com.stellariver.milky.domain.support.base.MilkyScanPackages;
@@ -36,9 +37,23 @@ import java.util.concurrent.ThreadFactory;
 public class DomainSupportAutoConfiguration {
 
     @Bean
-    @SuppressWarnings("all")
     public TransactionSupport transactionSupport(DataSourceTransactionManager dataSourceTransactionManager) {
         return new TransactionSupportImpl(dataSourceTransactionManager);
+    }
+
+    @Bean
+    public DomainTunnel domainTunnel() {
+        return new DomainTunnelImpl();
+    }
+
+    @Bean
+    public CommandBus commandBus(MilkySupport milkySupport, EventBus eventBus) {
+        return new CommandBus(milkySupport, eventBus);
+    }
+
+    @Bean
+    public EventBus eventBus(MilkySupport milkySupport) {
+        return new EventBus(milkySupport);
     }
 
     @Bean
@@ -78,14 +93,11 @@ public class DomainSupportAutoConfiguration {
                 transactionSupport);
     }
 
-    @Bean
-    public CommandBus commandBus(MilkySupport milkySupport, EventBus eventBus) {
-        return new CommandBus(milkySupport, eventBus);
-    }
 
     @Bean
-    public EventBus eventBus(MilkySupport milkySupport) {
-        return new EventBus(milkySupport);
+    @ConditionalOnMissingBean
+    public ConcurrentOperate concurrentOperate() {
+        return new ConcurrentOperateImpl();
     }
 
     @Bean
@@ -110,14 +122,9 @@ public class DomainSupportAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MilkyTraceRepository milkyTraceRepository() {
-        return (context, success) -> {};
+        return (context, success) -> log.info(Json.toJson(context.getTreeTrails()));
     }
 
 
-
-    @Bean
-    public DomainTunnel domainTunnel() {
-        return new DomainTunnelImpl();
-    }
 
 }
