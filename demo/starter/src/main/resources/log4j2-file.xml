@@ -4,7 +4,7 @@
         <RollingFile name="RollingFile" fileName="app.log" filePattern="archive/app-%d{yyyy-MM-dd}-%i.log.gz">
             <JsonTemplateLayout eventTemplateUri="classpath:layout.json" locationInfoEnabled="true"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="10MB"/>
+                <SizeBasedTriggeringPolicy size="64MB"/>
             </Policies>
             <DefaultRolloverStrategy max="10" />
         </RollingFile>
