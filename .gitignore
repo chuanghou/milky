@@ -39,3 +39,5 @@ nbdist/
 arthas-output
 
 *.jar
+
+/merge.ps1

@@ -111,5 +111,9 @@
             <artifactId>log4j-layout-template-json</artifactId>
             <version>2.17.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
     </dependencies>
 </project>
