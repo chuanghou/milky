@@ -38,4 +38,9 @@ public class InventoryDAOWrapper implements DAOWrapper<InventoryDO, Long> {
         return Collect.toMap(inventoryDOs, InventoryDO::getItemId);
     }
 
+    @Override
+    public int batchDelete(List<InventoryDO> inventoryDOS) {
+        return 0;
+    }
+
 }

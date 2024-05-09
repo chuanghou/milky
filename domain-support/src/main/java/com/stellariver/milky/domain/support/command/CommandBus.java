@@ -32,6 +32,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.reflections.Reflections;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -50,20 +51,6 @@ import static com.stellariver.milky.domain.support.command.HandlerType.INSTANCE_
  */
 @CustomLog
 public class CommandBus {
-
-    private static final Predicate<Method> COMMAND_HANDLER_FORMAT =
-            method -> Modifier.isPublic(method.getModifiers())
-                    && (!Modifier.isStatic(method.getModifiers()))
-                    && method.getParameterTypes().length == 2
-                    && Command.class.isAssignableFrom(method.getParameterTypes()[0])
-                    && method.getParameterTypes()[1] == Context.class;
-
-    private static final Predicate<Method> CONSTRUCTOR_HANDLER_FORMAT =
-            method -> Modifier.isPublic(method.getModifiers())
-                    && Modifier.isStatic(method.getModifiers())
-                    && method.getParameterTypes().length == 2
-                    && Command.class.isAssignableFrom(method.getParameterTypes()[0])
-                    && method.getParameterTypes()[1] == Context.class;
 
     private static final Predicate<Method> COMMAND_INTERCEPTOR_FORMAT =
             method -> Modifier.isPublic(method.getModifiers())
@@ -201,37 +188,38 @@ public class CommandBus {
         });
     }
 
+    private static final Predicate<Method> COMMAND_HANDLER_FORMAT =
+            method -> Modifier.isPublic(method.getModifiers())
+                    && (!Modifier.isStatic(method.getModifiers()))
+                    && method.getParameterTypes().length == 2
+                    && Command.class.isAssignableFrom(method.getParameterTypes()[0])
+                    && method.getParameterTypes()[1] == Context.class;
+
+    private static final Predicate<Method> CONSTRUCTOR_HANDLER_FORMAT =
+            method -> Modifier.isPublic(method.getModifiers())
+                    && Modifier.isStatic(method.getModifiers())
+                    && method.getParameterTypes().length == 2
+                    && Command.class.isAssignableFrom(method.getParameterTypes()[0])
+                    && method.getParameterTypes()[1] == Context.class;
+
+    private static final Map<Class<? extends Annotation>, Predicate<Method>> format = Collect.asMap(
+            MethodHandler.class, COMMAND_HANDLER_FORMAT,
+            DeleteHandler.class, COMMAND_HANDLER_FORMAT,
+            ConstructorHandler.class, CONSTRUCTOR_HANDLER_FORMAT
+    );
+
     @SuppressWarnings("unchecked")
     private void prepareCommandHandlers() {
-        aggregateClasses.forEach(clazz -> {
-            Arrays.stream(clazz.getDeclaredMethods())
-                    .filter(m -> m.isAnnotationPresent(MethodHandler.class))
-                    .peek(m -> SysEx.falseThrow(COMMAND_HANDLER_FORMAT.test(m),
-                            CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
-                    .forEach(method -> {
-                        Class<?>[] parameterTypes = method.getParameterTypes();
-                        Handler handler = new Handler(clazz, method, INSTANCE_HANDLER);
-                        Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
-                        Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
-                        SysEx.trueThrow(handlerMap.containsKey(clazz),
-                                CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
-                        handlerMap.put(clazz, handler);
-                    });
-
-            Arrays.stream(clazz.getDeclaredMethods())
-                    .filter(m -> m.isAnnotationPresent(ConstructorHandler.class))
-                    .peek(m -> SysEx.falseThrow(CONSTRUCTOR_HANDLER_FORMAT.test(m),
-                            CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"))).collect(Collectors.toList())
-                    .forEach(method -> {
-                        Class<?>[] parameterTypes = method.getParameterTypes();
-                        Handler handler = new Handler(clazz, method, CONSTRUCTOR_HANDLER);
-                        Class<? extends Command> commandType = (Class<? extends Command>) parameterTypes[0];
-                        Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
-                        SysEx.trueThrow(handlerMap.containsKey(clazz),
-                                CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
-                        handlerMap.put(clazz, handler);
-                    });
-
+        aggregateClasses.stream().flatMap(c -> Arrays.stream(c.getDeclaredMethods())).forEach(m -> {
+            Class<? extends AggregateRoot> clazz = (Class<? extends AggregateRoot>)m.getDeclaringClass();
+            format.entrySet().stream().filter(e -> m.isAnnotationPresent(e.getKey())).findFirst().ifPresent(e -> {
+                SysEx.falseThrow(e.getValue().test(m), CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
+                Class<? extends Command> commandType = (Class<? extends Command>) m.getParameterTypes()[0];
+                Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
+                SysEx.trueThrow(handlerMap.containsKey(clazz),
+                        CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
+                handlerMap.put(clazz, new Handler(clazz, m));
+            });
         });
     }
 
@@ -320,6 +308,7 @@ public class CommandBus {
                     Set<Object> doPrimaryIds = map.keySet();
                     Set<Object> created = context.getCreatedAggregateIds().get(dataObjectClazz);
                     Set<Object> changed = context.getChangedAggregateIds().get(dataObjectClazz);
+                    Set<Object> deleted = context.getDeletedAggregateIds().get(dataObjectClazz);
 
                     // created and updated primary ids
                     Set<Object> createdPrimaryIds = Collect.inter(doPrimaryIds, created);
@@ -328,6 +317,7 @@ public class CommandBus {
                     // created and updated data object
                     List<Object> createdDataObjects = createdPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
                     List<Object> changedDataObjects = changedPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
+                    List<Object> deletedDataObjects = deleted.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
 
                     // persistent layer
                     if (Collect.isNotEmpty(createdDataObjects)) {
@@ -335,6 +325,9 @@ public class CommandBus {
                     }
                     if (Collect.isNotEmpty(changedDataObjects)) {
                         daoWrapper.batchUpdateWrapper(changedDataObjects);
+                    }
+                    if (Collect.isNotEmpty(deletedDataObjects)) {
+                        daoWrapper.batchDeleteWrapper(changedDataObjects);
                     }
                 });
             }
@@ -390,6 +383,8 @@ public class CommandBus {
                     command.getClass().getName() + " has at least 2 handlers implementations, please assign aggregate class"));
         Handler commandHandler = handlerMap.values().stream().findFirst().orElseThrow(() -> new SysEx(ErrorEnums.UNREACHABLE_CODE));
         Context context = THREAD_LOCAL_CONTEXT.get();
+        boolean contains = context.getDeletedAggregateIds().get(commandHandler.getAggregateClazz()).contains(command.getAggregateId());
+        SysEx.trueThrow(contains, CONFIG_ERROR.message(command.getAggregateId() + " has been deleted, you could not send a command to this aggregate"));
         // command bus lock and it will be release finally
         UK nameSpace = UK.build(commandHandler.getAggregateClazz());
         String lockKey = command.getAggregateId();
@@ -426,7 +421,7 @@ public class CommandBus {
         AggregateRoot aggregate;
         AggregateStatus aggregateStatus = AggregateStatus.KEEP;
         BaseDataObject<?> dataObjectOld = null;
-        if (commandHandler.handlerType == CONSTRUCTOR_HANDLER) {
+        if (commandHandler.getMethod().isAnnotationPresent(ConstructorHandler.class)) {
             // before interceptors run, it is corresponding to a create command
             beforeCommandInterceptors.get(command.getClass()).forEach(interceptor -> {
                 interceptor.invoke(command, null, context);
@@ -441,8 +436,7 @@ public class CommandBus {
             aggregateStatus = AggregateStatus.CREATE;
             result = aggregate;
 
-        } else if (commandHandler.handlerType == INSTANCE_HANDLER) {
-
+        } else  {
             // from db or context get aggregate
             aggregate = daoAdapter.getByAggregateId(aggregateId, context);
             dataObjectOld = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
@@ -457,12 +451,15 @@ public class CommandBus {
             // run command handlers
             result = commandHandler.invoke(aggregate, command, context);
             boolean present = context.peekEvents().stream().anyMatch(Event::aggregateChanged);
-
             if (present) {
-                aggregateStatus = AggregateStatus.UPDATE;
+                if (commandHandler.getMethod().isAnnotationPresent(MethodHandler.class) ) {
+                    aggregateStatus = AggregateStatus.UPDATE;
+                } else if (commandHandler.getMethod().isAnnotationPresent(DeleteHandler.class)){
+                    aggregateStatus = AggregateStatus.DELETE;
+                } else {
+                    throw new SysEx(ErrorEnums.UNREACHABLE_CODE);
+                }
             }
-        } else {
-            throw new SysEx(ErrorEnums.UNREACHABLE_CODE);
         }
 
         Trail trail = Trail.builder().beanName(aggregate.getClass().getSimpleName()).message(command).result(result).build();
@@ -507,11 +504,17 @@ public class CommandBus {
                 } else {
                     daoWrapper.batchSaveWrapper(Collect.asList(dataObjectNew));
                 }
-            } else {
+            } else if (aggregateStatus == AggregateStatus.UPDATE){
                 if (memoryTx) {
                     context.getChangedAggregateIds().get(dataObjectClazz).add(primaryId);
                 } else {
                     daoWrapper.batchUpdateWrapper(Collect.asList(dataObjectNew));
+                }
+            } else {
+                if (memoryTx) {
+                    context.getDeletedAggregateIds().get(dataObjectClazz).add(primaryId);
+                } else {
+                    daoWrapper.batchDeleteWrapper(Collect.asList(dataObjectNew));
                 }
             }
         }
@@ -530,15 +533,13 @@ public class CommandBus {
     @Data
     static private class Handler {
 
-        public Handler(Class<? extends AggregateRoot> aggregateClazz, Method method, HandlerType handlerType) {
+        public Handler(Class<? extends AggregateRoot> aggregateClazz, Method method) {
             this.aggregateClazz = aggregateClazz;
             this.method = method;
-            this.handlerType = handlerType;
         }
 
         private Class<? extends AggregateRoot> aggregateClazz;
         private Method method;
-        private HandlerType handlerType;
 
         public Object invoke(AggregateRoot aggregate, Object... params) {
             return Reflect.invoke(method, aggregate, params);

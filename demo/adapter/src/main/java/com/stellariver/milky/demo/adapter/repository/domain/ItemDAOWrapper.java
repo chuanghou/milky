@@ -38,4 +38,9 @@ public class ItemDAOWrapper implements DAOWrapper<ItemDO, Long> {
         return Collect.toMap(itemDOs, ItemDO::getItemId);
     }
 
+    @Override
+    public int batchDelete(List<ItemDO> itemDOS) {
+        return 0;
+    }
+
 }

@@ -10,6 +10,8 @@ public enum AggregateStatus {
 
     UPDATE,
 
+    DELETE,
+
     KEEP
 
 }

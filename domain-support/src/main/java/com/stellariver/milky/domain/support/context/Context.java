@@ -38,6 +38,9 @@ public class Context{
     @Getter
     private final SetMultimap<Class<?>, Object> createdAggregateIds = MultimapBuilder.hashKeys().hashSetValues().build();
 
+    @Getter
+    private final SetMultimap<Class<?>, Object> deletedAggregateIds = MultimapBuilder.hashKeys().hashSetValues().build();
+
     // it is used to store all DO cache
     @Getter
     private final Map<Class<? extends BaseDataObject<?>>, Map<Object, Object>> doMap = new HashMap<>();

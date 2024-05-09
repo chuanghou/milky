@@ -45,4 +45,12 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
         return Kit.op(map.get(primaryId));
     }
 
+    @SuppressWarnings("unchecked")
+    default void batchDeleteWrapper(List<Object> dataObjects) {
+        int count = batchDelete(Collect.transfer(dataObjects, doj -> (DataObject) doj));
+        SysEx.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
+    }
+
+    int batchDelete(List<DataObject> dataObjects);
+
 }
