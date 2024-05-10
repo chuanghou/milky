@@ -51,6 +51,8 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
         SysEx.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
     }
 
-    int batchDelete(List<DataObject> dataObjects);
+    default int batchDelete(List<DataObject> dataObjects) {
+        return 0;
+    }
 
 }

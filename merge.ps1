@@ -11,6 +11,7 @@ git add -A
 git commit -m $comment
 git push
 git checkout main
+git pull
 git merge target
 git push
 git checkout target
