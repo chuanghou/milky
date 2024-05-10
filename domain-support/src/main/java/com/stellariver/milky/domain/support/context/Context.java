@@ -3,6 +3,7 @@ package com.stellariver.milky.domain.support.context;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.stellariver.milky.common.base.BeanUtil;
+import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.common.Typed;
@@ -11,6 +12,7 @@ import com.stellariver.milky.common.tool.util.If;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.AggregateRoot;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
+import com.stellariver.milky.domain.support.base.NotExistedMessage;
 import com.stellariver.milky.domain.support.base.Trail;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.DaoAdapter;
@@ -23,6 +25,8 @@ import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.stellariver.milky.domain.support.ErrorEnums.AGGREGATE_NOT_EXISTED;
 
 /**
  * @author houchuang
@@ -140,7 +144,15 @@ public class Context{
 
     public <Aggregate extends AggregateRoot> Aggregate getByAggregateId(Class<Aggregate> clazz, String aggregateId) {
         Aggregate aggregate = batchGetByAggregateIds(clazz, Collect.asSet(aggregateId)).get(aggregateId);
-        return Kit.op(aggregate).orElseThrow(() -> new SysEx(ErrorEnums.AGGREGATE_NOT_EXISTED));
+
+        return Kit.op(aggregate).orElseThrow(() -> {
+            NotExistedMessage annotation = clazz.getAnnotation(NotExistedMessage.class);
+            if (annotation == null) {
+                return new BizEx(AGGREGATE_NOT_EXISTED);
+            } else {
+                return new BizEx(AGGREGATE_NOT_EXISTED.message(annotation.value()));
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")

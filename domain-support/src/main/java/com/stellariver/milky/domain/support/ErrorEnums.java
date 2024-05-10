@@ -12,15 +12,8 @@ import java.lang.reflect.Field;
  */
 public class ErrorEnums extends ErrorEnumsBase {
 
-    public static ErrorEnum HANDLER_NOT_EXIST ;
-
-    @Message("聚合根不能继承")
-    public static ErrorEnum AGGREGATE_INHERITED;
-
-    @Message("聚合根不存在")
+    @Message(value = "所操作目标实体不存在")
     public static ErrorEnum AGGREGATE_NOT_EXISTED;
-
-    public static ErrorEnum REPEAT_DEPENDENCY_KEY;
 
 
     static {

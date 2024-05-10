@@ -43,8 +43,7 @@ import java.util.stream.Collectors;
 
 import static com.stellariver.milky.common.base.ErrorEnumsBase.CONCURRENCY_VIOLATION;
 import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
-import static com.stellariver.milky.domain.support.command.HandlerType.CONSTRUCTOR_HANDLER;
-import static com.stellariver.milky.domain.support.command.HandlerType.INSTANCE_HANDLER;
+import static com.stellariver.milky.domain.support.ErrorEnums.AGGREGATE_NOT_EXISTED;
 
 /**
  * @author houchuang
@@ -437,8 +436,16 @@ public class CommandBus {
             result = aggregate;
 
         } else  {
-            // from db or context get aggregate
-            aggregate = daoAdapter.getByAggregateId(aggregateId, context);
+
+            aggregate = daoAdapter.getByAggregateIdOptional(aggregateId, context).orElseThrow(() -> {
+                NotExistedMessage annotation = commandHandler.getAggregateClazz().getAnnotation(NotExistedMessage.class);
+                if (annotation == null) {
+                    return new BizEx(AGGREGATE_NOT_EXISTED);
+                } else {
+                    return new BizEx(AGGREGATE_NOT_EXISTED.message(annotation.value()));
+                }
+            });
+
             dataObjectOld = (BaseDataObject<?>) daoAdapter.toDataObjectWrapper(aggregate);
 
             // run command before interceptors, it is corresponding to a common command, an instance method
