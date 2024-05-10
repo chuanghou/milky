@@ -13,16 +13,8 @@ import java.util.function.Supplier;
  */
 public class BizEx extends BaseEx {
 
-    public BizEx(ErrorEnum errorEnum, Throwable throwable) {
-        super(Collections.singletonList(errorEnum), throwable);
-    }
-
-    public BizEx(ErrorEnum errorEnum, Throwable throwable, boolean fillStackTrace) {
-        super(Collections.singletonList(errorEnum), throwable, fillStackTrace);
-    }
-
     public BizEx(ErrorEnum errorEnum) {
-        super(Collections.singletonList(errorEnum));
+        super(Collections.singletonList(errorEnum), false);
     }
 
     public BizEx(ErrorEnum errorEnum, boolean fillStackTrace) {
@@ -30,7 +22,7 @@ public class BizEx extends BaseEx {
     }
 
     public BizEx(List<ErrorEnum> errorEnums) {
-        super(errorEnums);
+        super(errorEnums, false);
     }
 
     public BizEx(List<ErrorEnum> errorEnums, boolean fillStackTrace) {
