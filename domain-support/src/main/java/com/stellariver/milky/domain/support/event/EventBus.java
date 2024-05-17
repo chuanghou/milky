@@ -106,7 +106,8 @@ public class EventBus {
     public void route(Event event, Context context) {
         eventRouterMap.get(event.getClass()).forEach(router -> {
             router.route(event, context);
-            Trail trail = Trail.builder().beanName(router.getClass().getSimpleName()).message(event).build();
+            Trail trail = Trail.builder().message(event)
+                .beanName(router.bean.getClass().getSimpleName()).build();
             context.record(trail);
         });
     }
