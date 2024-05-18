@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo.domain.inventory;
 
+import com.stellariver.milky.aspectj.tool.log.Log;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryCreateCommand;
 import com.stellariver.milky.demo.domain.inventory.command.InventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.inventory.event.InventoryCreatedEvent;
@@ -48,6 +49,7 @@ public class Inventory extends AggregateRoot {
         return inventory;
     }
 
+    @Log
     @MethodHandler
     public void handleInventoryUpdateCommand(InventoryUpdateCommand command, Context context) {
         Long originalAmount = this.amount;
