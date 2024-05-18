@@ -8,7 +8,9 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
@@ -39,6 +41,7 @@ public abstract class AbstractLogAspect extends BaseAspect {
         long start = Clock.currentTimeMillis();
         Throwable backUp = null;
         Class<?> declaringType = pjp.getSignature().getDeclaringType();
+        MethodSignature methodSignature = (MethodSignature)pjp.getSignature();
         Logger log = loggers.computeIfAbsent(declaringType, Logger::getLogger);
         try {
             result= pjp.proceed();
@@ -46,23 +49,32 @@ public abstract class AbstractLogAspect extends BaseAspect {
             backUp = throwable;
             throw throwable;
         } finally {
-            if (backUp == null && logConfig.isDebug()) {
+            String className = methodSignature.getDeclaringType().getSimpleName();
+            String methodName = methodSignature.getMethod().getName();
+            String position = String.format("%s_%s", className, methodName);
+            long cost = Clock.currentTimeMillis() - start;
+            String message;
+            if (logConfig.getUseMDC()) {
+                IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
+                log.result(result).cost(cost).position(position);
+                message = position;
+            } else {
+                message = String.format("position: %s, args: %s, result, %s", position, Arrays.toString(args), result);
+            }
+            if (backUp == null && logConfig.getDebug()) {
                 if (log.isDebugEnabled()) {
-                    IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
-                    log.result(result).cost(Clock.currentTimeMillis() - start);
-                    log.debug(pjp.toShortString());
+                    log.success(true).debug(message);
                 }
             } else {
-                IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
-                log.result(result).cost(Clock.currentTimeMillis() - start);
                 if (backUp == null) {
-                    log.success(true).info(pjp.toShortString());
+                    log.success(true).info(message);
                 } else if (backUp instanceof BizEx) {
-                    log.success(false).warn(pjp.toShortString());
+                    log.success(false).warn(message, backUp);
                 } else {
-                    log.success(false).error(pjp.toShortString());
+                    log.success(false).error(message, backUp);
                 }
             }
+            log.clear();
         }
         return result;
     }
