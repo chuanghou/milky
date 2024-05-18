@@ -1,5 +1,6 @@
 package com.stellariver.milky.demo.adapter.ajc.custom;
 
+import com.stellariver.milky.aspectj.tool.validate.Validate;
 import com.stellariver.milky.demo.adapter.ajc.Param;
 
 import javax.validation.constraints.NotNull;
@@ -7,6 +8,7 @@ import javax.validation.constraints.NotNull;
 public class AjcCustomDemo {
 
     @NotNull
+    @Validate
     public Object testAjc(@NotNull Param str) {
         return null;
     }
