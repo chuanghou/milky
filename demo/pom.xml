@@ -15,7 +15,6 @@
     <url>http://maven.apache.org</url>
     <modules>
         <module>adapter</module>
-        <module>ajc</module>
         <module>application</module>
         <module>basic</module>
         <module>client</module>

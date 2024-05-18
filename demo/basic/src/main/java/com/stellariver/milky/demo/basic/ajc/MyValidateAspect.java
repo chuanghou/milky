@@ -1,4 +1,4 @@
-package com.stellariver.milky.demo.ajc;
+package com.stellariver.milky.demo.basic.ajc;
 
 import com.stellariver.milky.aspectj.tool.validate.AbstractValidateAspect;
 import org.aspectj.lang.annotation.Aspect;

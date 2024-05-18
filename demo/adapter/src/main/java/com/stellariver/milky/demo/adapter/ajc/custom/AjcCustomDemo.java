@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 public class AjcCustomDemo {
 
     @NotNull
-    @Validate
     public Object testAjc(@NotNull Param str) {
         return null;
     }
