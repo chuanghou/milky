@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
 public abstract class AbstractLogAspect extends BaseAspect {
 
-    static private Logger logger = Logger.getLogger(AbstractLogAspect.class);
+    static private final Logger logger = Logger.getLogger(AbstractLogAspect.class);
 
     @Pointcut
     public abstract void pointCut();
