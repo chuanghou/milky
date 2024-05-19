@@ -2,6 +2,8 @@ package com.stellariver.milky.demo.adapter;
 
 import com.stellariver.milky.aspectj.tool.entrance.AnnotationInterceptor;
 import com.stellariver.milky.aspectj.tool.entrance.EntranceAspect;
+import com.stellariver.milky.common.base.BizEx;
+import com.stellariver.milky.common.base.ErrorEnumsBase;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -25,7 +27,7 @@ public class RpcAspect extends EntranceAspect {
 
         @Override
         public void before(ProceedingJoinPoint pjp) {
-            pjp.getArgs()[0] = "testAjp";
+            throw new BizEx(ErrorEnumsBase.PARAM_FORMAT_WRONG.message("时间区间不在可接收范围"));
         }
 
         @Override

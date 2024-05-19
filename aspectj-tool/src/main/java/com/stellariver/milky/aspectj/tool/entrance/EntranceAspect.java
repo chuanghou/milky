@@ -141,7 +141,7 @@ public abstract class EntranceAspect {
                 logger.result(result).cost(System.nanoTime() - start).position(position);
                 message = position;
             } else {
-                message = String.format("position: %s, args: %s, result, %s", position, Arrays.toString(args), result);
+                message = String.format("position: %s, args: %s, result: %s", position, Arrays.toString(args), result);
             }
 
             if (excavated == null) {
