@@ -23,7 +23,6 @@ import java.util.stream.IntStream;
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
 public abstract class AbstractLogAspect extends BaseAspect {
 
-
     static private final Map<Class<?>, Logger> loggers = new ConcurrentHashMap<>();
 
     @Pointcut
@@ -42,7 +41,7 @@ public abstract class AbstractLogAspect extends BaseAspect {
         Throwable backUp = null;
         Class<?> declaringType = pjp.getSignature().getDeclaringType();
         MethodSignature methodSignature = (MethodSignature)pjp.getSignature();
-        Logger log = loggers.computeIfAbsent(declaringType, Logger::getLogger);
+        Logger logger = loggers.computeIfAbsent(declaringType, Logger::getLogger);
         try {
             result= pjp.proceed();
         } catch (Throwable throwable) {
@@ -55,26 +54,26 @@ public abstract class AbstractLogAspect extends BaseAspect {
             long cost = Clock.currentTimeMillis() - start;
             String message;
             if (logConfig.getUseMDC()) {
-                IntStream.range(0, args.length).forEach(i -> log.with("arg" + i, args[i]));
-                log.result(result).cost(cost).position(position);
+                IntStream.range(0, args.length).forEach(i -> logger.with("arg" + i, args[i]));
+                logger.result(result).cost(cost).position(position);
                 message = position;
             } else {
                 message = String.format("position: %s, args: %s, result, %s", position, Arrays.toString(args), result);
             }
             if (backUp == null && logConfig.getDebug()) {
-                if (log.isDebugEnabled()) {
-                    log.success(true).debug(message);
+                if (logger.isDebugEnabled()) {
+                    logger.success(true).debug(message);
                 }
             } else {
                 if (backUp == null) {
-                    log.success(true).info(message);
+                    logger.success(true).info(message);
                 } else if (backUp instanceof BizEx) {
-                    log.success(false).warn(message, backUp);
+                    logger.success(false).warn(message, backUp);
                 } else {
-                    log.success(false).error(message, backUp);
+                    logger.success(false).error(message, backUp);
                 }
             }
-            log.clear();
+            logger.clear();
         }
         return result;
     }

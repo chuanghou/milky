@@ -4,6 +4,7 @@ import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.Employee;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.base.Result;
+import com.stellariver.milky.demo.adapter.TestForInterceptor;
 import com.stellariver.milky.demo.application.ItemAbility;
 import com.stellariver.milky.demo.domain.item.Item;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
@@ -34,8 +35,10 @@ public class ItemController {
 
     ItemRepository itemRepository;
 
+    @TestForInterceptor
     @GetMapping("publish")
     public Result<Item> publish(String title) {
+        System.out.println("publish_title");
         Item item = itemAbility.publishItem(10086L, title);
         return Result.success(item);
     }

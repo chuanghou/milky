@@ -30,5 +30,8 @@ git config --global https.proxy 'socks5://127.0.0.1:23456'
 mvn clean test -Dsurefire.failIfNoSpecifiedTests=false -Dtest=com.stellariver.milky.demo.AspectJTest#testParamValid
 mvn clean test -Dsurefire.failIfNoSpecifiedTests=false -Dtest=com.stellariver.milky.demo.AspectJTest#testParamValid
 
+mvn clean test -Dsurefire.failIfNoSpecifiedTests=false -Dtest=com.stellariver.milky.demo.BasicTest#publishItemDOTest
+
+
 
 
