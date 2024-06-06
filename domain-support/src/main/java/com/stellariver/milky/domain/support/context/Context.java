@@ -52,6 +52,7 @@ public class Context{
     @Getter
     private final Map<Class<? extends Typed<?>>, Object> parameters = new HashMap<>();
 
+    @Getter
     private final Map<Class<? extends Typed<?>>, Object> metaData = new HashMap<>();
 
     private final List<Event> events = new ArrayList<>();
@@ -59,7 +60,6 @@ public class Context{
     @Getter
     private final List<Event> finalEvents = new ArrayList<>();
 
-    @Getter
     private final List<Trail> trails = new ArrayList<>();
 
     @Getter @Setter
@@ -96,7 +96,7 @@ public class Context{
 
     public void organizeTrails() {
         Map<Long, List<Trail>> groupTrails =
-                getTrails().stream().collect(Collectors.groupingBy(t -> t.getMessage().getInvokeTrace().getTriggerId()));
+                trails.stream().collect(Collectors.groupingBy(t -> t.getMessage().getInvokeTrace().getTriggerId()));
         this.treeTrails = groupTrails.get(invocationId);
         this.treeTrails.forEach(trail -> fill(trail, groupTrails));
     }

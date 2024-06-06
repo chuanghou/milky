@@ -12,7 +12,6 @@ import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.common.UK;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.common.tool.util.Collect;
-import com.stellariver.milky.common.tool.util.Random;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.*;
@@ -386,20 +385,8 @@ public class CommandBus {
         SysEx.trueThrow(contains, CONFIG_ERROR.message(command.getAggregateId() + " has been deleted, you could not send a command to this aggregate"));
         // command bus lock and it will be release finally
         UK nameSpace = UK.build(commandHandler.getAggregateClazz());
-        String lockKey = command.getAggregateId();
-        boolean locked = concurrentOperate.tryReentrantLock(nameSpace, lockKey, command.lockExpireMils());
-        if (!locked) {
-            long sleepTimeMs = Random.randomRange(command.violationRandomSleepRange());
-            RetryParameter retryParameter = RetryParameter.builder()
-                    .nameSpace(nameSpace)
-                    .lockKey(lockKey)
-                    .milsToExpire(command.lockExpireMils())
-                    .times(command.retryTimes())
-                    .sleepTimeMils(sleepTimeMs)
-                    .build();
-            locked = concurrentOperate.tryRetryLock(retryParameter);
-            BizEx.falseThrow(locked, CONCURRENCY_VIOLATION);
-        }
+        boolean locked = concurrentOperate.tryReentrantLock(nameSpace, command.getAggregateId(), command.lockExpireMils());
+        BizEx.falseThrow(locked, CONCURRENCY_VIOLATION);
         Object result = doRoute(command, context, commandHandler);
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));

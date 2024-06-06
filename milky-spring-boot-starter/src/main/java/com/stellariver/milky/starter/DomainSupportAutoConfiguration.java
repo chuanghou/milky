@@ -2,14 +2,13 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.base.BeanLoader;
+import com.stellariver.milky.common.base.TraceIdGetter;
+import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutorConfiguration;
 import com.stellariver.milky.common.tool.executor.ThreadLocalPasser;
 import com.stellariver.milky.common.tool.util.Json;
-import com.stellariver.milky.domain.support.base.DomainTunnel;
-import com.stellariver.milky.domain.support.base.DomainTunnelImpl;
-import com.stellariver.milky.domain.support.base.MilkyScanPackages;
-import com.stellariver.milky.domain.support.base.MilkySupport;
+import com.stellariver.milky.domain.support.base.*;
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.*;
 import com.stellariver.milky.domain.support.event.EventBus;
@@ -20,6 +19,7 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -119,10 +120,23 @@ public class DomainSupportAutoConfiguration {
         return new EnhancedExecutor(configuration, threadFactory, threadLocalPassers);
     }
 
+
     @Bean
     @ConditionalOnMissingBean
-    public MilkyTraceRepository milkyTraceRepository() {
-        return (context, success) -> log.info(Json.toJson(context.getTreeTrails()));
+    public TraceIdGetter traceIdGetter(MilkProperties milkProperties) {
+        return () -> MDC.get(milkProperties.getTraceIdKey());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MilkyTraceRepository milkyTraceRepository(TraceIdGetter traceIdGetter) {
+        return (context, success) -> {
+            Long invocationId = context.getInvocationId();
+            String traceId = traceIdGetter.getTraceId();
+            List<Trail> treeTrails = context.getTreeTrails();
+            Map<Class<? extends Typed<?>>, Object> metaData = context.getMetaData();
+            log.info(Json.toJson(context.getTreeTrails()));
+        };
     }
 
 

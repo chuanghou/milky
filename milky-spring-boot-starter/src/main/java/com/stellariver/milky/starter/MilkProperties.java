@@ -20,6 +20,9 @@ public class MilkProperties {
 
     int blockingQueueCapacity = 500;
 
+    String traceIdKey = "traceId";
+
     String[] scanPackages;
+
 
 }

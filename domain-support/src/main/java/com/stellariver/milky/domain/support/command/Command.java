@@ -15,20 +15,8 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 abstract public class Command extends Message {
 
-    public boolean allowAsync() {
-        return true;
-    }
-
     public int lockExpireMils() {
         return 5000;
-    }
-
-    public int retryTimes() {
-        return 3;
-    }
-
-    public long[] violationRandomSleepRange() {
-        return new long[]{100L, 300L};
     }
 
 }
