@@ -44,6 +44,7 @@ public class ValidateUtil {
     static final private ExecutableValidator EXECUTABLE_VALIDATOR = VALIDATOR.forExecutables();
 
     final static Map<Class<?>, ListMultimap<Class<?>, Method>> afterValidationMap = new ConcurrentHashMap<>();
+    final static Map<Class<?>, ListMultimap<Class<?>, Method>> beforeValidationMap = new ConcurrentHashMap<>();
 
     /**
      *
@@ -115,12 +116,33 @@ public class ValidateUtil {
             });
         }
 
+        Class<?> clazz = param.getClass();
+        ListMultimap<Class<?>, Method> beforeValidations = beforeValidationMap.get(clazz);
+        if (beforeValidations == null){
+            List<Method> methods = Reflect.ancestorClasses(param.getClass()).stream().flatMap(c -> Arrays.stream(c.getDeclaredMethods()))
+                    .filter(m -> m.isAnnotationPresent(BeforeValidation.class)).peek(CUSTOM_VALID_FORMAT).collect(Collectors.toList());
+
+            beforeValidations = ArrayListMultimap.create();
+            for (Method method : methods) {
+                BeforeValidation anno = method.getAnnotation(BeforeValidation.class);
+                List<Class<?>> groupList =  anno.groups().length == 0 ? Collect.asList(Default.class) : Collect.asList(anno.groups());
+                for (Class<?> group : groupList) {
+                    beforeValidations.put(group, method);
+                }
+            }
+            beforeValidationMap.put(clazz, beforeValidations);
+        }
+
+        for (Class<?> g : groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups)) {
+            beforeValidations.get(g).forEach(m -> Reflect.invoke(m, param));
+        }
+
+
         Validator validator = failFast ? FAIL_FAST_VALIDATOR : VALIDATOR;
         Set<ConstraintViolation<Object>> validateResult = validator.validate(param, groups);
         check(validateResult, type);
 
 
-        Class<?> clazz = param.getClass();
         ListMultimap<Class<?>, Method> afterValidations = afterValidationMap.get(clazz);
         if (afterValidations == null){
             List<Method> methods = Reflect.ancestorClasses(param.getClass()).stream().flatMap(c -> Arrays.stream(c.getDeclaredMethods()))
@@ -137,8 +159,7 @@ public class ValidateUtil {
             afterValidationMap.put(clazz, afterValidations);
         }
 
-        List<Class<?>> groupList = groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups);
-        for (Class<?> g : groupList) {
+        for (Class<?> g : groups.length == 0 ? Collect.asList(Default.class) : Collect.asList(groups)) {
             afterValidations.get(g).forEach(m -> Reflect.invoke(m, param));
         }
 
