@@ -3,7 +3,6 @@ package com.stellariver.milky.common.tool.validate;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.stellariver.milky.common.base.*;
-import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import org.apache.commons.lang3.StringUtils;
@@ -28,8 +27,6 @@ import static com.stellariver.milky.common.base.ErrorEnumsBase.PARAM_FORMAT_WRON
  * @author houchuang
  */
 public class ValidateUtil {
-
-    static private final Logger logger = Logger.getLogger(ValidateUtil.class);
 
     @SuppressWarnings("resource")
     static final private Validator FAIL_FAST_VALIDATOR = Validation.byProvider(HibernateValidator.class)
