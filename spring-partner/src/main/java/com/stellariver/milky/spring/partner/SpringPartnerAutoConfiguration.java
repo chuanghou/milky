@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Optional;
 
 
-@Configuration
 public class SpringPartnerAutoConfiguration {
 
 
@@ -35,4 +34,5 @@ public class SpringPartnerAutoConfiguration {
     public BeanLoader beanLoader(ApplicationContext applicationContext) {
         return new BeanLoaderImpl(applicationContext);
     }
+
 }
