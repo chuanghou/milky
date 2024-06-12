@@ -46,9 +46,6 @@ public class Item extends AggregateRoot {
     ChannelEnum channelEnum;
 
     @StaticWire
-    static UserInfoRepository staticUserInfoRepository;
-
-    @StaticWire
     static UserInfoRepository userInfoRepository;
 
     protected Item(ItemCreateCommand command, Context context) {

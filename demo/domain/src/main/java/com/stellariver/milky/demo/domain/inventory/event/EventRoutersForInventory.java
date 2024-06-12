@@ -3,6 +3,7 @@ package com.stellariver.milky.demo.domain.inventory.event;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryInitCommand;
 import com.stellariver.milky.demo.domain.item.command.ItemInventoryUpdateCommand;
 import com.stellariver.milky.demo.domain.item.event.ItemTitleUpdatedEvent;
+import com.stellariver.milky.demo.domain.item.event.SubItemCreatedEvent;
 import com.stellariver.milky.demo.domain.service.ItemTitleUpdatedMessage;
 import com.stellariver.milky.demo.domain.service.MqService;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -36,6 +37,11 @@ public class EventRoutersForInventory implements EventRouters {
                 .itemId(event.getItemId()).initAmount(event.getInitAmount())
                 .storeCode(event.getStoreCode()).build();
         CommandBus.driveByEvent(command, event);
+    }
+
+
+    @EventRouter
+    public void subItem(SubItemCreatedEvent event, Context context) {
     }
 
     @FinalEventRouter

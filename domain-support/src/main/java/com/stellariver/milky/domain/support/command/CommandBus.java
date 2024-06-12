@@ -48,7 +48,7 @@ import static com.stellariver.milky.domain.support.ErrorEnums.AGGREGATE_NOT_EXIS
  * @author houchuang
  */
 @CustomLog
-public class CommandBus {
+public class CommandBus implements AutoCloseable{
 
     private static final Predicate<Method> COMMAND_INTERCEPTOR_FORMAT =
             method -> Modifier.isPublic(method.getModifiers())
@@ -57,12 +57,11 @@ public class CommandBus {
                     && AggregateRoot.class.isAssignableFrom(method.getParameterTypes()[1])
                     && method.getParameterTypes()[2] == Context.class;
 
-
     volatile private static CommandBus instance;
 
     private static final ThreadLocal<Context> THREAD_LOCAL_CONTEXT = new ThreadLocal<>();
 
-    private final Map<Class<? extends Command>, Map<Class<? extends AggregateRoot>, Handler>> commandHandlers = new HashMap<>();
+    private final Map<Class<? extends Command>, Handler> commandHandlers = new HashMap<>();
 
     private final Map<Class<? extends AggregateRoot>, DaoAdapter<?>> daoAdapterMap = new HashMap<>();
 
@@ -95,14 +94,17 @@ public class CommandBus {
     @SuppressWarnings("unused")
     public CommandBus(MilkySupport milkySupport, EventBus eventBus) {
 
+        this.eventBus = eventBus;
+
         this.concurrentOperate = milkySupport.getConcurrentOperate();
         this.milkyTraceRepository = milkySupport.getMilkyTraceRepository();
         this.transactionSupport = milkySupport.getTransactionSupport();
         this.enhancedExecutor = milkySupport.getEnhancedExecutor();
-        this.eventBus = eventBus;
         this.reflections = milkySupport.getReflections();
         this.beanLoader = milkySupport.getBeanLoader();
+
         this.aggregateClasses = this.reflections.getSubTypesOf(AggregateRoot.class);
+
         prepareCommandHandlers();
         prepareRepositories(milkySupport);
         prepareDAOWrappers(milkySupport);
@@ -115,6 +117,7 @@ public class CommandBus {
                 }
             }
         }
+
     }
 
     @SuppressWarnings("unchecked")
@@ -129,8 +132,7 @@ public class CommandBus {
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(Intercept.class))
                 .filter(m -> Command.class.isAssignableFrom(m.getParameterTypes()[0]))
-                .peek(m -> SysEx.falseThrow(COMMAND_INTERCEPTOR_FORMAT.test(m),
-                        CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
+                .peek(m -> SysEx.falseThrow(COMMAND_INTERCEPTOR_FORMAT.test(m), CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
                 .forEach(method -> {
                     Intercept annotation = method.getAnnotation(Intercept.class);
                     Class<? extends Command> commandClass = (Class<? extends Command>) method.getParameterTypes()[0];
@@ -150,16 +152,21 @@ public class CommandBus {
 
         // divided into before and after
         finalInterceptorsMap.keySet().forEach(commandClass -> {
+
             List<Interceptor> interceptors = finalInterceptorsMap.get(commandClass);
+
             List<Interceptor> beforeInterceptors = interceptors.stream()
                     .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.BEFORE))
                     .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
             beforeCommandInterceptors.putAll(commandClass, beforeInterceptors);
+
             List<Interceptor> afterInterceptors = interceptors.stream()
                     .filter(interceptor -> interceptor.getPosEnum().equals(PosEnum.AFTER))
                     .sorted(Comparator.comparing(Interceptor::getOrder)).collect(Collectors.toList());
             afterCommandInterceptors.putAll(commandClass, afterInterceptors);
+
         });
+
     }
 
     @SuppressWarnings("unchecked")
@@ -213,10 +220,9 @@ public class CommandBus {
             format.entrySet().stream().filter(e -> m.isAnnotationPresent(e.getKey())).findFirst().ifPresent(e -> {
                 SysEx.falseThrow(e.getValue().test(m), CONFIG_ERROR.message(m.toGenericString() + " signature not valid!"));
                 Class<? extends Command> commandType = (Class<? extends Command>) m.getParameterTypes()[0];
-                Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.computeIfAbsent(commandType, c -> new HashMap<>());
-                SysEx.trueThrow(handlerMap.containsKey(clazz),
+                SysEx.trueThrow(commandHandlers.containsKey(commandType),
                         CONFIG_ERROR.message(() -> commandType.getName() + " has two command handlers in the same class ") + clazz.getName());
-                handlerMap.put(clazz, new Handler(clazz, m));
+                commandHandlers.put(commandType, new Handler(clazz, m));
             });
         });
     }
@@ -374,24 +380,21 @@ public class CommandBus {
 
     private <T extends Command> Object route(@NonNull T command) {
 
-        Map<Class<? extends AggregateRoot>, Handler> handlerMap = commandHandlers.get(command.getClass());
-        SysEx.nullThrow(handlerMap, command.getClass().getSimpleName() + "could not found its handler!");
-        boolean eq = Kit.eq(handlerMap.size(), 1);
-        SysEx.falseThrow(eq, CONFIG_ERROR.message(
-                    command.getClass().getName() + " has at least 2 handlers implementations, please assign aggregate class"));
-        Handler commandHandler = handlerMap.values().stream().findFirst().orElseThrow(() -> new SysEx(ErrorEnums.UNREACHABLE_CODE));
+        Handler handler = commandHandlers.get(command.getClass());
+        SysEx.nullThrow(handler, command.getClass().getSimpleName() + "could not found its handler!");
         Context context = THREAD_LOCAL_CONTEXT.get();
-        boolean contains = context.getDeletedAggregateIds().get(commandHandler.getAggregateClazz()).contains(command.getAggregateId());
+        boolean contains = context.getDeletedAggregateIds().get(handler.getAggregateClazz()).contains(command.getAggregateId());
         SysEx.trueThrow(contains, CONFIG_ERROR.message(command.getAggregateId() + " has been deleted, you could not send a command to this aggregate"));
         // command bus lock and it will be release finally
-        UK nameSpace = UK.build(commandHandler.getAggregateClazz());
+        UK nameSpace = UK.build(handler.getAggregateClazz());
         boolean locked = concurrentOperate.tryReentrantLock(nameSpace, command.getAggregateId(), command.lockExpireMils());
         BizEx.falseThrow(locked, CONCURRENCY_VIOLATION);
-        Object result = doRoute(command, context, commandHandler);
+        Object result = doRoute(command, context, handler);
         context.popEvents().forEach(event -> {
             event.setInvokeTrace(InvokeTrace.build(command));
             eventBus.route(event, context);
         });
+
         return result;
     }
 
@@ -524,6 +527,14 @@ public class CommandBus {
         return result;
     }
 
+    /**
+     * When use @DirtyContext to clear, the instance need to be clear when the application context was close
+     */
+    @Override
+    public void close() {
+        instance = null;
+    }
+
     @Data
     static private class Handler {
 
@@ -539,15 +550,6 @@ public class CommandBus {
             return Reflect.invoke(method, aggregate, params);
         }
 
-    }
-
-
-    /**
-     * When use @DirtyContext to clear, the instance need to be clear when the application context was close
-     */
-    @SuppressWarnings("unused")
-    public void close() {
-        instance = null;
     }
 
 }

@@ -23,9 +23,4 @@ public class MilkyDemoApplication {
         SpringApplication.run(MilkyDemoApplication.class, args);
     }
 
-    @Bean
-    public BeanLoader beanLoader(ApplicationContext applicationContext) {
-        return new BeanLoaderImpl(applicationContext);
-    }
-
 }

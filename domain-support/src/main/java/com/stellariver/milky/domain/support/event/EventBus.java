@@ -1,9 +1,6 @@
 package com.stellariver.milky.domain.support.event;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.*;
 import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.SysEx;
@@ -57,27 +54,34 @@ public class EventBus {
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {
         BeanLoader beanLoader = milkySupport.getBeanLoader();
+
+        // collect all event routers
         List<Method> methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
                 .filter(m -> m.isAnnotationPresent(EventRouter.class))
-                .peek(m -> SysEx.falseThrow(FORMAT.test(m),
-                        CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
+                .peek(m -> SysEx.falseThrow(FORMAT.test(m), CONFIG_ERROR.message(m.toGenericString() + " signature not valid!")))
                 .collect(Collectors.toList());
-        ListMultimap<Class<? extends Event>, Router> tempRouterMap = MultimapBuilder.hashKeys().arrayListValues().build();
+
+        // for every method, add a (eventClass, router) to rawMap
+        ListMultimap<Class<? extends Event>, Router> rawRouteMap = MultimapBuilder.hashKeys().arrayListValues().build();
         methods.forEach(method -> {
             Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
             Object bean = beanLoader.getBean(method.getDeclaringClass());
             Router router = new Router(bean, method, method.getAnnotation(EventRouter.class).order());
-            tempRouterMap.get(eventClass).add(router);
+            rawRouteMap.get(eventClass).add(router);
         });
 
-        Reflections reflections = milkySupport.getReflections();
-        Set<Class<? extends Event>> eventClasses = reflections.getSubTypesOf(Event.class);
-        eventClasses.forEach(eventClass -> Reflect.ancestorClasses(eventClass).stream().filter(Event.class::isAssignableFrom)
-                .forEach(aC -> {
-                    List<Router> routers = tempRouterMap.get(aC).stream().sorted(Comparator.comparing(Router::getOrder)).collect(Collectors.toList());
-                    eventRouterMap.putAll(eventClass, routers);
-                }));
+        SetMultimap<Class<? extends Event>, Router> organizedRouteMap = MultimapBuilder.hashKeys().hashSetValues().build();
+        rawRouteMap.asMap().forEach((lowest, routers) -> {
+            List<Class<? extends Event>> eventClasses = Reflect.ancestorClasses(lowest)
+                    .stream().filter(Event.class::isAssignableFrom).filter(e -> e != Event.class).collect(Collectors.toList());
+            eventClasses.forEach(eC -> organizedRouteMap.putAll(eC, routers));
+        });
+
+        organizedRouteMap.asMap().forEach((ec, rs) -> {
+            List<Router> routers = rs.stream().sorted(Comparator.comparing(Router::getOrder)).collect(Collectors.toList());
+            eventRouterMap.putAll(ec, routers);
+        });
 
         methods = milkySupport.getEventRouters().stream()
                 .map(Object::getClass).map(Class::getDeclaredMethods).flatMap(Arrays::stream)
