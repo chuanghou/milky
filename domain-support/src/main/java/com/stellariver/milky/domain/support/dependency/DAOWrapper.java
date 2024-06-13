@@ -1,8 +1,10 @@
 package com.stellariver.milky.domain.support.dependency;
 
+import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.SysEx;
 import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.util.Collect;
+import com.stellariver.milky.domain.support.ErrorEnums;
 import com.stellariver.milky.domain.support.base.BaseDataObject;
 import lombok.NonNull;
 
@@ -18,7 +20,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     @SuppressWarnings("unchecked")
     default void batchSaveWrapper(List<Object> dataObjects) {
         int count = batchSave(Collect.transfer(dataObjects, doj -> (DataObject) doj));
-        SysEx.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
+        BizEx.trueThrow(count != dataObjects.size(), ErrorEnums.CONCURRENCY_VIOLATION);
     }
 
     int batchSave(List<DataObject> dataObjects);
@@ -26,7 +28,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     @SuppressWarnings("unchecked")
     default void batchUpdateWrapper(List<Object> dataObjects) {
         int count = batchUpdate(Collect.transfer(dataObjects, doj -> (DataObject) doj));
-        SysEx.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
+        BizEx.trueThrow(count != dataObjects.size(), ErrorEnums.CONCURRENCY_VIOLATION);
     }
 
     int batchUpdate(List<DataObject> dataObjects);
@@ -48,7 +50,7 @@ public interface DAOWrapper<DataObject extends BaseDataObject<?>, PrimaryId> {
     @SuppressWarnings("unchecked")
     default void batchDeleteWrapper(List<Object> dataObjects) {
         int count = batchDelete(Collect.transfer(dataObjects, doj -> (DataObject) doj));
-        SysEx.trueThrow(Kit.notEq(count, dataObjects.size()), PERSISTENCE_ERROR);
+        SysEx.trueThrow(count != dataObjects.size(), PERSISTENCE_ERROR);
     }
 
     default int batchDelete(List<DataObject> dataObjects) {
