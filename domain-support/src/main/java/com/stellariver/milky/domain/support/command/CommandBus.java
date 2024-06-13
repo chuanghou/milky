@@ -40,8 +40,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.stellariver.milky.common.base.ErrorEnumsBase.CONCURRENCY_VIOLATION;
-import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.*;
 import static com.stellariver.milky.domain.support.ErrorEnums.AGGREGATE_NOT_EXISTED;
 
 /**
@@ -383,8 +382,17 @@ public class CommandBus implements AutoCloseable{
         Handler handler = commandHandlers.get(command.getClass());
         SysEx.nullThrow(handler, command.getClass().getSimpleName() + "could not found its handler!");
         Context context = THREAD_LOCAL_CONTEXT.get();
+
         boolean contains = context.getDeletedAggregateIds().get(handler.getAggregateClazz()).contains(command.getAggregateId());
-        SysEx.trueThrow(contains, CONFIG_ERROR.message(command.getAggregateId() + " has been deleted, you could not send a command to this aggregate"));
+        if (contains) {
+            NotExistedMessage annotation = handler.getAggregateClazz().getAnnotation(NotExistedMessage.class);
+            if (annotation == null) {
+                return new BizEx(AGGREGATE_NOT_EXISTED);
+            } else {
+                return new BizEx(AGGREGATE_NOT_EXISTED.message(annotation.value()));
+            }
+        }
+
         // command bus lock and it will be release finally
         UK nameSpace = UK.build(handler.getAggregateClazz());
         boolean locked = concurrentOperate.tryReentrantLock(nameSpace, command.getAggregateId(), command.lockExpireMils());
@@ -399,6 +407,7 @@ public class CommandBus implements AutoCloseable{
     }
 
     private <T extends Command> Object doRoute(T command, Context context, Handler commandHandler) {
+
         DaoAdapter<?> daoAdapter = daoAdapterMap.get(commandHandler.getAggregateClazz());
         SysEx.nullThrow(daoAdapter, commandHandler.getAggregateClazz() + "hasn't corresponding command handler");
 
