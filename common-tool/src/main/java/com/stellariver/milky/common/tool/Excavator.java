@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import lombok.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -37,6 +38,15 @@ public class Excavator {
 
     }
 
+    static private class CauseExcavate implements Excavate<Throwable, Throwable> {
+
+        @Override
+        public Throwable excavate(Throwable e) {
+            return e.getCause();
+        }
+
+    }
+
     static private class InvocationTargetExceptionExcavate implements Excavate<InvocationTargetException, Throwable> {
 
         @Override
@@ -46,30 +56,13 @@ public class Excavator {
 
     }
 
-
-    static private class UncheckedExecutionExceptionExcavate implements Excavate<UncheckedExecutionException, Throwable> {
-
-        @Override
-        public Throwable excavate(UncheckedExecutionException e) {
-            return e.getCause();
-        }
-
-    }
-
-    static private class ExecutionExceptionExcavate implements Excavate<ExecutionException, Throwable> {
-
-        @Override
-        public Throwable excavate(ExecutionException e) {
-            return e.getCause();
-        }
-
-    }
-
     static private final Map<Class<? extends Throwable>, Excavate<? extends Throwable, ? extends Throwable>> excavators = new HashMap<>();
 
     static {
-        excavators.put(UncheckedExecutionException.class, new UncheckedExecutionExceptionExcavate());
-        excavators.put(ExecutionException.class, new ExecutionExceptionExcavate());
+        CauseExcavate causeExcavate = new CauseExcavate();
+        excavators.put(UncheckedExecutionException.class, causeExcavate);
+        excavators.put(ExecutionException.class, causeExcavate);
+        excavators.put(UndeclaredThrowableException.class, causeExcavate);
         excavators.put(InvocationTargetException.class, new InvocationTargetExceptionExcavate());
     }
 
