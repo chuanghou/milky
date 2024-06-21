@@ -23,7 +23,7 @@ public abstract class AbstractRateLimitAspect {
     @Pointcut
     public abstract void pointCut();
 
-    @Around("pointCut() && !ignorePointCut()")
+    @Around("pointCut()")
     public Object rateLimit(ProceedingJoinPoint pjp) throws Throwable {
         RateLimitConfig rateLimitConfig = rateLimitConfig(pjp);
         return doProceed(pjp, rateLimitConfig);

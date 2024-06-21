@@ -21,7 +21,7 @@ public abstract class AbstractValidateAspect {
     @Pointcut
     public abstract void pointCut();
 
-    @Around("pointCut() && !ignorePointCut()")
+    @Around("pointCut()")
     public Object valid(ProceedingJoinPoint pjp) throws Throwable {
         ValidateConfig config = validateConfig(pjp);
         return doProceed(pjp, config);

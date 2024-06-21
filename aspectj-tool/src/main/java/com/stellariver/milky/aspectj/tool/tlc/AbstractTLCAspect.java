@@ -26,7 +26,7 @@ public abstract class AbstractTLCAspect {
     @Pointcut
     public abstract void pointCut();
 
-    @Around("pointCut() && !ignorePointCut()")
+    @Around("pointCut()")
     public Object tlc(ProceedingJoinPoint pjp) throws Throwable {
         TLCConfig tlcConfig = tlcConfig(pjp);
         return doProceed(pjp, tlcConfig);
