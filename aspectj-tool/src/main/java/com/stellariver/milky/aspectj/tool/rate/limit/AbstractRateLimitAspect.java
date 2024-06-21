@@ -1,6 +1,5 @@
 package com.stellariver.milky.aspectj.tool.rate.limit;
 
-import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
@@ -13,7 +12,7 @@ import java.util.Optional;
 
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection", "unused"})
-public abstract class AbstractRateLimitAspect extends BaseAspect {
+public abstract class AbstractRateLimitAspect {
 
     private MilkyStableSupport milkyStableSupport;
 

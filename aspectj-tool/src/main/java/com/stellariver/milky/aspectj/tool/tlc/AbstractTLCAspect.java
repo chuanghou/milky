@@ -1,6 +1,5 @@
 package com.stellariver.milky.aspectj.tool.tlc;
 
-import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.tool.common.BaseQuery;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
  */
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
-public abstract class AbstractTLCAspect extends BaseAspect {
+public abstract class AbstractTLCAspect {
 
     private final Map<Method, Set<BaseQuery<?, ?>>> enableBqs = new ConcurrentHashMap<>();
 

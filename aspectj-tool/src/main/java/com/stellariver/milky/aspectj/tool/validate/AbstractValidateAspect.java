@@ -1,6 +1,5 @@
 package com.stellariver.milky.aspectj.tool.validate;
 
-import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.base.ExceptionType;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -17,7 +16,7 @@ import java.lang.reflect.Method;
  */
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
-public abstract class AbstractValidateAspect extends BaseAspect {
+public abstract class AbstractValidateAspect {
 
     @Pointcut
     public abstract void pointCut();

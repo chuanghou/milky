@@ -1,6 +1,5 @@
 package com.stellariver.milky.aspectj.tool.log;
 
-import com.stellariver.milky.aspectj.tool.BaseAspect;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.log.Logger;
@@ -21,7 +20,7 @@ import java.util.stream.IntStream;
 
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
-public abstract class AbstractLogAspect extends BaseAspect {
+public abstract class AbstractLogAspect {
 
     static private final Map<Class<?>, Logger> loggers = new ConcurrentHashMap<>();
 
