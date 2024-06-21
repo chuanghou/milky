@@ -14,6 +14,7 @@ import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapp
 import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.dependency.TransactionSupport;
 import lombok.CustomLog;
+import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ public class MemoryTxTest{
             throwable = t;
         }
         Assertions.assertNotNull(throwable);
-        Assertions.assertInstanceOf(DuplicateKeyException.class, throwable);
+        Assertions.assertInstanceOf(JdbcSQLIntegrityConstraintViolationException.class, throwable);
         Optional<Item> item = itemRepository.queryByIdOptional(1L);
 
         Assertions.assertFalse(item.isPresent());
