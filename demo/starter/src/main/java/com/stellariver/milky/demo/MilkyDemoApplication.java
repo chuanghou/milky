@@ -32,6 +32,12 @@ public class MilkyDemoApplication {
         SpringApplication.run(MilkyDemoApplication.class, args);
     }
 
+
+    /**
+     * beanLoader 和 staticSupport 这两个bean, 其实SpringPartnerAutoConfiguration，已经提供了这两bean的
+     * 自动配置，而这两个bean其实是用对应spring.factories自动装配的(这种装配方式在3.0会失效), 但是因为idea会自动
+     * 将spring.factories拷贝到一起，整个项目两个spring.factories文件，所以这种状态方式会失败，需要补充下面两个bean
+     */
     @Bean
     public BeanLoader beanLoader(ApplicationContext applicationContext) {
         return new BeanLoaderImpl(applicationContext);
