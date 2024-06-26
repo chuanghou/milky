@@ -4,7 +4,6 @@ import com.google.common.collect.*;
 import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.SysEx;
-import com.stellariver.milky.common.tool.common.Kit;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.common.tool.util.Reflect;
 import com.stellariver.milky.domain.support.base.MilkySupport;
@@ -13,7 +12,6 @@ import com.stellariver.milky.domain.support.context.Context;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -49,8 +47,8 @@ public class EventBus {
 
     private final Multimap<Class<? extends Event>, Router> eventRouterMap = ArrayListMultimap.create();
 
-    private List<FinalRouter<Class<? extends Event>>> preRouters = new ArrayList<>();
-    private List<FinalRouter<Class<? extends Event>>> postRouters = new ArrayList<>();
+    private final List<FinalRouter<Class<? extends Event>>> preRouters;
+    private final List<FinalRouter<Class<? extends Event>>> postRouters;
 
     @SuppressWarnings("unchecked")
     public EventBus(MilkySupport milkySupport) {

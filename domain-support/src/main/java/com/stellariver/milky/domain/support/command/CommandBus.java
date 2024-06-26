@@ -40,7 +40,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.stellariver.milky.common.base.ErrorEnumsBase.*;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.CONCURRENCY_VIOLATION;
+import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;
 import static com.stellariver.milky.domain.support.ErrorEnums.AGGREGATE_NOT_EXISTED;
 
 /**

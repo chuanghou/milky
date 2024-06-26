@@ -1,6 +1,5 @@
 package com.stellariver.milky.demo.domain.item.event;
 
-import com.stellariver.milky.domain.support.event.Event;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
