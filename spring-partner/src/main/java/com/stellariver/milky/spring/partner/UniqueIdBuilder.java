@@ -68,7 +68,7 @@ public class UniqueIdBuilder{
                                 Pair<AtomicLong, Long> newSection = sectionLoader.load(tableName, nameSpace);
                                 boolean offered = queue.offer(newSection, 1000L, TimeUnit.MILLISECONDS);
                                 if (!offered) {
-                                    throw new ShouldNotAppearException("it should not appear! namespace " + nameSpace);
+                                    throw new RuntimeException("it should not appear! namespace " + nameSpace);
                                 }
                             } catch (Throwable throwable) {
                                 log.error("uniqueIdGetter error", throwable);
@@ -76,7 +76,7 @@ public class UniqueIdBuilder{
                         }, executor);
                         section = queue.poll(1000, TimeUnit.MILLISECONDS);
                         if (section == null) {
-                            throw new ShouldNotAppearException("it should not appear! namespace is " + nameSpace);
+                            throw new RuntimeException("it should not appear! namespace is " + nameSpace);
                         }
                     }
                 }
@@ -91,7 +91,7 @@ public class UniqueIdBuilder{
     @Data
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    static class IdBuilderDO {
+    static public class IdBuilderDO {
         String nameSpace;
         Long id;
         Long step;
@@ -106,11 +106,4 @@ public class UniqueIdBuilder{
 
     }
 
-    public static class ShouldNotAppearException extends RuntimeException{
-
-        public ShouldNotAppearException(String message) {
-            super((message));
-        }
-
-    }
 }
