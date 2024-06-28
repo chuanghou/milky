@@ -24,11 +24,11 @@ import java.util.Date;
  * @author houchuang
  */
 @CustomLog
+@CacheConfig
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("item")
-@CacheConfig()
 public class ItemController {
 
     ItemAbility itemAbility;
