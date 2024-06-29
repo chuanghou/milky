@@ -30,6 +30,7 @@ import java.util.Optional;
 
 @CustomLog
 @SpringBootTest
+@ContextConfiguration
 @TestPropertySource( properties = {
         "fake.redis.client.enabled=true"
 })
