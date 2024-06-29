@@ -9,7 +9,6 @@ import com.stellariver.milky.demo.domain.item.command.ItemCreateCommand;
 import com.stellariver.milky.demo.domain.item.repository.InventoryRepository;
 import com.stellariver.milky.demo.domain.item.repository.ItemRepository;
 import com.stellariver.milky.demo.domain.item.repository.UserInfoRepository;
-import com.stellariver.milky.demo.infrastructure.database.FakeRedisClient;
 import com.stellariver.milky.demo.infrastructure.database.entity.InventoryDO;
 import com.stellariver.milky.demo.infrastructure.database.mapper.InventoryDOMapper;
 import com.stellariver.milky.domain.support.command.CommandBus;
@@ -22,17 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 
 import java.util.HashMap;
 import java.util.Optional;
 
 @CustomLog
 @SpringBootTest
-@TestPropertySource( properties = {
-        "fake.redis.client.enabled=true"
-})
-public class MemoryTxTest extends AbstractTest{
+public class MemoryTxTest{
 
     @Autowired
     InventoryRepository inventoryRepository;
@@ -52,10 +47,6 @@ public class MemoryTxTest extends AbstractTest{
     @Autowired
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     LoggingSystem loggingSystem;
-
-
-    @Autowired
-    FakeRedisClient redisClient;
 
     @Test
     public void transactionTest() {
