@@ -1,12 +1,11 @@
 package com.stellariver.milky.demo.infrastructure.database;
 
-import com.stellariver.milky.spring.partner.LocalCondition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@Conditional(LocalCondition.class)
+@ConditionalOnProperty(prefix = "fake.redis.client", name = "enabled")
 public class FakeRedisClientConfiguration {
 
     @Bean
