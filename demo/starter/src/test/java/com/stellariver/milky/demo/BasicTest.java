@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verify;
 @Transactional
 @SpringBootTest
 @DirtiesContext
-public class BasicTest extends BootStrapProperties {
+public class BasicTest extends AbstractTest{
 
     @Autowired
     InventoryRepository inventoryRepository;
