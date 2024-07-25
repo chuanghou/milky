@@ -40,15 +40,18 @@ public class SseEmitterController {
     public SseEmitter subscribe(@RequestHeader String token) throws IOException {
         String userId = getUserId(token);
 
-        SseEmitter sseEmitter = sseEmitters.computeIfAbsent(userId, id -> {
-            SseEmitter emitter = new SseEmitter(-1L);
-            emitter.onTimeout(() -> sseEmitters.remove(id));
-            emitter.onCompletion(() -> sseEmitters.remove(id));
-            emitter.onError(throwable -> {
+        SseEmitter sseEmitter = sseEmitters.compute(userId, (id, oldEmitter) -> {
+            SseEmitter newEmitter = new SseEmitter(-1L);
+            newEmitter.onTimeout(() -> sseEmitters.remove(id));
+            newEmitter.onCompletion(() -> sseEmitters.remove(id));
+            newEmitter.onError(throwable -> {
                 log.error("emitter {} onError", id, throwable);
                 sseEmitters.remove(id);
             });
-            return emitter;
+            if (oldEmitter != null) {
+                oldEmitter.complete();
+            }
+            return newEmitter;
         });
 
         sseEmitter.send(Message.subscribed());
