@@ -21,7 +21,7 @@ public class DelayedBox<Message extends DelayGroupId> implements Delayed {
 
     @Override
     public long getDelay(@NonNull TimeUnit unit) {
-        long duration = System.currentTimeMillis() - maxExpiration;
+        long duration = maxExpiration - System.currentTimeMillis();
         return unit.convert(duration, TimeUnit.MILLISECONDS);
     }
 
