@@ -15,7 +15,7 @@ import java.util.List;
 @Configuration
 public class FtpConfiguration {
 
-    @Bean
+    @Bean(destroyMethod = "stop")
     public FtpServer ftpServer() throws FtpException {
         FtpServerFactory serverFactory = new FtpServerFactory();
 
