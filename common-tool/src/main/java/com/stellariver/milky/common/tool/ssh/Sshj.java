@@ -9,9 +9,6 @@ import java.nio.charset.StandardCharsets;
 
 public class Sshj {
 
-
-
-
     @SneakyThrows
     public static void main(String[] args) {
         final SSHClient client = new SSHClient();
@@ -19,16 +16,13 @@ public class Sshj {
         client.connect("8.217.162.128");
         try {
             client.authPassword("root", "Octopus123");
-            final Session session = client.startSession();
-            try {
+            try (Session session = client.startSession()) {
                 final Session.Command cmd = session.exec("java -version");
                 String result = IOUtils.toString(cmd.getInputStream(), StandardCharsets.UTF_8);
                 System.out.println(result);
-            } finally {
-                session.close();
             }
         } finally {
-            client.disconnect();
+            client.close();
         }
     }
 

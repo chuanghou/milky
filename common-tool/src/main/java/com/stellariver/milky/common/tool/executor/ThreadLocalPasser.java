@@ -2,6 +2,7 @@ package com.stellariver.milky.common.tool.executor;
 
 /**
  * @author houchuang
+ * @see TraceIdThreadLocalPasser
  */
 public interface ThreadLocalPasser<T> {
 
