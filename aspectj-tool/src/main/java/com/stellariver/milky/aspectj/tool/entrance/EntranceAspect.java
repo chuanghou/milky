@@ -14,12 +14,10 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.MDC;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
@@ -31,11 +29,12 @@ import java.util.stream.IntStream;
  * @see AnnotationValidateAspect
  */
 @Aspect
+@SuppressWarnings({"MissingAspectjAutoproxyInspection", "unused"})
 public abstract class EntranceAspect {
 
     static private MilkyStableSupport milkyStableSupport;
     static private final Object lock = new Object();
-    static volatile boolean init = false;
+    static volatile boolean initialized = false;
     static private final Map<Class<?>, Logger> loggers = new ConcurrentHashMap<>();
 
     @Pointcut
@@ -43,6 +42,14 @@ public abstract class EntranceAspect {
 
     protected Boolean useMDC() {
         return true;
+    }
+
+    protected void prepareApm() {
+        MDC.put("traceId", UUID.randomUUID().toString());
+    }
+
+    protected void clearApm() {
+        MDC.remove("traceId");
     }
 
     protected List<AnnotationInterceptor> interceptors() {
@@ -55,15 +62,19 @@ public abstract class EntranceAspect {
 
     @Around("pointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
+
+        prepareApm();
+
         // dcl to init Stable Support
-        if (!init) {
+        if (!initialized) {
             synchronized (lock) {
-                if (!init) {
+                if (!initialized) {
                     BeanUtil.getBeanOptional(MilkyStableSupport.class).ifPresent(s -> milkyStableSupport = s);
                 }
-                init = true;
+                initialized = true;
             }
         }
+
         // if there is milkyStableSupport, enable it
         if (milkyStableSupport != null) {
             String key = milkyStableSupport.ruleId(pjp);
@@ -72,7 +83,6 @@ public abstract class EntranceAspect {
                 rateLimiterWrapper.acquire();
             }
         }
-
 
         Object result = null;
         Object[] args = pjp.getArgs();
@@ -83,11 +93,7 @@ public abstract class EntranceAspect {
 
         try {
 
-            interceptors().forEach(annotationInterceptor-> {
-                if (method.isAnnotationPresent(annotationInterceptor.annotatedBy())) {
-                    annotationInterceptor.before(pjp);
-                }
-            });
+            interceptors().stream().filter(i -> method.isAnnotationPresent(i.annotatedBy())).forEach(i -> i.executeBefore(pjp));
 
             if (method.getAnnotation(Validate.class) == null) {
                 ValidateUtil.validate(pjp.getTarget(), method, args, true, ExceptionType.BIZ);
@@ -95,13 +101,11 @@ public abstract class EntranceAspect {
 
             result = pjp.proceed();
 
-            interceptors().forEach(annotationInterceptor-> {
-                if (method.isAnnotationPresent(annotationInterceptor.annotatedBy())) {
-                    annotationInterceptor.after(pjp);
-                }
-            });
+            interceptors().stream().filter(i -> method.isAnnotationPresent(i.annotatedBy())).forEach(i -> i.executeAfter(pjp));
 
         } catch (Throwable throwable) {
+
+            interceptors().stream().filter(i -> method.isAnnotationPresent(i.annotatedBy())).forEach(i -> i.afterThrowing(pjp, throwable));
 
             original = throwable;
             excavated = Excavator.excavate(throwable);
@@ -113,6 +117,8 @@ public abstract class EntranceAspect {
             }
 
         } finally {
+
+            interceptors().stream().filter(i -> method.isAnnotationPresent(i.annotatedBy())).forEach(i -> i.executeFinally(pjp));
 
             if (excavated != null) {
 
@@ -131,6 +137,7 @@ public abstract class EntranceAspect {
                 if (exceptionType == ExceptionType.BIZ) {
                     ((Result<?>) result).setMessage(excavated.getMessage());
                 }
+
             }
 
             Logger logger = loggers.computeIfAbsent(method.getDeclaringClass(), Logger::getLogger);
@@ -155,6 +162,9 @@ public abstract class EntranceAspect {
             if (original != null && original != excavated) {
                 logger.position("excavated").error(original.getMessage(), original);
             }
+
+            clearApm();
+
         }
 
         return result;

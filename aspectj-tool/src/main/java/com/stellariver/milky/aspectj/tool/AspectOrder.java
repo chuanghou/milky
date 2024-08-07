@@ -8,7 +8,7 @@ import org.aspectj.lang.annotation.DeclarePrecedence;
  */
 
 @Aspect
-@DeclarePrecedence("AnnotationRateLimitAspect, AnnotationLogAspect, AnnotationValidateAspect, AnnotationTLCAspect")
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
+@DeclarePrecedence("AnnotationRateLimitAspect, AnnotationLogAspect, AnnotationValidateAspect, AnnotationTLCAspect")
 public class AspectOrder {
 }

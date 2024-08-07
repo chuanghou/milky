@@ -23,27 +23,21 @@ public class RpcAspect extends EntranceAspect {
         return false;
     }
 
-    static final private AnnotationInterceptor annotationInterceptor = new AnnotationInterceptor() {
-
-        @Override
-        public void before(ProceedingJoinPoint pjp) {
-            throw new BizEx(ErrorEnumsBase.PARAM_FORMAT_WRONG.message("时间区间不在可接收范围"));
-        }
-
-        @Override
-        public void after(ProceedingJoinPoint pjp) {
-        }
-
-        @Override
-        public Class<? extends Annotation> annotatedBy() {
-            return TestForInterceptor.class;
-        }
-
-    };
-
     @Override
     protected List<AnnotationInterceptor> interceptors() {
-        return Collections.singletonList(annotationInterceptor);
+        return Collections.singletonList(new AnnotationInterceptor() {
+
+            @Override
+            public void executeBefore(ProceedingJoinPoint pjp) {
+                throw new BizEx(ErrorEnumsBase.PARAM_FORMAT_WRONG.message("时间区间不在可接收范围"));
+            }
+
+            @Override
+            public Class<? extends Annotation> annotatedBy() {
+                return TestForInterceptor.class;
+            }
+
+        });
     }
 
 }

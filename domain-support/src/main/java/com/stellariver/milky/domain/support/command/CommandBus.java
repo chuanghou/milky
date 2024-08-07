@@ -48,6 +48,7 @@ import static com.stellariver.milky.domain.support.ErrorEnums.AGGREGATE_NOT_EXIS
  * @author houchuang
  */
 @CustomLog
+@SuppressWarnings("unused")
 public class CommandBus implements AutoCloseable{
 
     private static final Predicate<Method> COMMAND_INTERCEPTOR_FORMAT =
@@ -227,33 +228,27 @@ public class CommandBus implements AutoCloseable{
         });
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(T command) {
-        return acceptMemoryTransactional(Collections.singletonList(command), null, null);
+    static public <T extends Command> Object accept(T command) {
+        return accept(Collections.singletonList(command), null, null);
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands) {
-        return acceptMemoryTransactional(commands, null, null);
+    static public <T extends Command> Object accept(List<T> commands) {
+        return accept(commands, null, null);
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(T command,
-                                                                       Map<Class<? extends Typed<?>>, Object> parameters) {
-        return acceptMemoryTransactional(Collections.singletonList(command), parameters, null);
+    static public <T extends Command> Object accept(T command,
+                                                    Map<Class<? extends Typed<?>>, Object> parameters) {
+        return accept(Collections.singletonList(command), parameters, null);
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands,
-                                                                       Map<Class<? extends Typed<?>>, Object> parameters) {
-        return acceptMemoryTransactional(commands, parameters, null);
+    static public <T extends Command> Object accept(List<T> commands,
+                                                    Map<Class<? extends Typed<?>>, Object> parameters) {
+        return accept(commands, parameters, null);
     }
 
-    static public <T extends Command> Object acceptMemoryTransactional(T command,
-                                                                       Map<Class<? extends Typed<?>>, Object> parameters,
-                                                                       Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
-        return acceptMemoryTransactional(Collections.singletonList(command), parameters, aggregateIdMap);
-    }
-
-    static public <T extends Command> Object acceptMemoryTransactional(List<T> commands,
-                                                                       Map<Class<? extends Typed<?>>, Object> parameters,
-                                                                       Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
+    static public <T extends Command> Object accept(List<T> commands,
+                                                    Map<Class<? extends Typed<?>>, Object> parameters,
+                                                    Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
         SysEx.nullThrow(instance.transactionSupport, "transactionSupport is null, " +
                 "so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
         instance.memoryTxTL.set(true);
@@ -264,20 +259,6 @@ public class CommandBus implements AutoCloseable{
         }
     }
 
-    static public <T extends Command> Object accept(T command) {
-        return instance.doSend(Collections.singletonList(command), null, null);
-    }
-
-    static public <T extends Command> Object accept(T command,
-                                                    Map<Class<? extends Typed<?>>, Object> parameters) {
-        return instance.doSend(Collections.singletonList(command), parameters, null);
-    }
-
-    static public <T extends Command> Object accept(T command,
-                                                    Map<Class<? extends Typed<?>>, Object> parameters,
-                                                    Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
-        return instance.doSend(Collections.singletonList(command), parameters, aggregateIdMap);
-    }
 
     /**
      * 针对应用层调用的命令总线接口

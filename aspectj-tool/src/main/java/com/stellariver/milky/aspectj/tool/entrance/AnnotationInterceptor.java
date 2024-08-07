@@ -4,11 +4,16 @@ import org.aspectj.lang.ProceedingJoinPoint;
 
 import java.lang.annotation.Annotation;
 
+@SuppressWarnings("unused")
 public interface AnnotationInterceptor {
 
-    void before(ProceedingJoinPoint pjp);
+    void executeBefore(ProceedingJoinPoint pjp);
 
-    void after(ProceedingJoinPoint pjp);
+    default void executeAfter(ProceedingJoinPoint pjp) {}
+
+    default void afterThrowing(ProceedingJoinPoint pjp, Throwable throwable) {}
+
+    default void executeFinally(ProceedingJoinPoint pjp) {}
 
     Class<? extends Annotation> annotatedBy();
 
