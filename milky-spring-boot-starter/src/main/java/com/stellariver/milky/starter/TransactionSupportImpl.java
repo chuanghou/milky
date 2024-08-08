@@ -4,9 +4,7 @@ import com.stellariver.milky.domain.support.dependency.TransactionSupport;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -14,9 +12,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 /**
  * @author houchuang
  */
-@Component
 @RequiredArgsConstructor
-@ConditionalOnBean(DataSourceTransactionManager.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TransactionSupportImpl implements TransactionSupport {
 

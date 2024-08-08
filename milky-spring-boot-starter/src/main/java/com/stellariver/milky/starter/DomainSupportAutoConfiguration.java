@@ -40,6 +40,7 @@ import java.util.concurrent.ThreadFactory;
 public class DomainSupportAutoConfiguration {
 
     @Bean
+    // TODO analyze the transactionSupport bean condition
     public TransactionSupport transactionSupport(DataSourceTransactionManager dataSourceTransactionManager) {
         return new TransactionSupportImpl(dataSourceTransactionManager);
     }
@@ -131,6 +132,7 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @SuppressWarnings("unused")
     public MilkyTraceRepository milkyTraceRepository(TraceIdGetter traceIdGetter) {
         return (context, success) -> {
             Long invocationId = context.getInvocationId();

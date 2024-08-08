@@ -88,8 +88,6 @@ public class CommandBus implements AutoCloseable{
 
     private final BeanLoader beanLoader;
 
-    private final ThreadLocal<Boolean> memoryTxTL = ThreadLocal.withInitial(() -> false);
-
     private final Set<Class<? extends AggregateRoot>> aggregateClasses;
 
     @SuppressWarnings("unused")
@@ -249,14 +247,7 @@ public class CommandBus implements AutoCloseable{
     static public <T extends Command> Object accept(List<T> commands,
                                                     Map<Class<? extends Typed<?>>, Object> parameters,
                                                     Map<Class<? extends AggregateRoot>, Set<String>> aggregateIdMap) {
-        SysEx.nullThrow(instance.transactionSupport, "transactionSupport is null, " +
-                "so you can't use memory transactional feature, change to CommandBus.accept(command, parameters)!");
-        instance.memoryTxTL.set(true);
-        try {
-            return instance.doSend(commands, parameters, aggregateIdMap);
-        } finally {
-            instance.memoryTxTL.set(false);
-        }
+        return instance.doSend(commands, parameters, aggregateIdMap);
     }
 
 
@@ -279,46 +270,45 @@ public class CommandBus implements AutoCloseable{
         Long invocationId = context.getInvocationId();
         InvokeTrace invokeTrace = new InvokeTrace(invocationId, invocationId);
         commands.forEach(c -> c.setInvokeTrace(invokeTrace));
-        Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
         Throwable backup = null;
         try {
             results = commands.stream().map(this::route).collect(Collectors.toList());
             eventBus.preFinalRoute(context.getFinalEvents(), context);
-            if (memoryTx) {
+            if (transactionSupport != null) {
                 transactionSupport.begin();
-                context.getDoMap().forEach((dataObjectClazz, map) -> {
-                    DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
-
-                    // all three group of primary ids
-                    Set<Object> doPrimaryIds = map.keySet();
-                    Set<Object> created = context.getCreatedAggregateIds().get(dataObjectClazz);
-                    Set<Object> changed = context.getChangedAggregateIds().get(dataObjectClazz);
-                    Set<Object> deleted = context.getDeletedAggregateIds().get(dataObjectClazz);
-
-                    // created and updated primary ids
-                    Set<Object> createdPrimaryIds = Collect.inter(doPrimaryIds, created);
-                    Set<Object> changedPrimaryIds = Collect.subtract(Collect.inter(doPrimaryIds, changed), createdPrimaryIds);
-
-                    // created and updated data object
-                    List<Object> createdDataObjects = createdPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
-                    List<Object> changedDataObjects = changedPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
-                    List<Object> deletedDataObjects = deleted.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
-
-                    // persistent layer
-                    if (Collect.isNotEmpty(createdDataObjects)) {
-                        daoWrapper.batchSaveWrapper(createdDataObjects);
-                    }
-                    if (Collect.isNotEmpty(changedDataObjects)) {
-                        daoWrapper.batchUpdateWrapper(changedDataObjects);
-                    }
-                    if (Collect.isNotEmpty(deletedDataObjects)) {
-                        daoWrapper.batchDeleteWrapper(changedDataObjects);
-                    }
-                });
             }
+            context.getDoMap().forEach((dataObjectClazz, map) -> {
+                DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = daoWrappersMap.get(dataObjectClazz);
+
+                // all three group of primary ids
+                Set<Object> doPrimaryIds = map.keySet();
+                Set<Object> created = context.getCreatedAggregateIds().get(dataObjectClazz);
+                Set<Object> changed = context.getChangedAggregateIds().get(dataObjectClazz);
+                Set<Object> deleted = context.getDeletedAggregateIds().get(dataObjectClazz);
+
+                // created and updated primary ids
+                Set<Object> createdPrimaryIds = Collect.inter(doPrimaryIds, created);
+                Set<Object> changedPrimaryIds = Collect.subtract(Collect.inter(doPrimaryIds, changed), createdPrimaryIds);
+
+                // created and updated data object
+                List<Object> createdDataObjects = createdPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
+                List<Object> changedDataObjects = changedPrimaryIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
+                List<Object> deletedDataObjects = deleted.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
+
+                // persistent layer
+                if (Collect.isNotEmpty(createdDataObjects)) {
+                    daoWrapper.batchSaveWrapper(createdDataObjects);
+                }
+                if (Collect.isNotEmpty(changedDataObjects)) {
+                    daoWrapper.batchUpdateWrapper(changedDataObjects);
+                }
+                if (Collect.isNotEmpty(deletedDataObjects)) {
+                    daoWrapper.batchDeleteWrapper(changedDataObjects);
+                }
+            });
             eventBus.postFinalRoute(context.getFinalEvents(), context);
         } catch (Throwable throwable) {
-            if (memoryTx) {
+            if (transactionSupport != null) {
                 transactionSupport.rollback();
             }
             backup = Excavator.excavate(throwable);
@@ -339,7 +329,7 @@ public class CommandBus implements AutoCloseable{
                 }
             }
         }
-        if (memoryTx) {
+        if (transactionSupport != null) {
             transactionSupport.commit();
         }
         return commands.size() == 1 ? results.get(0) : results;
@@ -478,32 +468,15 @@ public class CommandBus implements AutoCloseable{
             }
             DAOWrapper<? extends BaseDataObject<?>, ?> daoWrapper = CommandBus.getDaoWrapper(dataObjectClazz);
 
-            Boolean memoryTx = Kit.op(memoryTxTL.get()).orElse(false);
-            if (memoryTx) {
-                doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>(16)).put(primaryId, dataObjectNew);
-            } else {
-                Kit.op(doMap.get(dataObjectClazz)).ifPresent(map -> map.remove(primaryId));
-            }
+            doMap.computeIfAbsent(dataObjectClazz, k -> new HashMap<>(16)).put(primaryId, dataObjectNew);
             // if memoryTx is true, the created or updated aggregate DO will be saved in cache
             // or else these DO wil save in DB immediately
             if (aggregateStatus == AggregateStatus.CREATE) {
-                if (memoryTx) {
-                    context.getCreatedAggregateIds().get(dataObjectClazz).add(primaryId);
-                } else {
-                    daoWrapper.batchSaveWrapper(Collect.asList(dataObjectNew));
-                }
+                context.getCreatedAggregateIds().get(dataObjectClazz).add(primaryId);
             } else if (aggregateStatus == AggregateStatus.UPDATE){
-                if (memoryTx) {
-                    context.getChangedAggregateIds().get(dataObjectClazz).add(primaryId);
-                } else {
-                    daoWrapper.batchUpdateWrapper(Collect.asList(dataObjectNew));
-                }
+                context.getChangedAggregateIds().get(dataObjectClazz).add(primaryId);
             } else {
-                if (memoryTx) {
-                    context.getDeletedAggregateIds().get(dataObjectClazz).add(primaryId);
-                } else {
-                    daoWrapper.batchDeleteWrapper(Collect.asList(dataObjectNew));
-                }
+                context.getDeletedAggregateIds().get(dataObjectClazz).add(primaryId);
             }
         }
 
