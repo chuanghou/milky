@@ -90,7 +90,23 @@
     </dependencyManagement>
 
     <build>
+        <!--suppress UnresolvedMavenProperty -->
+        <finalName>${project.artifactId}_${revision}_${git.branch}_${git.commit.id.abbrev}</finalName>
         <plugins>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.9.10</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
