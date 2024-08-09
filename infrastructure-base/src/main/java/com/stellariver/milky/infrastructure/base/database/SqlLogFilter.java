@@ -67,20 +67,15 @@ public class SqlLogFilter extends FilterEventAdapter {
 
     @SneakyThrows
     public void print(StatementProxy statement, String sql) {
-
-        sql = DruidUtils.resolveSql(statement, sql);
-
         statement.setLastExecuteTimeNano();
         double nanos = statement.getLastExecuteTimeNano();
-        int updateCount = Math.max(0, statement.getUpdateCount());
-        sql = sql + " ==>> " + "[affected: " + updateCount + "]";
+        int updateCount = statement.getUpdateCount();
         double cost = nanos / 1000_000L;
         if (cost > sqlLogConfig.getAlarmSqlCostThreshold()) {
-            log.cost(cost).error(sql);
-        } else if (updateCount > 0 || sqlLogConfig.getEnableSelectSql()){
-            log.cost(cost).info(sql);
+            log.cost(cost).error(DruidUtils.resolveSql(statement, sql) + " ==>> " + "[affected: " + updateCount + "]");
+        } else if (statement.getUpdateCount() >= 0 || sqlLogConfig.getEnableSelectSql()){
+            log.cost(cost).info(DruidUtils.resolveSql(statement, sql) + " ==>> " + "[affected: " + updateCount + "]");
         }
-
     }
 
     public static <T> T byPass(Supplier<T> supplier) {
