@@ -5,7 +5,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.stellariver.milky.common.tool.util.Collect;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
 import com.stellariver.milky.infrastructure.base.database.DeepPageFilter;
-import com.stellariver.milky.infrastructure.base.database.MilkyLogFilter;
+import com.stellariver.milky.infrastructure.base.database.SqlLogFilter;
 import com.stellariver.milky.spring.partner.SectionLoader;
 import com.stellariver.milky.spring.partner.UniqueIdBuilder;
 import lombok.AccessLevel;
@@ -29,8 +29,8 @@ import java.util.List;
 public class DruidConfiguration {
 
     @Bean
-    public MilkyLogFilter milkyLogFilter() {
-        return new MilkyLogFilter();
+    public SqlLogFilter sqlLogFilter() {
+        return new SqlLogFilter();
     }
 
     @Bean

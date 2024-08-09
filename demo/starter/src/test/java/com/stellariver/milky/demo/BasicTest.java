@@ -30,7 +30,7 @@ import com.stellariver.milky.domain.support.command.CommandBus;
 import com.stellariver.milky.domain.support.context.Context;
 import com.stellariver.milky.domain.support.dependency.ConcurrentOperate;
 import com.stellariver.milky.domain.support.dependency.UniqueIdGetter;
-import com.stellariver.milky.infrastructure.base.database.MilkyLogFilter;
+import com.stellariver.milky.infrastructure.base.database.SqlLogFilter;
 import lombok.CustomLog;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -88,7 +88,7 @@ public class BasicTest {
     DemoMetaUnitMapper demoMetaUnitMapper;
 
     @Autowired
-    MilkyLogFilter milkyLogFilter;
+    SqlLogFilter sqlLogFilter;
 
     @Test
     public void testFullTextHandler() {
@@ -106,7 +106,7 @@ public class BasicTest {
 
         DemoMetaUnit demoMetaUnit = demoMetaUnitMapper.selectById(1);
         Assertions.assertEquals(build, demoMetaUnit);
-        demoMetaUnit = MilkyLogFilter.byPass(() -> demoMetaUnitMapper.selectById(1));
+        demoMetaUnit = SqlLogFilter.byPass(() -> demoMetaUnitMapper.selectById(1));
         log.info("ignore success");
         demoMetaUnit = demoMetaUnitMapper.selectById(1);
         demoMetaUnitMapper.deleteById(1);

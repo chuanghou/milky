@@ -4,7 +4,7 @@ package com.stellariver.milky.demo;
 import com.stellariver.milky.demo.infrastructure.database.entity.DemoMetaUnit;
 import com.stellariver.milky.demo.infrastructure.database.entity.UnitType;
 import com.stellariver.milky.demo.infrastructure.database.mapper.DemoMetaUnitMapper;
-import com.stellariver.milky.infrastructure.base.database.MilkyLogFilter;
+import com.stellariver.milky.infrastructure.base.database.SqlLogFilter;
 import lombok.CustomLog;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ public class LogTest {
 
         DemoMetaUnit demoMetaUnit = demoMetaUnitMapper.selectById(1);
         Assertions.assertEquals(build, demoMetaUnit);
-        demoMetaUnit = MilkyLogFilter.byPass(() -> demoMetaUnitMapper.selectById(1));
+        demoMetaUnit = SqlLogFilter.byPass(() -> demoMetaUnitMapper.selectById(1));
         log.info("ignore success");
         demoMetaUnit = demoMetaUnitMapper.selectById(1);
         demoMetaUnitMapper.deleteById(1);
