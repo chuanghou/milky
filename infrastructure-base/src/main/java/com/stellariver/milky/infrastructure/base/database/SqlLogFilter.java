@@ -11,6 +11,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Setter
@@ -25,11 +27,12 @@ public class SqlLogFilter extends FilterEventAdapter {
     }
 
     private static final ThreadLocal<Pair<ResultSetProxy, Long>> recordCounter = ThreadLocal.withInitial(() -> Pair.of(null, 0L));
-    private static final ThreadLocal<Boolean> byPassEnable = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Boolean> byPassAnySql = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Boolean> enableSelectSqlThreadLocal = ThreadLocal.withInitial(() -> false);
 
     @Override
     protected void statementExecuteAfter(StatementProxy statement, String sql, boolean result) {
-        if (byPassEnable.get()) {
+        if (byPassAnySql.get()) {
             return;
         }
         print(statement, sql);
@@ -37,7 +40,7 @@ public class SqlLogFilter extends FilterEventAdapter {
 
     @Override
     protected void statementExecuteBatchAfter(StatementProxy statement, int[] result) {
-        if (byPassEnable.get()) {
+        if (byPassAnySql.get()) {
             return;
         }
         String sql;
@@ -51,7 +54,7 @@ public class SqlLogFilter extends FilterEventAdapter {
 
     @Override
     protected void statementExecuteQueryAfter(StatementProxy statement, String sql, ResultSetProxy resultSet)  {
-        if (byPassEnable.get()) {
+        if (byPassAnySql.get()) {
             return;
         }
         print(statement, sql);
@@ -59,7 +62,7 @@ public class SqlLogFilter extends FilterEventAdapter {
 
     @Override
     protected void statementExecuteUpdateAfter(StatementProxy statement, String sql, int updateCount) {
-        if (byPassEnable.get()) {
+        if (byPassAnySql.get()) {
             return;
         }
         print(statement, sql);
@@ -73,24 +76,51 @@ public class SqlLogFilter extends FilterEventAdapter {
         double cost = nanos / 1000_000L;
         if (cost > sqlLogConfig.getAlarmSqlCostThreshold()) {
             log.cost(cost).error(DruidUtils.resolveSql(statement, sql) + " ==>> " + "[affected: " + updateCount + "]");
-        } else if (statement.getUpdateCount() >= 0 || sqlLogConfig.getEnableSelectSql()){
+        } else if (statement.getUpdateCount() >= 0 || enableSelectSql()){
             log.cost(cost).info(DruidUtils.resolveSql(statement, sql) + " ==>> " + "[affected: " + updateCount + "]");
         }
     }
 
+
+    private boolean enableSelectSql() {
+        return enableSelectSqlThreadLocal.get() || sqlLogConfig.getEnableSelectSqlGlobal();
+    }
+
+    @SneakyThrows
+    public static <T> T enableSelectSqlThreadLocal(Callable<T> callable) {
+        enableSelectSqlThreadLocal.set(true);
+        try {
+            return callable.call();
+        } finally {
+            byPassAnySql.set(false);
+        }
+    }
+
+    @SneakyThrows
+    public static void enableSelectSqlThreadLocal(Runnable runnable) {
+        enableSelectSqlThreadLocal.set(true);
+        try {
+            runnable.run();
+        } finally {
+            byPassAnySql.set(false);
+        }
+    }
+
+
+
     public static <T> T byPass(Supplier<T> supplier) {
-        byPassEnable.set(true);
+        byPassAnySql.set(true);
         try {
             return supplier.get();
         } finally {
-            byPassEnable.set(false);
+            byPassAnySql.set(false);
         }
     }
 
     @Override
     public boolean resultSet_next(FilterChain chain, ResultSetProxy resultSet) throws SQLException {
         boolean moreRows = super.resultSet_next(chain, resultSet);
-        if (moreRows && (!byPassEnable.get())) {
+        if (moreRows && (!byPassAnySql.get())) {
 
             Pair<ResultSetProxy, Long> proxyCounter = recordCounter.get();
             if (proxyCounter.getKey() == null || proxyCounter.getKey() != resultSet) {
@@ -102,7 +132,7 @@ public class SqlLogFilter extends FilterEventAdapter {
             Long countResult = recordCounter.get().getRight();
             if (recordCounter.get().getRight() > sqlLogConfig.getAlarmSqlCountThreshold()) {
                 log.arg0(countResult).error(recordSql(resultSet).toString());
-            } else if (sqlLogConfig.getEnableSelectSql()){
+            } else if (sqlLogConfig.getEnableSelectSqlGlobal()){
                 log.arg0(countResult).info(recordSql(resultSet).toString());
             }
         }

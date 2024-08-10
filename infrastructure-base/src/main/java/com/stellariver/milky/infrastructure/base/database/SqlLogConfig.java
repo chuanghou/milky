@@ -28,6 +28,6 @@ public class SqlLogConfig {
     /**
      * enable sql sql
      */
-    Boolean enableSelectSql = false;
+    Boolean enableSelectSqlGlobal = false;
 
 }
