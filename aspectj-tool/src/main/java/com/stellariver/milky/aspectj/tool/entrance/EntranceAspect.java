@@ -14,7 +14,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.MDC;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -44,14 +43,6 @@ public abstract class EntranceAspect {
         return true;
     }
 
-    protected void prepareApm() {
-        MDC.put("traceId", UUID.randomUUID().toString());
-    }
-
-    protected void clearApm() {
-        MDC.remove("traceId");
-    }
-
     protected List<AnnotationInterceptor> interceptors() {
         return Collections.emptyList();
     }
@@ -62,8 +53,6 @@ public abstract class EntranceAspect {
 
     @Around("pointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
-
-        prepareApm();
 
         // dcl to init Stable Support
         if (!initialized) {
@@ -93,7 +82,7 @@ public abstract class EntranceAspect {
 
         try {
 
-            interceptors().stream().filter(i -> method.isAnnotationPresent(i.annotatedBy())).forEach(i -> i.executeBefore(pjp));
+            interceptors().stream().filter(i -> i.conditional(pjp)).forEach(i -> i.executeBefore(pjp));
 
             if (method.getAnnotation(Validate.class) == null) {
                 ValidateUtil.validate(pjp.getTarget(), method, args, true, ExceptionType.BIZ);
@@ -101,11 +90,11 @@ public abstract class EntranceAspect {
 
             result = pjp.proceed();
 
-            interceptors().stream().filter(i -> method.isAnnotationPresent(i.annotatedBy())).forEach(i -> i.executeAfter(pjp));
+            interceptors().stream().filter(i -> i.conditional(pjp)).forEach(i -> i.executeAfterWrapper(pjp));
 
         } catch (Throwable throwable) {
 
-            interceptors().stream().filter(i -> method.isAnnotationPresent(i.annotatedBy())).forEach(i -> i.afterThrowing(pjp, throwable));
+            interceptors().stream().filter(i -> i.conditional(pjp)).forEach(i -> i.afterThrowingWrapper(pjp, throwable));
 
             original = throwable;
             excavated = Excavator.excavate(throwable);
@@ -118,7 +107,7 @@ public abstract class EntranceAspect {
 
         } finally {
 
-            interceptors().stream().filter(i -> method.isAnnotationPresent(i.annotatedBy())).forEach(i -> i.executeFinally(pjp));
+            interceptors().stream().filter(i -> i.conditional(pjp)).forEach(i -> i.executeFinallyWrapper(pjp));
 
             if (excavated != null) {
 
@@ -162,8 +151,6 @@ public abstract class EntranceAspect {
             if (original != null && original != excavated) {
                 logger.position("excavated").error(original.getMessage(), original);
             }
-
-            clearApm();
 
         }
 

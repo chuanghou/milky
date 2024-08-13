@@ -7,9 +7,9 @@ import com.stellariver.milky.common.base.ErrorEnumsBase;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 
-import java.lang.annotation.Annotation;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 @Aspect
@@ -25,7 +25,7 @@ public class RpcAspect extends EntranceAspect {
 
     @Override
     protected List<AnnotationInterceptor> interceptors() {
-        return Collections.singletonList(new AnnotationInterceptor() {
+        return Arrays.asList(new AnnotationInterceptor() {
 
             @Override
             public void executeBefore(ProceedingJoinPoint pjp) {
@@ -33,11 +33,17 @@ public class RpcAspect extends EntranceAspect {
             }
 
             @Override
-            public Class<? extends Annotation> annotatedBy() {
-                return TestForInterceptor.class;
+            public boolean conditional(ProceedingJoinPoint pjp) {
+                return ((MethodSignature)pjp.getSignature()).getMethod().isAnnotationPresent(TestForInterceptor.class);
             }
 
-        });
+            @Override
+            public void logThrowable(ProceedingJoinPoint pjp, Throwable throwable) {
+            }
+
+        }, new SqlLogInterceptor());
     }
+
+
 
 }

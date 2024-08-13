@@ -12,12 +12,12 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Setter
 @CustomLog
 @NoArgsConstructor
+@SuppressWarnings("unused")
 public class SqlLogFilter extends FilterEventAdapter {
 
     private SqlLogConfig sqlLogConfig = new SqlLogConfig();
@@ -28,7 +28,7 @@ public class SqlLogFilter extends FilterEventAdapter {
 
     private static final ThreadLocal<Pair<ResultSetProxy, Long>> recordCounter = ThreadLocal.withInitial(() -> Pair.of(null, 0L));
     private static final ThreadLocal<Boolean> byPassAnySql = ThreadLocal.withInitial(() -> false);
-    private static final ThreadLocal<Boolean> enableSelectSqlThreadLocal = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Boolean> enableSelectSqlThreadLocally = ThreadLocal.withInitial(() -> false);
 
     @Override
     protected void statementExecuteAfter(StatementProxy statement, String sql, boolean result) {
@@ -83,30 +83,39 @@ public class SqlLogFilter extends FilterEventAdapter {
 
 
     private boolean enableSelectSql() {
-        return enableSelectSqlThreadLocal.get() || sqlLogConfig.getEnableSelectSqlGlobal();
+        return enableSelectSqlThreadLocally.get() || sqlLogConfig.getEnableSelectSqlGlobal();
     }
 
     @SneakyThrows
     public static <T> T enableSelectSqlThreadLocal(Callable<T> callable) {
-        enableSelectSqlThreadLocal.set(true);
+        enableSelectSqlThreadLocally.set(true);
         try {
             return callable.call();
         } finally {
-            byPassAnySql.set(false);
+            enableSelectSqlThreadLocally.set(false);
         }
     }
 
     @SneakyThrows
     public static void enableSelectSqlThreadLocal(Runnable runnable) {
-        enableSelectSqlThreadLocal.set(true);
+        enableSelectSqlThreadLocally.set(true);
         try {
             runnable.run();
         } finally {
-            byPassAnySql.set(false);
+            enableSelectSqlThreadLocally.set(false);
         }
     }
 
 
+    @SneakyThrows
+    public static void enableSelectSqlThreadLocal() {
+        enableSelectSqlThreadLocally.set(true);
+    }
+
+    @SneakyThrows
+    public static void disableSelectSqlThreadLocal() {
+        enableSelectSqlThreadLocally.set(false);
+    }
 
     public static <T> T byPass(Supplier<T> supplier) {
         byPassAnySql.set(true);
