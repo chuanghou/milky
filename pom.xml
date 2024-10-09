@@ -30,6 +30,7 @@
         <revision>0.3.0-SNAPSHOT</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>2.7.14</spring.boot.version>
         <maven.deploy.skip>true</maven.deploy.skip>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
@@ -52,7 +53,6 @@
         <objenesis.version>3.3</objenesis.version>
         <plexus.utils.version>3.4.2</plexus.utils.version>
         <sshj.version>0.37.0</sshj.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
 
