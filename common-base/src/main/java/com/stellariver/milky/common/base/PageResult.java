@@ -2,6 +2,7 @@ package com.stellariver.milky.common.base;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
  * @author houchuang
  */
 @Data
+@Getter
 @EqualsAndHashCode(callSuper = true)
 public class PageResult<T> extends Result<List<T>> {
 
@@ -27,10 +29,6 @@ public class PageResult<T> extends Result<List<T>> {
         paginator.setPageSize(pageSize);
         paginator.setPageCount((total/pageSize + (total%pageSize == 0 ? 0 : 1)));
         paginator.setTotal(total);
-    }
-
-    public Paginator getPaginator() {
-        return this.paginator;
     }
 
     public static <T> PageResult<T> success(List<T> data, Integer total, Integer pageNo, Integer pageSize) {
