@@ -4,7 +4,7 @@ import com.stellariver.milky.aspectj.tool.log.Log;
 import com.stellariver.milky.aspectj.tool.validate.Validate;
 import com.stellariver.milky.demo.adapter.ajc.Param;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class AjcAnnoDemo {
 

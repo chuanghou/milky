@@ -4,8 +4,8 @@ import com.stellariver.milky.common.base.Divisible;
 import com.stellariver.milky.common.base.SysEx;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.math.BigDecimal;
 
 import static com.stellariver.milky.common.base.ErrorEnumsBase.CONFIG_ERROR;

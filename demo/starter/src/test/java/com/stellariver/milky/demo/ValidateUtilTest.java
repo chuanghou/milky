@@ -12,9 +12,9 @@ import org.hibernate.validator.constraints.Range;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.groups.Default;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.groups.Default;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Collections;

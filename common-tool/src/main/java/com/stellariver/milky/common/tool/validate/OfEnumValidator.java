@@ -7,8 +7,8 @@ import com.stellariver.milky.common.tool.util.Reflect;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;

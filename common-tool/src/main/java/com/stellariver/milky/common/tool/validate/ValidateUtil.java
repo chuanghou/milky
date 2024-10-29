@@ -8,11 +8,11 @@ import com.stellariver.milky.common.tool.util.Reflect;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.HibernateValidator;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.executable.ExecutableValidator;
-import javax.validation.groups.Default;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.executable.ExecutableValidator;
+import jakarta.validation.groups.Default;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
