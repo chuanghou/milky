@@ -11,6 +11,11 @@
     <artifactId>starter</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>com.stellariver.milky.frodo</groupId>
+            <artifactId>frodo-spring-boot-starter</artifactId>
+        </dependency>
+
         <!--for jacoco report start-->
         <dependency>
             <groupId>com.stellariver.milky</groupId>

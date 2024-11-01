@@ -22,6 +22,8 @@
         <module>infrastructure-base</module>
         <module>financial-base</module>
         <module>demo</module>
+        <module>frodo</module>
+
     </modules>
 
     <properties>
