@@ -2,7 +2,7 @@ package com.stellariver.milky.aspectj.tool.validate;
 
 import com.stellariver.milky.common.base.ExceptionType;
 
-import jakarta.validation.groups.Default;
+import javax.validation.groups.Default;
 
 public class ValidateConfig {
 

@@ -2,8 +2,8 @@ package com.stellariver.milky.financial.base;
 
 import com.stellariver.milky.common.base.SysEx;
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 import java.math.BigDecimal;
 
 public class ExactDivisionValidator implements ConstraintValidator<ExactDivision, Object> {

@@ -2,7 +2,7 @@ package com.stellariver.milky.demo.adapter.ajc.custom;
 
 import com.stellariver.milky.demo.adapter.ajc.Param;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 
 public class AjcCustomDemo {
 
