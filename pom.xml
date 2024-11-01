@@ -27,7 +27,7 @@
     </modules>
 
     <properties>
-        <revision>0.3.0-SNAPSHOT</revision>
+        <revision>0.3.1</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -477,15 +477,19 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- 发布插件 -->
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.5.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <publishingServerId>central</publishingServerId>
+                    <!--<tokenAuth>true</tokenAuth>-->
+                    <!-- 若要自动发布，添加以下配置 -->
+                    <!--<autoPublish>true</autoPublish>-->
+                    <!-- 一直等到发布完成 -->
+                    <!--<waitUntil>published</waitUntil>-->
                 </configuration>
             </plugin>
             <plugin>
@@ -512,14 +516,4 @@
             </testResource>
         </testResources>
     </build>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 </project>
