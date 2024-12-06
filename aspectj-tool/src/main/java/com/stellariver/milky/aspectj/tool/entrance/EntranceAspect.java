@@ -54,7 +54,7 @@ public abstract class EntranceAspect {
     @Around("pointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
 
-        String traceId = TraceIdContext.getInstance().getTraceId();
+        String traceId = TraceIdContext.getInstance().buildTraceId();
         TraceIdContext.getInstance().storeTraceId(traceId);
 
         // dcl to init Stable Support
