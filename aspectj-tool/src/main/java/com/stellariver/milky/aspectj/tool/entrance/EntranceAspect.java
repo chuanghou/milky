@@ -54,6 +54,9 @@ public abstract class EntranceAspect {
     @Around("pointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
 
+        String traceId = TraceIdContext.getInstance().getTraceId();
+        TraceIdContext.getInstance().storeTraceId(traceId);
+
         // dcl to init Stable Support
         if (!initialized) {
             synchronized (lock) {
@@ -152,6 +155,7 @@ public abstract class EntranceAspect {
                 logger.position("excavated").error(original.getMessage(), original);
             }
 
+            TraceIdContext.getInstance().removeTraceId();
         }
 
         return result;

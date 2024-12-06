@@ -2,7 +2,7 @@ package com.stellariver.milky.spring.partner;
 
 import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.base.TraceIdGetter;
+import com.stellariver.milky.common.base.TraceIdContext;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.util.RunnerExtension;
@@ -21,12 +21,12 @@ public class SpringPartnerAutoConfiguration {
     @ConditionalOnMissingBean
     public StaticSupport staticSupport(@Autowired(required = false) MilkyStableSupport milkyStableSupport,
                                        @Autowired(required = false) RunnerExtension runnerExtension,
-                                       @Autowired(required = false) TraceIdGetter traceIdGetter,
+                                       @Autowired(required = false) TraceIdContext traceIdContext,
                                        BeanLoader beanLoader) {
         Optional.ofNullable(milkyStableSupport).ifPresent(Runner::setMilkyStableSupport);
         Optional.ofNullable(runnerExtension).ifPresent(Runner::setFailureExtendable);
-        Optional.ofNullable(traceIdGetter).ifPresent(Result::initTraceIdGetter);
-        return new StaticSupport(milkyStableSupport, runnerExtension, traceIdGetter, beanLoader);
+        Optional.ofNullable(traceIdContext).ifPresent(Result::initTraceIdContext);
+        return new StaticSupport(milkyStableSupport, runnerExtension, traceIdContext, beanLoader);
     }
 
 

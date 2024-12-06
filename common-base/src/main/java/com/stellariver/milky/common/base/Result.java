@@ -17,6 +17,8 @@ import java.util.List;
 public class Result<T> implements Serializable {
 
 
+    static private TraceIdContext traceIdContext;
+
     protected Boolean success = true;
 
     protected T data;
@@ -43,7 +45,9 @@ public class Result<T> implements Serializable {
     protected Long date = new Date().getTime();
 
     public Result() {
-        TraceIdGetterHolder.setTraceId(this);
+        if (traceIdContext != null) {
+            setTraceId(traceIdContext.getTraceId());
+        }
     }
 
     public static <T> Result<T> success() {
@@ -78,20 +82,7 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static void initTraceIdGetter(TraceIdGetter traceIdGetter) {
-        TraceIdGetterHolder.setTraceIdGetter(traceIdGetter);
-    }
-
-    private static class TraceIdGetterHolder{
-
-        @Setter
-        static private TraceIdGetter traceIdGetter;
-
-        public static void setTraceId(Result<?> result) {
-            if (traceIdGetter != null) {
-                result.setTraceId(traceIdGetter.getTraceId());
-            }
-        }
-
+    public static void initTraceIdContext(TraceIdContext traceIdContext) {
+        Result.traceIdContext = traceIdContext;
     }
 }

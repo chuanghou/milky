@@ -2,7 +2,7 @@ package com.stellariver.milky.starter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.stellariver.milky.common.base.BeanLoader;
-import com.stellariver.milky.common.base.TraceIdGetter;
+import com.stellariver.milky.common.base.TraceIdContext;
 import com.stellariver.milky.common.tool.common.Typed;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutor;
 import com.stellariver.milky.common.tool.executor.EnhancedExecutorConfiguration;
@@ -126,17 +126,18 @@ public class DomainSupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public TraceIdGetter traceIdGetter(MilkProperties milkProperties) {
-        return () -> MDC.get(milkProperties.getTraceIdKey());
+    public TraceIdContext traceIdContext(MilkProperties milkProperties) {
+        TraceIdContext.init(null);
+        return TraceIdContext.getInstance();
     }
 
     @Bean
     @ConditionalOnMissingBean
     @SuppressWarnings("unused")
-    public MilkyTraceRepository milkyTraceRepository(TraceIdGetter traceIdGetter) {
+    public MilkyTraceRepository milkyTraceRepository(TraceIdContext traceIdContext) {
         return (context, success) -> {
             Long invocationId = context.getInvocationId();
-            String traceId = traceIdGetter.getTraceId();
+            String traceId = traceIdContext.getTraceId();
             List<Trail> treeTrails = context.getTreeTrails();
             Map<Class<? extends Typed<?>>, Object> metaData = context.getMetaData();
             log.info(Json.toJson(context.getTreeTrails()));
