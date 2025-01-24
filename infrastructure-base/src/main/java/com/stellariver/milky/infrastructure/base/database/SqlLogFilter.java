@@ -75,9 +75,9 @@ public class SqlLogFilter extends FilterEventAdapter {
         int updateCount = statement.getUpdateCount();
         double cost = nanos / 1000_000L;
         if (cost > sqlLogConfig.getAlarmSqlCostThreshold()) {
-            log.cost(cost).error(DruidUtils.resolveSql(statement, sql) + " ==>> " + "[affected: " + updateCount + "]");
+            log.cost(cost).error("{} ==>> [affected: {}]", DruidUtils.resolveSql(statement, sql), updateCount);
         } else if (statement.getUpdateCount() >= 0 || enableSelectSql()){
-            log.cost(cost).info(DruidUtils.resolveSql(statement, sql) + " ==>> " + "[affected: " + updateCount + "]");
+            log.cost(cost).info("{} ==>> [affected: {}]", DruidUtils.resolveSql(statement, sql), updateCount);
         }
     }
 

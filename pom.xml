@@ -310,6 +310,11 @@
                 <artifactId>ftpserver-core</artifactId>
                 <version>1.2.0</version>
             </dependency>
+            <dependency>
+                <groupId>tech.units</groupId>
+                <artifactId>indriya</artifactId>
+                <version>2.2.1</version>
+            </dependency>
             <!--infrastructure-base end-->
         </dependencies>
     </dependencyManagement>

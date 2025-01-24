@@ -26,7 +26,7 @@ public class SqlLogConfig {
 
 
     /**
-     * enable sql sql
+     * enable select sql
      */
     Boolean enableSelectSqlGlobal = false;
 
