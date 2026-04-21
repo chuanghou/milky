@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.infrastructure.database.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
+import com.stellariver.milky.infrastructure.base.database.BaseMapperWithCursor;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @author houchuang
  */
 @Mapper
-public interface ItemDOMapper extends BaseMapper<ItemDO> {
+public interface ItemDOMapper extends BaseMapperWithCursor<ItemDO> {
 
     int deleteByIdReally(Serializable id);
 
