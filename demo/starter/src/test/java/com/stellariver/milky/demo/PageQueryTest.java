@@ -80,11 +80,9 @@ public class PageQueryTest {
         AtomicInteger count = new AtomicInteger();
         itemDOMapper.cursorConsumer(
                 itemDO -> count.incrementAndGet(),
-                CursorOptions.<ItemDO>builder().
-                        supplier(LambdaQueryWrapper::new)
-                        .cursorColumn("item_id")
+                CursorOptions.of(LambdaQueryWrapper::new, ItemDO::getItemId)
                         .batchSize(2)
-                        .idGetter(ItemDO::getItemId).build());
+                        .cursorColumn("item_id"));
         Assertions.assertEquals(100, count.get());
 
     }
