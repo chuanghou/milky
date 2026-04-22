@@ -12,6 +12,7 @@
 
     <groupId>com.stellariver.milky</groupId>
     <artifactId>milky-dependencies</artifactId>
+    <name>${project.artifactId}</name>
 
     <packaging>pom</packaging>
     <dependencyManagement>

@@ -12,6 +12,7 @@
 
     <groupId>com.stellariver.milky</groupId>
     <artifactId>frodo</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
 
     <modules>

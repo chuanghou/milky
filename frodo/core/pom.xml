@@ -12,6 +12,7 @@
 
     <groupId>com.stellariver.milky.frodo</groupId>
     <artifactId>core</artifactId>
+    <name>${project.artifactId}</name>
 
     <dependencies>
         <dependency>
