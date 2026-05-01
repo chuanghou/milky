@@ -491,16 +491,19 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                     <!--<tokenAuth>true</tokenAuth>-->
+                    <!-- 上传成功后立即返回，发布/校验在 Central 门户处理 -->
+                    <waitUntil>uploaded</waitUntil>
                     <!-- 若要自动发布，添加以下配置 -->
                     <!--<autoPublish>true</autoPublish>-->
-                    <!-- 一直等到发布完成 -->
-                    <!--<waitUntil>published</waitUntil>-->
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.5</version>
+                <version>3.2.4</version>
+                <configuration>
+                    <skip>${gpg.skip}</skip>
+                </configuration>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
