@@ -9,7 +9,7 @@ create table invocation_store
     operator_source varchar(50) not null,
     success tinyint not null,
     version int not null,
-    deleted int not null,
+    deleted bigint not null,
     gmt_create datetime not null,
     gmt_modified datetime not null,
     constraint invocation_store_id_uk_index
@@ -31,7 +31,7 @@ create table item
     store_code varchar(100) not null,
     price varchar(100),
     version int not null,
-    deleted int not null,
+    deleted bigint not null,
     channel_enum varchar(20) not null,
     ratio bigint,
     gmt_create datetime not null,
@@ -51,7 +51,7 @@ create table inventory
     amount bigint not null,
     store_code varchar(100) not null,
     version int not null,
-    deleted int not null,
+    deleted bigint not null,
     gmt_create datetime not null,
     gmt_modified datetime not null,
     constraint inventory_item_id_uk_index
@@ -71,7 +71,7 @@ create table message_store
     class_name    varchar(200) null,
     invocation_id bigint       not null,
     version int not null,
-    deleted int not null,
+    deleted bigint not null,
     gmt_create datetime not null,
     gmt_modified datetime not null,
     constraint message_store_id_uk_index

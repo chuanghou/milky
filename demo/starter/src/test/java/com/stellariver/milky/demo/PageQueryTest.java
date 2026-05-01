@@ -12,15 +12,21 @@ import com.stellariver.milky.demo.infrastructure.database.mapper.ItemDOMapper;
 import com.stellariver.milky.infrastructure.base.database.CursorOptions;
 import lombok.CustomLog;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @CustomLog
 @SpringBootTest
+@TestMethodOrder(OrderAnnotation.class)
+@Transactional
 public class PageQueryTest {
 
 
@@ -34,6 +40,7 @@ public class PageQueryTest {
     private DruidConfiguration.MyDeepPageFilter myDeepPageFilter;
 
     @Test
+    @Order(1)
     public void testPageQuery() {
 
         long itemId = 1L;
@@ -66,7 +73,8 @@ public class PageQueryTest {
 
 
     @Test
-    public void tesCursorConsume() {
+    @Order(2)
+    public void testCursorConsume() {
 
         long itemId = 1L;
         ItemDO.ItemDOBuilder<?, ?> builder = ItemDO.builder().title("test").userId(10001L).channelEnum(ChannelEnum.JD)
