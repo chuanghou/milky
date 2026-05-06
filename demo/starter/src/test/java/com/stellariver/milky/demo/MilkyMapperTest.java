@@ -1,6 +1,7 @@
 package com.stellariver.milky.demo;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
 import com.stellariver.milky.demo.infrastructure.database.entity.InvocationStoreDO;
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
@@ -47,7 +48,7 @@ public class MilkyMapperTest {
         JdbcTemplate jdbcTemplate;
 
         @Test
-        void updateByIdWithOptimisticLock_successAndConflict() throws LockConflictException {
+        void updateByIdOrThrow_successAndConflict() {
                 jdbcTemplate.update("DELETE FROM invocation_store WHERE id >= ? AND id < ?", INV_BASE_ID,
                                 INV_BASE_ID + 100);
 
@@ -63,18 +64,18 @@ public class MilkyMapperTest {
                 InvocationStoreDO loaded = invocationStoreMapper.selectById(INV_BASE_ID);
                 Assertions.assertNotNull(loaded);
                 loaded.setOperatorId("b");
-                Assertions.assertEquals(1, invocationStoreMapper.updateByIdWithOptimisticLock(loaded));
+                invocationStoreMapper.updateByIdOrThrow(loaded);
 
                 InvocationStoreDO stale = invocationStoreMapper.selectById(INV_BASE_ID);
                 Assertions.assertNotNull(stale);
                 stale.setOperatorId("c");
                 stale.setVersion(stale.getVersion() - 1);
-                Assertions.assertThrows(LockConflictException.class,
-                                () -> invocationStoreMapper.updateByIdWithOptimisticLock(stale));
+                Assertions.assertThrows(BizEx.class,
+                                () -> invocationStoreMapper.updateByIdOrThrow(stale));
         }
 
         @Test
-        void deleteByIdWithOptimisticLock_successAndNotFound() throws LockConflictException {
+        void deleteByIdOrThrow_successAndNotFound() {
                 jdbcTemplate.update("DELETE FROM invocation_store WHERE id >= ? AND id < ?", INV_BASE_ID + 100,
                                 INV_BASE_ID + 200);
 
@@ -87,9 +88,9 @@ public class MilkyMapperTest {
                                 .build();
                 Assertions.assertEquals(1, invocationStoreMapper.insert(row));
 
-                Assertions.assertEquals(1, invocationStoreMapper.deleteByIdWithOptimisticLock(INV_BASE_ID + 1));
-                Assertions.assertThrows(LockConflictException.class,
-                                () -> invocationStoreMapper.deleteByIdWithOptimisticLock(INV_BASE_ID + 1));
+                invocationStoreMapper.deleteByIdOrThrow(INV_BASE_ID + 1);
+                Assertions.assertThrows(BizEx.class,
+                                () -> invocationStoreMapper.deleteByIdOrThrow(INV_BASE_ID + 1));
         }
 
         @Test
