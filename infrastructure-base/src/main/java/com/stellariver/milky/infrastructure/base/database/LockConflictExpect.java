@@ -1,6 +1,6 @@
 package com.stellariver.milky.infrastructure.base.database;
 
-/** {@link MilkyBaseMapper} 乐观锁增强：受影响行数为 0 则抛 {@link LockConflictException}。 */
+/** {@link MilkyMapper} 乐观锁增强：受影响行数为 0 则抛 {@link LockConflictException}。 */
 final class LockConflictExpect {
 
     private LockConflictExpect() {
