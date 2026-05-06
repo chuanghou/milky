@@ -1,7 +1,7 @@
 package com.stellariver.milky.demo.infrastructure.database.mapper;
 
 import com.stellariver.milky.demo.infrastructure.database.entity.ItemDO;
-import com.stellariver.milky.infrastructure.base.database.MilkyBaseMapper;
+import com.stellariver.milky.infrastructure.base.database.MilkyMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.io.Serializable;
@@ -10,13 +10,14 @@ import java.io.Serializable;
  * @author houchuang
  */
 @Mapper
-public interface ItemDOMapper extends MilkyBaseMapper<ItemDO> {
+public interface ItemDOMapper extends MilkyMapper<ItemDO> {
 
     int deleteByIdReally(Serializable id);
 
     /**
      * Where is there a SuppressWarnings?
      * Answer: the package configuration couldn't be recognized!
+     * 
      * @param id id
      * @return itemDO
      */
