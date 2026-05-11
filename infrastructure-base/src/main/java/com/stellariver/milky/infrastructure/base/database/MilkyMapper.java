@@ -79,69 +79,115 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
             throw new BizEx(ErrorEnumsBase.CONCURRENCY_VIOLATION);
         }
     }
-
     /**
-     * 幂等删除：将 {@code deleted} 字段更新为主键 {@code id}。
+     * 尝试删除，返回是否成功。
+     *
+     * @param id 主键 ID
+     * @return 成功返回 true，失败返回 false
      */
-    default void markDeletedAsIdById(java.io.Serializable id) {
-        UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.setSql(LOGIC_DELETE_SQL).eq(KEY_COLUMN, id).eq(LOGIC_DELETE_COLUMN, 0);
-        update(null, updateWrapper);
+    default boolean tryDeleteById(java.io.Serializable id) {
+        return deleteById(id) > 0;
     }
 
     /**
-     * 幂等删除：将 {@code deleted} 字段更新为实体主键 {@code id}。
+     * 删除，失败时抛出异常。
+     *
+     * @param id 主键 ID
+     * @throws BizEx 受影响行数为 0 时抛出
      */
-    default void markDeletedAsIdById(T entity) {
-        Object id = extractIdValue(entity);
-        if (id == null) {
-            return;
+    default void deleteByIdOrThrow(java.io.Serializable id) {
+        if (!tryDeleteById(id)) {
+            throw new BizEx(ErrorEnumsBase.CONCURRENCY_VIOLATION);
         }
-        markDeletedAsIdById((java.io.Serializable) id);
     }
 
     /**
-     * 幂等删除：按条件将 {@code deleted} 字段更新为主键列 {@code id}。
+     * 尝试删除，返回是否成功。
+     *
+     * @param entity 实体对象
+     * @return 成功返回 true，失败返回 false
      */
-    default void markDeletedAsIdByMap(Map<String, Object> columnMap) {
-        UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.setSql(LOGIC_DELETE_SQL).allEq(columnMap, false).eq(LOGIC_DELETE_COLUMN, 0);
-        update(null, updateWrapper);
+    default boolean tryDeleteById(T entity) {
+        return deleteById(entity) > 0;
     }
 
     /**
-     * 幂等删除：按查询条件将 {@code deleted} 字段更新为主键列 {@code id}。
+     * 删除，失败时抛出异常。
+     *
+     * @param entity 实体对象
+     * @throws BizEx 受影响行数为 0 时抛出
      */
-    default void markDeletedAsId(Wrapper<T> queryWrapper) {
-        List<java.io.Serializable> ids = selectList(queryWrapper).stream()
-                .map(this::extractIdValue)
-                .filter(Objects::nonNull)
-                .map(id -> (java.io.Serializable) id)
-                .collect(Collectors.toList());
-        markDeletedAsIdByBatchIds(ids);
-    }
-
-    /**
-     * 幂等删除：按主键集合将 {@code deleted} 字段更新为主键列 {@code id}。
-     */
-    default void markDeletedAsIdByBatchIds(Collection<?> idList) {
-        if (idList == null || idList.isEmpty()) {
-            return;
+    default void deleteByIdOrThrow(T entity) {
+        if (!tryDeleteById(entity)) {
+            throw new BizEx(ErrorEnumsBase.CONCURRENCY_VIOLATION);
         }
-        UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.setSql(LOGIC_DELETE_SQL).in(KEY_COLUMN, idList).eq(LOGIC_DELETE_COLUMN, 0);
-        update(null, updateWrapper);
     }
 
-    default Object extractIdValue(T entity) {
-        if (entity == null) {
-            return null;
+    /**
+     * 尝试删除，返回是否成功。
+     *
+     * @param columnMap 条件 Map
+     * @return 成功返回 true，失败返回 false
+     */
+    default boolean tryDeleteByMap(Map<String, Object> columnMap) {
+        return deleteByMap(columnMap) > 0;
+    }
+
+    /**
+     * 删除，失败时抛出异常。
+     *
+     * @param columnMap 条件 Map
+     * @throws BizEx 受影响行数为 0 时抛出
+     */
+    default void deleteByMapOrThrow(Map<String, Object> columnMap) {
+        if (!tryDeleteByMap(columnMap)) {
+            throw new BizEx(ErrorEnumsBase.CONCURRENCY_VIOLATION);
         }
-        TableInfo tableInfo = TableInfoHelper.getTableInfo(entity.getClass());
-        String keyProperty = tableInfo == null ? KEY_COLUMN : tableInfo.getKeyProperty();
-        return ReflectionKit.getFieldValue(entity, keyProperty);
     }
 
+    /**
+     * 尝试删除，返回是否成功。
+     *
+     * @param queryWrapper 删除条件
+     * @return 成功返回 true，失败返回 false
+     */
+    default boolean tryDelete(Wrapper<T> queryWrapper) {
+        return delete(queryWrapper) > 0;
+    }
+
+    /**
+     * 删除，失败时抛出异常。
+     *
+     * @param queryWrapper 删除条件
+     * @throws BizEx 受影响行数为 0 时抛出
+     */
+    default void deleteOrThrow(Wrapper<T> queryWrapper) {
+        if (!tryDelete(queryWrapper)) {
+            throw new BizEx(ErrorEnumsBase.CONCURRENCY_VIOLATION);
+        }
+    }
+
+    /**
+     * 尝试批量删除，返回是否成功。
+     *
+     * @param idList ID 列表
+     * @return 成功返回 true，失败返回 false
+     */
+    default boolean tryDeleteBatchIds(Collection<?> idList) {
+        return deleteBatchIds(idList) > 0;
+    }
+
+    /**
+     * 批量删除，失败时抛出异常。
+     *
+     * @param idList ID 列表
+     * @throws BizEx 受影响行数为 0 时抛出
+     */
+    default void deleteBatchIdsOrThrow(Collection<?> idList) {
+        if (!tryDeleteBatchIds(idList)) {
+            throw new BizEx(ErrorEnumsBase.CONCURRENCY_VIOLATION);
+        }
+    }
     /**
      * {@link #cursorIterator(CursorOptions)} 的增强：逐条交给 {@code consumer}。
      */
