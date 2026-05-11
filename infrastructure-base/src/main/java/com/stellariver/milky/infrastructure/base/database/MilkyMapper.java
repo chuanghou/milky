@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
  * 提供两种风格：
  * </p>
  * <ul>
- * <li>新增与更新保留 {@code try*} 与 {@code *OrThrow} 两种风格</li>
+ * <li>新增直接使用 {@link BaseMapper#insert(Object)}：不涉及乐观锁，要么插入成功（受影响行数大于 0），要么由数据库或框架抛异常</li>
+ * <li>更新保留 {@code try*} 与 {@code *OrThrow} 两种风格（兼容乐观锁：受影响行数为 0 时不抛 SQL 异常）</li>
  * <li>删除统一为幂等逻辑删除：执行 {@code SET deleted=id}，不暴露成功/失败语义</li>
  * </ul>
  */
@@ -37,28 +38,6 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
     String LOGIC_DELETE_COLUMN = "deleted";
     String KEY_COLUMN = "id";
     String LOGIC_DELETE_SQL = LOGIC_DELETE_COLUMN + " = " + KEY_COLUMN;
-
-    /**
-     * 尝试新增，返回是否成功。
-     *
-     * @param entity 实体对象
-     * @return 成功返回 true，失败返回 false
-     */
-    default boolean tryInsert(T entity) {
-        return insert(entity) > 0;
-    }
-
-    /**
-     * 新增，失败时抛出异常。
-     *
-     * @param entity 实体对象
-     * @throws BizEx 受影响行数为 0 时抛出
-     */
-    default void insertOrThrow(T entity) {
-        if (!tryInsert(entity)) {
-            throw new BizEx(ErrorEnumsBase.CONCURRENCY_VIOLATION);
-        }
-    }
 
     /**
      * 尝试更新，返回是否成功。
