@@ -27,11 +27,7 @@ public abstract class AbstractMpDO {
     @TableField(fill = FieldFill.INSERT)
     Integer version;
 
-    /**
-     * 逻辑删：未删除为 0；删除后 MP 生成 {@code SET deleted = id}（{@code delval} 须与主键<b>数据库列名</b>一致）。
-     * 字段须为非 String，否则 delval 会被当作字符串常量而非列引用。
-     */
-    @TableLogic(value = "0", delval = "id")
+    @TableLogic
     @TableField(fill = FieldFill.INSERT)
     Long deleted;
 
