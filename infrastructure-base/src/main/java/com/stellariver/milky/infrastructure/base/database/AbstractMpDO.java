@@ -1,9 +1,6 @@
 package com.stellariver.milky.infrastructure.base.database;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.Version;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,11 +20,14 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public abstract class AbstractMpDO {
 
+    @TableId(type = IdType.AUTO)
+    Long id;
+
     @Version
     @TableField(fill = FieldFill.INSERT)
     Integer version;
 
-    @TableLogic
+    @TableLogic(delval = "id")
     @TableField(fill = FieldFill.INSERT)
     Long deleted;
 
