@@ -11,12 +11,7 @@ import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -85,14 +80,18 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
         }
     }
 
-    /** 幂等删除：将 {@code deleted} 字段更新为主键 {@code id}。 */
+    /**
+     * 幂等删除：将 {@code deleted} 字段更新为主键 {@code id}。
+     */
     default void markDeletedAsIdById(java.io.Serializable id) {
         UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
         updateWrapper.setSql(LOGIC_DELETE_SQL).eq(KEY_COLUMN, id).eq(LOGIC_DELETE_COLUMN, 0);
         update(null, updateWrapper);
     }
 
-    /** 幂等删除：将 {@code deleted} 字段更新为实体主键 {@code id}。 */
+    /**
+     * 幂等删除：将 {@code deleted} 字段更新为实体主键 {@code id}。
+     */
     default void markDeletedAsIdById(T entity) {
         Object id = extractIdValue(entity);
         if (id == null) {
@@ -101,14 +100,18 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
         markDeletedAsIdById((java.io.Serializable) id);
     }
 
-    /** 幂等删除：按条件将 {@code deleted} 字段更新为主键列 {@code id}。 */
+    /**
+     * 幂等删除：按条件将 {@code deleted} 字段更新为主键列 {@code id}。
+     */
     default void markDeletedAsIdByMap(Map<String, Object> columnMap) {
         UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
         updateWrapper.setSql(LOGIC_DELETE_SQL).allEq(columnMap, false).eq(LOGIC_DELETE_COLUMN, 0);
         update(null, updateWrapper);
     }
 
-    /** 幂等删除：按查询条件将 {@code deleted} 字段更新为主键列 {@code id}。 */
+    /**
+     * 幂等删除：按查询条件将 {@code deleted} 字段更新为主键列 {@code id}。
+     */
     default void markDeletedAsId(Wrapper<T> queryWrapper) {
         List<java.io.Serializable> ids = selectList(queryWrapper).stream()
                 .map(this::extractIdValue)
@@ -118,7 +121,9 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
         markDeletedAsIdByBatchIds(ids);
     }
 
-    /** 幂等删除：按主键集合将 {@code deleted} 字段更新为主键列 {@code id}。 */
+    /**
+     * 幂等删除：按主键集合将 {@code deleted} 字段更新为主键列 {@code id}。
+     */
     default void markDeletedAsIdByBatchIds(Collection<?> idList) {
         if (idList == null || idList.isEmpty()) {
             return;
@@ -137,7 +142,9 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
         return ReflectionKit.getFieldValue(entity, keyProperty);
     }
 
-    /** {@link #cursorIterator(CursorOptions)} 的增强：逐条交给 {@code consumer}。 */
+    /**
+     * {@link #cursorIterator(CursorOptions)} 的增强：逐条交给 {@code consumer}。
+     */
     default void cursorConsumer(Consumer<T> consumer, CursorOptions<T> cursorOptions) {
         Iterator<T> iterator = cursorIterator(cursorOptions);
         while (iterator.hasNext()) {
@@ -145,7 +152,9 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
         }
     }
 
-    /** 按 {@link CursorOptions} 游标列递增、分批 {@link #selectList}。 */
+    /**
+     * 按 {@link CursorOptions} 游标列递增、分批 {@link #selectList}。
+     */
     default Iterator<T> cursorIterator(CursorOptions<T> cursorOptions) {
         SysEx.nullThrow(cursorOptions);
         SysEx.nullThrow(cursorOptions.getSupplier());
@@ -202,7 +211,9 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
         };
     }
 
-    /** {@link #cursorIterator(CursorOptions)} 的增强：{@link Iterable} 视图。 */
+    /**
+     * {@link #cursorIterator(CursorOptions)} 的增强：{@link Iterable} 视图。
+     */
     default Iterable<T> cursorIterable(CursorOptions<T> cursorOptions) {
         return () -> cursorIterator(cursorOptions);
     }
@@ -232,8 +243,8 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
      * {@code consumer}。
      */
     default <S> void cursorConsumer(CursorOptions<T> cursorOptions,
-            Function<? super T, ? extends S> mapper,
-            Consumer<? super S> consumer) {
+                                    Function<? super T, ? extends S> mapper,
+                                    Consumer<? super S> consumer) {
         SysEx.nullThrow(consumer);
         Iterator<S> iterator = cursorIterator(cursorOptions, mapper);
         while (iterator.hasNext()) {
@@ -241,8 +252,65 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
         }
     }
 
-    /** {@link #cursorIterator(CursorOptions, Function)} 的增强：{@link Iterable} 视图。 */
+    /**
+     * {@link #cursorIterator(CursorOptions, Function)} 的增强：{@link Iterable} 视图。
+     */
     default <S> Iterable<S> cursorIterable(CursorOptions<T> cursorOptions, Function<? super T, ? extends S> mapper) {
         return () -> cursorIterator(cursorOptions, mapper);
+    }
+
+    /**
+     * {@link #cursorIterator(CursorOptions)} 的增强：每条 {@code T} 经 {@code expander} 展开为 0..n 条
+     * {@code S}，按序惰性串联为单个迭代器（仍为游标分批拉取，不会一次性加载全部 {@code T}）。
+     */
+    default <S> Iterator<S> cursorFlatIterator(CursorOptions<T> cursorOptions,
+                                               Function<? super T, ? extends Iterable<? extends S>> expander) {
+        SysEx.nullThrow(expander);
+        Iterator<T> source = cursorIterator(cursorOptions);
+        return new Iterator<S>() {
+            private Iterator<? extends S> current = Collections.emptyIterator();
+
+            private void advanceWhileNeeded() {
+                while (!current.hasNext() && source.hasNext()) {
+                    Iterable<? extends S> expanded = expander.apply(source.next());
+                    current = expanded == null ? Collections.emptyIterator() : expanded.iterator();
+                }
+            }
+
+            @Override
+            public boolean hasNext() {
+                advanceWhileNeeded();
+                return current.hasNext();
+            }
+
+            @Override
+            public S next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return current.next();
+            }
+        };
+    }
+
+    /**
+     * {@link #cursorFlatIterator(CursorOptions, Function)} 的增强：{@link Iterable} 视图。
+     */
+    default <S> Iterable<S> cursorFlatIterable(CursorOptions<T> cursorOptions,
+                                               Function<? super T, ? extends Iterable<? extends S>> expander) {
+        return () -> cursorFlatIterator(cursorOptions, expander);
+    }
+
+    /**
+     * {@link #cursorFlatIterator(CursorOptions, Function)} 的增强：逐条交给 {@code consumer}。
+     */
+    default <S> void cursorFlatConsumer(CursorOptions<T> cursorOptions,
+                                        Function<? super T, ? extends Iterable<? extends S>> expander,
+                                        Consumer<? super S> consumer) {
+        SysEx.nullThrow(consumer);
+        Iterator<S> iterator = cursorFlatIterator(cursorOptions, expander);
+        while (iterator.hasNext()) {
+            consumer.accept(iterator.next());
+        }
     }
 }
