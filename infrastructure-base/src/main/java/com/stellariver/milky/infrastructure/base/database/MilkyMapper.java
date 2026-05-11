@@ -2,7 +2,11 @@ package com.stellariver.milky.infrastructure.base.database;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.stellariver.milky.common.base.BizEx;
 import com.stellariver.milky.common.base.ErrorEnumsBase;
 import com.stellariver.milky.common.base.SysEx;
@@ -12,8 +16,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * {@link BaseMapper} 的增强：游标列分批遍历；乐观锁操作支持两种方式。
@@ -28,6 +34,10 @@ import java.util.function.Function;
  * </ul>
  */
 public interface MilkyMapper<T> extends BaseMapper<T> {
+
+    String LOGIC_DELETE_COLUMN = "deleted";
+    String KEY_COLUMN = "id";
+    String LOGIC_DELETE_SQL = LOGIC_DELETE_COLUMN + " = " + KEY_COLUMN;
 
     /**
      * 尝试更新，返回是否成功。
@@ -82,7 +92,9 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
      * @return 成功返回 true，失败返回 false
      */
     default boolean tryDeleteById(java.io.Serializable id) {
-        return deleteById(id) > 0;
+        UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.setSql(LOGIC_DELETE_SQL).eq(KEY_COLUMN, id).eq(LOGIC_DELETE_COLUMN, 0);
+        return update(null, updateWrapper) > 0;
     }
 
     /**
@@ -104,7 +116,11 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
      * @return 成功返回 true，失败返回 false
      */
     default boolean tryDeleteById(T entity) {
-        return deleteById(entity) > 0;
+        Object id = extractIdValue(entity);
+        if (id == null) {
+            return false;
+        }
+        return tryDeleteById((java.io.Serializable) id);
     }
 
     /**
@@ -126,7 +142,9 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
      * @return 成功返回 true，失败返回 false
      */
     default boolean tryDeleteByMap(Map<String, Object> columnMap) {
-        return deleteByMap(columnMap) > 0;
+        UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.setSql(LOGIC_DELETE_SQL).allEq(columnMap, false).eq(LOGIC_DELETE_COLUMN, 0);
+        return update(null, updateWrapper) > 0;
     }
 
     /**
@@ -148,7 +166,12 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
      * @return 成功返回 true，失败返回 false
      */
     default boolean tryDelete(Wrapper<T> queryWrapper) {
-        return delete(queryWrapper) > 0;
+        List<java.io.Serializable> ids = selectList(queryWrapper).stream()
+                .map(this::extractIdValue)
+                .filter(Objects::nonNull)
+                .map(id -> (java.io.Serializable) id)
+                .collect(Collectors.toList());
+        return tryDeleteBatchIds(ids);
     }
 
     /**
@@ -170,7 +193,21 @@ public interface MilkyMapper<T> extends BaseMapper<T> {
      * @return 成功返回 true，失败返回 false
      */
     default boolean tryDeleteBatchIds(Collection<?> idList) {
-        return deleteBatchIds(idList) > 0;
+        if (idList == null || idList.isEmpty()) {
+            return false;
+        }
+        UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.setSql(LOGIC_DELETE_SQL).in(KEY_COLUMN, idList).eq(LOGIC_DELETE_COLUMN, 0);
+        return update(null, updateWrapper) > 0;
+    }
+
+    default Object extractIdValue(T entity) {
+        if (entity == null) {
+            return null;
+        }
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(entity.getClass());
+        String keyProperty = tableInfo == null ? KEY_COLUMN : tableInfo.getKeyProperty();
+        return ReflectionKit.getFieldValue(entity, keyProperty);
     }
 
     /**
