@@ -1,4 +1,4 @@
-package com.stellariver.milky.infrastructure.base.database;
+package com.stellariver.milky.infrastructure.base.database.lock;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -20,7 +20,7 @@ import java.util.Date;
  * 
  * <pre>{@code
  * CREATE TABLE `milky_lock_do` (
- *     `id` VARCHAR(32) NOT NULL COMMENT '主键ID（UUID，不带横杠）',
+ *     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
  *     `key` VARCHAR(128) NOT NULL COMMENT '锁键名',
  *     `owner` VARCHAR(32) NOT NULL COMMENT '锁持有者标识（UUID）',
  *     `expire_time` BIGINT NOT NULL COMMENT '锁过期时间戳（毫秒）',
@@ -48,10 +48,10 @@ import java.util.Date;
 public class LockDO {
 
     /**
-     * 主键ID，使用UUID
+     * 主键ID，自增
      */
-    @TableId(value = "id", type = IdType.INPUT)
-    String id;
+    @TableId(type = IdType.AUTO)
+    Long id;
 
     /**
      * 锁键名

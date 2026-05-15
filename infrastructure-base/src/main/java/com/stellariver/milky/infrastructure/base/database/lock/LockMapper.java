@@ -1,4 +1,4 @@
-package com.stellariver.milky.infrastructure.base.database;
+package com.stellariver.milky.infrastructure.base.database.lock;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Insert;
@@ -38,20 +38,18 @@ public interface LockMapper extends BaseMapper<LockDO> {
      * 尝试获取锁（非阻塞）
      * 使用INSERT ... ON DUPLICATE KEY UPDATE实现乐观锁
      *
-     * @param id         主键ID
      * @param key        锁键名
      * @param owner      锁持有者标识
      * @param expireTime 过期时间戳（毫秒）
      * @return 成功返回1，失败返回0
      */
-    @Insert("INSERT INTO milky_lock_do (id, `key`, owner, expire_time, gmt_create, gmt_modified) " +
-            "VALUES (#{id}, #{key}, #{owner}, #{expireTime}, NOW(), NOW()) " +
+    @Insert("INSERT INTO milky_lock_do (`key`, owner, expire_time, gmt_create, gmt_modified) " +
+            "VALUES (#{key}, #{owner}, #{expireTime}, NOW(), NOW()) " +
             "ON DUPLICATE KEY UPDATE " +
             "owner = IF(expire_time < UNIX_TIMESTAMP() * 1000, #{owner}, owner), " +
             "expire_time = IF(expire_time < UNIX_TIMESTAMP() * 1000, #{expireTime}, expire_time), " +
             "gmt_modified = NOW()")
-    int tryLock(@Param("id") String id,
-            @Param("key") String key,
+    int tryLock(@Param("key") String key,
             @Param("owner") String owner,
             @Param("expireTime") Long expireTime);
 
@@ -65,9 +63,8 @@ public interface LockMapper extends BaseMapper<LockDO> {
     @Nullable
     default String tryLock(String key, Duration expire) {
         String ownerId = generateOwnerId();
-        String id = generateUuid();
         long expireTime = System.currentTimeMillis() + expire.toMillis();
-        int result = tryLock(id, key, ownerId, expireTime);
+        int result = tryLock(key, ownerId, expireTime);
         return result == 1 ? ownerId : null;
     }
 
@@ -146,8 +143,7 @@ public interface LockMapper extends BaseMapper<LockDO> {
         long endTime = startTime + waitTimeout;
 
         while (System.currentTimeMillis() < endTime) {
-            String id = generateUuid();
-            int result = tryLock(id, key, owner, expireTime);
+            int result = tryLock(key, owner, expireTime);
             if (result == 1) {
                 return true;
             }

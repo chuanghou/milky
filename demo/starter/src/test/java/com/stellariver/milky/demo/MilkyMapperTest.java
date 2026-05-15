@@ -88,9 +88,9 @@ public class MilkyMapperTest {
                                 .build();
                 Assertions.assertEquals(1, invocationStoreMapper.insert(row));
 
-                invocationStoreMapper.markDeletedAsIdById(INV_BASE_ID + 1);
+                invocationStoreMapper.deleteById(INV_BASE_ID + 1);
                 Assertions.assertDoesNotThrow(
-                                () -> invocationStoreMapper.markDeletedAsIdById(INV_BASE_ID + 1));
+                                () -> invocationStoreMapper.deleteById(INV_BASE_ID + 1));
         }
 
         @Test
