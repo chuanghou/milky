@@ -188,7 +188,8 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>process-classes</phase>
+                        <!-- 与 process-classes 等价编织，但 mvn compile（含 jtest -kd）也会执行 -->
+                        <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>

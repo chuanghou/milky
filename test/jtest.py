@@ -17,6 +17,20 @@ GLOBAL_JAVA_OPTS = (
     "-Dfile.encoding=UTF-8",
 )
 
+# demo 依赖的 reactor 内模块：jtest -d/-kd 时 install 进本地仓库，copy-dependencies 才能解析 SNAPSHOT 到 demo/libs
+SUPPORT_MODULES = (
+    "common-base",
+    "aspectj-tool",
+    "common-tool",
+    "domain-support",
+    "milky-spring-boot-starter",
+    "spring-partner",
+    "infrastructure-base",
+    "financial-base",
+    "frodo/core",
+    "frodo/frodo-spring-boot-starter",
+)
+
 PROJECT = ProjectConfig(
     project_root=ROOT,
     runtime_modules={
@@ -27,7 +41,7 @@ PROJECT = ProjectConfig(
             port_base=28080,
         ),
     },
-    support_modules=(),
+    support_modules=SUPPORT_MODULES,
     global_java_opts=GLOBAL_JAVA_OPTS,
     stop_port_span=10,
     suite_exclude=(),

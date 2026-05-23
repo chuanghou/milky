@@ -5,9 +5,10 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$TestDir = Split-Path -Parent $PSScriptRoot
+$Root = Split-Path -Parent $PSScriptRoot
+$TestDir = Join-Path $Root "test"
 $Pyproject = Join-Path $TestDir "pyproject.toml"
-$JtestlibPath = Join-Path $TestDir "..\..\jtestlib"
+$JtestlibPath = Join-Path (Split-Path $Root -Parent) "jtestlib"
 $JtestlibPyproject = Join-Path $JtestlibPath "pyproject.toml"
 
 $DevSource = 'jtestlib = { path = "../../jtestlib", editable = true }'
@@ -28,7 +29,7 @@ Local jtestlib not found. Clone beside milky:
         Remove-Item (Join-Path $TestDir "uv.toml") -Force
     }
     Write-Host "Mode: dev (local editable, pyproject.toml [tool.uv.sources])"
-    Write-Host "jtestlib: $(Resolve-Path $JtestlibPath)"
+    Write-Host "jtestlib: $(Resolve-Path $JtestlibPyproject)"
 } else {
     $content = Get-Content $Pyproject -Raw -Encoding UTF8
     $content = $content -replace 'jtestlib = \{ path = "\.\./\.\./jtestlib", editable = true \}', $ReleaseSource

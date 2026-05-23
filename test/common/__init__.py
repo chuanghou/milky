@@ -39,3 +39,19 @@ def get_item_from_api(item_id: int, *, service: str = "demo", node: int = 0) -> 
     url = f"{base}/item/get?{parse.urlencode({'id': item_id})}"
     result, _ = request_get(url, timeout=30)
     return assert_success_result(result, action="查询商品")
+
+
+# RpcAspect 拦截 @TestForInterceptor 的 publish（与 AspectTest 一致）
+PUBLISH_ASPECT_BLOCKED_MESSAGE = "时间区间不在可接收范围"
+
+
+def publish_item(title: str, *, service: str = "demo", node: int = 0) -> dict:
+    """调用 /item/publish，返回完整 Result JSON（不假定 success）。"""
+    base = service_http_base(PROJECT, service, node)
+    url = f"{base}/item/publish?{parse.urlencode({'title': title})}"
+    result, err = request_get(url, timeout=30)
+    if result is None:
+        raise RuntimeError(f"发布商品请求失败: {err}")
+    if not isinstance(result, dict):
+        raise RuntimeError(f"发布商品响应不是 JSON 对象: {result!r}")
+    return result
