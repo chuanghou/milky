@@ -178,7 +178,7 @@ wheels = [
 [[package]]
 name = "jtestlib"
 version = "0.1.0"
-source = { git = "https://gitee.com/chuanghou/jtestlib.git#c5830c3741366bcc49f05de7be9b80079e6146e1" }
+source = { git = "https://gitee.com/chuanghou/jtestlib.git#d26c395293c83050b4cb846f9c422a7e16184e0b" }
 
 [package.optional-dependencies]
 full = [
