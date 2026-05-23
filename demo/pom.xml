@@ -9,81 +9,138 @@
 
     <groupId>com.stellariver.milky</groupId>
     <artifactId>demo</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <name>demo</name>
     <url>http://maven.apache.org</url>
-    <modules>
-        <module>adapter</module>
-        <module>application</module>
-        <module>basic</module>
-        <module>client</module>
-        <module>common</module>
-        <module>domain</module>
-        <module>infrastructure</module>
-        <module>starter</module>
-    </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>com.stellariver.milky.frodo</groupId>
+            <artifactId>frodo-spring-boot-starter</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.stellariver.milky</groupId>
             <artifactId>aspectj-tool</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>common-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>common-tool</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>domain-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>financial-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>infrastructure-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>spring-partner</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stellariver.milky</groupId>
+            <artifactId>milky-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-layout-template-json</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ftpserver</groupId>
+            <artifactId>ftpserver-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>adapter</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>ajc</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>application</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>basic</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>client</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>common</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>domain</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>infrastructure</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky.demo</groupId>
-                <artifactId>starter</artifactId>
-                <version>${revision}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <build>
-        <!--suppress UnresolvedMavenProperty -->
         <finalName>${project.artifactId}_${git.branch}_${git.commit.id.abbrev}</finalName>
         <plugins>
             <plugin>
@@ -119,8 +176,6 @@
                             <artifactId>aspectj-tool</artifactId>
                         </library>
                     </aspectLibraries>
-                    <showWeaveInfo>true</showWeaveInfo>
-                    <Xlint>warning</Xlint>
                     <verbose>false</verbose>
                     <weaveDirectories>
                         <weaveDirectory>${project.build.outputDirectory}</weaveDirectory>
@@ -147,6 +202,46 @@
                         <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                        <exclude>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
