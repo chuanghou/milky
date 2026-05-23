@@ -1,0 +1,2 @@
+# 已弃用：uv 0.10+ 不支持在 uv.toml 中配置 [sources]。
+# 请使用 scripts/jtestlib-source.ps1 dev|release 切换 pyproject.toml 中的 [tool.uv.sources]。

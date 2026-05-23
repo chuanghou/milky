@@ -1,40 +1,27 @@
+# Maven
 target/
+.flattened-pom.xml
 !.mvn/wrapper/maven-wrapper.jar
 
-application.log
+# jtest dependency:copy-dependencies
+**/libs/
 
-backup/
+# 日志
+*.log
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IDE
+.idea/
 *.iml
+*.iws
 *.ipr
+.vscode/
+.history/
 
-### NetBeans ###
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-
-## vscode plugin
-.history
-.vscode
-
-## macos
+# OS
 .DS_Store
-
-.flattened-pom.xml
-
-arthas-output
-
-*.jar

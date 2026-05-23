@@ -1,0 +1,14 @@
+﻿[project]
+name = "milky-test"
+version = "0.1.0"
+description = "Milky integration test orchestration (jtestlib)"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "jtestlib[full]",
+]
+
+[tool.uv.sources]
+jtestlib = { git = "https://gitee.com/chuanghou/jtestlib.git" }

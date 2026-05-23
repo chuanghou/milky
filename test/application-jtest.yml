@@ -1,0 +1,24 @@
+logging:
+  config: classpath:log4j2-console.xml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+spring:
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:sql/data.sql,classpath:sql/jtest-seed.sql
+  datasource:
+    a:
+      driver-class-name: org.h2.Driver
+      url: jdbc:h2:file:${user.home}/.milky-jtest/demo;AUTO_SERVER=TRUE;MODE=MySQL;DB_CLOSE_DELAY=-1
+    b:
+      driver-class-name: org.h2.Driver
+      url: jdbc:h2:file:${user.home}/.milky-jtest/demo;AUTO_SERVER=TRUE;MODE=MySQL;DB_CLOSE_DELAY=-1
