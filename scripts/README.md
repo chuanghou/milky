@@ -128,21 +128,25 @@ chmod +x scripts/jtestlib-source.sh
 
 **文件：** `mvn-deploy.ps1`、`mvn-deploy.sh`
 
-在仓库根执行 `./mvnw clean deploy`，发布目标在脚本**顶部变量**里改：
+在仓库根执行 `./mvnw clean deploy`。**部署目标通过参数传入**；内网 URL / `serverId` 仍在脚本内配置（须与 `~/.m2/settings.xml` 一致）。
 
-| 变量 | 含义 |
+| 参数 | 含义 |
 |------|------|
-| `DeployTarget` / `DEPLOY_TARGET` | `internal`（内网 Nexus）或 `central`（Maven Central） |
-| `SkipTests` / `SKIP_TESTS` | 是否 `-DskipTests` |
-| 内网 URL / `serverId` | 与 `~/.m2/settings.xml` 里 `<server><id>` 一致 |
+| `internal` \| `central` | 必填。内网 Nexus 或 Maven Central |
+| `-RunTests` / `--run-tests` | 可选。默认 `-DskipTests`；加此参数则先跑测试再 deploy |
 
 ```powershell
-# 先按需编辑 scripts/mvn-deploy.ps1 顶部配置
-.\scripts\mvn-deploy.ps1
+.\scripts\mvn-deploy.ps1 internal
+.\scripts\mvn-deploy.ps1 central
+.\scripts\mvn-deploy.ps1 central -RunTests
+Get-Help .\scripts\mvn-deploy.ps1 -Full
 ```
 
 ```bash
-./scripts/mvn-deploy.sh
+./scripts/mvn-deploy.sh internal
+./scripts/mvn-deploy.sh central
+./scripts/mvn-deploy.sh central --run-tests
+./scripts/mvn-deploy.sh --help
 ```
 
 ---

@@ -1,15 +1,40 @@
-# ========== 发布配置（按需修改）==========
-# 目标：internal | central
-$DeployTarget = "internal"
-$SkipTests = $true
+﻿param(
+    [Parameter(Position = 0)]
+    [ValidateSet("internal", "central")]
+    [string]$Target,
 
-# 内网（DeployTarget = internal）
+    [switch]$RunTests
+)
+
+function Show-MvnDeployUsage {
+    Write-Host @"
+用法: .\scripts\mvn-deploy.ps1 <internal|central> [-RunTests]
+
+  internal     发布到内网 Nexus（脚本内 URL / serverId 须与 settings.xml 一致）
+  central      发布到 Maven Central（须配置 GPG 与 central server）
+  -RunTests    默认跳过测试；加此参数则执行测试后再 deploy
+
+示例:
+  .\scripts\mvn-deploy.ps1 internal
+  .\scripts\mvn-deploy.ps1 central
+  .\scripts\mvn-deploy.ps1 central -RunTests
+"@ -ForegroundColor Yellow
+}
+
+if (-not $Target) {
+    Write-Error "缺少部署目标: internal 或 central"
+    Show-MvnDeployUsage
+    exit 1
+}
+
+# ========== 发布配置（按需修改）==========
+# 内网（Target = internal）
 # settings.xml <server><id> 须与 InternalServerId 一致
 $InternalServerId = "internal"
 $InternalReleaseUrl = "http://repo.example.com/nexus/content/repositories/releases/"
 $InternalSnapshotUrl = "http://repo.example.com/nexus/content/repositories/snapshots/"
 
-# 中央仓库（DeployTarget = central）
+# 中央仓库（Target = central）
 # pom 中 publishingServerId=central；settings.xml 须配置 central / GPG
 # =========================================
 
@@ -18,11 +43,11 @@ $Root = Split-Path -Parent $PSScriptRoot
 Set-Location $Root
 
 $mvnArgs = @("clean", "deploy", "-Dmaven.deploy.skip=false")
-if ($SkipTests) {
+if (-not $RunTests) {
     $mvnArgs += "-DskipTests"
 }
 
-switch ($DeployTarget.ToLowerInvariant()) {
+switch ($Target.ToLowerInvariant()) {
     "internal" {
         Write-Host "milky deploy -> 内网 Maven 仓库" -ForegroundColor Cyan
         Write-Host "  serverId=$InternalServerId"
@@ -45,15 +70,12 @@ switch ($DeployTarget.ToLowerInvariant()) {
             "-DskipPublishing=false"
         )
     }
-    default {
-        Write-Error "DeployTarget 无效: '$DeployTarget'，请设为 internal 或 central"
-    }
 }
 
 & .\mvnw.cmd @mvnArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-if ($DeployTarget -eq "central") {
+if ($Target -eq "central") {
     Write-Host "Central deploy 已执行（门户侧可能仍在校验/发布）" -ForegroundColor Green
 } else {
     Write-Host "内网 deploy 完成" -ForegroundColor Green
