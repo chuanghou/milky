@@ -10,9 +10,9 @@ function Show-MvnDeployUsage {
     Write-Host @"
 用法: .\scripts\mvn-deploy.ps1 <internal|central> [-RunTests]
 
-  internal     发布到内网 Nexus（脚本内 URL / serverId 须与 settings.xml 一致）
-  central      发布到 Maven Central（须配置 GPG 与 central server）
-  -RunTests    默认跳过测试；加此参数则执行测试后再 deploy
+  internal     发布到内网 Nexus
+  central      发布到 Maven Central（须 GPG + Portal User Token）
+  -RunTests    默认跳过测试
 
 示例:
   .\scripts\mvn-deploy.ps1 internal
@@ -27,15 +27,15 @@ if (-not $Target) {
     exit 1
 }
 
+if (-not (Get-Command mvn -ErrorAction SilentlyContinue)) {
+    Write-Error "未找到 mvn，请确认 Maven 已安装并在 PATH 中"
+    exit 1
+}
+
 # ========== 发布配置（按需修改）==========
-# 内网（Target = internal）
-# settings.xml <server><id> 须与 InternalServerId 一致
 $InternalServerId = "internal"
 $InternalReleaseUrl = "http://repo.example.com/nexus/content/repositories/releases/"
 $InternalSnapshotUrl = "http://repo.example.com/nexus/content/repositories/snapshots/"
-
-# 中央仓库（Target = central）
-# pom 中 publishingServerId=central；settings.xml 须配置 central / GPG
 # =========================================
 
 $ErrorActionPreference = "Stop"
@@ -72,7 +72,7 @@ switch ($Target.ToLowerInvariant()) {
     }
 }
 
-& .\mvnw.cmd @mvnArgs
+& mvn @mvnArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 if ($Target -eq "central") {

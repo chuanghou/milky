@@ -5,9 +5,9 @@ usage() {
   cat <<'EOF'
 用法: mvn-deploy.sh <internal|central> [--run-tests]
 
-  internal       发布到内网 Nexus（脚本内 URL / serverId 须与 settings.xml 一致）
-  central        发布到 Maven Central（须配置 GPG 与 central server）
-  --run-tests    默认跳过测试；加此参数则执行测试后再 deploy
+  internal       发布到内网 Nexus
+  central        发布到 Maven Central（须 GPG + Portal User Token）
+  --run-tests    默认跳过测试
 
 示例:
   ./scripts/mvn-deploy.sh internal
@@ -16,14 +16,9 @@ EOF
 }
 
 # ========== 发布配置（按需修改）==========
-# 内网（Target = internal）
-# settings.xml <server><id> 须与 INTERNAL_SERVER_ID 一致
 INTERNAL_SERVER_ID="internal"
 INTERNAL_RELEASE_URL="http://repo.example.com/nexus/content/repositories/releases/"
 INTERNAL_SNAPSHOT_URL="http://repo.example.com/nexus/content/repositories/snapshots/"
-
-# 中央仓库（Target = central）
-# pom 中 publishingServerId=central；settings.xml 须配置 central / GPG
 # =========================================
 
 DEPLOY_TARGET=""
@@ -57,10 +52,15 @@ if [[ -z "$DEPLOY_TARGET" ]]; then
   exit 1
 fi
 
+if ! command -v mvn >/dev/null 2>&1; then
+  echo "未找到 mvn，请确认 Maven 已安装并在 PATH 中" >&2
+  exit 1
+fi
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-MVN=(./mvnw clean deploy -Dmaven.deploy.skip=false)
+MVN=(mvn clean deploy -Dmaven.deploy.skip=false)
 if [[ "$SKIP_TESTS" == true ]]; then
   MVN+=(-DskipTests)
 fi

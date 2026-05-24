@@ -128,7 +128,7 @@ chmod +x scripts/jtestlib-source.sh
 
 **文件：** `mvn-deploy.ps1`、`mvn-deploy.sh`
 
-在仓库根执行 `./mvnw clean deploy`。**部署目标通过参数传入**；内网 URL / `serverId` 仍在脚本内配置（须与 `~/.m2/settings.xml` 一致）。
+在仓库根执行 `mvn clean deploy`（使用系统 PATH 中的 Maven，非 mvnw）。**部署目标通过参数传入**；内网 URL / `serverId` 仍在脚本内配置（须与 Maven settings 一致）。
 
 | 参数 | 含义 |
 |------|------|
