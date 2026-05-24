@@ -1,5 +1,6 @@
-package com.stellariver.milky.financial.base;
+package com.stellariver.milky.common.tool.validate;
 
+import com.stellariver.milky.common.base.ExactDivision;
 import com.stellariver.milky.common.base.SysEx;
 
 import javax.validation.ConstraintValidator;

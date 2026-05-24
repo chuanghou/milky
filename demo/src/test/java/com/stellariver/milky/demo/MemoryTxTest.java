@@ -66,11 +66,22 @@ public class MemoryTxTest{
             throwable = t;
         }
         Assertions.assertNotNull(throwable);
-        Assertions.assertInstanceOf(JdbcSQLIntegrityConstraintViolationException.class, throwable);
+        final Throwable caught = throwable;
+        Assertions.assertTrue(containsCause(caught, JdbcSQLIntegrityConstraintViolationException.class),
+                () -> "expected constraint violation in cause chain, got: " + caught);
         Optional<Item> item = itemRepository.queryByIdOptional(1L);
 
         Assertions.assertFalse(item.isPresent());
         loggingSystem.setLogLevel(MemoryTxTest.class.getName(), LogLevel.ERROR);
+    }
+
+    private static boolean containsCause(Throwable throwable, Class<? extends Throwable> type) {
+        for (Throwable current = throwable; current != null; current = current.getCause()) {
+            if (type.isInstance(current)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

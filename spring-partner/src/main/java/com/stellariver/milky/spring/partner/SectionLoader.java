@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SectionLoader {
 
+    private static final long DEFAULT_STEP = 100L;
+
     final JdbcTemplate jdbcTemplate;
 
     final ResultSetExtractor<UniqueIdBuilder.IdBuilderDO> extractor;
@@ -27,43 +29,39 @@ public class SectionLoader {
     public SectionLoader(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         extractor = rs -> {
-            boolean next = rs.next();
-            if (next) {
-                UniqueIdBuilder.IdBuilderDO idBuilderDO = UniqueIdBuilder.IdBuilderDO.builder()
-                        .nameSpace(rs.getString(1))
-                        .id(rs.getLong(2))
-                        .step(rs.getLong(3))
-                        .version(rs.getLong(4))
-                        .build();
-                next = rs.next();
-                if (next) {
-                    throw new RuntimeException("NameSpace should be unique!");
-                } else {
-                    return idBuilderDO;
-                }
-            } else {
+            if (!rs.next()) {
                 return null;
             }
+            UniqueIdBuilder.IdBuilderDO idBuilderDO = UniqueIdBuilder.IdBuilderDO.builder()
+                    .nameSpace(rs.getString(1))
+                    .id(rs.getLong(2))
+                    .step(rs.getLong(3))
+                    .version(rs.getLong(4))
+                    .build();
+            if (rs.next()) {
+                throw new IllegalStateException("name_space should be unique");
+            }
+            return idBuilderDO;
         };
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Pair<AtomicLong, Long> load(String tableName, String nameSpace) {
+        validateTableName(tableName);
+        String selectSql = "SELECT name_space, id, step, version FROM " + tableName + " WHERE name_space = ?";
+        String updateSql = "UPDATE " + tableName + " SET id = ?, version = ? WHERE name_space = ? AND version = ?";
+        String insertSql = "INSERT INTO " + tableName + " (name_space, id, step, version) VALUES (?, ?, ?, ?)";
 
-        String SELECT_SQL_TEMPLATE = "SELECT name_space, id, step, version FROM %s WHERE name_space = '%s';";
-        String selectSql = String.format(SELECT_SQL_TEMPLATE, tableName, nameSpace);
-        String UPDATE_SQL_TEMPLATE = "UPDATE %s SET id = ?, version = ? WHERE name_space = '%s' AND version = ?;";
-        String updateSql = String.format(UPDATE_SQL_TEMPLATE, tableName, nameSpace);
-
-        int optimisticCount, times = 0;
+        int optimisticCount;
+        int times = 0;
         Pair<AtomicLong, Long> section;
         do {
             UniqueIdBuilder.IdBuilderDO idBuilderDO;
             try {
-                idBuilderDO = jdbcTemplate.query(selectSql, extractor);
+                idBuilderDO = jdbcTemplate.query(selectSql, extractor, nameSpace);
             } catch (BadSqlGrammarException ex) {
                 if (ex.getMessage() != null && ex.getMessage().contains("not found")) {
-                    throw new RuntimeException("unique_id table not exist, please execute sql in your db" +
+                    throw new IllegalStateException("unique_id table not exist, please execute sql in your db" +
                             "CREATE TABLE `unique_id` (\n" +
                             "  `name_space` varchar(50) NOT NULL,\n" +
                             "  `id` bigint(20) DEFAULT NULL,\n" +
@@ -71,17 +69,17 @@ public class SectionLoader {
                             "  `version` int(11) DEFAULT NULL,\n" +
                             "  PRIMARY KEY (`name_space`)\n" +
                             ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
-                } else {
-                    throw ex;
                 }
+                throw ex;
             }
 
             if (idBuilderDO == null) {
-                String insertSql = String.format("INSERT INTO %s VALUES('%s', %s, %s, %s);", tableName, nameSpace, 1, 100, 1);
                 try {
-                    jdbcTemplate.execute(insertSql);
-                } catch (DuplicateKeyException ignore) {}
-                idBuilderDO = jdbcTemplate.query(selectSql, extractor);
+                    jdbcTemplate.update(insertSql, nameSpace, 1L, DEFAULT_STEP, 1L);
+                } catch (DuplicateKeyException ignore) {
+                    // concurrent insert
+                }
+                idBuilderDO = jdbcTemplate.query(selectSql, extractor, nameSpace);
             }
 
             if (idBuilderDO == null) {
@@ -92,13 +90,19 @@ public class SectionLoader {
             long end = idBuilderDO.getId() + idBuilderDO.getStep();
             section = Pair.of(start, end);
             long version = idBuilderDO.getVersion();
-            optimisticCount = jdbcTemplate.update(updateSql, end, version + 1, version);
+            optimisticCount = jdbcTemplate.update(updateSql, end, version + 1, nameSpace, version);
             if (times++ > UniqueIdBuilder.MAX_TIMES) {
-                String message = String.format("uniqueIdBuilder %s optimistic lock exception", nameSpace);
-                throw new UniqueIdBuilder.OptimisticLockException(message);
+                throw new UniqueIdBuilder.OptimisticLockException(
+                        String.format("uniqueIdBuilder %s optimistic lock exception", nameSpace));
             }
         } while (optimisticCount < 1);
         return section;
+    }
+
+    private static void validateTableName(String tableName) {
+        if (tableName == null || !tableName.matches("[a-zA-Z0-9_]+")) {
+            throw new IllegalArgumentException("invalid unique id table name: " + tableName);
+        }
     }
 
 }

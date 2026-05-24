@@ -25,11 +25,6 @@ public abstract class AbstractRateLimitAspect {
 
     @Around("pointCut()")
     public Object rateLimit(ProceedingJoinPoint pjp) throws Throwable {
-        RateLimitConfig rateLimitConfig = rateLimitConfig(pjp);
-        return doProceed(pjp, rateLimitConfig);
-    }
-
-    private Object doProceed(ProceedingJoinPoint pjp, RateLimitConfig rateLimitConfig) throws Throwable{
         if (!init) {
             synchronized (lock) {
                 if (!init) {
@@ -49,10 +44,4 @@ public abstract class AbstractRateLimitAspect {
         return pjp.proceed();
     }
 
-
-    public RateLimitConfig rateLimitConfig(ProceedingJoinPoint pjp) {
-        return RateLimitConfig.defaultConfig();
-    }
-
 }
-

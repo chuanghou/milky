@@ -20,9 +20,7 @@
         <module>spring-partner</module>
         <module>milky-dependencies</module>
         <module>infrastructure-base</module>
-        <module>financial-base</module>
         <module>demo</module>
-        <module>frodo</module>
 
     </modules>
 
@@ -153,23 +151,7 @@
             </dependency>
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
-                <artifactId>financial-base</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky</groupId>
                 <artifactId>milky-spring-boot-starter</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.stellariver.milky.frodo</groupId>
-                <artifactId>core</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky.frodo</groupId>
-                <artifactId>frodo-spring-boot-starter</artifactId>
                 <version>${revision}</version>
             </dependency>
 

@@ -26,9 +26,6 @@ SUPPORT_MODULES = (
     "milky-spring-boot-starter",
     "spring-partner",
     "infrastructure-base",
-    "financial-base",
-    "frodo/core",
-    "frodo/frodo-spring-boot-starter",
 )
 
 PROJECT = ProjectConfig(

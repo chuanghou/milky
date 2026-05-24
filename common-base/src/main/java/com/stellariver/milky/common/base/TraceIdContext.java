@@ -1,52 +1,57 @@
 package com.stellariver.milky.common.base;
 
-import org.slf4j.MDC;
-
 import javax.annotation.Nullable;
-import java.util.UUID;
 
-public class TraceIdContext {
+/**
+ * TraceId 注册入口：{@link #init(TraceIdProvider)} 注入外部实现，否则使用 {@link DefaultTraceIdProvider}。
+ */
+public final class TraceIdContext {
 
-    private volatile static TraceIdContext instance = null;
+    private static volatile TraceIdProvider provider;
 
-    public static TraceIdContext getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("TraceIdContext not initialized");
-        }
-        return instance;
+    private static final Object LOCK = new Object();
+
+    private TraceIdContext() {
     }
 
-    public static void init(@Nullable TraceIdContext externalInstance) {
+    public static boolean isInitialized() {
+        return provider != null;
+    }
 
-        if (instance == null) {
-            synchronized (TraceIdContext.class) {
-                if (instance == null) {
-                    if (externalInstance == null) {
-                        instance = new TraceIdContext();
-                    } else  {
-                        instance = externalInstance;
-                    }
-                }
+    public static void init(@Nullable TraceIdProvider externalProvider) {
+        if (provider != null) {
+            return;
+        }
+        synchronized (LOCK) {
+            if (provider == null) {
+                provider = externalProvider != null ? externalProvider : new DefaultTraceIdProvider();
             }
         }
     }
 
-
-    public String buildTraceId() {
-        return UUID.randomUUID().toString();
+    public static TraceIdProvider getProvider() {
+        return resolve();
     }
 
-    public void storeTraceId(String traceId) {
-        MDC.put("traceId", traceId);
+    public static boolean ensureTraceIdInMdc() {
+        return resolve().bindTraceIdIfAbsent();
     }
 
-    public void removeTraceId() {
-        MDC.remove("traceId");
+    public static void clearEntranceTraceId(boolean boundByThisEntrance) {
+        resolve().unbindTraceIdIfOwned(boundByThisEntrance);
     }
 
-    public String getTraceId() {
-        return MDC.get("traceId");
+    private static TraceIdProvider resolve() {
+        TraceIdProvider current = provider;
+        if (current != null) {
+            return current;
+        }
+        synchronized (LOCK) {
+            if (provider == null) {
+                provider = new DefaultTraceIdProvider();
+            }
+            return provider;
+        }
     }
-
 
 }

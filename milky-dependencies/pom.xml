@@ -50,11 +50,6 @@
             </dependency>
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
-                <artifactId>financial-base</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.stellariver.milky</groupId>
                 <artifactId>milky-spring-boot-starter</artifactId>
                 <version>${revision}</version>
             </dependency>

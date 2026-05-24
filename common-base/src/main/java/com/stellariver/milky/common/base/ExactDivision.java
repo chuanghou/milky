@@ -1,4 +1,4 @@
-package com.stellariver.milky.financial.base;
+package com.stellariver.milky.common.base;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -8,14 +8,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
  * {@code null} elements is considered valid.
+ *
  * @author houchuang
  * @since 1.0
  */
 @Target(ElementType.FIELD)
-@Constraint(validatedBy = ExactDivisionValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = {})
 public @interface ExactDivision {
 
     String value() default "100";

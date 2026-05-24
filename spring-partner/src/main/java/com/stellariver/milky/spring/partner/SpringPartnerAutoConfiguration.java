@@ -1,8 +1,6 @@
 package com.stellariver.milky.spring.partner;
 
-import com.stellariver.milky.common.base.BeanLoader;
-import com.stellariver.milky.common.base.Result;
-import com.stellariver.milky.common.base.TraceIdContext;
+import com.stellariver.milky.common.base.*;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.util.RunnerExtension;
@@ -18,15 +16,20 @@ public class SpringPartnerAutoConfiguration {
 
 
     @Bean
+    @ConditionalOnMissingBean(TraceIdProvider.class)
+    public TraceIdProvider traceIdProvider() {
+        TraceIdProvider provider = new DefaultTraceIdProvider();
+        TraceIdContext.init(provider);
+        return provider;
+    }
+
+    @Bean
     @ConditionalOnMissingBean
     public StaticSupport staticSupport(@Autowired(required = false) MilkyStableSupport milkyStableSupport,
                                        @Autowired(required = false) RunnerExtension runnerExtension,
-                                       @Autowired(required = false) TraceIdContext traceIdContext,
+                                       @Autowired(required = false) TraceIdProvider traceIdProvider,
                                        BeanLoader beanLoader) {
-        Optional.ofNullable(milkyStableSupport).ifPresent(Runner::setMilkyStableSupport);
-        Optional.ofNullable(runnerExtension).ifPresent(Runner::setFailureExtendable);
-        Optional.ofNullable(traceIdContext).ifPresent(Result::initTraceIdContext);
-        return new StaticSupport(milkyStableSupport, runnerExtension, traceIdContext, beanLoader);
+        return new StaticSupport(milkyStableSupport, runnerExtension, traceIdProvider, beanLoader);
     }
 
 

@@ -59,7 +59,7 @@ public abstract class AbstractLogAspect {
                 logger.result(result).cost(cost).position(position);
                 message = position;
             } else {
-                message = String.format("position: %s, args: %s, result, %s", position, Arrays.toString(args), result);
+                message = String.format("position: %s, args: %s, result: %s", position, Arrays.toString(args), result);
             }
             if (excavated == null && logConfig.getDebug()) {
                 if (logger.isDebugEnabled()) {
@@ -73,8 +73,8 @@ public abstract class AbstractLogAspect {
                 } else {
                     logger.success(false).error(message, excavated);
                 }
-                if (original != excavated) {
-                    logger.error("error message is wrapper by ", original);
+                if (original != null && original != excavated) {
+                    logger.position("excavated").error(original.getMessage(), original);
                 }
             }
             logger.clear();

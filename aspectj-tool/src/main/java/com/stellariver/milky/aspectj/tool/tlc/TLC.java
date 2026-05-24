@@ -8,12 +8,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 在方法执行期间，为指定的 {@link BaseQuery} 开启线程级缓存（{@link BaseQuery#enableThreadLocal()}）。
+ *
  * @author houchuang
  */
-@Target( ElementType.METHOD)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TLC {
 
-    Class<? extends BaseQuery<?, ?>>[] disableBaseQueries() default {};
+    /**
+     * 需要在本线程内启用 TLC 的 BaseQuery 实现类。
+     */
+    Class<? extends BaseQuery<?, ?>>[] threadLocalBaseQueries() default {};
 
 }

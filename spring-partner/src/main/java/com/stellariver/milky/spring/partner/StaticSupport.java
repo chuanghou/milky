@@ -3,6 +3,7 @@ package com.stellariver.milky.spring.partner;
 import com.stellariver.milky.common.base.BeanLoader;
 import com.stellariver.milky.common.base.BeanUtil;
 import com.stellariver.milky.common.base.Result;
+import com.stellariver.milky.common.base.TraceIdProvider;
 import com.stellariver.milky.common.base.TraceIdContext;
 import com.stellariver.milky.common.tool.common.Runner;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
@@ -15,18 +16,21 @@ public class StaticSupport {
 
     public StaticSupport(MilkyStableSupport milkyStableSupport,
                          RunnerExtension runnerExtension,
-                         TraceIdContext traceIdContext,
+                         TraceIdProvider traceIdProvider,
                          BeanLoader beanLoader) {
         Optional.ofNullable(milkyStableSupport).ifPresent(Runner::setMilkyStableSupport);
         Optional.ofNullable(runnerExtension).ifPresent(Runner::setFailureExtendable);
-        Optional.ofNullable(traceIdContext).ifPresent(Result::initTraceIdContext);
+        if (traceIdProvider != null) {
+            TraceIdContext.init(traceIdProvider);
+            Result.initTraceIdProvider(traceIdProvider);
+        }
         BeanUtil.setBeanLoader(beanLoader);
     }
 
     public void close() {
         Runner.setMilkyStableSupport(null);
         Runner.setFailureExtendable(null);
-        Result.initTraceIdContext(null);
+        Result.initTraceIdProvider(null);
         BeanUtil.setBeanLoader(null);
     }
 

@@ -4,7 +4,7 @@ import com.stellariver.milky.aspectj.tool.validate.Validate;
 import com.stellariver.milky.common.base.*;
 import com.stellariver.milky.common.tool.validate.ValidateUtil;
 import com.stellariver.milky.demo.common.enums.ChannelEnum;
-import com.stellariver.milky.financial.base.ExactDivision;
+import com.stellariver.milky.common.base.ExactDivision;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.time.DateFormatUtils;

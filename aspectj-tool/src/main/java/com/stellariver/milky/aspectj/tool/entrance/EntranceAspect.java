@@ -4,6 +4,7 @@ import com.stellariver.milky.aspectj.tool.validate.AnnotationValidateAspect;
 import com.stellariver.milky.aspectj.tool.validate.Validate;
 import com.stellariver.milky.common.base.*;
 import com.stellariver.milky.common.tool.Excavator;
+import com.stellariver.milky.common.tool.common.Clock;
 import com.stellariver.milky.common.tool.log.Logger;
 import com.stellariver.milky.common.tool.stable.MilkyStableSupport;
 import com.stellariver.milky.common.tool.stable.RateLimiterWrapper;
@@ -18,6 +19,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -39,7 +41,7 @@ public abstract class EntranceAspect {
     @Pointcut
     abstract protected void pointCut();
 
-    protected Boolean useMDC() {
+    protected boolean useMDC() {
         return true;
     }
 
@@ -53,39 +55,36 @@ public abstract class EntranceAspect {
 
     @Around("pointCut()")
     public Object resultResponseHandler(ProceedingJoinPoint pjp) {
-
-        String traceId = TraceIdContext.getInstance().buildTraceId();
-        TraceIdContext.getInstance().storeTraceId(traceId);
-
-        // dcl to init Stable Support
-        if (!initialized) {
-            synchronized (lock) {
-                if (!initialized) {
-                    BeanUtil.getBeanOptional(MilkyStableSupport.class).ifPresent(s -> milkyStableSupport = s);
-                }
-                initialized = true;
-            }
-        }
-
-        // if there is milkyStableSupport, enable it
-        if (milkyStableSupport != null) {
-            String key = milkyStableSupport.ruleId(pjp);
-            RateLimiterWrapper rateLimiterWrapper = milkyStableSupport.rateLimiter(key);
-            if (rateLimiterWrapper != null) {
-                rateLimiterWrapper.acquire();
-            }
-        }
-
+        boolean traceIdOwned = TraceIdContext.ensureTraceIdInMdc();
         Object result = null;
         Object[] args = pjp.getArgs();
         Method method = ((MethodSignature) pjp.getSignature()).getMethod();
-        long start = System.nanoTime();
+        long start = Clock.currentTimeMillis();
         List<ErrorEnum> errorEnums = Collections.emptyList();
         Throwable excavated = null, original = null;
+        List<AnnotationInterceptor> matchedInterceptors = interceptors().stream()
+                .filter(i -> i.conditional(pjp))
+                .collect(Collectors.toList());
 
         try {
+            if (!initialized) {
+                synchronized (lock) {
+                    if (!initialized) {
+                        BeanUtil.getBeanOptional(MilkyStableSupport.class).ifPresent(s -> milkyStableSupport = s);
+                        initialized = true;
+                    }
+                }
+            }
 
-            interceptors().stream().filter(i -> i.conditional(pjp)).forEach(i -> i.executeBefore(pjp));
+            if (milkyStableSupport != null) {
+                String key = milkyStableSupport.ruleId(pjp);
+                RateLimiterWrapper rateLimiterWrapper = milkyStableSupport.rateLimiter(key);
+                if (rateLimiterWrapper != null) {
+                    rateLimiterWrapper.acquire();
+                }
+            }
+
+            matchedInterceptors.forEach(i -> i.executeBefore(pjp));
 
             if (method.getAnnotation(Validate.class) == null) {
                 ValidateUtil.validate(pjp.getTarget(), method, args, true, ExceptionType.BIZ);
@@ -93,11 +92,11 @@ public abstract class EntranceAspect {
 
             result = pjp.proceed();
 
-            interceptors().stream().filter(i -> i.conditional(pjp)).forEach(i -> i.executeAfterWrapper(pjp));
+            matchedInterceptors.forEach(i -> i.executeAfterWrapper(pjp));
 
         } catch (Throwable throwable) {
 
-            interceptors().stream().filter(i -> i.conditional(pjp)).forEach(i -> i.afterThrowingWrapper(pjp, throwable));
+            matchedInterceptors.forEach(i -> i.afterThrowingWrapper(pjp, throwable));
 
             original = throwable;
             excavated = Excavator.excavate(throwable);
@@ -110,7 +109,7 @@ public abstract class EntranceAspect {
 
         } finally {
 
-            interceptors().stream().filter(i -> i.conditional(pjp)).forEach(i -> i.executeFinallyWrapper(pjp));
+            matchedInterceptors.forEach(i -> i.executeFinallyWrapper(pjp));
 
             if (excavated != null) {
 
@@ -137,7 +136,7 @@ public abstract class EntranceAspect {
             String message;
             if (useMDC()) {
                 IntStream.range(0, args.length).forEach(i -> logger.with("arg" + i, args[i]));
-                logger.result(result).cost(System.nanoTime() - start).position(position);
+                logger.result(result).cost(Clock.currentTimeMillis() - start).position(position);
                 message = position;
             } else {
                 message = String.format("position: %s, args: %s, result: %s", position, Arrays.toString(args), result);
@@ -155,11 +154,10 @@ public abstract class EntranceAspect {
                 logger.position("excavated").error(original.getMessage(), original);
             }
 
-            TraceIdContext.getInstance().removeTraceId();
+            TraceIdContext.clearEntranceTraceId(traceIdOwned);
         }
 
         return result;
     }
-
 
 }

@@ -19,7 +19,7 @@ public class RpcAspect extends EntranceAspect {
     protected void pointCut() {}
 
     @Override
-    protected Boolean useMDC() {
+    protected boolean useMDC() {
         return false;
     }
 

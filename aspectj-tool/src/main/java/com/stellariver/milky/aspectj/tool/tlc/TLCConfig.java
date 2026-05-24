@@ -7,14 +7,14 @@ import java.util.Set;
 
 public class TLCConfig {
 
-    private Set<Class<? extends BaseQuery<?, ?>>> disableBaseQueries = new HashSet<>();
+    private Set<Class<? extends BaseQuery<?, ?>>> threadLocalBaseQueryTypes = new HashSet<>();
 
-    public Set<Class<? extends BaseQuery<?, ?>>> getDisableBaseQueries() {
-        return disableBaseQueries;
+    public Set<Class<? extends BaseQuery<?, ?>>> getThreadLocalBaseQueryTypes() {
+        return threadLocalBaseQueryTypes;
     }
 
-    public void setDisableBaseQueries(Set<Class<? extends BaseQuery<?, ?>>> disableBaseQueries) {
-        this.disableBaseQueries = disableBaseQueries;
+    public void setThreadLocalBaseQueryTypes(Set<Class<? extends BaseQuery<?, ?>>> threadLocalBaseQueryTypes) {
+        this.threadLocalBaseQueryTypes = threadLocalBaseQueryTypes;
     }
 
     static private final TLCConfig DEFAULT_INSTANCE = new TLCConfig();

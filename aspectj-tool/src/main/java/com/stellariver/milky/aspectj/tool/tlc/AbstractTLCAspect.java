@@ -9,19 +9,22 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
+ * 按方法配置，在调用链内为指定 {@link BaseQuery} 启用线程级缓存并在 finally 中清理。
+ *
  * @author houchuang
  */
 @Aspect
 @SuppressWarnings({"aspect", "MissingAspectjAutoproxyInspection"})
 public abstract class AbstractTLCAspect {
 
-    private final Map<Method, Set<BaseQuery<?, ?>>> enableBqs = new ConcurrentHashMap<>();
+    private final Map<Method, Set<BaseQuery<?, ?>>> threadLocalBaseQueriesByMethod = new ConcurrentHashMap<>();
 
     @Pointcut
     public abstract void pointCut();
@@ -32,24 +35,27 @@ public abstract class AbstractTLCAspect {
         return doProceed(pjp, tlcConfig);
     }
 
-    private Object doProceed(ProceedingJoinPoint pjp, TLCConfig tlcConfig) throws Throwable{
-        MethodSignature signature = (MethodSignature) pjp.getSignature();
-        Method method = signature.getMethod();
-        Object result;
-
-        Set<BaseQuery<?, ?>> enableBaseQueries = enableBqs.computeIfAbsent(method, m -> {
-            Set<Class<? extends BaseQuery<?, ?>>> disableBQCs = tlcConfig.getDisableBaseQueries();
-            return BeanUtil.getBeansOfType(BaseQuery.class).stream()
-                    .filter(aBQ -> disableBQCs.contains(aBQ.getClass()))
-                    .map(bq -> (BaseQuery<?, ?>) bq).collect(Collectors.toSet());
-        });
-        enableBaseQueries.forEach(BaseQuery::enableThreadLocal);
+    private Object doProceed(ProceedingJoinPoint pjp, TLCConfig tlcConfig) throws Throwable {
+        Method method = ((MethodSignature) pjp.getSignature()).getMethod();
+        Set<BaseQuery<?, ?>> threadLocalBaseQueries = threadLocalBaseQueriesByMethod.computeIfAbsent(method,
+                m -> resolveThreadLocalBaseQueries(tlcConfig));
+        threadLocalBaseQueries.forEach(BaseQuery::enableThreadLocal);
         try {
-            result = pjp.proceed();
+            return pjp.proceed();
         } finally {
-            enableBaseQueries.forEach(BaseQuery::clearThreadLocal);
+            threadLocalBaseQueries.forEach(BaseQuery::clearThreadLocal);
         }
-        return result;
+    }
+
+    private static Set<BaseQuery<?, ?>> resolveThreadLocalBaseQueries(TLCConfig tlcConfig) {
+        Set<Class<? extends BaseQuery<?, ?>>> types = tlcConfig.getThreadLocalBaseQueryTypes();
+        if (types.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return BeanUtil.getBeansOfType(BaseQuery.class).stream()
+                .filter(bq -> types.contains(bq.getClass()))
+                .map(bq -> (BaseQuery<?, ?>) bq)
+                .collect(Collectors.toSet());
     }
 
     public TLCConfig tlcConfig(ProceedingJoinPoint pjp) {

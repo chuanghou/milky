@@ -16,10 +16,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.stellariver.milky.frodo</groupId>
-            <artifactId>frodo-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.stellariver.milky</groupId>
             <artifactId>aspectj-tool</artifactId>
             <version>${revision}</version>
@@ -35,10 +31,6 @@
         <dependency>
             <groupId>com.stellariver.milky</groupId>
             <artifactId>domain-support</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.stellariver.milky</groupId>
-            <artifactId>financial-base</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stellariver.milky</groupId>
