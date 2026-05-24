@@ -97,7 +97,7 @@ public class Context{
     public void organizeTrails() {
         Map<Long, List<Trail>> groupTrails =
                 trails.stream().collect(Collectors.groupingBy(t -> t.getMessage().getInvokeTrace().getTriggerId()));
-        this.treeTrails = groupTrails.get(invocationId);
+        this.treeTrails = groupTrails.getOrDefault(invocationId, new ArrayList<>());
         this.treeTrails.forEach(trail -> fill(trail, groupTrails));
     }
 

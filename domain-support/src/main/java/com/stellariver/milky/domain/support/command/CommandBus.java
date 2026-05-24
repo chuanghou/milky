@@ -303,7 +303,7 @@ public class CommandBus implements AutoCloseable{
                     daoWrapper.batchUpdateWrapper(changedDataObjects);
                 }
                 if (Collect.isNotEmpty(deletedDataObjects)) {
-                    daoWrapper.batchDeleteWrapper(changedDataObjects);
+                    daoWrapper.batchDeleteWrapper(deletedDataObjects);
                 }
             });
             eventBus.postFinalRoute(context.getFinalEvents(), context);
@@ -359,9 +359,9 @@ public class CommandBus implements AutoCloseable{
         if (contains) {
             NotExistedMessage annotation = handler.getAggregateClazz().getAnnotation(NotExistedMessage.class);
             if (annotation == null) {
-                return new BizEx(AGGREGATE_NOT_EXISTED);
+                throw new BizEx(AGGREGATE_NOT_EXISTED);
             } else {
-                return new BizEx(AGGREGATE_NOT_EXISTED.message(annotation.value()));
+                throw new BizEx(AGGREGATE_NOT_EXISTED.message(annotation.value()));
             }
         }
 
