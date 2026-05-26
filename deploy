@@ -11,9 +11,9 @@ mvn clean test -am -Dtest=BasicTest -pl demo -DfailIfNoTests=false
 # in linux or macOs the quotation is not necessary, but windows, garbage
 mvn clean install '-DskipTests' '-Dgpg.skip'
 
-# 发布脚本（配置写在 scripts/mvn-deploy.ps1 / mvn-deploy.sh 顶部）：
-#   .\scripts\mvn-deploy.ps1
-#   ./scripts/mvn-deploy.sh
+# 发布脚本（内网仓库地址见本机 ~/.m2/settings.xml）：
+#   .\scripts\mvn-deploy.ps1 internal
+#   ./scripts/mvn-deploy.sh internal
 
 mvn clean deploy '-DskipTests' '-Dgpg.skip'
 

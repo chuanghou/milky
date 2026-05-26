@@ -5,7 +5,7 @@ usage() {
   cat <<'EOF'
 用法: mvn-deploy.sh <internal|central> [--run-tests]
 
-  internal       发布到内网 Nexus
+  internal       发布到内网 Maven 仓库（仓库地址与凭据见本机 ~/.m2/settings.xml）
   central        发布到 Maven Central（须 GPG + Portal User Token）
   --run-tests    默认跳过测试
 
@@ -14,12 +14,6 @@ usage() {
   ./scripts/mvn-deploy.sh central --run-tests
 EOF
 }
-
-# ========== 发布配置（按需修改）==========
-INTERNAL_SERVER_ID="internal"
-INTERNAL_RELEASE_URL="http://repo.example.com/nexus/content/repositories/releases/"
-INTERNAL_SNAPSHOT_URL="http://repo.example.com/nexus/content/repositories/snapshots/"
-# =========================================
 
 DEPLOY_TARGET=""
 SKIP_TESTS=true
@@ -68,22 +62,12 @@ fi
 TARGET_LC="$(echo "$DEPLOY_TARGET" | tr '[:upper:]' '[:lower:]')"
 case "$TARGET_LC" in
   internal)
-    echo "milky deploy -> 内网 Maven 仓库"
-    echo "  serverId=$INTERNAL_SERVER_ID"
-    echo "  release=$INTERNAL_RELEASE_URL"
-    echo "  snapshot=$INTERNAL_SNAPSHOT_URL"
-    ALT_RELEASE="${INTERNAL_SERVER_ID}::default::${INTERNAL_RELEASE_URL}"
-    ALT_SNAPSHOT="${INTERNAL_SERVER_ID}::default::${INTERNAL_SNAPSHOT_URL}"
-    MVN+=(
-      -Dgpg.skip=true
-      -DskipPublishing=true
-      "-DaltDeploymentRepository=${ALT_RELEASE}"
-      "-DaltSnapshotDeploymentRepository=${ALT_SNAPSHOT}"
-    )
+    echo "milky deploy -> 内网 Maven 仓库（使用 settings.xml 中的仓库配置）"
+    MVN+=(-Dgpg.skip=true)
     ;;
   central)
     echo "milky deploy -> Maven Central"
-    MVN+=(-Dgpg.skip=false -DskipPublishing=false)
+    MVN+=(-Dgpg.skip=false -DskipPublishing=false -Dcentral.publishing.phase=deploy)
     ;;
 esac
 

@@ -128,7 +128,10 @@ chmod +x scripts/jtestlib-source.sh
 
 **文件：** `mvn-deploy.ps1`、`mvn-deploy.sh`
 
-在仓库根执行 `mvn clean deploy`（使用系统 PATH 中的 Maven，非 mvnw）。**部署目标通过参数传入**；内网 URL / `serverId` 仍在脚本内配置（须与 Maven settings 一致）。
+在仓库根执行 `mvn clean deploy`（使用系统 PATH 中的 Maven，非 mvnw）。**部署目标通过参数传入**。
+
+- **internal**：走标准 `maven-deploy-plugin`，不启用 `central-publishing-maven-plugin`；内网 Nexus 的 URL、`serverId`、凭据由本机 `~/.m2/settings.xml`（如 `altDeploymentRepository` 或已激活的 profile）提供，脚本内无需填写仓库地址。
+- **central**：开启 GPG 与 `central-publishing-maven-plugin`（须已配置 Portal User Token）。
 
 | 参数 | 含义 |
 |------|------|

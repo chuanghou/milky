@@ -10,7 +10,7 @@ function Show-MvnDeployUsage {
     Write-Host @"
 用法: .\scripts\mvn-deploy.ps1 <internal|central> [-RunTests]
 
-  internal     发布到内网 Nexus
+  internal     发布到内网 Maven 仓库（仓库地址与凭据见本机 ~/.m2/settings.xml）
   central      发布到 Maven Central（须 GPG + Portal User Token）
   -RunTests    默认跳过测试
 
@@ -32,12 +32,6 @@ if (-not (Get-Command mvn -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
-# ========== 发布配置（按需修改）==========
-$InternalServerId = "internal"
-$InternalReleaseUrl = "http://repo.example.com/nexus/content/repositories/releases/"
-$InternalSnapshotUrl = "http://repo.example.com/nexus/content/repositories/snapshots/"
-# =========================================
-
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 Set-Location $Root
@@ -49,25 +43,16 @@ if (-not $RunTests) {
 
 switch ($Target.ToLowerInvariant()) {
     "internal" {
-        Write-Host "milky deploy -> 内网 Maven 仓库" -ForegroundColor Cyan
-        Write-Host "  serverId=$InternalServerId"
-        Write-Host "  release=$InternalReleaseUrl"
-        Write-Host "  snapshot=$InternalSnapshotUrl"
-
-        $altRelease = "${InternalServerId}::default::${InternalReleaseUrl}"
-        $altSnapshot = "${InternalServerId}::default::${InternalSnapshotUrl}"
-        $mvnArgs += @(
-            "-Dgpg.skip=true",
-            "-DskipPublishing=true",
-            "-DaltDeploymentRepository=$altRelease",
-            "-DaltSnapshotDeploymentRepository=$altSnapshot"
-        )
+        Write-Host "milky deploy -> 内网 Maven 仓库（使用 settings.xml 中的仓库配置）" -ForegroundColor Cyan
+        # 不启用 Central 发布插件；部署目标由 settings.xml（如 altDeploymentRepository 或 distributionManagement）决定
+        $mvnArgs += "-Dgpg.skip=true"
     }
     "central" {
         Write-Host "milky deploy -> Maven Central" -ForegroundColor Yellow
         $mvnArgs += @(
             "-Dgpg.skip=false",
-            "-DskipPublishing=false"
+            "-DskipPublishing=false",
+            "-Dcentral.publishing.phase=deploy"
         )
     }
 }
