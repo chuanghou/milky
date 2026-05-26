@@ -13,6 +13,7 @@
 
     <modules>
         <module>common-base</module>
+        <module>common-compiler</module>
         <module>aspectj-tool</module>
         <module>common-tool</module>
         <module>domain-support</module>
@@ -130,6 +131,11 @@
             <dependency>
                 <groupId>com.stellariver.milky</groupId>
                 <artifactId>common-base</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stellariver.milky</groupId>
+                <artifactId>common-compiler</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
@@ -385,6 +391,11 @@
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
                             <version>${spring.boot.version}</version>
+                        </path>
+                        <path>
+                            <groupId>com.stellariver.milky</groupId>
+                            <artifactId>common-compiler</artifactId>
+                            <version>${revision}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
